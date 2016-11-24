@@ -60,6 +60,7 @@
 
 #endif
 #include "utilities.hpp"
+#include "memoryusage.hpp"
 
 #include "americanoption.hpp"
 #include "amortizingbond.hpp"
