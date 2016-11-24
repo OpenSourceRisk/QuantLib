@@ -44,6 +44,15 @@
     #define BOOST_ENABLE_ASSERT_HANDLER
 #endif
 
+// PC AD
+#define USE_CPPAD 1
+
+#ifdef USE_CPPAD
+#include <cppad/cppad.hpp>
+#include <complex>
+#include <boost/type_traits.hpp>
+#endif
+
 /* This allows one to include a given file at this point by
    passing it as a compiler define (e.g., -DQL_INCLUDE_FIRST=foo.hpp).
 
@@ -71,9 +80,12 @@
 #endif
 
 #ifndef QL_REAL
-#   define QL_REAL double
+#ifdef USE_CPPAD
+#   define QL_REAL CppAD::AD<double>
+#else
+#   define QL_REAL double;
 #endif
-
+#endif
 
 /*! \defgroup macros QuantLib macros
 
@@ -194,5 +206,86 @@
 #define QL_DEPRECATED
 #endif
 
+#ifdef USE_CPPAD
+
+namespace CppAD {
+
+template <class T> inline
+const T max(const  T& x, const T& y) {
+    return CondExpGt(x, y, x, y);
+}
+
+template <class T> inline
+const T min(const T& x, const T& y) {
+    return CondExpLt(x, y, x, y);
+}
+
+template <class T> inline bool isinf(const CppAD::AD<T>& x) {
+    return isinf(x);
+}
+
+template <class T> inline bool isfinite(const CppAD::AD<T>& x) {
+    return !isinf(x);
+}
+
+template <class T> inline bool signbit(const CppAD::AD<T>& x) {
+    return x < 0.0;
+}
+
+template <class T> inline CppAD::AD<T> copysign(const CppAD::AD<T>& x, const CppAD::AD<T>& y) {
+    return abs(x) * sign(y);
+}
+
+template <class T> inline CppAD::AD<T> hypot(const CppAD::AD<T>& x, const CppAD::AD<T>& y) {
+    return sqrt(x * x + y * y);
+}
+
+template <class T> inline CppAD::AD<T> fmax(const CppAD::AD<T>& x, const CppAD::AD<T>& y) {
+    return max(x,y);
+}
+
+template <class T> inline CppAD::AD<T> logb(const CppAD::AD<T>& x) {
+    return log(abs(x)) / log(2.0); // FLT_RADIX == 2 ?
+}
+
+template <class T> inline T Value(const T& x) {
+    return x;
+}
+
+template <class T> inline std::complex<T> Value(const std::complex<CppAD::AD<T>>& x) {
+    return std::complex<T>(CppAD::Value(x.real()), CppAD::Value(x.imag()));
+}
+
+// breaks AD variables
+template <class T> inline std::complex<CppAD::AD<T>> operator/(const std::complex<CppAD::AD<T>>& x, const std::complex<CppAD::AD<T>>& y) {
+    std::complex<T> z = CppAD::Value(x) / CppAD::Value(y);
+    return std::complex<CppAD::AD<T>>(z.real(), z.imag());
+}
+
+// breaks AD variables
+template <class T> inline CppAD::AD<T> modf(CppAD::AD<T> x, CppAD::AD<T>* y) {
+    T tmp;
+    T res = std::modf(CppAD::Value(x), &tmp);
+    *y = CppAD::AD<T>(tmp);
+    return res;
+}
+
+} // namespace CppAD
+
+namespace boost {
+    template<> struct is_float<CppAD::AD<double>> {
+        static const bool value = true;
+    };
+}
+
+using CppAD::min; using CppAD::max; using CppAD::isinf; using CppAD::copysign; using CppAD::fmax; using CppAD::operator/;
+
+#define VALUE(x) (CppAD::Value(x))
+
+#elif // not USE_CPPAD
+
+#define VALUE(x) (x)
+
+#endif // USE_CPPAD
 
 #endif

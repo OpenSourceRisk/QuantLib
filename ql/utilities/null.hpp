@@ -70,6 +70,19 @@ namespace QuantLib {
     }
 
     // default implementation for built-in types
+
+    // PC AD
+    template <typename T>
+    class Null<CppAD::AD<T> > {
+      public:
+        Null() {}
+        operator CppAD::AD<T>() const {
+            return CppAD::AD<T>(detail::FloatingPointNull<
+                         boost::is_floating_point<T>::value>::nullValue());
+        }
+        operator T() const { return static_cast<T>(Null<T>()); }
+    };
+
     template <typename T>
     class Null {
       public:
