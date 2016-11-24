@@ -39,7 +39,7 @@ namespace QuantLib {
             // For low values of the T order this number is very close to zero 
             // and it enters the expresions dividing them, which introduces 
             // numerical errors.
-            varianceFactors_.push_back(std::sqrt(
+            varianceFactors_.push_back(sqrt(
                 (vals.tOrders[iFactor]-2.)/vals.tOrders[iFactor]));
         }
 
@@ -50,10 +50,10 @@ namespace QuantLib {
                 "Incompatible number of T functions and number of factors."); 
 
             Real factorsNorm = std::inner_product(factorWeights[iLVar].begin(), 
-                factorWeights[iLVar].end(), factorWeights[iLVar].begin(), 0.);
+                                                  factorWeights[iLVar].end(), factorWeights[iLVar].begin(), Real(0.));
             QL_REQUIRE(factorsNorm < 1., 
                 "Non normal random factor combination.");
-            Real idiosyncFctr = std::sqrt(1.-factorsNorm);
+            Real idiosyncFctr = sqrt(1.-factorsNorm);
 
             // linear comb factors ajusted for the variance renormalization:
             std::vector<Real> normFactorWeights;

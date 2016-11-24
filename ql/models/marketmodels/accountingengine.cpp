@@ -51,7 +51,7 @@ namespace QuantLib {
     }
 
     Real AccountingEngine::singlePathValues(std::vector<Real>& values) {
-        std::fill(numerairesHeld_.begin(), numerairesHeld_.end(), 0.0);
+        std::fill(numerairesHeld_.begin(), numerairesHeld_.end(), Real(0.0));
         Real weight = evolver_->startNewPath();
         product_->reset();
         Real principalInNumerairePortfolio = 1.0;

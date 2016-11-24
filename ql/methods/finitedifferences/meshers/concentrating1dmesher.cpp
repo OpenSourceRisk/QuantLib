@@ -40,7 +40,7 @@
 
 // asinh is missing in WIN32 (and possibly on other compilers)
 #if !defined(QL_HAVE_ASINH)
-#define asinh(x) std::log(x + std::sqrt(x * x + 1))
+#define asinh(x) log(x + sqrt(x * x + 1))
 #endif
 
 namespace QuantLib {
@@ -79,7 +79,7 @@ namespace QuantLib {
                     const Real z0 = -c1 / (c2 - c1);
                     const Real u0 =
                         std::max(
-                            std::min(static_cast<int>(z0 * (size - 1) + 0.5),
+                            std::min(static_cast<int>(VALUE(z0 * (size - 1) + 0.5)),
                                 static_cast<int>(size) - 2),
                             1) /
                         ((Real)(size - 1));
@@ -95,7 +95,7 @@ namespace QuantLib {
             for (Size i = 1; i < size - 1; ++i) {
                 const Real li = requireCPoint ? (*transform)(i*dx) : i*dx;
                 locations_[i] = cPoint
-                    + density*std::sinh(c1*(1.0 - li) + c2*li);
+                    + density*sinh(c1*(1.0 - li) + c2*li);
             }
         }
         else {
@@ -134,7 +134,7 @@ namespace QuantLib {
                 for (Size i=0; i < points_.size(); ++i) {
                     s+=1.0/(betas_[i] + square<Real>()(y - points_[i]));
                 }
-                return a/std::sqrt(s);
+                return a/sqrt(s);
             }
 
             AdaptiveRungeKutta<> rk_;
@@ -209,7 +209,7 @@ namespace QuantLib {
                                     odeSolution, _1, true), points[i]),
                     QL_EPSILON, x[j], 0.5/size);
 
-                w.push_back(std::make_pair(std::min(x[size-2], x[j]), e));
+                w.push_back(std::make_pair(min(x[size-2], x[j]), e));
             }
         }
         w.push_back(std::make_pair(1.0, 1.0));

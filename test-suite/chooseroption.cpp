@@ -45,7 +45,7 @@ using namespace boost::unit_test_framework;
         << "    volatility:       " << io::volatility(v) << "\n\n" \
         << "    expected   " << greekName << ": " << expected << "\n" \
         << "    calculated " << greekName << ": " << calculated << "\n"\
-        << "    error:            " << std::fabs(expected-calculated) \
+        << "    error:            " << abs(expected-calculated) \
         << "\n" \
         << "    tolerance:        " << tolerance);
 
@@ -92,7 +92,7 @@ void ChooserOptionTest::testAnalyticSimpleChooserEngine(){
     Real calculated = option.NPV();
     Real expected = 6.1071;
     Real tolerance = 3e-5;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         REPORT_FAILURE("value", choosingDate,
                        exercise, spot->value(),
                        qRate->value(), rRate->value(), today,
@@ -146,7 +146,7 @@ void ChooserOptionTest::testAnalyticComplexChooserEngine(){
 
     Real calculated = option.NPV();
     Real expected = 6.0508;
-    Real error = std::fabs(calculated-expected);
+    Real error = abs(calculated-expected);
     Real tolerance = 1e-4;
     if (error > tolerance) {
         BOOST_ERROR("Failed to reproduce complex chooser option value"

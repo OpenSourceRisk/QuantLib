@@ -48,7 +48,7 @@ namespace QuantLib {
 
             // Apply Quanto Adjustment.
             // Hull 6th Edition, page 642.
-            Real dQuantoAdj = std::exp(sigma*fxsigma*rho*t1);
+            Real dQuantoAdj = exp(sigma*fxsigma*rho*t1);
             fixing *= dQuantoAdj;
         }
 

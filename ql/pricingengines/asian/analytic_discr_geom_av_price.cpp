@@ -53,7 +53,7 @@ namespace QuantLib {
                        "positive running product required: "
                        << arguments_.runningAccumulator << " not allowed");
             runningLog =
-                std::log(arguments_.runningAccumulator);
+                log(arguments_.runningAccumulator);
             pastFixings = arguments_.pastFixings;
         } else {  // it is being used as control variate
             runningLog = 1.0;
@@ -95,7 +95,7 @@ namespace QuantLib {
         for (i=pastFixings+1; i<numberOfFixings; i++)
             temp += fixingTimes[i-pastFixings-1]*(N-i);
         Real variance = vola*vola /N/N * (timeSum+ 2.0*temp);
-        Real dsigG_dsig = std::sqrt((timeSum + 2.0*temp))/N;
+        Real dsigG_dsig = sqrt((timeSum + 2.0*temp))/N;
         Real sigG = vola * dsigG_dsig;
         Real dmuG_dsig = -(vola * timeSum)/N;
 
@@ -111,13 +111,13 @@ namespace QuantLib {
 
         Size M = (pastFixings == 0 ? 1 : pastFixings);
         Real muG = pastWeight * runningLog/M +
-            futureWeight * std::log(s) + nu*timeSum/N;
-        Real forwardPrice = std::exp(muG + variance / 2.0);
+            futureWeight * log(s) + nu*timeSum/N;
+        Real forwardPrice = exp(muG + variance / 2.0);
 
         DiscountFactor riskFreeDiscount = process_->riskFreeRate()->discount(
                                              arguments_.exercise->lastDate());
 
-        BlackCalculator black(payoff, forwardPrice, std::sqrt(variance),
+        BlackCalculator black(payoff, forwardPrice, sqrt(variance),
                               riskFreeDiscount);
 
         results_.value = black.value();
@@ -130,11 +130,11 @@ namespace QuantLib {
         CumulativeNormalDistribution CND;
         NormalDistribution ND;
         if (sigG > QL_EPSILON) {
-            Real x_1  = (muG-std::log(payoff->strike())+variance)/sigG;
+            Real x_1  = (muG-log(payoff->strike())+variance)/sigG;
             Nx_1 = CND(x_1);
             nx_1 = ND(x_1);
         } else {
-            Nx_1 = (muG > std::log(payoff->strike()) ? 1.0 : 0.0);
+            Nx_1 = (muG > log(payoff->strike()) ? 1.0 : 0.0);
             nx_1 = 0.0;
         }
         results_.vega = forwardPrice * riskFreeDiscount *

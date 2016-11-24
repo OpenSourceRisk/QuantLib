@@ -165,7 +165,7 @@ namespace QuantLib {
         Time tMax = this->times_.back();
         DiscountFactor dMax = this->data_.back();
         Rate instFwdMax = - this->interpolation_.derivative(tMax) / dMax;
-        return dMax * std::exp(- instFwdMax * (t-tMax));
+        return dMax * exp(- instFwdMax * (t-tMax));
     }
 
     template <class T>

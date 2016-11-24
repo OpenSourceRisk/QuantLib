@@ -48,7 +48,7 @@ namespace QuantLib {
 
         const Real s0    = process_->s0()->value();
         const Real v0    = process_->v0();
-        const Real x0    = std::log(s0) + (r-q-0.5*v0*l0_*l0_)*t;
+        const Real x0    = log(s0) + (r-q-0.5*v0*l0_*l0_)*t;
 
           const Real rho   = process_->rho();
         const Real theta = process_->theta();
@@ -64,15 +64,15 @@ namespace QuantLib {
             const Real x = mesher_->location(iter, 0);
             const Real v = (trafoType_ != FdmSquareRootFwdOp::Log)
                 ? mesher_->location(iter, 1)
-                : std::exp(mesher_->location(iter, 1));
+                : exp(mesher_->location(iter, 1));
 
             Real retVal;
             switch (algorithm) {
               case ZeroCorrelation:
               {
-                const Real sd_x = l0_*std::sqrt(v0*t);
+                const Real sd_x = l0_*sqrt(v0*t);
                   const Real p_x = M_1_SQRTPI*M_SQRT1_2/sd_x
-                          * std::exp(-0.5*square<Real>()((x - x0)/sd_x));
+                          * exp(-0.5*square<Real>()((x - x0)/sd_x));
                   const Real p_v = SquareRootProcessRNDCalculator(
                       v0, kappa, theta, sigma).pdf(v, t);
 
@@ -84,11 +84,11 @@ namespace QuantLib {
               break;
               case Gaussian:
               {
-                const Real sd_x = l0_*std::sqrt(v0*t);
-                const Real sd_v = sigma*std::sqrt(v0*t);
+                const Real sd_x = l0_*sqrt(v0*t);
+                const Real sd_v = sigma*sqrt(v0*t);
                 const Real z0 = v0 + kappa*(theta - v0)*t;
-                retVal = 1.0/(M_TWOPI*sd_x*sd_v*std::sqrt(1-rho*rho))
-                    *std::exp(-(  square<Real>()((x-x0)/sd_x)
+                retVal = 1.0/(M_TWOPI*sd_x*sd_v*sqrt(1-rho*rho))
+                    *exp(-(  square<Real>()((x-x0)/sd_x)
                                 + square<Real>()((v-z0)/sd_v)
                                 - 2*rho*(x-x0)*(v-z0)/(sd_x*sd_v))
                               /(2*(1-rho*rho)) );
@@ -105,7 +105,7 @@ namespace QuantLib {
               case FdmSquareRootFwdOp::Plain:
                 break;
               case FdmSquareRootFwdOp::Power:
-                retVal*=std::pow(v, 1.0 - 2*kappa*theta/(sigma*sigma));
+                retVal*=pow(v, 1.0 - 2*kappa*theta/(sigma*sigma));
                 break;
               default:
                 QL_FAIL("unknown transformation type");

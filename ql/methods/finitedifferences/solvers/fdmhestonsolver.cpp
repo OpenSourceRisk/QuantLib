@@ -57,17 +57,17 @@ namespace QuantLib {
 
     Real FdmHestonSolver::valueAt(Real s, Real v) const {
         calculate();
-        return solver_->interpolateAt(std::log(s), v);
+        return solver_->interpolateAt(log(s), v);
     }
 
     Real FdmHestonSolver::deltaAt(Real s, Real v) const {
         calculate();
-        return solver_->derivativeX(std::log(s), v)/s;
+        return solver_->derivativeX(log(s), v)/s;
     }
 
     Real FdmHestonSolver::gammaAt(Real s, Real v) const {
         calculate();
-        const Real x = std::log(s);
+        const Real x = log(s);
         return (solver_->derivativeXX(x, v)-solver_->derivativeX(x, v))/(s*s);
     }
 
@@ -75,13 +75,13 @@ namespace QuantLib {
         calculate();
 
         const Real alpha = process_->rho()*process_->sigma()/s;
-        return deltaAt(s, v) + alpha*solver_->derivativeY(std::log(s), v);
+        return deltaAt(s, v) + alpha*solver_->derivativeY(log(s), v);
     }
 
     Real FdmHestonSolver::meanVarianceGammaAt(Real s, Real v) const {
         calculate();
 
-        const Real x = std::log(s);
+        const Real x = log(s);
         const Real alpha = process_->rho()*process_->sigma()/s;
         return gammaAt(s, v)
                 +  solver_->derivativeYY(x, v)*alpha*alpha
@@ -90,6 +90,6 @@ namespace QuantLib {
 
     Real FdmHestonSolver::thetaAt(Real s, Real v) const {
         calculate();
-        return solver_->thetaAt(std::log(s), v);
+        return solver_->thetaAt(log(s), v);
     }
 }

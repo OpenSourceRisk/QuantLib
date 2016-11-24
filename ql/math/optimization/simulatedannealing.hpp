@@ -101,7 +101,7 @@ namespace QuantLib {
         Real result = 0;
         for (Size i = 0; i < vertices_.size(); ++i) {
             Array temp = vertices_[i] - center;
-            result += std::sqrt(DotProduct(temp, temp));
+            result += sqrt(DotProduct(temp, temp));
         }
         return result / Real(vertices_.size());
     }
@@ -124,7 +124,7 @@ namespace QuantLib {
             yb_ = ytry_;
             pb_ = ptry_;
         }
-        yflu_ = ytry_ - tt_ * std::log(rng_.next().value);
+        yflu_ = ytry_ - tt_ * log(rng_.next().value);
         if (yflu_ < yhi_) {
             values_[ihi_] = ytry_;
             yhi_ = yflu_;
@@ -182,9 +182,9 @@ namespace QuantLib {
                 tt_ = -T_;
                 ilo_ = 0;
                 ihi_ = 1;
-                ynhi_ = values_[0] + tt_ * std::log(rng_.next().value);
+                ynhi_ = values_[0] + tt_ * log(rng_.next().value);
                 ylo_ = ynhi_;
-                yhi_ = values_[1] + tt_ * std::log(rng_.next().value);
+                yhi_ = values_[1] + tt_ * log(rng_.next().value);
                 if (ylo_ > yhi_) {
                     ihi_ = 0;
                     ilo_ = 1;
@@ -193,7 +193,7 @@ namespace QuantLib {
                     ylo_ = ynhi_;
                 }
                 for (i_ = 2; i_ < n_ + 1; i_++) {
-                    yt_ = values_[i_] + tt_ * std::log(rng_.next().value);
+                    yt_ = values_[i_] + tt_ * log(rng_.next().value);
                     if (yt_ <= ylo_) {
                         ilo_ = i_;
                         ylo_ = yt_;
@@ -209,8 +209,8 @@ namespace QuantLib {
                     }
                 }
 
-                // rtol_ = 2.0 * std::fabs(yhi_ - ylo_) /
-                //         (std::fabs(yhi_) + std::fabs(ylo_));
+                // rtol_ = 2.0 * abs(yhi_ - ylo_) /
+                //         (abs(yhi_) + abs(ylo_));
                 // check rtol against some ftol... // NR end criterion in f(x)
 
                 // GSL end criterion in x (cf. above)
@@ -263,7 +263,7 @@ namespace QuantLib {
             case ConstantBudget:
                 if (iteration_ <= K_)
                     T_ = T0_ *
-                         std::pow(1.0 - (Real)iteration_ / (Real)K_, alpha_);
+                         pow(1.0 - (Real)iteration_ / (Real)K_, alpha_);
                 else
                     T_ = 0.0;
                 break;

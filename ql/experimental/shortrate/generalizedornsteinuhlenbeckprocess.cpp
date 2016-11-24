@@ -47,12 +47,12 @@ namespace QuantLib {
 
     Real GeneralizedOrnsteinUhlenbeckProcess::expectation(
                                              Time t, Real x0, Time dt) const {
-        return level_ + (x0 - level_) * std::exp(-speed_(t)*dt);
+        return level_ + (x0 - level_) * exp(-speed_(t)*dt);
     }
 
     Real GeneralizedOrnsteinUhlenbeckProcess::stdDeviation(
                                              Time t, Real x0, Time dt) const {
-        return std::sqrt(variance(t,x0,dt));
+        return sqrt(variance(t,x0,dt));
     }
 
     Real GeneralizedOrnsteinUhlenbeckProcess::variance(
@@ -60,11 +60,11 @@ namespace QuantLib {
         Real speed = speed_(t);
         Volatility vol = volatility_(t);
 
-        if (speed < std::sqrt(QL_EPSILON)) {
+        if (speed < sqrt(QL_EPSILON)) {
             // algebraic limit for small speed
             return vol*vol*dt;
         } else {
-            return 0.5*vol*vol/speed*(1.0 - std::exp(-2.0*speed*dt));
+            return 0.5*vol*vol/speed*(1.0 - exp(-2.0*speed*dt));
         }
     }
 

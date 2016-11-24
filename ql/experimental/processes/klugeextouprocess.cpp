@@ -29,7 +29,7 @@ namespace QuantLib {
         const boost::shared_ptr<ExtOUWithJumpsProcess>& klugeProcess,
         const boost::shared_ptr<ExtendedOrnsteinUhlenbeckProcess>& ouProcess)
     : rho_         (rho),
-      sqrtMRho_    (std::sqrt(1-rho*rho)),
+      sqrtMRho_    (sqrt(1-rho*rho)),
       klugeProcess_(klugeProcess),
       ouProcess_   (ouProcess) {
     }

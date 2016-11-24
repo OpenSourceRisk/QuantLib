@@ -36,26 +36,26 @@ namespace QuantLib {
             std::complex<Real> value() { return std::complex<Real>(0.0,1.0);}
         };
         template <class T> struct Unweighted {
-            T weightSmallX(const T& x) { return 1.0; }
-            T weight1LargeX(const T& x) { return std::exp(x); }
-            T weight2LargeX(const T& x) { return std::exp(-x); }
+            T weightSmallX(const T& x) { return T(1.0); }
+            T weight1LargeX(const T& x) { return exp(x); }
+            T weight2LargeX(const T& x) { return exp(-x); }
         };
         template <class T> struct ExponentiallyWeighted {
-            T weightSmallX(const T& x) { return std::exp(-x); }
-            T weight1LargeX(const T& x) { return 1.0; }
-            T weight2LargeX(const T& x) { return std::exp(-2.0*x); }
+            T weightSmallX(const T& x) { return exp(-x); }
+            T weight1LargeX(const T& x) { return T(1.0); }
+            T weight2LargeX(const T& x) { return exp(T(-2.0)*x); }
         };
 
         template <class T, template <class> class W>
         T modifiedBesselFunction_i_impl(Real nu, const T& x) {
-            if (std::abs(x) < 13.0) {
-                const T alpha = std::pow(0.5*x, nu)
+            if (abs(x) < 13.0) {
+                const T alpha = pow(Real(0.5)*x, VALUE(nu))
                                /GammaFunction().value(1.0+nu);
-                const T Y = 0.25*x*x;
+                const T Y = Real(0.25)*x*x;
                 Size k=1;
                 T sum=alpha, B_k=alpha;
 
-                while (std::abs(B_k*=Y/(k*(k+nu)))>std::abs(sum)*QL_EPSILON) {
+                while (abs(B_k*=Y/(k*(k+nu)))>abs(sum)*QL_EPSILON) {
                     sum += B_k;
                     QL_REQUIRE(++k < 1000, "max iterations exceeded");
                 }
@@ -71,7 +71,7 @@ namespace QuantLib {
                     na_k *= (4.0 * nu * nu -
                              (2.0 * static_cast<Real>(k) - 1.0) *
                                  (2.0 * static_cast<Real>(k) - 1.0));
-                    da_k *= (8.0 * k) * x;
+                    da_k *= Real(8.0 * k) * x;
                     const T a_k = na_k/da_k;
 
                     s2+=a_k;
@@ -79,17 +79,17 @@ namespace QuantLib {
                 }
 
                 const T i = I<T>().value();
-                return 1.0 / std::sqrt(2 * M_PI * x) *
+                return T(1.0) / sqrt(Real(2 * M_PI) * x) *
                     (W<T>().weight1LargeX(x) * s1 +
-                     i * std::exp(i * nu * M_PI) * W<T>().weight2LargeX(x) * s2);
+                     i * exp(i * nu * T(M_PI)) * W<T>().weight2LargeX(x) * s2);
             }
         }
 
         template <class T, template <class> class W>
         T modifiedBesselFunction_k_impl(Real nu, const T& x) {
-            return M_PI_2 * (modifiedBesselFunction_i_impl<T,W>(-nu, x) -
+            return T(M_PI_2) * (modifiedBesselFunction_i_impl<T,W>(-nu, x) -
                              modifiedBesselFunction_i_impl<T,W>(nu, x)) /
-                             std::sin(M_PI * nu);
+                             sin(M_PI * nu);
         }
     }
 

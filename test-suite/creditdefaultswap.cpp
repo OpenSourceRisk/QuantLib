@@ -36,7 +36,7 @@
 #include <iostream>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 void CreditDefaultSwapTest::testCachedValue() {
 
@@ -88,14 +88,14 @@ void CreditDefaultSwapTest::testCachedValue() {
     Rate calculatedFairRate = cds.fairSpread();
     Real tolerance = 1.0e-7;
 
-    if (std::fabs(calculatedNpv - npv) > tolerance)
+    if (abs(calculatedNpv - npv) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce NPV with mid-point engine\n"
             << std::setprecision(10)
             << "    calculated NPV: " << calculatedNpv << "\n"
             << "    expected NPV:   " << npv);
 
-    if (std::fabs(calculatedFairRate - fairRate) > tolerance)
+    if (abs(calculatedFairRate - fairRate) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce fair rate with mid-point engine\n"
             << std::setprecision(10)
@@ -110,7 +110,7 @@ void CreditDefaultSwapTest::testCachedValue() {
     calculatedFairRate = cds.fairSpread();
     tolerance = 1.0e-5;
 
-    if (std::fabs(calculatedNpv - npv) > notional*tolerance*10)
+    if (abs(calculatedNpv - npv) > notional*tolerance*10)
         BOOST_ERROR(
             "Failed to reproduce NPV with integral engine "
             "(step = 1 day)\n"
@@ -118,7 +118,7 @@ void CreditDefaultSwapTest::testCachedValue() {
             << "    calculated NPV: " << calculatedNpv << "\n"
             << "    expected NPV:   " << npv);
 
-    if (std::fabs(calculatedFairRate - fairRate) > tolerance)
+    if (abs(calculatedFairRate - fairRate) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce fair rate with integral engine "
             "(step = 1 day)\n"
@@ -134,7 +134,7 @@ void CreditDefaultSwapTest::testCachedValue() {
     calculatedFairRate = cds.fairSpread();
     tolerance = 1.0e-5;
 
-    if (std::fabs(calculatedNpv - npv) > notional*tolerance*10)
+    if (abs(calculatedNpv - npv) > notional*tolerance*10)
         BOOST_ERROR(
             "Failed to reproduce NPV with integral engine "
             "(step = 1 week)\n"
@@ -142,7 +142,7 @@ void CreditDefaultSwapTest::testCachedValue() {
             << "    calculated NPV: " << calculatedNpv << "\n"
             << "    expected NPV:   " << npv);
 
-    if (std::fabs(calculatedFairRate - fairRate) > tolerance)
+    if (abs(calculatedFairRate - fairRate) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce fair rate with integral engine "
             "(step = 1 week)\n"
@@ -238,7 +238,7 @@ void CreditDefaultSwapTest::testCachedMarketValue() {
         Time t2 = dayCounter.yearFraction(dates[0], dates[i]);
         Probability S1 = 1.0 - defaultProbabilities[i-1];
         Probability S2 = 1.0 - defaultProbabilities[i];
-        hazardRates.push_back(std::log(S1/S2)/(t2-t1));
+        hazardRates.push_back(log(S1/S2)/(t2-t1));
     }
 
     RelinkableHandle<DefaultProbabilityTermStructure> piecewiseFlatHazardRate;
@@ -280,14 +280,14 @@ void CreditDefaultSwapTest::testCachedMarketValue() {
 
     Real tolerance = 1e-9;
 
-    if (std::fabs(npv - calculatedNpv) > tolerance)
+    if (abs(npv - calculatedNpv) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce the npv for the given credit-default swap\n"
             << std::setprecision(10)
             << "    computed NPV:  " << calculatedNpv << "\n"
             << "    Given NPV:     " << npv);
 
-    if (std::fabs(fairRate - calculatedFairRate) > tolerance)
+    if (abs(fairRate - calculatedFairRate) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce the fair rate for the given credit-default swap\n"
             << std::setprecision(10)
@@ -394,7 +394,7 @@ void CreditDefaultSwapTest::testImpliedHazardRate() {
 
         Real NPV2 = cds2.NPV();
         Real tolerance = 1.0;
-        if (std::fabs(NPV-NPV2) > tolerance) {
+        if (abs(NPV-NPV2) > tolerance) {
             BOOST_ERROR("failed to reproduce NPV with implied rate\n"
                         << "    expected:   " << NPV << "\n"
                         << "    calculated: " << NPV2);
@@ -461,7 +461,7 @@ void CreditDefaultSwapTest::testFairSpread() {
     Real fairNPV = fairCds.NPV();
     Real tolerance = 1e-10;
 
-    if (std::fabs(fairNPV) > tolerance)
+    if (abs(fairNPV) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce null NPV with calculated fair spread\n"
             << "    calculated spread: " << io::rate(fairRate) << "\n"
@@ -529,7 +529,7 @@ void CreditDefaultSwapTest::testFairUpfront() {
     Real fairNPV = fairCds.NPV();
     Real tolerance = 1e-10;
 
-    if (std::fabs(fairNPV) > tolerance)
+    if (abs(fairNPV) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce null NPV with calculated fair upfront\n"
             << "    calculated upfront: " << io::rate(fairUpfront) << "\n"
@@ -550,7 +550,7 @@ void CreditDefaultSwapTest::testFairUpfront() {
 
     fairNPV = fairCds2.NPV();
 
-    if (std::fabs(fairNPV) > tolerance)
+    if (abs(fairNPV) > tolerance)
         BOOST_ERROR(
             "Failed to reproduce null NPV with calculated fair upfront\n"
             << "    calculated upfront: " << io::rate(fairUpfront) << "\n"
@@ -558,8 +558,8 @@ void CreditDefaultSwapTest::testFairUpfront() {
 }
 
 
-test_suite* CreditDefaultSwapTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Credit-default swap tests");
+boost::unit_test_framework::test_suite* CreditDefaultSwapTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Credit-default swap tests");
     suite->add(QUANTLIB_TEST_CASE(&CreditDefaultSwapTest::testCachedValue));
     suite->add(QUANTLIB_TEST_CASE(
                               &CreditDefaultSwapTest::testCachedMarketValue));

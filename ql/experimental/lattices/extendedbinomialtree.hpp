@@ -85,7 +85,7 @@ namespace QuantLib {
             Time stepTime = i*this->dt_;
             BigInteger j = 2*BigInteger(index) - BigInteger(i);
             // exploiting the forward value tree centering
-            return this->x0_*std::exp(i*this->driftStep(stepTime) + j*this->upStep(stepTime));
+            return this->x0_*exp(i*this->driftStep(stepTime) + j*this->upStep(stepTime));
         }
 
         Real probability(Size, Size, Size) const { return 0.5; }
@@ -112,7 +112,7 @@ namespace QuantLib {
             Time stepTime = i*this->dt_;
             BigInteger j = 2*BigInteger(index) - BigInteger(i);
             // exploiting equal jump and the x0_ tree centering
-            return this->x0_*std::exp(j*this->dxStep(stepTime));
+            return this->x0_*exp(j*this->dxStep(stepTime));
         }
 
         Real probability(Size i, Size, Size branch) const {

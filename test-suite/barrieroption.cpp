@@ -46,9 +46,9 @@
 #include <boost/make_shared.hpp>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
-using std::sqrt;
+// using sqrt;
 
 #define REPORT_FAILURE(greekName, barrierType, barrier, rebate, payoff, \
                        exercise, s, q, r, today, v, expected, calculated, \
@@ -309,7 +309,7 @@ void BarrierOptionTest::testHaugValues() {
     boost::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
 
         spot ->setValue(values[i].s);
         qRate->setValue(values[i].q);
@@ -352,7 +352,7 @@ void BarrierOptionTest::testHaugValues() {
 
            Real calculated = barrierOption.NPV();
            Real expected = values[i].result;
-           Real error = std::fabs(calculated-expected);
+           Real error = abs(calculated-expected);
            if (error>values[i].tol) {
                REPORT_FAILURE("value", values[i].barrierType, values[i].barrier,
                               values[i].rebate, payoff, exercise, values[i].s,
@@ -365,7 +365,7 @@ void BarrierOptionTest::testHaugValues() {
 
            calculated = barrierOption.NPV();
            expected = values[i].result;
-           error = std::fabs(calculated-expected);
+           error = abs(calculated-expected);
            if (error>5.0e-3) {
                REPORT_FAILURE("fd value", values[i].barrierType, values[i].barrier,
                               values[i].rebate, payoff, exercise, values[i].s,
@@ -379,7 +379,7 @@ void BarrierOptionTest::testHaugValues() {
 
         calculated = barrierOption.NPV();
         expected = values[i].result;
-        error = std::fabs(calculated-expected);
+        error = abs(calculated-expected);
         double tol = 1.1e-2;
         if (error>tol) {
             REPORT_FAILURE("Binomial (Boyle-lau) value", values[i].barrierType, values[i].barrier,
@@ -396,7 +396,7 @@ void BarrierOptionTest::testHaugValues() {
         barrierOption.setPricingEngine(engine);
         calculated = barrierOption.NPV();
         expected = values[i].result;
-        error = std::fabs(calculated-expected);
+        error = abs(calculated-expected);
         tol = 4e-2;
         if (error>tol) {
             REPORT_FAILURE("Binomial (Derman) value", values[i].barrierType, values[i].barrier,
@@ -483,7 +483,7 @@ void BarrierOptionTest::testBabsiriValues() {
         barrierCallOption.setPricingEngine(engine);
         Real calculated = barrierCallOption.NPV();
         Real expected = values[i].callValue;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         Real maxErrorAllowed = 1.0e-5;
         if (error>maxErrorAllowed) {
             REPORT_FAILURE("value", values[i].type, values[i].barrier,
@@ -504,7 +504,7 @@ void BarrierOptionTest::testBabsiriValues() {
 
         barrierCallOption.setPricingEngine(mcEngine);
         calculated = barrierCallOption.NPV();
-        error = std::fabs(calculated-expected)/expected;
+        error = abs(calculated-expected)/expected;
         if (error>maxMcRelativeErrorAllowed) {
             REPORT_FAILURE("value", values[i].type, values[i].barrier,
                            rebate, callPayoff, exercise, underlyingPrice,
@@ -534,7 +534,7 @@ void BarrierOptionTest::testBeagleholeValues() {
 
     Real underlyingPrice = 50.0;
     Real rebate = 0.0;
-    Rate r = std::log(1.1);
+    Rate r = log(1.1);
     Rate q = 0.00;
 
     DayCounter dc = Actual360();
@@ -586,7 +586,7 @@ void BarrierOptionTest::testBeagleholeValues() {
         Real calculated = barrierCallOption.NPV();
         Real expected = values[i].callValue;
         Real maxErrorAllowed = 1.0e-3;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error > maxErrorAllowed) {
             REPORT_FAILURE("value", values[i].type, values[i].barrier,
                            rebate, callPayoff, exercise, underlyingPrice,
@@ -605,7 +605,7 @@ void BarrierOptionTest::testBeagleholeValues() {
 
         barrierCallOption.setPricingEngine(mcEngine);
         calculated = barrierCallOption.NPV();
-        error = std::fabs(calculated-expected)/expected;
+        error = abs(calculated-expected)/expected;
         if (error>maxMcRelativeErrorAllowed) {
             REPORT_FAILURE("value", values[i].type, values[i].barrier,
                            rebate, callPayoff, exercise, underlyingPrice,
@@ -670,7 +670,7 @@ void BarrierOptionTest::testPerturbative() {
     Real calculated = option.NPV();
     Real expected = 0.897365;
     Real tolerance = 1.0e-6;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         BOOST_ERROR("Failed to reproduce expected value"
                     << "\n  calculated: " << std::setprecision(8) << calculated
                     << "\n  expected:   " << std::setprecision(8) << expected);
@@ -685,7 +685,7 @@ void BarrierOptionTest::testPerturbative() {
 
     calculated = option.NPV();
     expected = 0.894374;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         BOOST_ERROR("Failed to reproduce expected value"
                     << "\n  calculated: " << std::setprecision(8) << calculated
                     << "\n  expected:   " << std::setprecision(8) << expected);
@@ -701,7 +701,7 @@ void BarrierOptionTest::testPerturbative() {
 
     calculated = option.NPV();
     expected = 0.8943769;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         BOOST_ERROR("Failed to reproduce expected value"
                     << "\n  calculated: " << std::setprecision(8) << calculated
                     << "\n  expected:   " << std::setprecision(8) << expected);
@@ -827,7 +827,7 @@ void BarrierOptionTest::testLocalVolAndHestonComparison() {
     
     const Real tol = 0.01;
     
-    if (std::fabs(expectedHestonNPV - calculatedHestonNPV) 
+    if (abs(expectedHestonNPV - calculatedHestonNPV) 
                                                 > tol*expectedHestonNPV) {
         BOOST_FAIL("Failed to reproduce Heston barrier price for "
                    << "\n    strike:     " << payoff->strike()
@@ -836,7 +836,7 @@ void BarrierOptionTest::testLocalVolAndHestonComparison() {
                    << "\n    calculated: " << calculatedHestonNPV
                    << "\n    expected:   " << expectedHestonNPV);
     }
-    if (std::fabs(expectedLocalVolNPV - calculatedLocalVolNPV) 
+    if (abs(expectedLocalVolNPV - calculatedLocalVolNPV) 
                                                 > tol*expectedLocalVolNPV) {
         BOOST_FAIL("Failed to reproduce Heston barrier price for "
                    << "\n    strike:     " << payoff->strike()
@@ -1028,7 +1028,7 @@ void BarrierOptionTest::testVannaVolgaSimpleBarrierValues() {
             boost::make_shared<PlainVanillaPayoff>(values[i].type,
                                                    values[i].strike);
 
-        Date exDate = today + Integer(values[i].t*365+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*365+0.5));
         boost::shared_ptr<Exercise> exercise =
             boost::make_shared<EuropeanExercise>(exDate);
 
@@ -1079,7 +1079,7 @@ void BarrierOptionTest::testVannaVolgaSimpleBarrierValues() {
 
         Real calculated = barrierOption.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FX_FAILURE(
                 "value", values[i].barrierType, values[i].barrier,
@@ -1092,8 +1092,8 @@ void BarrierOptionTest::testVannaVolgaSimpleBarrierValues() {
 }
 
 
-test_suite* BarrierOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Barrier option tests");
+boost::unit_test_framework::test_suite* BarrierOptionTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Barrier option tests");
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testHaugValues));
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testBabsiriValues));
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testBeagleholeValues));
@@ -1102,8 +1102,8 @@ test_suite* BarrierOptionTest::suite() {
     return suite;
 }
 
-test_suite* BarrierOptionTest::experimental() {
-    test_suite* suite = BOOST_TEST_SUITE("Barrier option tests");
+boost::unit_test_framework::test_suite* BarrierOptionTest::experimental() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Barrier option tests");
     suite->add(QUANTLIB_TEST_CASE(&BarrierOptionTest::testPerturbative));
     suite->add(QUANTLIB_TEST_CASE(
                       &BarrierOptionTest::testVannaVolgaSimpleBarrierValues));

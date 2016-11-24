@@ -51,11 +51,11 @@ namespace QuantLib {
         {
             fac += diffGradient[i] * lineSearch_->searchDirection()[i];
             fae += diffGradient[i] * diffGradientWithHessianApplied[i];
-            sumdg += std::pow(diffGradient[i], 2.);
-            sumxi += std::pow(lineSearch_->searchDirection()[i], 2.);
+            sumdg += pow(diffGradient[i], 2.);
+            sumxi += pow(lineSearch_->searchDirection()[i], 2.);
         }
 
-        if (fac > std::sqrt(1e-8 * sumdg * sumxi))  // skip update if fac not sufficiently positive
+        if (fac > sqrt(1e-8 * sumdg * sumxi))  // skip update if fac not sufficiently positive
         {
             fac = 1.0 / fac;
             fad = 1.0 / fae;

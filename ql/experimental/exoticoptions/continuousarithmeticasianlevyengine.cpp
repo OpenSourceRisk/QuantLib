@@ -75,9 +75,9 @@ namespace QuantLib {
             zeroRate(maturity, divdc, Continuous, NoFrequency);
         Real b = riskFreeRate - dividendYield;
 
-        Real Se = (std::fabs(b) > 1000*QL_EPSILON) 
+        Real Se = (abs(b) > 1000*QL_EPSILON) 
             ? (spot/(T*b))*(exp((b-riskFreeRate)*T2)-exp(-riskFreeRate*T2))
-            : spot*T2/T * std::exp(-riskFreeRate*T2);
+            : spot*T2/T * exp(-riskFreeRate*T2);
 
         Real X;
         if (T2 < T) {
@@ -88,7 +88,7 @@ namespace QuantLib {
             X = strike;
         }
 
-        Real m = (std::fabs(b) > 1000*QL_EPSILON) ? ((exp(b*T2)-1)/b) : T2;
+        Real m = (abs(b) > 1000*QL_EPSILON) ? ((exp(b*T2)-1)/b) : T2;
 
         Real M = (2*spot*spot/(b+volatility*volatility)) *
             (((exp((2*b+volatility*volatility)*T2)-1)

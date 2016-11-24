@@ -46,9 +46,9 @@ template <typename Evaluation> struct ZabrSpecs {
             // adapt alpha to beta level
             params[0] =
                 0.2 *
-                (params[1] < 0.9999 ? std::pow(forward, 1.0 - params[1]) : 1.0);
+                (params[1] < 0.9999 ? pow(forward, 1.0 - params[1]) : 1.0);
         if (params[2] == Null<Real>())
-            params[2] = std::sqrt(0.4);
+            params[2] = sqrt(0.4);
         if (params[3] == Null<Real>())
             params[3] = 0.0;
         if (params[4] == Null<Real>())
@@ -64,7 +64,7 @@ template <typename Evaluation> struct ZabrSpecs {
             values[0] = (1.0 - 2E-6) * r[j++] + 1E-6; // lognormal vol guess
             // adapt this to beta level
             if (values[1] < 0.999)
-                values[0] *= std::pow(forward, 1.0 - values[1]);
+                values[0] *= pow(forward, 1.0 - values[1]);
         }
         if (!paramIsFixed[2])
             values[2] = 1.5 * r[j++] + 1E-6;
@@ -79,29 +79,29 @@ template <typename Evaluation> struct ZabrSpecs {
     Array inverse(const Array &y, const std::vector<bool> &,
                   const std::vector<Real> &, const Real) {
         Array x(5);
-        x[0] = y[0] < 25.0 + eps1() ? std::sqrt(y[0] - eps1())
+        x[0] = y[0] < 25.0 + eps1() ? sqrt(y[0] - eps1())
                                     : (y[0] - eps1() + 25.0) / 10.0;
-        x[1] = std::sqrt(-std::log(y[1]));
-        x[2] = std::tan(M_PI*(y[4]/5.0-0.5));
+        x[1] = sqrt(-log(y[1]));
+        x[2] = tan(M_PI*(y[4]/5.0-0.5));
         x[3] = std::asin(y[3] / eps2());
-        x[4] = std::tan(M_PI*(y[4]/1.9-0.5));
+        x[4] = tan(M_PI*(y[4]/1.9-0.5));
         return x;
     }
     Array direct(const Array &x, const std::vector<bool> &,
                  const std::vector<Real> &, const Real) {
         Array y(5);
-        y[0] = std::fabs(x[0]) < 5.0 ? x[0] * x[0] + eps1()
-                                     : (10.0 * std::fabs(x[0]) - 25.0) + eps1();
-        y[1] = std::fabs(x[1]) < std::sqrt(-std::log(eps1()))
-                   ? std::exp(-(x[1] * x[1]))
+        y[0] = abs(x[0]) < 5.0 ? x[0] * x[0] + eps1()
+                                     : (10.0 * abs(x[0]) - 25.0) + eps1();
+        y[1] = abs(x[1]) < sqrt(-log(eps1()))
+                   ? exp(-(x[1] * x[1]))
                    : eps1();
         // limit nu to 5.00
-        y[2] = (std::atan(x[2])/M_PI + 0.5) * 5.0;
-        y[3] = std::fabs(x[3]) < 2.5 * M_PI
-                   ? eps2() * std::sin(x[3])
+        y[2] = (atan(x[2])/M_PI + 0.5) * 5.0;
+        y[3] = abs(x[3]) < 2.5 * M_PI
+                   ? eps2() * sin(x[3])
                    : eps2() * (x[3] > 0.0 ? 1.0 : (-1.0));
         // limit gamma to 1.9
-        y[4] = (std::atan(x[4])/M_PI + 0.5) * 1.9;
+        y[4] = (atan(x[4])/M_PI + 0.5) * 1.9;
         return y;
     }
     Real weight(const Real strike, const Real forward, const Real stdDev,

@@ -22,10 +22,10 @@
 #include <ql/exercise.hpp>
 #include <boost/make_shared.hpp>
 
-using std::pow;
-using std::log;
-using std::exp;
-using std::sqrt;
+// using pow;
+// using log;
+// using exp;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -91,14 +91,14 @@ namespace QuantLib {
             vanillaPayoff = boost::make_shared<PlainVanillaPayoff>(
                                           Option::Call, strike(Option::Call));
             //QuantLib requires sigma * sqrt(T) rather than just sigma/volatility
-            vol = volatility(t) * std::sqrt(t);
+            vol = volatility(t) * sqrt(t);
             growth = dividendDiscount(t);
             discount = riskFreeDiscount(t);
         } else{
             Time t=putMaturity()-choosingTime()-choosingTime();
             vanillaPayoff = boost::make_shared<PlainVanillaPayoff>(
                                             Option::Put, strike(Option::Put));
-            vol = volatility(t) * std::sqrt(t);
+            vol = volatility(t) * sqrt(t);
             growth = dividendDiscount(t);
             discount = riskFreeDiscount(t);
         }
@@ -123,7 +123,7 @@ namespace QuantLib {
         Real epsilon = 0.001;
 
         //Newton-Raphson process
-        while (std::fabs(yi) > epsilon){
+        while (abs(yi) > epsilon){
             Sv = Sv - yi / di;
 
             bs=bsCalculator(Sv,Option::Call);

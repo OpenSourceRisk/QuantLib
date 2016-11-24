@@ -81,7 +81,7 @@ namespace QuantLib {
         }
         Real percentile(const Date& d, Real percentile) const {
             Real portfLoss = lossDistrib(d).confidenceLevel(percentile);
-            return std::min(std::max(portfLoss - attachAmount_, 0.), 
+            return min(max(portfLoss - attachAmount_, Real(0.)), 
                 detachAmount_ - attachAmount_);
         }
         Real expectedShortfall(const Date& d, Probability percentile) const {
@@ -115,10 +115,10 @@ namespace QuantLib {
     {
         // need to be capped now since the limit amounts might be over the 
         //  remaining notional (think amortizing)
-        attach_ = std::min(basket_->remainingAttachmentAmount() / 
-            basket_->remainingNotional(), 1.);
-        detach_ = std::min(basket_->remainingDetachmentAmount() / 
-            basket_->remainingNotional(), 1.);
+        attach_ = min(basket_->remainingAttachmentAmount() / 
+                      basket_->remainingNotional(), Real(1.));
+        detach_ = min(basket_->remainingDetachmentAmount() / 
+                      basket_->remainingNotional(), Real(1.));
         notional_ = basket_->remainingNotional();
         notionals_ = basket_->remainingNotionals();
         attachAmount_ = basket_->remainingAttachmentAmount();
@@ -136,7 +136,7 @@ namespace QuantLib {
         std::vector<Real> lgd;// switch to a mutable cache member
         std::vector<Real> recoveries = copula_->recoveries();
         std::transform(recoveries.begin(), recoveries.end(), 
-            std::back_inserter(lgd), std::bind1st(std::minus<Real>(), 1.));
+                       std::back_inserter(lgd), std::bind1st(std::minus<Real>(), Real(1.)));
         std::transform(lgd.begin(), lgd.end(), notionals_.begin(), 
             lgd.begin(), std::multiplies<Real>());
         std::vector<Real> prob = basket_->remainingProbabilities(d);

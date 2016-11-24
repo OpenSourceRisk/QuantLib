@@ -50,11 +50,11 @@ namespace QuantLib {
             if (product < maxValue/price) {
                 product *= price;
             } else {
-                averagePrice *= std::pow(product, 1.0/fixings);
+                averagePrice *= pow(product, 1.0/fixings);
                 product = price;
             }
         }
-        averagePrice *= std::pow(product, 1.0/fixings);
+        averagePrice *= pow(product, 1.0/fixings);
         return discount_ * payoff_(averagePrice);
     }
 

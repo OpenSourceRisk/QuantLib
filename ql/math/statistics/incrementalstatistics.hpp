@@ -60,7 +60,7 @@ namespace QuantLib {
 
     class IncrementalStatistics {
       public:
-        typedef Real value_type;
+        typedef double value_type; // PC AD TODO, allow for Real
         IncrementalStatistics();
         //! \name Inspectors
         //@{
@@ -68,36 +68,36 @@ namespace QuantLib {
         Size samples() const;
 
         //! sum of data weights
-        Real weightSum() const;
+        value_type weightSum() const;
 
         /*! returns the mean, defined as
             \f[ \langle x \rangle = \frac{\sum w_i x_i}{\sum w_i}. \f]
         */
-        Real mean() const;
+        value_type mean() const;
 
         /*! returns the variance, defined as
             \f[ \frac{N}{N-1} \left\langle \left(
                 x-\langle x \rangle \right)^2 \right\rangle. \f]
         */
-        Real variance() const;
+        value_type variance() const;
 
         /*! returns the standard deviation \f$ \sigma \f$, defined as the
             square root of the variance.
         */
-        Real standardDeviation() const;
+        value_type standardDeviation() const;
 
         /*! returns the error estimate \f$ \epsilon \f$, defined as the
             square root of the ratio of the variance to the number of
             samples.
         */
-        Real errorEstimate() const;
+        value_type errorEstimate() const;
 
         /*! returns the skewness, defined as
             \f[ \frac{N^2}{(N-1)(N-2)} \frac{\left\langle \left(
                 x-\langle x \rangle \right)^3 \right\rangle}{\sigma^3}. \f]
             The above evaluates to 0 for a Gaussian distribution.
         */
-        Real skewness() const;
+        value_type skewness() const;
 
         /*! returns the excess kurtosis, defined as
             \f[ \frac{N^2(N+1)}{(N-1)(N-2)(N-3)}
@@ -105,19 +105,19 @@ namespace QuantLib {
                 \right\rangle}{\sigma^4} - \frac{3(N-1)^2}{(N-2)(N-3)}. \f]
             The above evaluates to 0 for a Gaussian distribution.
         */
-        Real kurtosis() const;
+        value_type kurtosis() const;
 
         /*! returns the minimum sample value */
-        Real min() const;
+        value_type min() const;
 
         /*! returns the maximum sample value */
-        Real max() const;
+        value_type max() const;
 
         //! number of negative samples collected
         Size downsideSamples() const;
 
         //! sum of data weights for negative samples
-        Real downsideWeightSum() const;
+        value_type downsideWeightSum() const;
 
         /*! returns the downside variance, defined as
             \f[ \frac{N}{N-1} \times \frac{ \sum_{i=1}^{N}
@@ -125,12 +125,12 @@ namespace QuantLib {
             where \f$ \theta \f$ = 0 if x > 0 and
             \f$ \theta \f$ =1 if x <0
         */
-        Real downsideVariance() const;
+        value_type downsideVariance() const;
 
         /*! returns the downside deviation, defined as the
             square root of the downside variance.
         */
-        Real downsideDeviation() const;
+        value_type downsideDeviation() const;
 
         //@}
 
@@ -138,12 +138,12 @@ namespace QuantLib {
         //@{
         //! adds a datum to the set, possibly with a weight
         /*! \pre weight must be positive or null */
-        void add(Real value, Real weight = 1.0);
+        void add(value_type value, value_type weight = 1.0);
         //! adds a sequence of data to the set, with default weight
         template <class DataIterator>
         void addSequence(DataIterator begin, DataIterator end) {
             for (;begin!=end;++begin)
-                add(*begin);
+                add(VALUE(*begin)); // TODO PC AD
         }
         //! adds a sequence of data to the set, each with its weight
         /*! \pre weights must be positive or null */
@@ -151,14 +151,14 @@ namespace QuantLib {
         void addSequence(DataIterator begin, DataIterator end,
                          WeightIterator wbegin) {
             for (;begin!=end;++begin,++wbegin)
-                add(*begin, *wbegin);
+                add(VALUE(*begin), VALUE(*wbegin)); // TODO PC AD
         }
         //! resets the data to a null set
         void reset();
         //@}
      private:
        typedef boost::accumulators::accumulator_set<
-           Real,
+           value_type,
            boost::accumulators::stats<
                boost::accumulators::tag::count, boost::accumulators::tag::min,
                boost::accumulators::tag::max,
@@ -167,14 +167,14 @@ namespace QuantLib {
                boost::accumulators::tag::weighted_skewness,
                boost::accumulators::tag::weighted_kurtosis,
                boost::accumulators::tag::sum_of_weights>,
-           Real> accumulator_set;
+           value_type> accumulator_set;
         accumulator_set acc_;
         typedef boost::accumulators::accumulator_set<
-            Real, boost::accumulators::stats<
+            value_type, boost::accumulators::stats<
                       boost::accumulators::tag::count,
                       boost::accumulators::tag::weighted_moment<2>,
                       boost::accumulators::tag::sum_of_weights>,
-            Real> downside_accumulator_set;
+            value_type> downside_accumulator_set;
         downside_accumulator_set downsideAcc_;
     };
 

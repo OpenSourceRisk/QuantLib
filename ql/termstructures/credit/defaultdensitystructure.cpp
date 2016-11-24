@@ -91,7 +91,7 @@ namespace QuantLib {
         // hence the remapping (and the Jacobian term t/2)
         Probability P = 1.0 - integral(remap(bind(f,this,_1), t)) * t/2.0;
         //QL_ENSURE(P >= 0.0, "negative survival probability");
-        return std::max<Real>(P, 0.0);
+        return max<Real>(P, 0.0);
     }
 
 }

@@ -121,7 +121,7 @@ namespace QuantLib {
     boost::shared_ptr<SmileSection>
     SabrVolSurface::smileSectionImpl(Time t) const {
 
-        BigInteger n = BigInteger(t*365.0);
+        BigInteger n = BigInteger(VALUE(t)*365.0);
         Date d = referenceDate()+n*Days;
         // interpolating on ref smile sections
         std::vector<Volatility> volSpreads = volatilitySpreads(d);

@@ -97,8 +97,8 @@ namespace QuantLib {
                         args_.capRates[i] :
                         args_.floorRates[i];
                     Real payoff = isCap?
-                        std::max(currentLibor - strike, 0.0) :
-                    std::max(strike - currentLibor, 0.0);
+                        max(currentLibor - strike, Real(0.0)) :
+                        max(strike - currentLibor, Real(0.0));
 
                     npv += payoff * tau * args_.gearings[i] *
                            args_.nominals[i] * accrualFactor;

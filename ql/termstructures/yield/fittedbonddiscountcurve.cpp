@@ -178,7 +178,7 @@ namespace QuantLib {
                 weights_[i] = 1.0/dur;
                 squaredSum += weights_[i]*weights_[i];
             }
-            weights_ /= std::sqrt(squaredSum);
+            weights_ /= sqrt(squaredSum);
         }
 
         QL_REQUIRE(weights_.size() == n,

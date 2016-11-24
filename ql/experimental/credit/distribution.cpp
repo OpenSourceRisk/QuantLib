@@ -275,7 +275,7 @@ namespace QuantLib {
 
         // truncate
         for (Size i = 0; i < x_.size(); i++) {
-            x_[i] = std::min(std::max(x_[i] - attachmentPoint, 0.), 
+            x_[i] = min(max(x_[i] - attachmentPoint, Real(0.)), 
                 detachmentPoint - attachmentPoint);
         }
 

@@ -81,7 +81,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Rate r = *(std::min_element(c->data().begin(), c->data().end()));
+                Rate r = *(min_element(c->data().begin(), c->data().end()));
                 return r<0.0 ? r*2.0 : r/2.0;
             }
             return -detail::maxInflation;
@@ -93,7 +93,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Rate r = *(std::max_element(c->data().begin(), c->data().end()));
+                Rate r = *(max_element(c->data().begin(), c->data().end()));
                 return r<0.0 ? r/2.0 : r*2.0;
             }
             // no constraints.
@@ -157,7 +157,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Rate r = *(std::min_element(c->data().begin(), c->data().end()));
+                Rate r = *(min_element(c->data().begin(), c->data().end()));
                 return r<0.0 ? r*2.0 : r/2.0;
             }
             return -detail::maxInflation;
@@ -169,7 +169,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Rate r = *(std::max_element(c->data().begin(), c->data().end()));
+                Rate r = *(max_element(c->data().begin(), c->data().end()));
                 return r<0.0 ? r/2.0 : r*2.0;
             }
             // no constraints.

@@ -90,7 +90,7 @@ namespace QuantLib {
             QL_REQUIRE(accuracy>0.0,
                        "accuracy (" << accuracy << ") must be positive");
             // check whether we really want to use epsilon
-            accuracy = std::max(accuracy, QL_EPSILON);
+            accuracy = max(accuracy, QL_EPSILON);
 
             const Real growthFactor = 1.6;
             Integer flipflop = -1;
@@ -122,10 +122,10 @@ namespace QuantLib {
                     root_ = (xMax_+xMin_)/2.0;
                     return this->impl().solveImpl(f, accuracy);
                 }
-                if (std::fabs(fxMin_) < std::fabs(fxMax_)) {
+                if (abs(fxMin_) < abs(fxMax_)) {
                     xMin_ = enforceBounds_(xMin_+growthFactor*(xMin_ - xMax_));
                     fxMin_= f(xMin_);
-                } else if (std::fabs(fxMin_) > std::fabs(fxMax_)) {
+                } else if (abs(fxMin_) > abs(fxMax_)) {
                     xMax_ = enforceBounds_(xMax_+growthFactor*(xMax_ - xMin_));
                     fxMax_= f(xMax_);
                 } else if (flipflop == -1) {
@@ -170,7 +170,7 @@ namespace QuantLib {
             QL_REQUIRE(accuracy>0.0,
                        "accuracy (" << accuracy << ") must be positive");
             // check whether we really want to use epsilon
-            accuracy = std::max(accuracy, QL_EPSILON);
+            accuracy = max(accuracy, QL_EPSILON);
 
             xMin_ = xMin;
             xMax_ = xMax;

@@ -140,8 +140,8 @@ namespace {
         Size nTimesGBP = LENGTH(timesGBP);
         for (Size i = 0; i < nTimesEUR; i++) {
             r.push_back(ratesEUR[i]);
-            Size ys = (Size)floor(timesEUR[i]);
-            Size ds = (Size)((timesEUR[i]-(Real)ys)*365);
+            Size ys = (Size)floor(VALUE(timesEUR[i]));
+            Size ds = (Size)(VALUE((timesEUR[i]-(Real)ys)*365));
             Date dd = eval + Period(ys,Years) + Period(ds,Days);
             d.push_back( dd );
         }
@@ -155,8 +155,8 @@ namespace {
         r.clear();
         for (Size i = 0; i < nTimesGBP; i++) {
             r.push_back(ratesGBP[i]);
-            Size ys = (Size)floor(timesGBP[i]);
-            Size ds = (Size)((timesGBP[i]-(Real)ys)*365);
+            Size ys = (Size)floor(VALUE(timesGBP[i]));
+            Size ds = (Size)(VALUE((timesGBP[i]-(Real)ys)*365));
             Date dd = eval + Period(ys,Years) + Period(ds,Days);
             d.push_back( dd );
         }
@@ -351,7 +351,7 @@ void InflationVolTest::testYoYPriceSurfaceToVol() {
     Size n = someSlice.first.size();
     Real eps = 0.0001;
     for(Size i = 0; i < n; i++){
-        QL_REQUIRE( fabs(someSlice.second[i] - volATyear1[i]) < eps,
+        QL_REQUIRE( abs(someSlice.second[i] - volATyear1[i]) < eps,
                    " could not recover 1yr vol: " << someSlice.second[i]
                    << " vs " << volATyear1[i] );
     }
@@ -361,7 +361,7 @@ void InflationVolTest::testYoYPriceSurfaceToVol() {
         someOtherSlice = yoySurf->Dslice(d);
     n = someOtherSlice.first.size();
     for(Size i = 0; i < n; i++){
-        QL_REQUIRE(fabs(someOtherSlice.second[i]-volATyear3[i]) < eps,
+        QL_REQUIRE(abs(someOtherSlice.second[i]-volATyear3[i]) < eps,
                         "could not recover 3yr vol: "
                         << someOtherSlice.second[i]<< " vs " << volATyear3[i] );
     }
@@ -394,18 +394,18 @@ void InflationVolTest::testYoYPriceSurfaceToATM() {
                            0.0280457, 0.0285534, 0.0295884};
     Real eps = 2e-5;
     for(Size i = 0; i < yyATMt.first.size(); i++) {
-        QL_REQUIRE(fabs( yyATMt.second[i] - crv[i] ) < eps,
+        QL_REQUIRE(abs( yyATMt.second[i] - crv[i] ) < eps,
                    "could not recover cached yoy swap curve "
                    << yyATMt.second[i]<< " vs " << crv[i]);
     }
 
     for(Size i = 0; i < yyATMd.first.size(); i++) {
-        QL_REQUIRE(fabs( priceSurfEU->atmYoYSwapRate(yyATMd.first[i])  - swaps[i] ) < eps,
+        QL_REQUIRE(abs( priceSurfEU->atmYoYSwapRate(yyATMd.first[i])  - swaps[i] ) < eps,
                    "could not recover yoy swap curve "
                    << priceSurfEU->atmYoYSwapRate(yyATMd.first[i]) << " vs " << swaps[i]);
     }
     for(Size i = 0; i < yyATMd.first.size(); i++) {
-        QL_REQUIRE(fabs( priceSurfEU->atmYoYRate(yyATMd.first[i])  - ayoy[i] ) < eps,
+        QL_REQUIRE(abs( priceSurfEU->atmYoYRate(yyATMd.first[i])  - ayoy[i] ) < eps,
                    " could not recover cached yoy curve "
                    << priceSurfEU->atmYoYRate(yyATMd.first[i]) << " vs " << ayoy[i]
                    <<" at "<<yyATMd.first[i]);

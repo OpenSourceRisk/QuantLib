@@ -166,8 +166,8 @@ namespace QuantLib {
     Volatility KInterpolatedYoYOptionletVolatilitySurface<Interpolator1D>::
     volatilityImpl(Time length,  Rate strike) const {
 
-        Natural years = (Natural)floor(length);
-        Natural days = (Natural)floor((length - years) * 365.0);
+        Natural years = (Natural)floor(VALUE(length));
+        Natural days = (Natural)floor(VALUE(length - years) * 365.0);
         Date d = referenceDate() + Period(years, Years) + Period(days, Days);
 
         return this->volatilityImpl(d, strike);

@@ -39,7 +39,7 @@ namespace QuantLib {
             Real value = discountBondPrice_;
             Real x = xMin_;
             for (Size j=0; j<size_; j++) {
-                Real discount = std::exp(-std::exp(theta+x)*dt_);
+                Real discount = exp(-exp(theta+x)*dt_);
                 value -= statePrices_[j]*discount;
                 x += dx_;
             }

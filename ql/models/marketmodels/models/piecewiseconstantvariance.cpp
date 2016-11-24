@@ -45,7 +45,7 @@ namespace QuantLib {
     }
 
     Volatility PiecewiseConstantVariance::totalVolatility(Size i) const {
-        return std::sqrt(totalVariance(i)/rateTimes()[i]);
+        return sqrt(totalVariance(i)/rateTimes()[i]);
     }
 
 }

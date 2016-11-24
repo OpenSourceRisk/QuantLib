@@ -79,7 +79,7 @@ namespace QuantLib {
         Time lastFloatingPayment =
             dayCounter.yearFraction(referenceDate,
                                     arguments_.floatingPayDates.back());
-        lastPayment_ = std::max(lastFixedPayment,lastFloatingPayment);
+        lastPayment_ = max(lastFixedPayment,lastFloatingPayment);
 
         underlying_ = boost::shared_ptr<DiscretizedAsset>(
                                             new DiscretizedSwap(arguments_,

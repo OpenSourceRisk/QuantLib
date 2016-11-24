@@ -44,10 +44,10 @@
 
 using namespace boost::lambda;
 
-using std::exp;
-using std::pow;
-using std::log;
-using std::sqrt;
+// using exp;
+// using pow;
+// using log;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -141,7 +141,7 @@ namespace QuantLib {
                                                 const Real forward) const {
         Real x = log(strike/forward);
         Real vol = coeffs[0]+x*(coeffs[1]+(x*coeffs[2]));
-        return std::max(1e-8,vol);
+        return max(Real(1e-8),vol);
     }
 
     Real LPP2HestonExpansion::z0(Real t, Real kappa, Real theta,
@@ -236,7 +236,7 @@ namespace QuantLib {
                                                  const Real forward) const {
         Real x = log(strike/forward);
         Real var = coeffs[0]+x*(coeffs[1]+(x*(coeffs[2]+x*(coeffs[3]+(x*coeffs[4])))));
-        var = std::max(1e-8,var);
+        var = max(Real(1e-8),var);
         return sqrt(var);
     }
 
@@ -753,6 +753,6 @@ namespace QuantLib {
                                                 const Real forward) const {
         Real x = log(strike/forward);
         Real vol = coeffs[0]+x*(coeffs[1]+x*(coeffs[2]+x*(coeffs[3])));
-        return std::max(1e-8,vol);
+        return max(Real(1e-8),vol);
     }
 }

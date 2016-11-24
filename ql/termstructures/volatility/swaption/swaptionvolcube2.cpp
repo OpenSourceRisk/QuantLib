@@ -71,7 +71,7 @@ namespace QuantLib {
         calculate();
         Date optionDate = optionDateFromTime(optionTime);
         Rounding rounder(0);
-        Period swapTenor(static_cast<Integer>(rounder(swapLength*12.0)), Months);
+        Period swapTenor(static_cast<Size>(VALUE(rounder(swapLength*12.0))), Months);
         // ensure that option date is valid fixing date
         optionDate =
             swapTenor > shortSwapIndexBase_->tenor()
@@ -90,7 +90,7 @@ namespace QuantLib {
                                                 swapTenor,
                                                 atmForward);
         Time optionTime = timeFromReference(optionDate);
-        Real exerciseTimeSqrt = std::sqrt(optionTime);
+        Real exerciseTimeSqrt = sqrt(optionTime);
         std::vector<Real> strikes, stdDevs;
         strikes.reserve(nStrikes_);
         stdDevs.reserve(nStrikes_);

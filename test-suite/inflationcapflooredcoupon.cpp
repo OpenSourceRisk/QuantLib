@@ -439,7 +439,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg.NPV();
     npvCappedLeg = capLeg.NPV();
     npvCap = cap.NPV();
-    error = std::abs(npvCappedLeg - (npvVanilla-npvCap));
+    error = abs(npvCappedLeg - (npvVanilla-npvCap));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Capped Leg: gearing=1, spread=0%, strike=" << capstrike*100 <<
                     "%\n" <<
@@ -465,7 +465,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     floor.setPricingEngine(vars.makeEngine(vars.volatility,whichPricer));
     npvFlooredLeg = floorLeg.NPV();
     npvFloor = floor.NPV();
-    error = std::abs(npvFlooredLeg-(npvVanilla + npvFloor));
+    error = abs(npvFlooredLeg-(npvVanilla + npvFloor));
     if (error>tolerance) {
         BOOST_ERROR("YoY Floored Leg: gearing=1, spread=0%, strike=" << floorstrike *100 <<
                     "%\n" <<
@@ -491,7 +491,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     collar.setPricingEngine(vars.makeEngine(vars.volatility,whichPricer));
     npvCollaredLeg = collarLeg.NPV();
     npvCollar = collar.NPV();
-    error = std::abs(npvCollaredLeg -(npvVanilla - npvCollar));
+    error = abs(npvCollaredLeg -(npvVanilla - npvCollar));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Collared Leg: gearing=1, spread=0%, strike=" <<
                     floorstrike*100 << "% and " << capstrike*100 << "%\n" <<
@@ -524,7 +524,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_p.NPV();
     npvCappedLeg = capLeg_p.NPV();
     npvCap = cap_p.NPV();
-    error = std::abs(npvCappedLeg - (npvVanilla-npvCap));
+    error = abs(npvCappedLeg - (npvVanilla-npvCap));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Capped Leg: gearing=" << gearing_p << ", " <<
                     "spread= " << spread_p *100 <<
@@ -549,7 +549,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_n.NPV();
     npvCappedLeg = capLeg_n.NPV();
     npvFloor = floor_n.NPV();
-    error = std::abs(npvCappedLeg - (npvVanilla+ gearing_n*npvFloor));
+    error = abs(npvCappedLeg - (npvVanilla+ gearing_n*npvFloor));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Capped Leg: gearing=" << gearing_n << ", " <<
                     "spread= " << spread_n *100 <<
@@ -587,7 +587,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_p.NPV();
     npvFlooredLeg = floorLeg_p1.NPV();
     npvFloor = floor_p1.NPV();
-    error = std::abs(npvFlooredLeg - (npvVanilla+npvFloor));
+    error = abs(npvFlooredLeg - (npvVanilla+npvFloor));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Floored Leg: gearing=" << gearing_p << ", "
                     << "spread= " << spread_p *100<< "%, strike=" << floorstrike *100 << "%, "
@@ -610,7 +610,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_n.NPV();
     npvFlooredLeg = floorLeg_n.NPV();
     npvCap = cap_n.NPV();
-    error = std::abs(npvFlooredLeg - (npvVanilla - gearing_n*npvCap));
+    error = abs(npvFlooredLeg - (npvVanilla - gearing_n*npvCap));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Capped Leg: gearing=" << gearing_n << ", " <<
                     "spread= " << spread_n *100 <<
@@ -642,7 +642,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_p.NPV();
     npvCollaredLeg = collarLeg_p1.NPV();
     npvCollar = collar_p.NPV();
-    error = std::abs(npvCollaredLeg - (npvVanilla - npvCollar));
+    error = abs(npvCollaredLeg - (npvVanilla - npvCollar));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Collared Leg: gearing=" << gearing_p << ", "
                     << "spread= " << spread_p*100 << "%, strike="
@@ -670,7 +670,7 @@ void InflationCapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_n.NPV();
     npvCollaredLeg = collarLeg_n1.NPV();
     npvCollar = collar_n.NPV();
-    error = std::abs(npvCollaredLeg - (npvVanilla - gearing_n*npvCollar));
+    error = abs(npvCollaredLeg - (npvVanilla - gearing_n*npvCollar));
     if (error>tolerance) {
         BOOST_ERROR("\nYoY Collared Leg: gearing=" << gearing_n << ", "
                     << "spread= " << spread_n*100 << "%, strike="
@@ -764,7 +764,7 @@ void InflationCapFlooredCouponTest::testInstrumentEquality() {
 
                     // N.B. nominals are 10e6
                     Real capped = CashFlows::npv(leg2,(**vars.nominalTS),false);
-                    if ( fabs(capped - (swap.NPV() - cap->NPV())) > 1.0e-6) {
+                    if ( abs(capped - (swap.NPV() - cap->NPV())) > 1.0e-6) {
                         BOOST_FAIL(
                                    "capped coupon != swap(0) - cap:\n"
                                    << "    length:      " << lengths[i] << " years\n"
@@ -778,7 +778,7 @@ void InflationCapFlooredCouponTest::testInstrumentEquality() {
 
                     // N.B. nominals are 10e6
                     Real floored = CashFlows::npv(leg3,(**vars.nominalTS),false);
-                    if ( fabs(floored - (swap.NPV() + floor->NPV())) > 1.0e-6) {
+                    if ( abs(floored - (swap.NPV() + floor->NPV())) > 1.0e-6) {
                         BOOST_FAIL(
                                    "floored coupon != swap(0) + floor :\n"
                                    << "    length:      " << lengths[i] << " years\n"

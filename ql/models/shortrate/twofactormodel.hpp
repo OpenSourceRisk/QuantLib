@@ -122,7 +122,7 @@ namespace QuantLib {
             Real y = tree2_->underlying(i, index2);
 
             Rate r = dynamics_->shortRate(timeGrid()[i], x, y);
-            return std::exp(-r*timeGrid().dt(i));
+            return exp(-r*timeGrid().dt(i));
         }
       private:
         boost::shared_ptr<ShortRateDynamics> dynamics_;

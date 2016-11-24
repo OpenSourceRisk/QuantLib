@@ -65,10 +65,10 @@ void MarkovFunctionalTest::testMfStateProcess() {
     MfStateProcess sp1(0.00, times1, vols1);
     Real var11 = sp1.variance(0.0, 0.0, 1.0);
     Real var12 = sp1.variance(0.0, 0.0, 2.0);
-    if (std::fabs(var11 - 1.0) > tolerance)
+    if (abs(var11 - 1.0) > tolerance)
         BOOST_ERROR("process 1 has not variance 1.0 for dt = 1.0 but "
                     << var11);
-    if (std::fabs(var12 - 2.0) > tolerance)
+    if (abs(var12 - 2.0) > tolerance)
         BOOST_ERROR("process 1 has not variance 1.0 for dt = 1.0 but "
                     << var12);
 
@@ -86,25 +86,25 @@ void MarkovFunctionalTest::testMfStateProcess() {
     Real dif25 = sp2.diffusion(2.0, 0.0);
     Real dif26 = sp2.diffusion(3.0, 0.0);
     Real dif27 = sp2.diffusion(5.0, 0.0);
-    if (std::fabs(dif21 - 1.0) > tolerance)
+    if (abs(dif21 - 1.0) > tolerance)
         BOOST_ERROR("process 2 has wrong drift at 0.0, should be 1.0 but is "
                     << dif21);
-    if (std::fabs(dif22 - 1.0) > tolerance)
+    if (abs(dif22 - 1.0) > tolerance)
         BOOST_ERROR("process 2 has wrong drift at 0.99, should be 1.0 but is "
                     << dif22);
-    if (std::fabs(dif23 - 2.0) > tolerance)
+    if (abs(dif23 - 2.0) > tolerance)
         BOOST_ERROR("process 2 has wrong drift at 1.0, should be 2.0 but is "
                     << dif23);
-    if (std::fabs(dif24 - 2.0) > tolerance)
+    if (abs(dif24 - 2.0) > tolerance)
         BOOST_ERROR("process 2 has wrong drift at 1.9, should be 2.0 but is "
                     << dif24);
-    if (std::fabs(dif25 - 3.0) > tolerance)
+    if (abs(dif25 - 3.0) > tolerance)
         BOOST_ERROR("process 2 has wrong drift at 2.0, should be 3.0 but is "
                     << dif25);
-    if (std::fabs(dif26 - 3.0) > tolerance)
+    if (abs(dif26 - 3.0) > tolerance)
         BOOST_ERROR("process 2 has wrong drift at 3.0, should be 3.0 but is "
                     << dif26);
-    if (std::fabs(dif27 - 3.0) > tolerance)
+    if (abs(dif27 - 3.0) > tolerance)
         BOOST_ERROR("process 2 has wrong drift at 5.0, should be 3.0 but is "
                     << dif27);
     Real var21 = sp2.variance(0.0, 0.0, 0.0);
@@ -114,27 +114,27 @@ void MarkovFunctionalTest::testMfStateProcess() {
     Real var25 = sp2.variance(0.0, 0.0, 3.0);
     Real var26 = sp2.variance(0.0, 0.0, 5.0);
     Real var27 = sp2.variance(1.2, 0.0, 1.0);
-    if (std::fabs(var21 - 0.0) > tolerance)
+    if (abs(var21 - 0.0) > tolerance)
         BOOST_ERROR("process 2 has wrong variance at 0.0, should be 0.0 but is "
                     << var21);
-    if (std::fabs(var22 - 0.5) > tolerance)
+    if (abs(var22 - 0.5) > tolerance)
         BOOST_ERROR("process 2 has wrong variance at 0.5, should be 0.5 but is "
                     << var22);
-    if (std::fabs(var23 - 1.0) > tolerance)
+    if (abs(var23 - 1.0) > tolerance)
         BOOST_ERROR("process 2 has wrong variance at 1.0, should be 1.0 but is "
                     << var23);
-    if (std::fabs(var24 - 3.0) > tolerance)
+    if (abs(var24 - 3.0) > tolerance)
         BOOST_ERROR("process 2 has wrong variance at 1.5, should be 3.0 but is "
                     << var24);
-    if (std::fabs(var25 - 14.0) > tolerance)
+    if (abs(var25 - 14.0) > tolerance)
         BOOST_ERROR(
             "process 2 has wrong variance at 3.0, should be 14.0 but is "
             << var25);
-    if (std::fabs(var26 - 32.0) > tolerance)
+    if (abs(var26 - 32.0) > tolerance)
         BOOST_ERROR(
             "process 2 has wrong variance at 5.0, should be 32.0 but is "
             << var26);
-    if (std::fabs(var27 - 5.0) > tolerance)
+    if (abs(var27 - 5.0) > tolerance)
         BOOST_ERROR("process 2 has wrong variance between 1.2 and 2.2, should "
                     "be 5.0 but is "
                     << var27);
@@ -147,27 +147,27 @@ void MarkovFunctionalTest::testMfStateProcess() {
     Real var35 = sp3.variance(0.0, 0.0, 3.0);
     Real var36 = sp3.variance(0.0, 0.0, 5.0);
     Real var37 = sp3.variance(1.2, 0.0, 1.0);
-    if (std::fabs(var31 - 0.0) > tolerance)
+    if (abs(var31 - 0.0) > tolerance)
         BOOST_ERROR("process 3 has wrong variance at 0.0, should be 0.0 but is "
                     << std::setprecision(12) << var31);
-    if (std::fabs(var32 - 0.502508354208) > tolerance)
+    if (abs(var32 - 0.502508354208) > tolerance)
         BOOST_ERROR("process 3 has wrong variance at 0.5, should be 0.5 but it "
                     << std::setprecision(12) << var32);
-    if (std::fabs(var33 - 1.01006700134) > tolerance)
+    if (abs(var33 - 1.01006700134) > tolerance)
         BOOST_ERROR("process 3 has wrong variance at 1.0, should be 1.0 but it "
                     << std::setprecision(12) << var33);
-    if (std::fabs(var34 - 3.06070578669) > tolerance)
+    if (abs(var34 - 3.06070578669) > tolerance)
         BOOST_ERROR("process 3 has wrong variance at 1.5, should be 3.0 but it "
                     << std::setprecision(12) << var34);
-    if (std::fabs(var35 - 14.5935513933) > tolerance)
+    if (abs(var35 - 14.5935513933) > tolerance)
         BOOST_ERROR(
             "process 3 has wrong variance at 3.0, should be 14.0 but it "
             << std::setprecision(12) << var35);
-    if (std::fabs(var36 - 34.0940185819) > tolerance)
+    if (abs(var36 - 34.0940185819) > tolerance)
         BOOST_ERROR(
             "process 3 has wrong variance at 5.0, should be 32.0 but it "
             << std::setprecision(12) << var36);
-    if (std::fabs(var37 - 5.18130257358) > tolerance)
+    if (abs(var37 - 5.18130257358) > tolerance)
         BOOST_ERROR("process 3 has wrong variance between 1.2 and 2.2, should "
                     "be 5.0 but it "
                     << std::setprecision(12) << var37);
@@ -683,7 +683,7 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     for (Size i = 0; i < strikes.size(); i++) {
         money.push_back(strikes[i] / atm);
         calls0.push_back(blackFormula(Option::Call, strikes[i], atm,
-                                      0.50 * std::sqrt(t), 1.0, 0.0));
+                                      0.50 * sqrt(t), 1.0, 0.0));
     }
 
     std::vector<Real> stdDevs0 = impliedStdDevs(atm, strikes, calls0);
@@ -695,11 +695,11 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     boost::shared_ptr<KahaleSmileSection> ksec11(
         new KahaleSmileSection(sec1, atm, false, false, false, money));
 
-    if (std::fabs(ksec11->leftCoreStrike() - 0.01) > tol)
+    if (abs(ksec11->leftCoreStrike() - 0.01) > tol)
         BOOST_ERROR("smile11 left af strike is " << ksec11->leftCoreStrike()
                                                  << " expected 0.01");
 
-    if (std::fabs(ksec11->rightCoreStrike() - 0.10) > tol)
+    if (abs(ksec11->rightCoreStrike() - 0.10) > tol)
         BOOST_ERROR("smile11 right af strike is " << ksec11->rightCoreStrike()
                                                   << " expected 0.10");
 
@@ -707,7 +707,7 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     while (k <= strikes.back() + tol) {
         Real pric0 = sec1->optionPrice(k);
         Real pric1 = ksec11->optionPrice(k);
-        if (std::fabs(pric0 - pric1) > tol)
+        if (abs(pric0 - pric1) > tol)
             BOOST_ERROR("smile11 is not reprocduced at strike "
                         << k << " input smile call price is  " << pric0
                         << " kahale smile call price is " << pric1);
@@ -723,19 +723,19 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     // good depending
     // on platform and compiler due to numerical differences, so we have to
     // admit two possible results
-    if (std::fabs(ksec12->leftCoreStrike() - 0.02) > tol &&
-        std::fabs(ksec12->leftCoreStrike() - 0.01) > tol)
+    if (abs(ksec12->leftCoreStrike() - 0.02) > tol &&
+        abs(ksec12->leftCoreStrike() - 0.01) > tol)
         BOOST_ERROR("smile12 left af strike is " << ksec12->leftCoreStrike()
                                                  << "expected 0.01 or 0.02");
 
-    if (std::fabs(ksec12->rightCoreStrike() - 0.10) > tol)
+    if (abs(ksec12->rightCoreStrike() - 0.10) > tol)
         BOOST_ERROR("smile12 right af strike is " << ksec12->rightCoreStrike()
                                                   << "expected 0.10");
 
     for (Size i = 1; i < strikes.size(); i++) {
         Real pric0 = sec1->optionPrice(strikes[i]);
         Real pric1 = ksec12->optionPrice(strikes[i]);
-        if (std::fabs(pric0 - pric1) > tol)
+        if (abs(pric0 - pric1) > tol)
             BOOST_ERROR("smile12 is not reproduced on grid at strike "
                         << strikes[i] << " input smile call price is " << pric0
                         << " kahale smile call price is " << pric1);
@@ -788,17 +788,17 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     boost::shared_ptr<KahaleSmileSection> ksec22(
         new KahaleSmileSection(sec2, atm, true, false, true, money));
 
-    if (std::fabs(ksec21->leftCoreStrike() - 0.02) > tol)
+    if (abs(ksec21->leftCoreStrike() - 0.02) > tol)
         BOOST_ERROR("smile21 left af strike is " << ksec21->leftCoreStrike()
                                                  << " expected 0.02");
-    if (std::fabs(ksec22->leftCoreStrike() - 0.02) > tol)
+    if (abs(ksec22->leftCoreStrike() - 0.02) > tol)
         BOOST_ERROR("smile22 left af strike is " << ksec22->leftCoreStrike()
                                                  << " expected 0.02");
 
-    if (std::fabs(ksec21->rightCoreStrike() - 0.10) > tol)
+    if (abs(ksec21->rightCoreStrike() - 0.10) > tol)
         BOOST_ERROR("smile21 right af strike is " << ksec21->rightCoreStrike()
                                                   << " expected 0.10");
-    if (std::fabs(ksec22->rightCoreStrike() - 0.10) > tol)
+    if (abs(ksec22->rightCoreStrike() - 0.10) > tol)
         BOOST_ERROR("smile22 right af strike is " << ksec22->rightCoreStrike()
                                                   << " expected 0.10");
 
@@ -832,7 +832,7 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     boost::shared_ptr<KahaleSmileSection> ksec32(
         new KahaleSmileSection(sec3, atm, true, false, true, money));
 
-    if (std::fabs(ksec31->leftCoreStrike() - 0.01) > tol)
+    if (abs(ksec31->leftCoreStrike() - 0.01) > tol)
         BOOST_ERROR("smile31 left af strike is " << ksec31->leftCoreStrike()
                                                  << " expected 0.01");
 
@@ -840,15 +840,15 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     // good depending
     // on platform and compiler due to numerical differences, so we have to
     // admit two possible results
-    if (std::fabs(ksec32->leftCoreStrike() - 0.02) > tol &&
-        std::fabs(ksec32->leftCoreStrike() - 0.01) > tol)
+    if (abs(ksec32->leftCoreStrike() - 0.02) > tol &&
+        abs(ksec32->leftCoreStrike() - 0.01) > tol)
         BOOST_ERROR("smile32 left af strike is " << ksec32->leftCoreStrike()
                                                  << " expected 0.01 or 0.02");
 
-    if (std::fabs(ksec31->rightCoreStrike() - 0.08) > tol)
+    if (abs(ksec31->rightCoreStrike() - 0.08) > tol)
         BOOST_ERROR("smile31 right af strike is " << ksec31->rightCoreStrike()
                                                   << " expected 0.08");
-    if (std::fabs(ksec32->rightCoreStrike() - 0.10) > tol)
+    if (abs(ksec32->rightCoreStrike() - 0.10) > tol)
         BOOST_ERROR("smile32 right af strike is " << ksec32->rightCoreStrike()
                                                   << " expected 0.10");
     k = 0.0010;
@@ -938,7 +938,7 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
     // BOOST_TEST_MESSAGE(outputs1);
 
     for (Size i = 0; i < outputs1.expiries_.size(); i++) {
-        if (fabs(outputs1.marketZerorate_[i] - outputs1.modelZerorate_[i]) >
+        if (abs(outputs1.marketZerorate_[i] - outputs1.modelZerorate_[i]) >
             tol0)
             BOOST_ERROR("Basket 1 / flat termstructures : Market zero rate ("
                         << outputs1.marketZerorate_[i]
@@ -948,14 +948,14 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
 
     for (Size i = 0; i < outputs1.expiries_.size(); i++) {
         for (Size j = 0; j < outputs1.smileStrikes_[i].size(); j++) {
-            if (fabs(outputs1.marketCallPremium_[i][j] -
+            if (abs(outputs1.marketCallPremium_[i][j] -
                      outputs1.modelCallPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 1 / flat termstructures : Market call premium ("
                     << outputs1.marketCallPremium_[i][j]
                     << ") does not match model premium ("
                     << outputs1.modelCallPremium_[i][j] << ")");
-            if (fabs(outputs1.marketPutPremium_[i][j] -
+            if (abs(outputs1.marketPutPremium_[i][j] -
                      outputs1.modelPutPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 1 / flat termstructures : Market put premium ("
@@ -985,7 +985,7 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
     // BOOST_TEST_MESSAGE(outputs2);
 
     for (Size i = 0; i < outputs2.expiries_.size(); i++) {
-        if (fabs(outputs2.marketZerorate_[i] - outputs2.modelZerorate_[i]) >
+        if (abs(outputs2.marketZerorate_[i] - outputs2.modelZerorate_[i]) >
             tol0)
             BOOST_ERROR("Basket 2 / flat termstructures : Market zero rate ("
                         << outputs2.marketZerorate_[i]
@@ -995,14 +995,14 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
 
     for (Size i = 0; i < outputs2.expiries_.size(); i++) {
         for (Size j = 0; j < outputs2.smileStrikes_[i].size(); j++) {
-            if (fabs(outputs2.marketCallPremium_[i][j] -
+            if (abs(outputs2.marketCallPremium_[i][j] -
                      outputs2.modelCallPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 2 / flat termstructures : Market call premium ("
                     << outputs2.marketCallPremium_[i][j]
                     << ") does not match model premium ("
                     << outputs2.modelCallPremium_[i][j] << ")");
-            if (fabs(outputs2.marketPutPremium_[i][j] -
+            if (abs(outputs2.marketPutPremium_[i][j] -
                      outputs2.modelPutPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 2/ flat termstructures : Market put premium ("
@@ -1032,7 +1032,7 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
     // outputSurfaces(mf3,md0Yts_);
 
     for (Size i = 0; i < outputs3.expiries_.size(); i++) {
-        if (fabs(outputs3.marketZerorate_[i] - outputs3.modelZerorate_[i]) >
+        if (abs(outputs3.marketZerorate_[i] - outputs3.modelZerorate_[i]) >
             tol0)
             BOOST_ERROR("Basket 1 / real termstructures: Market zero rate ("
                         << outputs3.marketZerorate_[i]
@@ -1042,14 +1042,14 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
 
     for (Size i = 0; i < outputs3.expiries_.size(); i++) {
         for (Size j = 0; j < outputs3.smileStrikes_[i].size(); j++) {
-            if (fabs(outputs3.marketCallPremium_[i][j] -
+            if (abs(outputs3.marketCallPremium_[i][j] -
                      outputs3.modelCallPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 1 / real termstructures: Market call premium ("
                     << outputs3.marketCallPremium_[i][j]
                     << ") does not match model premium ("
                     << outputs3.modelCallPremium_[i][j] << ")");
-            if (fabs(outputs3.marketPutPremium_[i][j] -
+            if (abs(outputs3.marketPutPremium_[i][j] -
                      outputs3.modelPutPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 1 /  real termstructures: Market put premium ("
@@ -1078,7 +1078,7 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
     // BOOST_TEST_MESSAGE(outputs4);
 
     for (Size i = 0; i < outputs4.expiries_.size(); i++) {
-        if (fabs(outputs4.marketZerorate_[i] - outputs4.modelZerorate_[i]) >
+        if (abs(outputs4.marketZerorate_[i] - outputs4.modelZerorate_[i]) >
             tol0)
             BOOST_ERROR("Basket 2 / real termstructures : Market zero rate ("
                         << outputs4.marketZerorate_[i]
@@ -1088,14 +1088,14 @@ void MarkovFunctionalTest::testCalibrationOneInstrumentSet() {
 
     for (Size i = 0; i < outputs4.expiries_.size(); i++) {
         for (Size j = 0; j < outputs4.smileStrikes_[i].size(); j++) {
-            if (fabs(outputs4.marketCallPremium_[i][j] -
+            if (abs(outputs4.marketCallPremium_[i][j] -
                      outputs4.modelCallPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 2 / real termstructures : Market call premium ("
                     << outputs4.marketCallPremium_[i][j]
                     << ") does not match model premium ("
                     << outputs4.modelCallPremium_[i][j] << ")");
-            if (fabs(outputs4.marketPutPremium_[i][j] -
+            if (abs(outputs4.marketPutPremium_[i][j] -
                      outputs4.modelPutPremium_[i][j]) > tol1)
                 BOOST_ERROR(
                     "Basket 2/ real termstructures : Market put premium ("
@@ -1201,12 +1201,12 @@ void MarkovFunctionalTest::testVanillaEngines() {
             swaptionP.setPricingEngine(mfSwaptionEngine1);
             Real mfPriceCall = swaptionC.NPV();
             Real mfPricePut = swaptionP.NPV();
-            if (fabs(blackPriceCall - mfPriceCall) > tol1)
+            if (abs(blackPriceCall - mfPriceCall) > tol1)
                 BOOST_ERROR(
                     "Basket 1 / flat termstructures: Call premium market ("
                     << blackPriceCall << ") does not match model premium ("
                     << mfPriceCall << ")");
-            if (fabs(blackPricePut - mfPricePut) > tol1)
+            if (abs(blackPricePut - mfPricePut) > tol1)
                 BOOST_ERROR(
                     "Basket 1 / flat termstructures: Put premium market ("
                     << blackPricePut << ") does not match model premium ("
@@ -1259,7 +1259,7 @@ void MarkovFunctionalTest::testVanillaEngines() {
         Real blackPrice = c2[i].NPV();
         c2[i].setPricingEngine(mfCapFloorEngine2);
         Real mfPrice = c2[i].NPV();
-        if (fabs(blackPrice - mfPrice) > tol1)
+        if (abs(blackPrice - mfPrice) > tol1)
             BOOST_ERROR(
                 "Basket 2 / flat termstructures: Cap/Floor premium market ("
                 << blackPrice << ") does not match model premium (" << mfPrice
@@ -1325,12 +1325,12 @@ void MarkovFunctionalTest::testVanillaEngines() {
                                                         // the smile is adjusted
             Real smileCorrectionPut = (outputs3.marketPutPremium_[i][j] -
                                        outputs3.marketRawPutPremium_[i][j]);
-            if (fabs(blackPriceCall - mfPriceCall + smileCorrectionCall) > tol1)
+            if (abs(blackPriceCall - mfPriceCall + smileCorrectionCall) > tol1)
                 BOOST_ERROR(
                     "Basket 1 / real termstructures: Call premium market ("
                     << blackPriceCall << ") does not match model premium ("
                     << mfPriceCall << ")");
-            if (fabs(blackPricePut - mfPricePut + smileCorrectionPut) > tol1)
+            if (abs(blackPricePut - mfPricePut + smileCorrectionPut) > tol1)
                 BOOST_ERROR(
                     "Basket 1 / real termstructures: Put premium market ("
                     << blackPricePut << ") does not match model premium ("
@@ -1396,7 +1396,7 @@ void MarkovFunctionalTest::testVanillaEngines() {
         std::vector<Real> mfOptionlets =
             c4[i].result<std::vector<Real> >("optionletsPrice");
         Real mfPrice = c4[i].NPV();
-        if (fabs(blackPrice - mfPrice) > tol1)
+        if (abs(blackPrice - mfPrice) > tol1)
             BOOST_ERROR(
                 "Basket 2 / real termstructures: Cap/Floor premium market ("
                 << blackPrice << ") does not match model premium (" << mfPrice
@@ -1544,7 +1544,7 @@ void MarkovFunctionalTest::testCalibrationTwoInstrumentSets() {
         Real blackVega = ch1[i].result<Real>("vega");
         ch1[i].setPricingEngine(mfSwaptionEngine1);
         Real mfPrice = ch1[i].NPV();
-        if (fabs(blackPrice - mfPrice) / blackVega > tol1)
+        if (abs(blackPrice - mfPrice) / blackVega > tol1)
             BOOST_TEST_MESSAGE("Basket 1 / flat yts, vts: Secondary instrument set "
                           "calibration failed for instrument #"
                           << i << " black premium is " << blackPrice
@@ -1653,7 +1653,7 @@ void MarkovFunctionalTest::testCalibrationTwoInstrumentSets() {
         Real blackVega = ch2[i].result<Real>("vega");
         ch2[i].setPricingEngine(mfSwaptionEngine2);
         Real mfPrice = ch2[i].NPV();
-        if (fabs(blackPrice - mfPrice) / blackVega > tol1)
+        if (abs(blackPrice - mfPrice) / blackVega > tol1)
             BOOST_TEST_MESSAGE("Basket 1 / real yts, vts: Secondary instrument set "
                           "calibration failed for instrument #"
                           << i << " black premium is " << blackPrice
@@ -1737,14 +1737,14 @@ void MarkovFunctionalTest::testBermudanSwaption() {
 
     for (Size i = 0; i < expiries.size(); i++) {
         Real npv = europeanSwaptions[i].NPV();
-        if (fabs(npv - cachedValues[i]) > tol0)
+        if (abs(npv - cachedValues[i]) > tol0)
             BOOST_ERROR("European swaption value ("
                         << npv << ") deviates from cached value ("
                         << cachedValues[i] << ")");
     }
 
     Real npv = bermudanSwaption.NPV();
-    if (fabs(npv - cachedValue) > tol0)
+    if (abs(npv - cachedValue) > tol0)
         BOOST_ERROR("Bermudan swaption value ("
                     << npv << ") deviates from cached value (" << cachedValue
                     << ")");

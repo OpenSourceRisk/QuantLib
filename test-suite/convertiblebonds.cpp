@@ -170,7 +170,7 @@ void ConvertibleBondTest::testBond() {
 
     Real tolerance = 1.0e-2 * (vars.faceAmount/100.0);
 
-    Real error = std::fabs(euZero.NPV()-zero.settlementValue());
+    Real error = abs(euZero.NPV()-zero.settlementValue());
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce zero-coupon bond price:"
                     << "\n    calculated: " << euZero.NPV()
@@ -178,7 +178,7 @@ void ConvertibleBondTest::testBond() {
                     << "\n    error:      " << error);
     }
 
-    error = std::fabs(amZero.NPV()-zero.settlementValue());
+    error = abs(amZero.NPV()-zero.settlementValue());
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce zero-coupon bond price:"
                     << "\n    calculated: " << amZero.NPV()
@@ -220,7 +220,7 @@ void ConvertibleBondTest::testBond() {
 
     tolerance = 2.0e-2 * (vars.faceAmount/100.0);
 
-    error = std::fabs(euFixed.NPV()-fixed.settlementValue());
+    error = abs(euFixed.NPV()-fixed.settlementValue());
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce fixed-coupon bond price:"
                     << "\n    calculated: " << euFixed.NPV()
@@ -228,7 +228,7 @@ void ConvertibleBondTest::testBond() {
                     << "\n    error:      " << error);
     }
 
-    error = std::fabs(amFixed.NPV()-fixed.settlementValue());
+    error = abs(amFixed.NPV()-fixed.settlementValue());
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce fixed-coupon bond price:"
                     << "\n    calculated: " << amFixed.NPV()
@@ -283,7 +283,7 @@ void ConvertibleBondTest::testBond() {
 
     tolerance = 2.0e-2 * (vars.faceAmount/100.0);
 
-    error = std::fabs(euFloating.NPV()-floating.settlementValue());
+    error = abs(euFloating.NPV()-floating.settlementValue());
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce floating-rate bond price:"
                     << "\n    calculated: " << euFloating.NPV()
@@ -291,7 +291,7 @@ void ConvertibleBondTest::testBond() {
                     << "\n    error:      " << error);
     }
 
-    error = std::fabs(amFloating.NPV()-floating.settlementValue());
+    error = abs(amFloating.NPV()-floating.settlementValue());
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce floating-rate bond price:"
                     << "\n    calculated: " << amFloating.NPV()
@@ -351,7 +351,7 @@ void ConvertibleBondTest::testOption() {
     Real expected = vars.faceAmount/100.0 *
         (vars.redemption * vars.riskFreeRate->discount(vars.maturityDate)
          + vars.conversionRatio* euOption.NPV());
-    Real error = std::fabs(euZero.NPV()-expected);
+    Real error = abs(euZero.NPV()-expected);
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce plain-option price:"
                     << "\n    calculated: " << euZero.NPV()

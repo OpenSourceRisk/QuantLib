@@ -42,9 +42,9 @@ namespace QuantLib {
             Real sinProduct = 1.0;
             Size bound = std::min(i,rank-1);
             for (Size j=0; j<bound; ++j) {
-                m[i][j] = std::cos(angles[k]);
+                m[i][j] = cos(angles[k]);
                 m[i][j] *= sinProduct;
-                sinProduct *= std::sin(angles[k]);
+                sinProduct *= sin(angles[k]);
                 ++k;
             }
             m[i][bound] = sinProduct;
@@ -61,8 +61,8 @@ namespace QuantLib {
         for (Size i=0; i<m.rows(); ++i) {
             Real cosPhi, sinPhi;
             if (i>0) {
-                cosPhi = std::cos(angles[i-1]);
-                sinPhi = std::sin(angles[i-1]);
+                cosPhi = cos(angles[i-1]);
+                sinPhi = sin(angles[i-1]);
             } else {
                 cosPhi = 1.0;
                 sinPhi = 0.0;
@@ -86,7 +86,7 @@ namespace QuantLib {
         Array angles(x.size());
         //we convert the unconstrained parameters in angles
         for (Size i = 0; i < x.size(); ++i)
-            angles[i] = M_PI*.5 - std::atan(x[i]);
+            angles[i] = M_PI*.5 - atan(x[i]);
         return triangularAnglesParametrization(angles, matrixSize, rank);
     }
 
@@ -97,7 +97,7 @@ namespace QuantLib {
         Array angles(x.size());
         //we convert the unconstrained parameters in angles
         for (Size i = 0; i < x.size(); ++i)
-            angles[i] = M_PI*.5 - std::atan(x[i]);
+            angles[i] = M_PI*.5 - atan(x[i]);
         return lmmTriangularAnglesParametrization(angles, matrixSize, rank);
     }
 
@@ -106,11 +106,11 @@ namespace QuantLib {
                                             Real epsilon, Size matrixSize) {
         Matrix m(matrixSize, 3);
         for (Size i=0; i<m.rows(); ++i) {
-            Real t = t0 * (1 - std::exp(epsilon*Real(i)));
-            Real phi = std::atan(alpha * t);
-            m[i][0] = std::cos(t)*std::cos(phi);
-            m[i][1] = std::sin(t)*std::cos(phi);
-            m[i][2] = -std::sin(phi);
+            Real t = t0 * (1 - exp(epsilon*Real(i)));
+            Real phi = atan(alpha * t);
+            m[i][0] = cos(t)*cos(phi);
+            m[i][1] = sin(t)*cos(phi);
+            m[i][2] = -sin(phi);
         }
         return m;
     }

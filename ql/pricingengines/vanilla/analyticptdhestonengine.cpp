@@ -57,16 +57,16 @@ namespace QuantLib {
       term_(term),
 
       v0_(model->v0()),
-      x_ (std::log(model->s0())),
-      sx_(std::log(strike)),
+      x_ (log(model->s0())),
+      sx_(log(strike)),
       r_(model->timeGrid().size()-1),
       q_(model->timeGrid().size()-1),
       model_(model),
       timeGrid_(model->timeGrid()){
         
         for (Size i=0; i <timeGrid_.size()-1; ++i) {
-            const Time begin = std::min(term_, timeGrid_[i]);
-            const Time end   = std::min(term_, timeGrid_[i+1]);
+            const Time begin = min(term_, timeGrid_[i]);
+            const Time end   = min(term_, timeGrid_[i+1]);
             r_[i] = model->riskFreeRate()
                     ->forwardRate(begin, end, Continuous, NoFrequency).rate();
             q_[i] = model->dividendYield()
@@ -80,15 +80,15 @@ namespace QuantLib {
 
         // avoid numeric overflow for phi->0. 
         // todo: use l'Hospital's rule use to get lim_{phi->0}
-        phi = std::max(Real(std::numeric_limits<float>::epsilon()), phi);
+        phi = max(Real(std::numeric_limits<float>::epsilon()), phi);
         
-        std::complex<Real> D = 0.0;
-        std::complex<Real> C = 0.0;
+        std::complex<Real> D( 0.0,0.0);
+        std::complex<Real> C(0.0,0.0);
 
         for (Size i=timeGrid_.size()-1; i > 0; --i) {
             const Time begin = timeGrid_[i-1];
             if (begin < term_) {
-                const Time end = std::min(term_, timeGrid_[i]);
+                const Time end = min(term_, timeGrid_[i]);
                 const Time tau = end-begin;
                 const Time t   = 0.5*(end+begin);
                 
@@ -102,23 +102,23 @@ namespace QuantLib {
                 const Real rpsig = rho*sigma*phi;
 
                 const std::complex<Real> t1 = t0+std::complex<Real>(0, -rpsig);
-                const std::complex<Real> d  = std::sqrt(t1*t1 - sigma2*phi
+                const std::complex<Real> d  = sqrt(t1*t1 - sigma2*phi
                                  *std::complex<Real>(-phi, (j_== 1)? 1 : -1));
                 const std::complex<Real> g = (t1-d)/(t1+d);
                 const std::complex<Real> gt 
                                        = (t1-d - D*sigma2)/(t1+d - D*sigma2);
                 
-                D = (t1+d)/sigma2*(g-gt*std::exp(-d*tau))
-                    /(1.0-gt*std::exp(-d*tau));
+                D = (t1+d)/sigma2*(g-gt*exp(-d*tau))
+                    /(Real(1.0)-gt*exp(-d*tau));
                 
                 const std::complex<Real> lng 
-                    = std::log((1.0 - gt*std::exp(-d*tau))/(1.0 - gt));
+                    = log((Real(1.0) - gt*exp(-d*tau))/(Real(1.0) - gt));
                 
-                C =(kappa*theta)/sigma2*((t1-d)*tau-2.0*lng)
+                C =(kappa*theta)/sigma2*((t1-d)*tau-Real(2.0)*lng)
                     + std::complex<Real>(0.0, phi*(r_[i-1]-q_[i-1])*tau) + C;
             }
         }
-        return std::exp(v0_*D+C+std::complex<Real>(0.0, phi*(x_ - sx_))).imag()
+        return exp(v0_*D+C+std::complex<Real>(0.0, phi*(x_ - sx_))).imag()
                 /phi; 
     }
 
@@ -181,8 +181,8 @@ namespace QuantLib {
         }
         kappaAvg/=n; thetaAvg/=n; sigmaAvg/=n; rhoAvg/=n;
         
-        const Real c_inf = std::min(10.0, std::max(0.0001,
-                std::sqrt(1.0-square<Real>()(rhoAvg))/sigmaAvg))
+        const Real c_inf = min(Real(10.0), max(Real(0.0001),
+                sqrt(1.0-square<Real>()(rhoAvg))/sigmaAvg))
                 *(v0 + kappaAvg*thetaAvg*term);
 
         const Real p1 = integration_->calculate(c_inf,

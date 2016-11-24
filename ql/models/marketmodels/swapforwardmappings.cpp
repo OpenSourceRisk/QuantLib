@@ -221,7 +221,7 @@ namespace QuantLib {
           }
 
           Real expiry = evolution.rateTimes()[startIndex];
-          return std::sqrt(variance/expiry);
+          return sqrt(variance/expiry);
 
       }
 

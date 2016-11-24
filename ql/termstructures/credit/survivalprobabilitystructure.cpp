@@ -45,7 +45,7 @@ namespace QuantLib {
 
     Real SurvivalProbabilityStructure::defaultDensityImpl(Time t) const {
         Time dt = 0.0001;
-        Time t1 = std::max(t-dt, 0.0);
+        Time t1 = max(t-dt, Real(0.0));
         Time t2 = t+dt;
 
         Probability p1 = survivalProbabilityImpl(t1);

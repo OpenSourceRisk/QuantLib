@@ -49,7 +49,7 @@ void GsrProcessCore::flushCache() const {
     for (int i = 0; i < (int)reversions_.size(); i++)
         // small reversions cause numerical problems, so we keep them
         // away from zero
-        if (std::fabs(reversions_[i]) < 1E-4)
+        if (abs(reversions_[i]) < 1E-4)
             revZero_[i] = true;
         else
             revZero_[i] = false;
@@ -322,12 +322,12 @@ int GsrProcessCore::upperIndex(const Time t) const {
 }
 
 Real GsrProcessCore::cappedTime(const Size index, const Real cap) const {
-    return cap != Null<Real>() ? std::min(cap, time2(index)) : time2(index);
+    return cap != Null<Real>() ? min(cap, time2(index)) : time2(index);
 }
 
 Real GsrProcessCore::flooredTime(const Size index,
                                  const Real floor) const {
-    return floor != Null<Real>() ? std::max(floor, time2(index)) : time2(index);
+    return floor != Null<Real>() ? max(floor, time2(index)) : time2(index);
 }
 
 Real GsrProcessCore::time2(const Size index) const {

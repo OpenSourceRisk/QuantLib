@@ -25,9 +25,9 @@ namespace QuantLib {
     static Real rescaleError(Real err,
                              const Real resultAbs,
                              const Real resultAsc) {
-        err = std::fabs(err) ;
+        err = abs(err) ;
         if (resultAsc != 0 && err != 0){
-            Real scale = std::pow((200 * err / resultAsc), 1.5) ;
+            Real scale = pow((200 * err / resultAsc), 1.5) ;
             if (scale < 1)
                 err = resultAsc * scale ;
             else
@@ -249,7 +249,7 @@ namespace QuantLib {
 
         res10 = 0;
         res21 = w21b[5] * fCenter;
-        resAbs = w21b[5] * std::fabs(fCenter);
+        resAbs = w21b[5] * abs(fCenter);
 
         for (k = 0; k < 5; k++) {
             Real abscissa = halfLength * x1[k];
@@ -258,7 +258,7 @@ namespace QuantLib {
             Real fval = fval1 + fval2;
             res10 += w10[k] * fval;
             res21 += w21a[k] * fval;
-            resAbs += w21a[k] * (std::fabs(fval1) + std::fabs(fval2));
+            resAbs += w21a[k] * (abs(fval1) + abs(fval2));
             savfun[k] = fval;
             fv1[k] = fval1;
             fv2[k] = fval2;
@@ -270,7 +270,7 @@ namespace QuantLib {
             Real fval2 = f(center - abscissa);
             Real fval = fval1 + fval2;
             res21 += w21b[k] * fval;
-            resAbs += w21b[k] * (std::fabs(fval1) + std::fabs(fval2));
+            resAbs += w21b[k] * (abs(fval1) + abs(fval2));
             savfun[k + 5] = fval;
             fv3[k] = fval1;
             fv4[k] = fval2;
@@ -279,19 +279,19 @@ namespace QuantLib {
         result = res21 * halfLength;
         resAbs *= halfLength ;
         Real mean = 0.5 * res21;
-        resasc = w21b[5] * std::fabs(fCenter - mean);
+        resasc = w21b[5] * abs(fCenter - mean);
 
         for (k = 0; k < 5; k++)
-            resasc += (w21a[k] * (std::fabs(fv1[k] - mean)
-                        + std::fabs(fv2[k] - mean))
-                        + w21b[k] * (std::fabs(fv3[k] - mean)
-                        + std::fabs(fv4[k] - mean)));
+            resasc += (w21a[k] * (abs(fv1[k] - mean)
+                        + abs(fv2[k] - mean))
+                        + w21b[k] * (abs(fv3[k] - mean)
+                        + abs(fv4[k] - mean)));
 
         err = rescaleError ((res21 - res10) * halfLength, resAbs, resasc) ;
         resasc *= halfLength ;
 
         // test for convergence.
-        if (err < absoluteAccuracy() || err < relativeAccuracy() * std::fabs(result)){
+        if (err < absoluteAccuracy() || err < relativeAccuracy() * abs(result)){
             setAbsoluteError(err);
             setNumberOfEvaluations(21);
             return result;
@@ -317,7 +317,7 @@ namespace QuantLib {
         result = res43 * halfLength;
         err = rescaleError ((res43 - res21) * halfLength, resAbs, resasc);
 
-       if (err < absoluteAccuracy() || err < relativeAccuracy() * std::fabs(result)){
+       if (err < absoluteAccuracy() || err < relativeAccuracy() * abs(result)){
             setAbsoluteError(err);
             setNumberOfEvaluations(43);
             return result;
@@ -421,7 +421,7 @@ namespace QuantLib {
             // error is <= k15 - g7
             // if error is larger than tolerance then split the interval
             // in two and integrate recursively
-            if (std::fabs(k15 - g7) < tolerance) {
+            if (abs(k15 - g7) < tolerance) {
                 return k15;
             } else {
                 QL_REQUIRE(numberOfEvaluations()+30 <=

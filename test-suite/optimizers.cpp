@@ -38,8 +38,8 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-using std::pow;
-using std::cos;
+// using pow;
+// using cos;
 
 namespace {
 
@@ -64,7 +64,7 @@ namespace {
             QL_REQUIRE(x.size()==1,"independent variable must be 1 dimensional");
             Real y = 0;
             for (Size i=0; i<=polynomialDegree_; ++i)
-                y += coefficients_[i]*std::pow(x[0],static_cast<int>(i));
+                y += coefficients_[i]*pow(x[0],static_cast<int>(i));
             return y;
         }
 
@@ -215,7 +215,7 @@ namespace {
         Array diff = a-b;
         Real maxDiff = 0.0;
         for (Size i=0; i<diff.size(); ++i)
-            maxDiff = std::max(maxDiff, std::fabs(diff[i]));
+            maxDiff = std::max(maxDiff, abs(diff[i]));
         return maxDiff;
     }
 
@@ -405,7 +405,7 @@ namespace {
         Real value(const Array& x) const {
             Real fx = 0.0;
             for (Size i=0; i<x.size(); ++i) {
-                fx += std::floor(x[i])*std::floor(x[i]);
+                fx += std::floor(VALUE(x[i]))*std::floor(VALUE(x[i]));
             }
             return fx;
         }
@@ -536,7 +536,7 @@ void OptimizersTest::testDifferentialEvolution() {
 
         if (i != 3) {
             // stable
-            if (std::fabs(problem.functionValue() - minima[i]) > 1e-8) {
+            if (abs(problem.functionValue() - minima[i]) > 1e-8) {
                 BOOST_ERROR("costFunction # " << i
                             << "\ncalculated: " << problem.functionValue()
                             << "\nexpected:   " << minima[i]);

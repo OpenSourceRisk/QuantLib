@@ -97,12 +97,12 @@ namespace QuantLib {
 
     inline Real OrnsteinUhlenbeckProcess::expectation(Time, Real x0,
                                                Time dt) const {
-        return level_ + (x0 - level_) * std::exp(-speed_*dt);
+        return level_ + (x0 - level_) * exp(-speed_*dt);
     }
 
     inline Real OrnsteinUhlenbeckProcess::stdDeviation(Time t, Real x0,
                                                 Time dt) const {
-        return std::sqrt(variance(t,x0,dt));
+        return sqrt(variance(t,x0,dt));
     }
 
 }

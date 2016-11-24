@@ -87,12 +87,12 @@ namespace QuantLib {
                 Date fixingDate = arguments_.fixingDates[i];
                 Time sqrtTime = 0.0;
                 if (fixingDate > today)
-                    sqrtTime = std::sqrt(vol_->timeFromReference(fixingDate));
+                    sqrtTime = sqrt(vol_->timeFromReference(fixingDate));
 
                 if (type == CapFloor::Cap || type == CapFloor::Collar) {
                     Rate strike = arguments_.capRates[i];
                     if (sqrtTime>0.0) {
-                        stdDevs[i] = std::sqrt(vol_->blackVariance(fixingDate,
+                        stdDevs[i] = sqrt(vol_->blackVariance(fixingDate,
                                                                    strike));
                         vegas[i] = bachelierBlackFormulaStdDevDerivative(strike,
                             forward, stdDevs[i], d) * sqrtTime;
@@ -105,7 +105,7 @@ namespace QuantLib {
                     Rate strike = arguments_.floorRates[i];
                     Real floorletVega = 0.0;
                     if (sqrtTime>0.0) {
-                        stdDevs[i] = std::sqrt(vol_->blackVariance(fixingDate,
+                        stdDevs[i] = sqrt(vol_->blackVariance(fixingDate,
                                                                    strike));
                         floorletVega = bachelierBlackFormulaStdDevDerivative(strike,
                             forward, stdDevs[i], d) * sqrtTime;

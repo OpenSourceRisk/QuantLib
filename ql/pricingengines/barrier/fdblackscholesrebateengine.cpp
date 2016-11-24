@@ -55,11 +55,11 @@ namespace QuantLib {
         Real xMax=Null<Real>();
         if (   arguments_.barrierType == Barrier::DownIn
             || arguments_.barrierType == Barrier::DownOut) {
-            xMin = std::log(arguments_.barrier);
+            xMin = log(arguments_.barrier);
         }
         if (   arguments_.barrierType == Barrier::UpIn
             || arguments_.barrierType == Barrier::UpOut) {
-            xMax = std::log(arguments_.barrier);
+            xMax = log(arguments_.barrier);
         }
 
         const boost::shared_ptr<Fdm1dMesher> equityMesher(

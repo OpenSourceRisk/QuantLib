@@ -30,7 +30,7 @@
 #include <ql/utilities/dataformatters.hpp>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 namespace {
 
@@ -181,7 +181,7 @@ void OperatorTest::testBSMOperatorConsistency() {
         // FLOATING_POINT_EXCEPTION
         price *= factor;
     }
-    Real dx = std::log(factor);
+    Real dx = log(factor);
     Rate r = 0.05;
     Rate q = 0.01;
     Volatility sigma = 0.5;
@@ -212,9 +212,9 @@ void OperatorTest::testBSMOperatorConsistency() {
     Array uderror = ref.upperDiagonal() - op1.upperDiagonal();
 
     for (i=2; i<grid.size()-2; i++) {
-        if (std::fabs(lderror[i]) > tolerance ||
-            std::fabs(derror[i]) > tolerance ||
-            std::fabs(uderror[i]) > tolerance) {
+        if (abs(lderror[i]) > tolerance ||
+            abs(derror[i]) > tolerance ||
+            abs(uderror[i]) > tolerance) {
             BOOST_FAIL("inconsistency between BSM operators:\n"
                        << io::ordinal(i) << " row:\n"
                        << "expected:   "
@@ -232,9 +232,9 @@ void OperatorTest::testBSMOperatorConsistency() {
     uderror = ref.upperDiagonal() - op2.upperDiagonal();
 
     for (i=2; i<grid.size()-2; i++) {
-        if (std::fabs(lderror[i]) > tolerance ||
-            std::fabs(derror[i]) > tolerance ||
-            std::fabs(uderror[i]) > tolerance) {
+        if (abs(lderror[i]) > tolerance ||
+            abs(derror[i]) > tolerance ||
+            abs(uderror[i]) > tolerance) {
             BOOST_FAIL("inconsistency between BSM operators:\n"
                        << io::ordinal(i) << " row:\n"
                        << "expected:   "
@@ -250,8 +250,8 @@ void OperatorTest::testBSMOperatorConsistency() {
 }
 
 
-test_suite* OperatorTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Operator tests");
+boost::unit_test_framework::test_suite* OperatorTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Operator tests");
     suite->add(QUANTLIB_TEST_CASE(&OperatorTest::testTridiagonal));
     // FLOATING_POINT_EXCEPTION
     suite->add(QUANTLIB_TEST_CASE(&OperatorTest::testConsistency));

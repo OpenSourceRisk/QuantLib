@@ -124,13 +124,13 @@ namespace QuantLib {
           case Callability::Call:
             for (j=0; j<values_.size(); j++) {
                 values_[j] =
-                    std::min(arguments_.callabilityPrices[i],
+                    min(arguments_.callabilityPrices[i],
                              values_[j]);
             }
             break;
           case Callability::Put:
             for (j=0; j<values_.size(); j++) {
-                values_[j] = std::max(values_[j],
+                values_[j] = max(values_[j],
                                       arguments_.callabilityPrices[i]);
             }
             break;

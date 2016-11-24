@@ -67,7 +67,7 @@ namespace QuantLib {
                 // Bisect if (out of range || not decreasing fast enough)
                 if ((((root_-xh)*dfroot-froot)*
                      ((root_-xl)*dfroot-froot) > 0.0)
-                    || (std::fabs(2.0*froot) > std::fabs(dxold*dfroot))) {
+                    || (abs(2.0*froot) > abs(dxold*dfroot))) {
                     dx = (xh-xl)/2.0;
                     root_ = xl+dx;
                     // if the root estimate just computed is close to the
@@ -84,7 +84,7 @@ namespace QuantLib {
                 }
 
                 // Convergence criterion
-                if (std::fabs(dx) < xAccuracy)
+                if (abs(dx) < xAccuracy)
                     return root_;
 
                 froot = f(root_);

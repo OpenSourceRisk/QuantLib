@@ -51,7 +51,7 @@ namespace QuantLib {
                 rateTimes_[i],
                 rateTimes_[resetIndex]);
             Time totTime = rateTimes_[i]-startTime;
-            volatilities_[i] = std::sqrt(variances_[i]/totTime);
+            volatilities_[i] = sqrt(variances_[i]/totTime);
         }
     }
 

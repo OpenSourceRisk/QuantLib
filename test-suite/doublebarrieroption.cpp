@@ -269,7 +269,7 @@ void DoubleBarrierOptionTest::testEuropeanHaugValues() {
     boost::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -301,7 +301,7 @@ void DoubleBarrierOptionTest::testEuropeanHaugValues() {
 
         Real calculated = opt.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FAILURE("Ikeda/Kunitomo value", values[i].barrierType, values[i].barrierlo,
                            values[i].barrierhi, payoff, exercise, values[i].s,
@@ -316,7 +316,7 @@ void DoubleBarrierOptionTest::testEuropeanHaugValues() {
 
         calculated = opt.NPV();
         expected = values[i].result;
-        error = std::fabs(calculated-expected);
+        error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FAILURE("Wulin/Yong value", values[i].barrierType, values[i].barrierlo,
                            values[i].barrierhi, payoff, exercise, values[i].s,
@@ -331,7 +331,7 @@ void DoubleBarrierOptionTest::testEuropeanHaugValues() {
         opt.setPricingEngine(engine);
         calculated = opt.NPV();
         expected = values[i].result;
-        error = std::fabs(calculated-expected);
+        error = abs(calculated-expected);
         double tol = 0.28;
         if (error>tol) {
             REPORT_FAILURE("Binomial value", values[i].barrierType, 
@@ -348,7 +348,7 @@ void DoubleBarrierOptionTest::testEuropeanHaugValues() {
         opt.setPricingEngine(engine);
         calculated = opt.NPV();
         expected = values[i].result;
-        error = std::fabs(calculated-expected);
+        error = abs(calculated-expected);
         tol = 0.033; // error one order of magnitude lower than plain binomial
         if (error>tol) {
             REPORT_FAILURE("Binomial (Derman) value", values[i].barrierType, 
@@ -371,7 +371,7 @@ void DoubleBarrierOptionTest::testEuropeanHaugValues() {
             opt.setPricingEngine(engine);
             calculated = opt.NPV();
             expected = values[i].result;
-            error = std::fabs(calculated-expected);
+            error = abs(calculated-expected);
 
             tol = 0.025; // error one order of magnitude lower than plain binomial
             if (error>tol) {
@@ -471,7 +471,7 @@ void DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues() {
             boost::make_shared<PlainVanillaPayoff>(values[i].type,
                                                    values[i].strike);
 
-        Date exDate = today + Integer(values[i].t*365+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*365+0.5));
         boost::shared_ptr<Exercise> exercise =
             boost::make_shared<EuropeanExercise>(exDate);
 
@@ -522,7 +522,7 @@ void DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues() {
 
         Real calculated = doubleBarrierOption.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FAILURE_VANNAVOLGA(
                 "value", values[i].barrierType,
@@ -547,7 +547,7 @@ void DoubleBarrierOptionTest::testVannaVolgaDoubleBarrierValues() {
 
         calculated = doubleBarrierOption.NPV();
         expected = values[i].result;
-        error = std::fabs(calculated-expected);
+        error = abs(calculated-expected);
         Real maxtol = 5.0e-3; // different engines have somewhat different results
         if (error>maxtol) {
             REPORT_FAILURE_VANNAVOLGA(

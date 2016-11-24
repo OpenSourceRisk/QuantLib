@@ -35,9 +35,11 @@
 #include <iostream>
 
 using namespace QuantLib;
-using namespace std;
+// using namespace std;
 using namespace boost;
 using namespace boost::unit_test_framework;
+
+using std::vector;
 
 namespace {
 
@@ -228,9 +230,9 @@ void NthToDefaultTest::testGauss() {
             QL_REQUIRE (LENGTH(hwCorrelation) == LENGTH(hwData[i].spread),
                         "vector length does not match");
             diff = 1e4 * ntd[i].fairPremium() - hwData[i].spread[j];
-            maxDiff = max (maxDiff, fabs (diff));
-            BOOST_CHECK_MESSAGE (fabs(diff/hwData[i].spread[j]) < relTolerance
-                                 || fabs(diff) < absTolerance,
+            maxDiff = max (maxDiff, abs (diff));
+            BOOST_CHECK_MESSAGE (abs(diff/hwData[i].spread[j]) < relTolerance
+                                 || abs(diff) < absTolerance,
                                  "tolerance " << relTolerance << "|"
                                  << absTolerance << " exceeded");
         }
@@ -357,9 +359,9 @@ void NthToDefaultTest::testGaussStudent() {
         QL_REQUIRE (ntd[i].rank() == hwDataDist[i].rank, "rank does not match");
 
         Real diff = 1e4 * ntd[i].fairPremium() - hwDataDist[i].spread[0];
-        maxDiff = max (maxDiff, fabs (diff));
-        BOOST_CHECK_MESSAGE (fabs(diff / hwDataDist[i].spread[0]) ||
-                             fabs(diff) < absTolerance,
+        maxDiff = max (maxDiff, abs (diff));
+        BOOST_CHECK_MESSAGE (abs(diff / hwDataDist[i].spread[0]) < relTolerance ||
+                             abs(diff) < absTolerance,
                              "tolerance " << relTolerance << "|"
                              << absTolerance << " exceeded");
     }
@@ -371,9 +373,9 @@ void NthToDefaultTest::testGaussStudent() {
         QL_REQUIRE (ntd[i].rank() == hwDataDist[i].rank, "rank does not match");
 
         Real diff = 1e4 * ntd[i].fairPremium() - hwDataDist[i].spread[3];
-        maxDiff = max (maxDiff, fabs (diff));
-        BOOST_CHECK_MESSAGE (fabs(diff / hwDataDist[i].spread[3]) ||
-                             fabs(diff) < absTolerance,
+        maxDiff = max (maxDiff, abs (diff));
+        BOOST_CHECK_MESSAGE (abs(diff / hwDataDist[i].spread[3]) < relTolerance ||
+                             abs(diff) < absTolerance,
                              "tolerance " << relTolerance << "|"
                              << absTolerance << " exceeded");
     }

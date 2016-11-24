@@ -39,7 +39,7 @@ namespace QuantLib {
         Size i;
         for (i=1; i < n; ++i) {
             x_[i] = orthPoly.alpha(i);
-            e[i-1] = std::sqrt(orthPoly.beta(i));
+            e[i-1] = sqrt(orthPoly.beta(i));
         }
         x_[0] = orthPoly.alpha(0);
 

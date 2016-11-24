@@ -41,7 +41,7 @@ namespace QuantLib {
         QL_REQUIRE(arguments_.runningAccumulator > 0.0,
                    "positive running product required: "
                    << arguments_.runningAccumulator << "not allowed");
-        Real runningLog = std::log(arguments_.runningAccumulator);
+        Real runningLog = log(arguments_.runningAccumulator);
         Size pastFixings = arguments_.pastFixings;
         QL_REQUIRE(pastFixings == 0, "past fixings currently not managed");
 
@@ -104,28 +104,28 @@ namespace QuantLib {
         Real runningLogAverage = runningLog/M;
 
         Real muG = pastWeight * runningLogAverage +
-                   futureWeight * std::log(underlying) +
+                   futureWeight * log(underlying) +
                    nu*timeSum/N;
 
         CumulativeNormalDistribution f;
 
-        Real y1 = (std::log(underlying)+
+        Real y1 = (log(underlying)+
                      (riskFreeRate-dividendRate)*residualTime-
                       muG - variance/2.0 + sigmaSum_2/2.0)
-                      /std::sqrt(sigmaSum_2);
-        Real y2 = y1-std::sqrt(sigmaSum_2);
+                      /sqrt(sigmaSum_2);
+        Real y2 = y1-sqrt(sigmaSum_2);
 
         switch (payoff->optionType()) {
           case Option::Call:
-            results_.value = underlying*std::exp(-dividendRate*residualTime)
+            results_.value = underlying*exp(-dividendRate*residualTime)
                 *f(y1)-
-                std::exp(muG + variance/2.0 - riskFreeRate*residualTime)
+                exp(muG + variance/2.0 - riskFreeRate*residualTime)
                 *f(y2);
             break;
           case Option::Put:
-            results_.value = -underlying*std::exp(-dividendRate*residualTime)
+            results_.value = -underlying*exp(-dividendRate*residualTime)
                 *f(-y1)+
-                std::exp(muG + variance/2.0 - riskFreeRate*residualTime)
+                exp(muG + variance/2.0 - riskFreeRate*residualTime)
                 *f(-y2);
             break;
           default:

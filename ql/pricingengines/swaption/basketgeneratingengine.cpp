@@ -26,8 +26,8 @@
 #include <ql/quotes/simplequote.hpp>
 #include <boost/make_shared.hpp>
 
-using std::exp;
-using std::fabs;
+// using exp;
+// using abs;
 
 namespace QuantLib {
 
@@ -76,7 +76,7 @@ namespace QuantLib {
                 boost::shared_ptr<SmileSection> sec =
                     swaptionVolatility->smileSection(
                         expiry,
-                        static_cast<Size>(swapLength * 12.0 + 0.5) * Months,
+                        static_cast<Size>(VALUE(swapLength) * 12.0 + 0.5) * Months,
                         true);
                 Real atmStrike = sec->atmLevel();
                 Real atmVol;
@@ -187,10 +187,10 @@ namespace QuantLib {
 
                 Real maturity = fabs(solution[1]);
 
-                Size years = (Size)std::floor(maturity);
+                Size years = (Size)std::floor(VALUE(maturity));
                 maturity -= (Real)years;
                 maturity *= 12.0;
-                Size months = (Size)std::floor(maturity + 0.5);
+                Size months = (Size)std::floor(VALUE(maturity + 0.5));
                 if (years == 0 && months == 0)
                     months = 1; // ensure a maturity of at least one months
                 // maturity -= (Real)months; maturity *= 365.25;
@@ -205,12 +205,12 @@ namespace QuantLib {
 
                 // we have to floor the strike of the calibration instrument,
                 // see warning in the header
-                solution[2] = std::max(
+                solution[2] = max(
                     solution[2], 0.00001 - shift); // floor at 0.1bp - shift
 
                 // also the calibrated nominal may be zero, so we floor it, too
                 solution[0] =
-                    std::max(solution[0], 0.000001); // float at 0.01bp
+                    max(solution[0], Real(0.000001)); // float at 0.01bp
 
                 Real vol = sec->volatility(solution[2]);
 

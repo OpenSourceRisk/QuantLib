@@ -74,7 +74,7 @@ void TwoAssetCorrelationOptionTest::testAnalyticEngine() {
 
     Real calculated = option.NPV();
     Real expected = 4.7073;
-    Real error = std::fabs(calculated-expected);
+    Real error = abs(calculated-expected);
     Real tolerance = 1e-4;
     if (error > tolerance)
         BOOST_ERROR("Failed to reproduce holder-extensible option value"

@@ -76,14 +76,14 @@ namespace QuantLib {
         // b = r-q:
         Real b = riskFree - dividend;
 
-        Real forwardPrice = spot * std::exp(b*t1);
+        Real forwardPrice = spot * exp(b*t1);
 
         Volatility volatility = process_->blackVolatility()->blackVol(
                                     exercise1->lastDate(), payoff1->strike());
 
-        Real stdDev = volatility*std::sqrt(t1);
+        Real stdDev = volatility*sqrt(t1);
 
-        Real discount = std::exp(-riskFree*t1);
+        Real discount = exp(-riskFree*t1);
 
         // Call the B&S method:
         Real black = blackFormula(type, payoff1->strike(),
@@ -92,11 +92,11 @@ namespace QuantLib {
         // STEP 2:
 
         // Standard bivariate normal distribution:
-        Real ro = std::sqrt(t1/t2);
-        Real z1 = (std::log(spot/payoff2->strike()) +
-                   (b+std::pow(volatility, 2)/2)*t2)/(volatility*std::sqrt(t2));
-        Real z2 = (std::log(spot/payoff1->strike()) +
-                   (b+std::pow(volatility, 2)/2)*t1)/(volatility*std::sqrt(t1));
+        Real ro = sqrt(t1/t2);
+        Real z1 = (log(spot/payoff2->strike()) +
+                   (b+pow(volatility, 2)/2)*t2)/(volatility*sqrt(t2));
+        Real z2 = (log(spot/payoff1->strike()) +
+                   (b+pow(volatility, 2)/2)*t1)/(volatility*sqrt(t1));
 
         // Call the bivariate method:
         BivariateCumulativeNormalDistributionWe04DP biv(-ro);
@@ -110,17 +110,17 @@ namespace QuantLib {
         if (type == Option::Call) {
             // Call case:
             bivariate1 = biv(z1, -z2);
-            bivariate2 = biv(z1-volatility*std::sqrt(t2),
-                             -z2+volatility*std::sqrt(t1));
-            result = black + spot*std::exp((b-riskFree)*t2)*bivariate1
-                - payoff2->strike()*std::exp((-riskFree)*t2)*bivariate2;
+            bivariate2 = biv(z1-volatility*sqrt(t2),
+                             -z2+volatility*sqrt(t1));
+            result = black + spot*exp((b-riskFree)*t2)*bivariate1
+                - payoff2->strike()*exp((-riskFree)*t2)*bivariate2;
         } else {
             // Put case:
             bivariate1 = biv(-z1, z2);
-            bivariate2 = biv(-z1+volatility*std::sqrt(t2),
-                             z2-volatility*std::sqrt(t1));
-            result = black - spot*std::exp((b-riskFree)*t2)*bivariate1
-                + payoff2->strike()*std::exp((-riskFree)*t2)*bivariate2;
+            bivariate2 = biv(-z1+volatility*sqrt(t2),
+                             z2-volatility*sqrt(t1));
+            result = black - spot*exp((b-riskFree)*t2)*bivariate1
+                + payoff2->strike()*exp((-riskFree)*t2)*bivariate2;
         }
 
         // Save the result:

@@ -83,16 +83,16 @@ namespace QuantLib {
         
         Array retVal(2);
         retVal[0] = ouProcess_->evolve(t0, x0[0], dt, dw[0]);
-        retVal[1] = x0[1]*std::exp(-beta_*dt);
+        retVal[1] = x0[1]*exp(-beta_*dt);
                 
-        const Real u1 = std::max(QL_EPSILON, std::min(cumNormalDist_(dw[1]), 
+        const Real u1 = max(QL_EPSILON, min(cumNormalDist_(dw[1]), 
                                                       1.0-QL_EPSILON));
 
-        const Time interarrival = -1.0/jumpIntensity_*std::log(u1);
+        const Time interarrival = -1.0/jumpIntensity_*log(u1);
         if (interarrival < dt) {
-            const Real u2 = std::max(QL_EPSILON, std::min(cumNormalDist_(dw[2]), 
+            const Real u2 = max(QL_EPSILON, min(cumNormalDist_(dw[2]), 
                                                           1.0-QL_EPSILON));
-            const Real jumpSize = -1.0/eta_*std::log(u2);
+            const Real jumpSize = -1.0/eta_*log(u2);
             retVal[1] += jumpSize;
         }
         return retVal;

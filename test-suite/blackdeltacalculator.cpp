@@ -32,13 +32,13 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-using std::sqrt;
+// using sqrt;
 
 namespace {
 
     Integer timeToDays(Time t) {
         // FLOATING_POINT_EXCEPTION
-        return Integer(t*360+0.5);
+        return Integer(VALUE(t*360+0.5));
     }
 
     struct DeltaData {
@@ -121,7 +121,7 @@ void BlackDeltaCalculatorTest::testDeltaValues(){
 
         expected    =currDelta;
         calculated  =myCalc.deltaFromStrike(currStrike);
-        error       =std::fabs(calculated-expected);
+        error       =abs(calculated-expected);
 
         if (error>tolerance) {
             BOOST_ERROR("\n Delta-from-strike calculation failed for delta. \n"
@@ -138,7 +138,7 @@ void BlackDeltaCalculatorTest::testDeltaValues(){
 
         expected    =currStrike;
         calculated  =myCalc.strikeFromDelta(currDelta);
-        error       =std::fabs(calculated-expected);
+        error       =abs(calculated-expected);
 
         if (error>tolerance) {
             BOOST_ERROR("\n Strike-from-delta calculation failed for delta. \n"
@@ -263,7 +263,7 @@ void BlackDeltaCalculatorTest::testDeltaPriceConsistency() {
 
         calculatedVal=myCalc.deltaFromStrike(values[i].strike);
         expectedVal=option.delta()-option.NPV()/spotQuote->value();
-        error=std::fabs(expectedVal-calculatedVal);
+        error=abs(expectedVal-calculatedVal);
 
         if(error>tolerance){
             BOOST_ERROR("\n Premium-adjusted spot delta test failed. \n" \
@@ -276,7 +276,7 @@ void BlackDeltaCalculatorTest::testDeltaPriceConsistency() {
 
         calculatedVal=myCalc.deltaFromStrike(values[i].strike);
         expectedVal=expectedVal/discFor; // Premium adjusted Fwd Delta is PA spot without discount
-        error=std::fabs(expectedVal-calculatedVal);
+        error=abs(expectedVal-calculatedVal);
 
         if(error>tolerance){
             BOOST_ERROR("\n Premium-adjusted forward delta test failed. \n"
@@ -291,7 +291,7 @@ void BlackDeltaCalculatorTest::testDeltaPriceConsistency() {
 
         calculatedVal=myCalc.deltaFromStrike(values[i].strike);
         expectedVal=option.delta();
-        error=std::fabs(calculatedVal-expectedVal);
+        error=abs(calculatedVal-expectedVal);
 
         if(error>tolerance){
             BOOST_ERROR("\n spot delta in BlackDeltaCalculator differs "
@@ -430,7 +430,7 @@ void BlackDeltaCalculatorTest::testPutCallParity(){
 
         expectedDiff=discFor;
         calculatedDiff=deltaCall-deltaPut;
-        error=std::fabs(expectedDiff-calculatedDiff);
+        error=abs(expectedDiff-calculatedDiff);
 
         if(error>tolerance){
             BOOST_ERROR("\n Put-call parity failed for spot delta. \n"
@@ -448,7 +448,7 @@ void BlackDeltaCalculatorTest::testPutCallParity(){
 
         expectedDiff=1.0;
         calculatedDiff=deltaCall-deltaPut;
-        error=std::fabs(expectedDiff-calculatedDiff);
+        error=abs(expectedDiff-calculatedDiff);
 
         if(error>tolerance){
             BOOST_ERROR("\n Put-call parity failed for forward delta. \n"
@@ -467,7 +467,7 @@ void BlackDeltaCalculatorTest::testPutCallParity(){
 
         expectedDiff=discFor*values[i].strike/forward;
         calculatedDiff=deltaCall-deltaPut;
-        error=std::fabs(expectedDiff-calculatedDiff);
+        error=abs(expectedDiff-calculatedDiff);
 
         if(error>tolerance){
             BOOST_ERROR("\n Put-call parity failed for "
@@ -487,7 +487,7 @@ void BlackDeltaCalculatorTest::testPutCallParity(){
 
         expectedDiff = values[i].strike/forward;
         calculatedDiff=deltaCall-deltaPut;
-        error=std::fabs(expectedDiff-calculatedDiff);
+        error=abs(expectedDiff-calculatedDiff);
 
         if(error>tolerance){
             BOOST_ERROR("\n Put-call parity failed for premium-adjusted "
@@ -561,7 +561,7 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
 
         expected    =0.0;
         calculated  =currCallDelta+currPutDelta;
-        error       =std::fabs(calculated-expected);
+        error       =abs(calculated-expected);
 
         if(error>tolerance){
             BOOST_ERROR("\n Delta neutrality failed for spot delta "
@@ -581,7 +581,7 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
 
         expected    =0.0;
         calculated  =currCallDelta+currPutDelta;
-        error       =std::fabs(calculated-expected);
+        error       =abs(calculated-expected);
 
         if(error>tolerance){
             BOOST_ERROR("\n Delta neutrality failed for forward delta "
@@ -601,7 +601,7 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
 
         expected    =0.0;
         calculated  =currCallDelta+currPutDelta;
-        error       =std::fabs(calculated-expected);
+        error       =abs(calculated-expected);
 
         if(error>tolerance){
             BOOST_ERROR("\n Delta neutrality failed for premium-adjusted "
@@ -622,7 +622,7 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
 
         expected    =0.0;
         calculated  =currCallDelta+currPutDelta;
-        error       =std::fabs(calculated-expected);
+        error       =abs(calculated-expected);
 
         if(error>tolerance){
             BOOST_ERROR("\n Delta neutrality failed for premium-adjusted "
@@ -636,7 +636,7 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
         // Test ATM forward Calculations
         calculated=myCalc.atmStrike(DeltaVolQuote::AtmFwd);
         expected=currFwd;
-        error=std::fabs(expected-calculated);
+        error=abs(expected-calculated);
 
         if(error>tolerance){
             BOOST_ERROR("\n Atm forward test failed. \n"
@@ -648,9 +648,9 @@ void BlackDeltaCalculatorTest::testAtmCalcs(){
         // Test ATM 0.50 delta calculations
         myCalc.setDeltaType(DeltaVolQuote::Fwd);
         Real atmFiftyStrike=myCalc.atmStrike(DeltaVolQuote::AtmPutCall50);
-        calculated=std::fabs(myCalc.deltaFromStrike(atmFiftyStrike));
+        calculated=abs(myCalc.deltaFromStrike(atmFiftyStrike));
         expected=0.50;
-        error=std::fabs(expected-calculated);
+        error=abs(expected-calculated);
 
         if(error>tolerance){
             BOOST_ERROR("\n Atm 0.50 delta strike test failed. \n"

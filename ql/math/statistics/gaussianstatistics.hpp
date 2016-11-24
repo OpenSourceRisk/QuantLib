@@ -58,7 +58,7 @@ namespace QuantLib {
             square root of the downside variance.
         */
         Real gaussianDownsideDeviation() const {
-            return std::sqrt(gaussianDownsideVariance());
+            return sqrt(gaussianDownsideVariance());
         }
 
         /*! returns the variance of observations below target
@@ -176,7 +176,7 @@ namespace QuantLib {
 
         Real result = gaussianPercentile(percentile);
         // potential upside must be a gain, i.e., floored at 0.0
-        return std::max<Real>(result, 0.0);
+        return max<Real>(result, 0.0);
     }
 
 
@@ -192,7 +192,7 @@ namespace QuantLib {
         // VAR must be a loss
         // this means that it has to be MIN(dist(1.0-percentile), 0.0)
         // VAR must also be a positive quantity, so -MIN(*)
-        return -std::min<Real>(result, 0.0);
+        return -min<Real>(result, 0.0);
     }
 
 
@@ -212,7 +212,7 @@ namespace QuantLib {
         // expectedShortfall must be a loss
         // this means that it has to be MIN(result, 0.0)
         // expectedShortfall must also be a positive quantity, so -MIN(*)
-        return -std::min<Real>(result, 0.0);
+        return -min<Real>(result, 0.0);
     }
 
 

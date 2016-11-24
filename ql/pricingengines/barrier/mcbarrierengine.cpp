@@ -68,9 +68,9 @@ namespace QuantLib {
                 vol = diffProcess_->diffusion(timeGrid[i],asset_price);
                 dt = timeGrid.dt(i);
 
-                x = std::log(new_asset_price / asset_price);
-                y = 0.5*(x - std::sqrt (x*x - 2*vol*vol*dt*std::log(u[i])));
-                y = asset_price * std::exp(y);
+                x = log(new_asset_price / asset_price);
+                y = 0.5*(x - sqrt (x*x - 2*vol*vol*dt*log(u[i])));
+                y = asset_price * exp(y);
                 if (y <= barrier_) {
                     isOptionActive = true;
                     if (knockNode == null)
@@ -87,9 +87,9 @@ namespace QuantLib {
                 vol = diffProcess_->diffusion(timeGrid[i],asset_price);
                 dt = timeGrid.dt(i);
 
-                x = std::log(new_asset_price / asset_price);
-                y = 0.5*(x + std::sqrt(x*x - 2*vol*vol*dt*std::log((1-u[i]))));
-                y = asset_price * std::exp(y);
+                x = log(new_asset_price / asset_price);
+                y = 0.5*(x + sqrt(x*x - 2*vol*vol*dt*log((1-u[i]))));
+                y = asset_price * exp(y);
                 if (y >= barrier_) {
                     isOptionActive = true;
                     if (knockNode == null)
@@ -106,9 +106,9 @@ namespace QuantLib {
                 vol = diffProcess_->diffusion(timeGrid[i],asset_price);
                 dt = timeGrid.dt(i);
 
-                x = std::log(new_asset_price / asset_price);
-                y = 0.5*(x - std::sqrt(x*x - 2*vol*vol*dt*std::log(u[i])));
-                y = asset_price * std::exp(y);
+                x = log(new_asset_price / asset_price);
+                y = 0.5*(x - sqrt(x*x - 2*vol*vol*dt*log(u[i])));
+                y = asset_price * exp(y);
                 if (y <= barrier_) {
                     isOptionActive = false;
                     if (knockNode == null)
@@ -125,9 +125,9 @@ namespace QuantLib {
                 vol = diffProcess_->diffusion(timeGrid[i],asset_price);
                 dt = timeGrid.dt(i);
 
-                x = std::log(new_asset_price / asset_price);
-                y = 0.5*(x + std::sqrt(x*x - 2*vol*vol*dt*std::log((1-u[i]))));
-                y = asset_price * std::exp(y);
+                x = log(new_asset_price / asset_price);
+                y = 0.5*(x + sqrt(x*x - 2*vol*vol*dt*log((1-u[i]))));
+                y = asset_price * exp(y);
                 if (y >= barrier_) {
                     isOptionActive = false;
                     if (knockNode == null)

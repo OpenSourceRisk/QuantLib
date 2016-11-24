@@ -45,7 +45,7 @@ namespace QuantLib {
     }
 
     Real FdmLogInnerValue::innerValue(const FdmLinearOpIterator& iter, Time) {
-        const Real s = std::exp(mesher_->location(iter, direction_));
+        const Real s = exp(mesher_->location(iter, direction_));
         return payoff_->operator()(s);
     }
 
@@ -84,10 +84,9 @@ namespace QuantLib {
         if (coord < dim-1) {
             b += mesher_->dplus(iter, direction_)/2.0;
         }
-        boost::function1<Real, Real> f = compose(
-            std::bind1st(std::mem_fun(&Payoff::operator()), payoff_.get()),
-                         std::ptr_fun<Real,Real>(std::exp));
-        
+        boost::function1<Real, Real> f = 
+            [this](const Real x) { return this->payoff_->operator()(exp(x));};
+
         Real retVal;
         try {
             const Real acc 
@@ -112,7 +111,7 @@ namespace QuantLib {
                                     const FdmLinearOpIterator& iter, Time) {
         Array x(mesher_->layout()->dim().size());
         for (Size i=0; i < x.size(); ++i) {
-            x[i] = std::exp(mesher_->location(iter, i));
+            x[i] = exp(mesher_->location(iter, i));
         }
         
         return payoff_->operator()(x);

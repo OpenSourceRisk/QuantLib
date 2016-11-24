@@ -55,7 +55,7 @@
 #include <deque>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 namespace {
     boost::shared_ptr<ExtOUWithJumpsProcess> createKlugeProcess() {
@@ -132,7 +132,7 @@ void VPPTest::testGemanRoncoroniProcess() {
 
 
     const Real speed     = 5.0;
-    const Volatility vol = std::sqrt(1.4);
+    const Volatility vol = sqrt(1.4);
     const Real betaG     = 0.08;
     const Real alphaG    = 1.0;
     const Real x0G       = 1.1;
@@ -155,7 +155,7 @@ void VPPTest::testGemanRoncoroniProcess() {
 
     const Time T = 10.0;
     const Size stepsPerYear = 250;
-    const Size steps = Size(T*Real(stepsPerYear));
+    const Size steps = Size(VALUE(T*Real(stepsPerYear)));
 
     TimeGrid grid(T, steps);
 
@@ -178,11 +178,11 @@ void VPPTest::testGemanRoncoroniProcess() {
             const Time t = Real(i)/stepsPerYear;
             const DiscountFactor df = rTS->discount(t);
 
-            const Real fuelPrice         = std::exp(path.value[1][i]);
-            const Real electricityPrice = std::exp(path.value[0][i]);
+            const Real fuelPrice         = exp(path.value[1][i]);
+            const Real electricityPrice = exp(path.value[0][i]);
 
             const Real sparkSpread = electricityPrice - heatRate*fuelPrice;
-            plantValue += std::max(0.0, sparkSpread)*df;
+            plantValue += std::max(Real(0.0), sparkSpread)*df;
             onTime.add((sparkSpread > 0.0) ? 1.0 : 0.0);
         }
 
@@ -193,7 +193,7 @@ void VPPTest::testGemanRoncoroniProcess() {
     const Real calculatedNPV = npv.mean();
     const Real errorEstimateNPV = npv.errorEstimate();
 
-    if (std::fabs(calculatedNPV - expectedNPV) > 3.0*errorEstimateNPV) {
+    if (abs(calculatedNPV - expectedNPV) > 3.0*errorEstimateNPV) {
         BOOST_ERROR("Failed to reproduce cached price with MC engine"
                     << "\n    calculated: " << calculatedNPV
                     << "\n    expected:   " << expectedNPV
@@ -203,9 +203,9 @@ void VPPTest::testGemanRoncoroniProcess() {
     const Real expectedOnTime = 0.43;
     const Real calculatedOnTime = onTime.mean();
     const Real errorEstimateOnTime
-        = std::sqrt(calculatedOnTime*(1-calculatedOnTime))/nrTrails;
+        = sqrt(calculatedOnTime*(1-calculatedOnTime))/nrTrails;
 
-    if (std::fabs(calculatedOnTime - expectedOnTime)>3.0*errorEstimateOnTime) {
+    if (abs(calculatedOnTime - expectedOnTime)>3.0*errorEstimateOnTime) {
         BOOST_ERROR("Failed to reproduce cached price with MC engine"
                     << "\n    calculated: " << calculatedNPV
                     << "\n    expected:   " << expectedNPV
@@ -253,7 +253,7 @@ void VPPTest::testSimpleExtOUStorageEngine() {
     const Real expected = 69.5755;
     const Real calculated = storageOption.NPV();
 
-    if (std::fabs(expected - calculated) > 5e-2) {
+    if (abs(expected - calculated) > 5e-2) {
         BOOST_ERROR("Failed to reproduce cached values" <<
                     "\n calculated: " << calculated <<
                     "\n   expected: " << expected);
@@ -275,7 +275,7 @@ void VPPTest::testKlugeExtOUSpreadOption() {
     Time maturity = dayCounter.yearFraction(settlementDate, maturityDate);
 
     const Real speed     = 1.0;
-    const Volatility vol = std::sqrt(1.4);
+    const Volatility vol = sqrt(1.4);
     const Real betaG     = 0.0;
     const Real alphaG    = 3.0;
     const Real x0G       = 3.0;
@@ -337,7 +337,7 @@ void VPPTest::testKlugeExtOUSpreadOption() {
     const Real calculated = option.NPV();
     const Real expectedMC = npv.mean();
     const Real mcError = npv.errorEstimate();
-    if (std::fabs(expectedMC - calculated) > 3*mcError) {
+    if (abs(expectedMC - calculated) > 3*mcError) {
             BOOST_ERROR("Failed to reproduce referenc values"
                        << "\n    calculated:   " << calculated
                        << "\n    expected(MC): " << expectedMC
@@ -438,7 +438,7 @@ void VPPTest::testVPPIntrinsicValue() {
 
         const Real calculated = option.NPV();
 
-        if (std::fabs(expected[i] - calculated) > 1e-4) {
+        if (abs(expected[i] - calculated) > 1e-4) {
             BOOST_ERROR("Failed to reproduce reference values"
                        << "\n    calculated: " << calculated
                        << "\n    expected:   " << expected[i]);
@@ -459,14 +459,14 @@ namespace {
         : path_(path),
           shape_(shape) {}
         Real innerValue(const FdmLinearOpIterator&, Time t) {
-            QL_REQUIRE(t-std::sqrt(QL_EPSILON) <=  shape_->back().first,
+            QL_REQUIRE(t-sqrt(QL_EPSILON) <=  shape_->back().first,
                         "invalid time");
 
-            const Size i = Size(t*365u*24u);
+            const Size i = Size(VALUE(t*365u*24u));
             const Real f = std::lower_bound(shape_->begin(), shape_->end(),
-                std::pair<Time, Real>(t-std::sqrt(QL_EPSILON), 0.0))->second;
+                                            std::pair<Time, Real>(t-sqrt(QL_EPSILON), Real(0.0)))->second;
 
-            return std::exp(path_[2][i] + f);
+            return exp(path_[2][i] + f);
         }
         Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) {
             return innerValue(iter, t);
@@ -491,19 +491,19 @@ namespace {
           powerShape_(powerShape) {}
 
         Real innerValue(const FdmLinearOpIterator&, Time t) {
-            QL_REQUIRE(t-std::sqrt(QL_EPSILON) <=  powerShape_->back().first,
+            QL_REQUIRE(t-sqrt(QL_EPSILON) <=  powerShape_->back().first,
                         "invalid time");
 
-            const Size i = Size(t*365u*24u);
+            const Size i = Size(VALUE(t*365u*24u));
             const Real f = std::lower_bound(
                 powerShape_->begin(), powerShape_->end(),
-                std::pair<Time, Real>(t-std::sqrt(QL_EPSILON), 0.0))->second;
+                std::pair<Time, Real>(t-sqrt(QL_EPSILON), 0.0))->second;
             const Real g = std::lower_bound(
                 fuelShape_->begin(),fuelShape_->end(),
-                std::pair<Time, Real>(t-std::sqrt(QL_EPSILON), 0.0))->second;
+                std::pair<Time, Real>(t-sqrt(QL_EPSILON), 0.0))->second;
 
-            return std::exp(f + path_[0][i]+path_[1][i])
-                    - heatRate_*std::exp(g + path_[2][i]);
+            return exp(f + path_[0][i]+path_[1][i])
+                    - heatRate_*exp(g + path_[2][i]);
         }
         Real avgInnerValue(const FdmLinearOpIterator& iter, Time t) {
             return innerValue(iter, t);
@@ -526,7 +526,7 @@ namespace {
         const Real alpha        = 7.0;
         const Real volatility_x = 1.4;
         const Real kappa        = 4.45;
-        const Real volatility_u = std::sqrt(1.3);
+        const Real volatility_u = sqrt(1.3);
         const Real rho          = 0.7;
 
         Array x0(2);
@@ -608,14 +608,14 @@ void VPPTest::testVPPPricing() {
         const Time t = (i+1)/(365*24.);
 
         const Real fuelPrice = fuelPrices[i];
-        const Real gs = std::log(fuelPrice)-square<Real>()(volatility_u)
-                               /(4*kappa)*(1-std::exp(-2*kappa*t));
+        const Real gs = log(fuelPrice)-square<Real>()(volatility_u)
+                               /(4*kappa)*(1-exp(-2*kappa*t));
         (*fuelShape)[i] = Shape::value_type(t, gs);
 
         const Real powerPrice = powerPrices[i];
-        const Real ps = std::log(powerPrice)-square<Real>()(volatility_x)
-                 /(4*alpha)*(1-std::exp(-2*alpha*t))
-                -lambda/beta*std::log((eta-std::exp(-beta*t))/(eta-1.0));
+        const Real ps = log(powerPrice)-square<Real>()(volatility_x)
+                 /(4*alpha)*(1-exp(-2*alpha*t))
+                -lambda/beta*log((eta-exp(-beta*t))/(eta-1.0));
 
         (*powerShape)[i] = Shape::value_type(t, ps);
     }
@@ -629,7 +629,7 @@ void VPPTest::testVPPPricing() {
 
     const Real intrinsic = vppOption.NPV();
     const Real expectedIntrinsic = 2056.04;
-    if (std::fabs(intrinsic - expectedIntrinsic) > 0.1) {
+    if (abs(intrinsic - expectedIntrinsic) > 0.1) {
         BOOST_ERROR("Failed to reproduce intrinsic value"
                    << "\n    calculated: " << intrinsic
                    << "\n    expected  : " << expectedIntrinsic);
@@ -645,7 +645,7 @@ void VPPTest::testVPPPricing() {
 
     const Real fdmPrice = vppOption.NPV();
     const Real expectedFdmPrice = 5217.68;
-    if (std::fabs(fdmPrice - expectedFdmPrice) > 0.1) {
+    if (abs(fdmPrice - expectedFdmPrice) > 0.1) {
        BOOST_ERROR("Failed to reproduce finite difference price"
                    << "\n    calculated: " << fdmPrice
                    << "\n    expected  : " << expectedFdmPrice);
@@ -697,7 +697,7 @@ void VPPTest::testVPPPricing() {
     Real npvMC = npv.mean();
     Real errorMC = npv.errorEstimate();
     const Real expectedMC = 5250.0;
-    if (std::fabs(npvMC-expectedMC) > 3*errorMC) {
+    if (abs(npvMC-expectedMC) > 3*errorMC) {
         BOOST_ERROR("Failed to reproduce Monte-Carlo price"
                    << "\n    calculated: " << npvMC
                    << "\n    error     ; " << errorMC
@@ -862,7 +862,7 @@ void VPPTest::testVPPPricing() {
 
     npvMC = npv.mean();
     errorMC = npv.errorEstimate();
-    if (std::fabs(npvMC-fdmPrice) > 3*errorMC) {
+    if (abs(npvMC-fdmPrice) > 3*errorMC) {
         BOOST_ERROR("Failed to reproduce Least Square Monte-Carlo price"
                    << "\n    calculated   : " << npvMC
                    << "\n    error        : " << errorMC
@@ -928,16 +928,16 @@ void VPPTest::testKlugeExtOUMatrixDecomposition() {
     const Array applyCalculatedMixed = prod(matrixDecomp.back(), x);
 
     for (Size i=0; i < x.size(); ++i) {
-        const Real diffApply = std::fabs(applyExpected[i]-applyCalculated[i]);
-        if (diffApply > tol && diffApply > std::fabs(applyExpected[i])*tol) {
+        const Real diffApply = abs(applyExpected[i]-applyCalculated[i]);
+        if (diffApply > tol && diffApply > abs(applyExpected[i])*tol) {
             BOOST_ERROR("Failed to reproduce apply operation" <<
                      "\n    expected  : " << applyExpected[i] <<
                      "\n    calculated: " << applyCalculated[i] <<
                      "\n    diff      : " << diffApply);
         }
 
-        const Real diffMixed = std::fabs(applyExpectedMixed[i]-applyCalculatedMixed[i]);
-        if (diffMixed > tol && diffMixed > std::fabs(applyExpected[i])*tol) {
+        const Real diffMixed = abs(applyExpectedMixed[i]-applyCalculatedMixed[i]);
+        if (diffMixed > tol && diffMixed > abs(applyExpected[i])*tol) {
             BOOST_ERROR("Failed to reproduce apply operation" <<
                      "\n    expected  : " << applyExpectedMixed[i] <<
                      "\n    calculated: " << applyCalculatedMixed[i] <<
@@ -952,9 +952,9 @@ void VPPTest::testKlugeExtOUMatrixDecomposition() {
 
         for (Size j=0; j < x.size(); ++j) {
             const Real diff
-                = std::fabs((applyExpectedDir[j] - applyCalculatedDir[j]));
+                = abs((applyExpectedDir[j] - applyCalculatedDir[j]));
 
-            if (diff > tol && diff > std::fabs(applyExpectedDir[j]*tol)) {
+            if (diff > tol && diff > abs(applyExpectedDir[j]*tol)) {
                 BOOST_ERROR("Failed to reproduce apply operation" <<
                          "\n    expected  : " << applyExpectedDir[i] <<
                          "\n    calculated: " << applyCalculatedDir[i] <<
@@ -966,8 +966,8 @@ void VPPTest::testKlugeExtOUMatrixDecomposition() {
 }
 
 
-test_suite* VPPTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("VPP Test");
+boost::unit_test_framework::test_suite* VPPTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("VPP Test");
     suite->add(QUANTLIB_TEST_CASE(&VPPTest::testGemanRoncoroniProcess));
     suite->add(QUANTLIB_TEST_CASE(&VPPTest::testSimpleExtOUStorageEngine));
     suite->add(QUANTLIB_TEST_CASE(&VPPTest::testKlugeExtOUSpreadOption));

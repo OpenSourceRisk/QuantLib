@@ -54,15 +54,15 @@ namespace QuantLib {
 
         const Time t = process->time(arguments_.exercise->lastDate());
 
-        const Real xMax = 8.0 * std::sqrt(process->theta()*t
+        const Real xMax = 8.0 * sqrt(process->theta()*t
             + (process->v0() - process->theta())
-                *(1-std::exp(-process->kappa()*t))/process->kappa());
+                *(1-exp(-process->kappa()*t))/process->kappa());
 
-        const Real x0 = std::log(process->s0()->value());
+        const Real x0 = log(process->s0()->value());
         const Real rD = process->riskFreeRate()->discount(t);
         const Real qD = process->dividendYield()->discount(t);
 
-        const Real drift = x0 + std::log(rD/qD);
+        const Real drift = x0 + log(rD/qD);
 
         results_.value = GaussLobattoIntegral(
             maxIntegrationIterations_, integrationEps_)(
@@ -77,7 +77,7 @@ namespace QuantLib {
     }
 
     Real AnalyticPDFHestonEngine::cdf(Real s, Time t) const {
-        const Real x_t = std::log(s);
+        const Real x_t = log(s);
         return HestonRNDCalculator(
             model_->process(), integrationEps_, maxIntegrationIterations_)
                 .cdf(x_t, t);
@@ -87,7 +87,7 @@ namespace QuantLib {
         const DiscountFactor rD
             = model_->process()->riskFreeRate()->discount(t);
 
-        const Real s_t = std::exp(x_t);
+        const Real s_t = exp(x_t);
         const Real payoff = (*arguments_.payoff)(s_t);
 
         return (payoff != 0.0) ? payoff*Pv(x_t, t)*rD : 0.0;

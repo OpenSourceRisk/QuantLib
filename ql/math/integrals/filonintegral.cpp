@@ -48,11 +48,11 @@ namespace QuantLib {
         const Real theta2 = theta*theta;
         const Real theta3 = theta2*theta;
 
-        const Real alpha = 1/theta + std::sin(2*theta)/(2*theta2)
-            - 2*square<Real>()(std::sin(theta))/theta3;
-        const Real beta = 2*( (1+square<Real>()(std::cos(theta)))/theta2
-            - std::sin(2*theta)/theta3);
-        const Real gamma = 4*(std::sin(theta)/theta3 - std::cos(theta)/theta2);
+        const Real alpha = 1/theta + sin(2*theta)/(2*theta2)
+            - 2*square<Real>()(sin(theta))/theta3;
+        const Real beta = 2*( (1+square<Real>()(cos(theta)))/theta2
+            - sin(2*theta)/theta3);
+        const Real gamma = 4*(sin(theta)/theta3 - cos(theta)/theta2);
 
         Array v(x.size());
         std::transform(x.begin(), x.end(), v.begin(), f);
@@ -60,12 +60,12 @@ namespace QuantLib {
         boost::function<Real(Real)> f1, f2;
         switch(type_) {
           case Cosine:
-            f1 = std::ptr_fun<Real,Real>(std::sin);
-            f2 = std::ptr_fun<Real,Real>(std::cos);
+              f1 = [](const Real x) { return sin(x); };
+              f2 =  [](const Real x) { return cos(x); };
             break;
           case Sine:
-            f1 = std::ptr_fun<Real,Real>(std::cos);
-            f2 = std::ptr_fun<Real,Real>(std::sin);
+              f1 = [](const Real x) { return cos(x); };
+              f2 =  [](const Real x) { return sin(x); };
             break;
           default:
             QL_FAIL("unknown integration type");

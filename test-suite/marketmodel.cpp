@@ -120,8 +120,8 @@ FOR A PARTICULAR PURPOSE.  See the license for more details.
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-using std::fabs;
-using std::sqrt;
+// using std::fabs;
+// using sqrt;
 
 #define BEGIN(x) (x+0)
 #define END(x) (x+LENGTH(x))
@@ -558,7 +558,7 @@ namespace {
                 expectedCaplets[i] =
                     BlackCalculator(displacedPayoffs[i],
                     todaysForwards[i]+displacement,
-                    volatilities[i]*std::sqrt(expiry),
+                    volatilities[i]*sqrt(expiry),
                     todaysDiscounts[i+1]*accruals[i]).value();
                 capletStdDev[i] = (results[i+N]-expectedCaplets[i])/errors[i+N];
                 if (capletStdDev[i]>maxError)
@@ -626,7 +626,7 @@ namespace {
                 expectedCaplets[i] =
                     bachelierBlackFormula(displacedPayoffs[i],
                     todaysForwards[i]+displacement,
-                    normalVols[i]*std::sqrt(expiry),
+                    normalVols[i]*sqrt(expiry),
                     todaysDiscounts[i+1]*accruals[i]);
                 capletStdDev[i] = (results[i+N]-expectedCaplets[i])/errors[i+N];
                 if (capletStdDev[i]>maxError)
@@ -673,8 +673,8 @@ namespace {
             Real bermudanNPV = stats.mean()[2];
             Real callableNPV = stats.mean()[3];
             Real tolerance = 1.1e-15;
-            Real swapError = std::fabs(receiverNPV+payerNPV);
-            Real callableError = std::fabs(receiverNPV+bermudanNPV-callableNPV);
+            Real swapError = abs(receiverNPV+payerNPV);
+            Real callableError = abs(receiverNPV+bermudanNPV-callableNPV);
 
             if (swapError>tolerance || bermudanNPV<0.0 ||
                 callableNPV<receiverNPV || callableError>tolerance)
@@ -1024,12 +1024,12 @@ void MarketModelTest::testInverseFloater()
                             Real priceSD = stats->errorEstimate()[0];
 
                             Real errorInSds = priceError/priceSD;
-                            if (fabs(errorInSds) > 4.0)
+                            if (abs(errorInSds) > 4.0)
                                 BOOST_FAIL("Inverse floater product has price error equal to " <<errorInSds << " sds . Price " <<truePrice << " MC price " << stats->mean()[0] <<  " \n" );
 
                             Real numericalTolerance = 1E-12;
 
-                            if (fabs(stats->mean()[0] - stats->mean()[1]) > numericalTolerance)
+                            if (abs(stats->mean()[0] - stats->mean()[1]) > numericalTolerance)
                                 BOOST_FAIL("Inverse floater and wrapper pathwise inverse floater do not agree:" << stats->mean()[0]  << "  " << stats->mean()[1] );
                        
 
@@ -1167,7 +1167,7 @@ void addOptionLets(MultiProductComposite& product,
                            subProductExpectedValues.back().values.push_back(
                                BlackCalculator(displacedPayoffs[i],
                                todaysForwards[i]+displacement,
-                               volatilities[i]*std::sqrt(rateTimes[i]),
+                               volatilities[i]*sqrt(rateTimes[i]),
                                todaysDiscounts[i+1]*accruals[i]).value());
                        }
 }
@@ -1247,7 +1247,7 @@ void addCoterminalSwapsAndSwaptions(MultiProductComposite& product,
                                             Real expectedSwaption =
                                                 BlackCalculator(payoff,
                                                 todaysCoterminalSwapRates[i]+displacement,
-                                                std::sqrt(cotSwapsCovariance[i][i]),
+                                                sqrt(cotSwapsCovariance[i][i]),
                                                 curveState.coterminalSwapAnnuity(0,i) *
                                                 todaysDiscounts[0]).value();
                                             subProductExpectedValues.back().values.push_back(expectedSwaption);
@@ -1409,7 +1409,7 @@ void MarketModelTest::testPeriodAdapter() {
 
 
     for (Size i=0; i < numberBigRates; ++i) {
-        if (fabs(capletErrorsInSds[i]) > capletTolerance) {
+        if (abs(capletErrorsInSds[i]) > capletTolerance) {
             BOOST_FAIL(io::ordinal(i+1) << "caplet , approx price " <<
                 approxCapletPrices[i] <<
                 ", \t simulation price " << results[i] <<
@@ -1417,7 +1417,7 @@ void MarketModelTest::testPeriodAdapter() {
         }
     }
     for (Size i=0; i < numberBigRates; ++i) {
-        if (fabs(swaptionErrorsInSds[i]) > swaptionTolerance) {
+        if (abs(swaptionErrorsInSds[i]) > swaptionTolerance) {
             BOOST_FAIL(io::ordinal(i+1) << "swaption, approx price " <<
                 approxSwaptionPrices[i] <<
                 ", \t simulation price " << results[i+numberBigRates] <<
@@ -2380,7 +2380,7 @@ void MarketModelTest::testPathwiseGreeks()
 
                                 Real errorTheshold = 3.5;
 
-                                if (fabs(priceErrorInSds) > errorTheshold)
+                                if (abs(priceErrorInSds) > errorTheshold)
                                 {
                                     BOOST_TEST_MESSAGE("Caplet " << i << " price " << prices[i] << " model price " << modelPrices[i]
                                     << "   Standard error: " <<priceErrors[i] << " errors in sds: " << priceErrorInSds);
@@ -2401,10 +2401,10 @@ void MarketModelTest::testPathwiseGreeks()
                                     if (deltasErrors[i][j] > 0.0)
                                         deltaErrorInSds = (( delta  - modelDelta )/deltasErrors[i][j]);
                                     else
-                                        if (fabs(modelDelta -delta) < threshold) // to cope with zero over zero
+                                        if (abs(modelDelta -delta) < threshold) // to cope with zero over zero
                                             deltaErrorInSds =0.0;
 
-                                    if (fabs(deltaErrorInSds) > errorTheshold)
+                                    if (abs(deltaErrorInSds) > errorTheshold)
                                     {
 
                                         BOOST_TEST_MESSAGE("Caplet " << i << " delta " << j << "has value " << deltas[i][j] << " model value " << modelDeltas[i][j]
@@ -2591,7 +2591,7 @@ void MarketModelTest::testPathwiseVegas()
 
                         Real error = volDeriv - modelVal;
 
-                        if (fabs(error) > swaptionPseudoTolerance)
+                        if (abs(error) > swaptionPseudoTolerance)
                             ++numberSwaptionPseudoFailures;
 
 
@@ -2709,7 +2709,7 @@ void MarketModelTest::testPathwiseVegas()
 
                                 Real error = priceDeriv - modelVal;
 
-                                if (fabs(error) > swaptionPseudoTolerance)
+                                if (abs(error) > swaptionPseudoTolerance)
                                     ++numberCapPseudoFailures;
 
 
@@ -2748,7 +2748,7 @@ void MarketModelTest::testPathwiseVegas()
 
                     }
 
-                    if (fabs(priceVarVol - priceConstVol) > impVolTolerance)
+                    if (abs(priceVarVol - priceConstVol) > impVolTolerance)
                         ++numberCapImpVolFailures;
 
 
@@ -2838,7 +2838,7 @@ void MarketModelTest::testPathwiseVegas()
 
                                 Real error = volDeriv - modelVal;
 
-                                if (fabs(error) > impVolTolerance*10)
+                                if (abs(error) > impVolTolerance*10)
                                     ++numberCapVolPseudoFailures;
 
 
@@ -3101,9 +3101,9 @@ void MarketModelTest::testPathwiseVegas()
                                 Real errorSize = (analytic - numerical)/ ( bumpSizeNumericalDifferentiation*bumpSizeNumericalDifferentiation);
                                 Real errorSize2 = (analytic2 - numerical)/ ( bumpSizeNumericalDifferentiation*bumpSizeNumericalDifferentiation);
 
-                                maxError = std::max(maxError,fabs(errorSize));
+                                maxError = std::max(maxError,abs(errorSize));
 
-                                if ( fabs( errorSize  ) > multiplier  )
+                                if ( abs( errorSize  ) > multiplier  )
                                 {
                                     ++numberFailures;
                                     if (printReport_)
@@ -3113,7 +3113,7 @@ void MarketModelTest::testPathwiseVegas()
 
                                 }
 
-                                if ( fabs( errorSize2  ) > multiplier  )
+                                if ( abs( errorSize2  ) > multiplier  )
                                 {
                                     ++numberFailures2;
                                     if (printReport_)
@@ -3293,12 +3293,12 @@ void MarketModelTest::testPathwiseVegas()
                             Real thisError =  mcVega - analyticVega;
                             Real thisSE = standardErrors[s][b];
 
-                            if (fabs(thisError) >  0.0)
+                            if (abs(thisError) >  0.0)
                             {
                                 Real errorInSEs = thisError/thisSE;
-                                biggestError = std::max(fabs(errorInSEs),biggestError);
+                                biggestError = std::max(abs(errorInSEs),biggestError);
 
-                                if (fabs(errorInSEs) > 4.5)
+                                if (abs(errorInSEs) > 4.5)
                                 {
                                     if (deflate==0)
                                         ++numberUndeflatedErrors;
@@ -3363,13 +3363,13 @@ void MarketModelTest::testPathwiseVegas()
 
                         Real priceDiff = prices2[i] - prices[i];
 
-                        if (fabs(priceDiff) > 5*priceErrors2[i])  // two sets of standard error
+                        if (abs(priceDiff) > 5*priceErrors2[i])  // two sets of standard error
                             BOOST_FAIL("pathwise accounting engine and pathwise vegas accounting engine not in perfect agreement for price.\n product " << i << ",  vega computed price: " << prices[j] << " previous price " << prices2[j] << ", deflate " << deflate << "\n" );
 
                         for (Size j=0; j <  todaysForwards.size(); ++j)
                         {
                             Real error = deltas2[i][j] - deltasMatrix[i][j];
-                            if (fabs(error)> 5* deltasErrors2[i][j] ) // two sets of standard error
+                            if (abs(error)> 5* deltasErrors2[i][j] ) // two sets of standard error
                                 BOOST_FAIL("pathwise accounting engine and pathwise vegas accounting engine not in perfect agreement for dealts.\n product " << i << ", rate " << j << " vega computed delta: " << deltasMatrix[i][j] << " previous delta " << deltas2[i][j] << "\n" );
                         }
                     }
@@ -3499,7 +3499,7 @@ void MarketModelTest::testPathwiseVegas()
                         Size numberMeanFailures =0;
 
                         for (Size i=0; i <values.size(); ++i)
-                            if (fabs(values[i]-values2[i]) > tol)
+                            if (abs(values[i]-values2[i]) > tol)
                                 ++numberMeanFailures;
 
                               if (numberMeanFailures >0)
@@ -3612,9 +3612,9 @@ void MarketModelTest::testPathwiseVegas()
                                 Real thisError =  mcVega - analyticVega;
                                 Real thisSE = standardErrors[s][b];
 
-                                if (fabs(thisError) >  0.0)
+                                if (abs(thisError) >  0.0)
                                 {
-                                    Real errorInSEs = fabs(thisError/thisSE);
+                                    Real errorInSEs = abs(thisError/thisSE);
 
                                     if (errorInSEs > 3.5)
                                         ++numberErrors;
@@ -3812,13 +3812,13 @@ void MarketModelTest::testPathwiseMarketVegas()
                         {
                             Real thisError = swaptionVegasMatrix[i][i] - 0.01;
 
-                            if (fabs(thisError) > 1e-8)
+                            if (abs(thisError) > 1e-8)
                                 ++numberDiagonalFailures;
                         }
                         else
                         {
                             Real thisError = swaptionVegasMatrix[i][j];
-                            if (fabs(thisError) > 1e-8)
+                            if (abs(thisError) > 1e-8)
                                 ++offDiagonalFailures;
                         }
                     }
@@ -3863,13 +3863,13 @@ void MarketModelTest::testPathwiseMarketVegas()
                     {
                         Real thisError = capsVegasMatrix[i][j] - 0.01;
 
-                        if (fabs(thisError) > 1e-8)
+                        if (abs(thisError) > 1e-8)
                             ++numberDiagonalFailures;
                     }
                     else
                     {
                         Real thisError = capsVegasMatrix[i][j];
-                        if (fabs(thisError) > 1e-8)
+                        if (abs(thisError) > 1e-8)
                             ++offDiagonalFailures;
                     }
                 }
@@ -3968,7 +3968,7 @@ void MarketModelTest::testPathwiseMarketVegas()
 
                         for (Size cf =0; cf < numberCashFlowsThisStep1[prod]; ++cf)
                             for (Size rate=0; rate<= numberRates; ++rate)
-                                if ( fabs(cashFlowsGenerated1[prod][cf].amount[rate] -  cashFlowsGenerated2[prod][cf].amount[rate]) > tolerance )
+                                if ( abs(cashFlowsGenerated1[prod][cf].amount[rate] -  cashFlowsGenerated2[prod][cf].amount[rate]) > tolerance )
                                     BOOST_FAIL("numerical swaptions derivative and swaptions disagree on cash flow size. cf = " << cf <<
                                     "step " << step << ", rate " << rate << ", amount1 " << cashFlowsGenerated1[prod][cf].amount[rate]
                                 << " ,amount2 " << cashFlowsGenerated2[prod][cf].amount[rate] << "\n");
@@ -4118,7 +4118,7 @@ void MarketModelTest::testPathwiseMarketVegas()
                     Real thisError = vegasMatrix[i][i] - analyticVegas[i];
                     Real thisErrorInSds = thisError /  (standardErrors[i][i]+1E-6); // silly to penalize for tiny standard error
 
-                    if (fabs(thisErrorInSds) > 4)
+                    if (abs(thisErrorInSds) > 4)
                         ++numberDiagonalFailures;
 
                 }
@@ -4132,7 +4132,7 @@ void MarketModelTest::testPathwiseMarketVegas()
 
                             Real thisErrorInSds = thisError /  (standardErrors[i][j]+1E-6);
 
-                            if (fabs(thisErrorInSds) > 3.5)
+                            if (abs(thisErrorInSds) > 3.5)
                                 ++offDiagonalFailures;
                         }
                     }
@@ -4288,7 +4288,7 @@ void MarketModelTest::testPathwiseMarketVegas()
                     Real thisError = vegasMatrix[i][i+swaptions.size()] - analyticVegas[i];
                     Real thisErrorInSds = thisError /  (standardErrors[i][i+swaptions.size()]+1E-6); // silly to penalize for tiny standard error
 
-                    if (fabs(thisErrorInSds) > 4)
+                    if (abs(thisErrorInSds) > 4)
                     {
                         BOOST_TEST_MESSAGE(" MC cap vega: " <<vegasMatrix[i][i+swaptions.size()] << " Analytic cap vega:" << analyticVegas[i] << " Error in sds:" << thisErrorInSds << "\n");
                         ++numberDiagonalFailures;
@@ -4305,7 +4305,7 @@ void MarketModelTest::testPathwiseMarketVegas()
 
                             Real thisErrorInSds = thisError /  (standardErrors[i][j]+1E-6);
 
-                            if (fabs(thisErrorInSds) > 3.5)
+                            if (abs(thisErrorInSds) > 3.5)
                                 ++offDiagonalFailures;
                         }
                     }
@@ -4360,7 +4360,7 @@ void MarketModelTest::testAbcdVolatilityIntegration() {
                     AbcdSquared abcd2(a,b,c,d,T1,T2);
                     Real numerical = SI(abcd2,xMin,xMax);
                     Real analytical = instVol->covariance(xMin,xMax,T1,T2);
-                    if (std::abs(analytical-numerical)>precision) {
+                    if (abs(analytical-numerical)>precision) {
                         BOOST_ERROR("     T1=" << T1 << "," <<
                             "T2=" << T2 << ",\t\t" <<
                             "xMin=" << xMin << "," <<
@@ -4370,7 +4370,7 @@ void MarketModelTest::testAbcdVolatilityIntegration() {
                     }
                     if (T1==T2) {
                         Real variance = instVol->variance(xMin,xMax,T1);
-                        if (std::abs(analytical-variance)>1e-14) {
+                        if (abs(analytical-variance)>1e-14) {
                             BOOST_ERROR("     T1=" << T1 << "," <<
                                 "T2=" << T2 << ",\t\t" <<
                                 "xMin=" << xMin << "," <<
@@ -4419,7 +4419,7 @@ void MarketModelTest::testAbcdVolatilityCompare() {
                 Real lmCovariance = lmAbcd->integratedVariance(i1,i2,T);
                 Real abcdCovariance =
                     abcd->covariance(0,T,rateTimes[i1],rateTimes[i2]);
-                if(std::abs(lmCovariance-abcdCovariance)>1e-10) {
+                if(abs(lmCovariance-abcdCovariance)>1e-10) {
                     BOOST_FAIL(" T1="   << rateTimes[i1] << ","     <<
                         "T2="   << rateTimes[i2] << ",\t\t" <<
                         "xMin=" << 0  << ","     <<
@@ -4467,7 +4467,7 @@ void MarketModelTest::testAbcdVolatilityFit() {
     std::vector<Real> k = instVol.k(std::vector<Time>(rateTimes.begin(), rateTimes.end()-1), blackVols);
     Real tol = 3.0e-4;
     for (Size i=0; i<blackVols.size(); i++) {
-        if (std::abs(k[i]-1.0)>tol) {
+        if (abs(k[i]-1.0)>tol) {
             Real modelVol =
                 abcd.volatility(0.0, rateTimes[i], rateTimes[i]);
             BOOST_FAIL("\n EndCriteria = " << ec <<
@@ -4475,7 +4475,7 @@ void MarketModelTest::testAbcdVolatilityFit() {
                 "\n MktVol      = " << io::rate(blackVols[i]) <<
                 "\n ModVol      = " << io::rate(modelVol) <<
                 "\n k           = " << k[i] <<
-                "\n error       = " << std::abs(k[i]-1.0) <<
+                "\n error       = " << abs(k[i]-1.0) <<
                 "\n tol         = " << tol);
         }
     }
@@ -4603,7 +4603,7 @@ void MarketModelTest::testStochVolForwardsAndOptionlets() {
                            Real error = results[i] - trueValue;
                            Real errorSds = error/ errors[i];
 
-                           if (fabs(errorSds) > 3.5)
+                           if (abs(errorSds) > 3.5)
                                BOOST_FAIL("error in sds: " << errorSds << " for forward " << i << " in SV LMM test. True value:" << trueValue << ", actual value: " << results[i] << " , standard error " << errors[i]);
 
 
@@ -4656,14 +4656,14 @@ void MarketModelTest::testStochVolForwardsAndOptionlets() {
                        //        trueValue =
                       //                              BlackCalculator(displacedPayoffs[i],
                       //                                                todaysForwards[i]+displacement,
-                      //                                             volatilities[i]*std::sqrt(rateTimes[i]),
+                      //                                             volatilities[i]*sqrt(rateTimes[i]),
                      //                                              todaysDiscounts[i+1]*accruals[i]).value();
 
 
                                 Real error = results[i+ accruals.size()] - trueValue;
                                 Real errorSds = error/ errors[i];
 
-                                if (fabs(errorSds) > 4)
+                                if (abs(errorSds) > 4)
                                     BOOST_FAIL("error in sds: " << errorSds << " for caplet " << i << " in SV LMM test. True value:" << trueValue << ", actual value: " << results[i+ accruals.size()] << " , standard error " << errors[i]);
 
 
@@ -4724,7 +4724,7 @@ void MarketModelTest::testDriftCalculator() {
                 driftcalculator.computeReduced(todaysForwards,
                     driftsReduced);
                 for (Size i=0; i<drifts.size(); ++i) {
-                    Real error = std::abs(driftsReduced[i]-drifts[i]);
+                    Real error = abs(driftsReduced[i]-drifts[i]);
                     if (error>tolerance)
                         BOOST_ERROR("MarketModel: " <<
                         marketModelTypeToString(marketModels[k]) <<
@@ -4772,16 +4772,16 @@ void MarketModelTest::testAbcdDegenerateCases() {
     AbcdFunction f2(1.0,0.0,1.0E-50,0.0);
 
     Real cov1 = f1.covariance(0.0,1.0,1.0,1.0);
-    if (std::fabs(cov1 - 1.0) > 1E-14
+    if (abs(cov1 - 1.0) > 1E-14
         || boost::math::isnan(cov1) || boost::math::isinf(cov1))
         BOOST_FAIL("(a,b,c,d)=(0,0,0,1): true covariance should be 1.0, "
-        << "error is " << std::fabs(cov1 - 1.0));
+        << "error is " << abs(cov1 - 1.0));
 
     Real cov2 = f2.covariance(0.0,1.0,1.0,1.0);
-    if (std::fabs(cov2 - 1.0) > 1E-14
+    if (abs(cov2 - 1.0) > 1E-14
         || boost::math::isnan(cov2) || boost::math::isinf(cov2))
         BOOST_FAIL("(a,b,c,d)=(1,0,0,0): true covariance should be 1.0, "
-        << "error is " << std::fabs(cov2 - 1.0));
+        << "error is " << abs(cov2 - 1.0));
 }
 
 void MarketModelTest::testCovariance() {
@@ -4854,7 +4854,7 @@ void MarketModelTest::testCovariance() {
                     for(Size x=0;x<n-1;x++) {
                         for(Size y=0;y<n-1;y++) {
                             if(std::min(rateTimes[x],rateTimes[y])>=evolTimes[l][i]
-                               && fabs(cov[x][y]-c[x][y]*dt)>1.0E-14) 
+                               && abs(cov[x][y]-c[x][y]*dt)>1.0E-14) 
                                 BOOST_FAIL("Model " << modelNames[k]
                                            << " with " << evolNames[l]
                                            << ": covariance matrix in step " << i

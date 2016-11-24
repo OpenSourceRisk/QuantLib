@@ -54,9 +54,9 @@ namespace QuantLib {
     void AnalyticHestonHullWhiteEngine::calculate() const {
 
         const Real t = model_->process()->time(arguments_.exercise->lastDate());
-        if (a_*t > std::pow(QL_EPSILON, 0.25)) {
+        if (a_*t > pow(QL_EPSILON, 0.25)) {
             m_ = sigma_*sigma_/(2*a_*a_)
-                *(t+2/a_*std::exp(-a_*t)-1/(2*a_)*std::exp(-2*a_*t)-3/(2*a_));
+                *(t+2/a_*exp(-a_*t)-1/(2*a_)*exp(-2*a_*t)-3/(2*a_));
         }
         else {
             // low-a algebraic limit

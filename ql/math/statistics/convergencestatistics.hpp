@@ -104,7 +104,7 @@ namespace QuantLib {
     void ConvergenceStatistics<T,U>::add(
                  const typename ConvergenceStatistics<T,U>::value_type& value,
                  Real weight) {
-        T::add(value,weight);
+        T::add(VALUE(value),VALUE(weight));
         if (this->samples() == nextSampleSize_) {
             table_.push_back(std::make_pair(this->samples(),this->mean()));
             nextSampleSize_ = samplingRule_.nextSamples(nextSampleSize_);

@@ -35,7 +35,7 @@ void BlackFormulaTest::testBachelierImpliedVol(){
     Real forward = 1.0;
     Real bpvol = 0.01;
     Real tte = 10.0;
-    Real stdDev = bpvol*std::sqrt(tte);
+    Real stdDev = bpvol*sqrt(tte);
     Option::Type optionType = Option::Call;
     Real discount = 0.95;
 
@@ -43,13 +43,13 @@ void BlackFormulaTest::testBachelierImpliedVol(){
     for(Size i=0;i<LENGTH(d);++i){
 
 
-        Real strike = forward - d[i] * bpvol * std::sqrt(tte);
+        Real strike = forward - d[i] * bpvol * sqrt(tte);
 
         Real callPrem = bachelierBlackFormula(optionType, strike, forward, stdDev, discount);
 
         Real impliedBpVol = bachelierBlackFormulaImpliedVol(optionType,strike, forward, tte, callPrem, discount);
 
-        if (std::fabs(bpvol-impliedBpVol)>1.0e-12){
+        if (abs(bpvol-impliedBpVol)>1.0e-12){
             BOOST_ERROR("Failed, expected " << bpvol << " realised " << impliedBpVol );
         }
     }

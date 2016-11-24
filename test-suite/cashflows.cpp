@@ -149,7 +149,7 @@ void CashFlowsTest::testSettings() {
     #define CHECK_NPV(includeRef, expected)                             \
     do {                                                            \
         Real NPV = CashFlows::npv(leg, no_discount, includeRef, today); \
-        if (std::fabs(NPV - expected) > 1e-6) {                         \
+        if (abs(NPV - expected) > 1e-6) {                         \
             BOOST_ERROR("NPV mismatch:\n"                               \
                         << "    calculated: " << NPV << "\n"            \
                         << "    expected: " << expected);               \

@@ -34,10 +34,10 @@ namespace QuantLib {
                       Real variance)
            : payoff_(payoff), s0_(s0), drift_(drift), variance_(variance) {}
             Real operator()(Real x) const {
-                Real temp = s0_ * std::exp(x);
+                Real temp = s0_ * exp(x);
                 Real result = (*payoff_)(temp);
                 return result *
-                    std::exp(-(x - drift_)*(x -drift_)/(2.0*variance_)) ;
+                    exp(-(x - drift_)*(x -drift_)/(2.0*variance_)) ;
             }
           private:
             boost::shared_ptr<Payoff> payoff_;
@@ -71,18 +71,18 @@ namespace QuantLib {
                                              arguments_.exercise->lastDate());
         DiscountFactor riskFreeDiscount =
             process_->riskFreeRate()->discount(arguments_.exercise->lastDate());
-        Rate drift = std::log(dividendDiscount/riskFreeDiscount)-0.5*variance;
+        Rate drift = log(dividendDiscount/riskFreeDiscount)-0.5*variance;
 
         Integrand f(arguments_.payoff,
                     process_->stateVariable()->value(),
                     drift, variance);
         SegmentIntegral integrator(5000);
 
-        Real infinity = 10.0*std::sqrt(variance);
+        Real infinity = 10.0*sqrt(variance);
         results_.value =
             process_->riskFreeRate()->discount(
                                             arguments_.exercise->lastDate()) /
-            std::sqrt(2.0*M_PI*variance) *
+            sqrt(2.0*M_PI*variance) *
             integrator(f, drift-infinity, drift+infinity);
     }
 

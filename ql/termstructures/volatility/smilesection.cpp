@@ -23,7 +23,7 @@
 #include <ql/settings.hpp>
 #include <ql/math/comparison.hpp>
 
-using std::sqrt;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -89,7 +89,7 @@ namespace QuantLib {
                                           Real discount,
                                           Real gap) const {
         Real m = volatilityType() == ShiftedLognormal ? -shift() : -QL_MAX_REAL;
-        Real kl = std::max(strike-gap/2.0,m);
+        Real kl = max(strike-gap/2.0,m);
         Real kr = kl+gap;
         return (type==Option::Call ? 1.0 : -1.0) *
             (optionPrice(kl,type,discount)-optionPrice(kr,type,discount)) / gap;
@@ -97,7 +97,7 @@ namespace QuantLib {
 
     Real SmileSection::density(Rate strike, Real discount, Real gap) const {
         Real m = volatilityType() == ShiftedLognormal ? -shift() : -QL_MAX_REAL;
-        Real kl = std::max(strike-gap/2.0,m);
+        Real kl = max(strike-gap/2.0,m);
         Real kr = kl+gap;
         return (digitalOptionPrice(kl,Option::Call,discount,gap) -
                 digitalOptionPrice(kr,Option::Call,discount,gap)) / gap;
@@ -129,11 +129,11 @@ namespace QuantLib {
             try {
                 return blackFormulaImpliedStdDev(type, strike, atm, premium,
                                                  1.0, shift) /
-                       std::sqrt(exerciseTime());
+                       sqrt(exerciseTime());
             } catch(...) {
                 return blackFormulaImpliedStdDevChambers(
                     type, strike, atm, premium, premiumAtm, 1.0, shift) /
-                       std::sqrt(exerciseTime());
+                       sqrt(exerciseTime());
             }
         } else {
                 return bachelierBlackFormulaImpliedVol(type, strike, atm,

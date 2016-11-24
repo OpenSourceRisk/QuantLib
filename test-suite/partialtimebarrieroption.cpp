@@ -114,7 +114,7 @@ void PartialTimeBarrierOptionTest::testAnalyticEngine() {
         spot->setValue(cases[i].underlying);
         Real calculated = option.NPV();
         Real expected = cases[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         Real tolerance = 1e-4;
         if (error > tolerance)
             BOOST_ERROR("Failed to reproduce partial-time barrier option value"

@@ -87,13 +87,13 @@ namespace QuantLib {
                 a = effStrike;
                 b = coupon_->indexFixing();
             }
-            return std::max(a - b, 0.0)* coupon_->accrualPeriod()*discount_;
+            return max(a - b, Real(0.0))* coupon_->accrualPeriod()*discount_;
         } else {
             // not yet determined, use Black/DD1/Bachelier/whatever from Impl
             QL_REQUIRE(!capletVolatility().empty(),
                        "missing optionlet volatility");
             Real stdDev =
-            std::sqrt(capletVolatility()->totalVariance(fixingDate,
+            sqrt(capletVolatility()->totalVariance(fixingDate,
                                                         effStrike));
             Rate fixing = optionletPriceImp(optionType,
                                             effStrike,

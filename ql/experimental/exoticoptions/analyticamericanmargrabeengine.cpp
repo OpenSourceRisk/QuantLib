@@ -68,11 +68,11 @@ namespace QuantLib {
 
         DiscountFactor dividendDiscount1 =
             process1_->dividendYield()->discount(exercise->lastDate());
-        Rate q1 = -std::log(dividendDiscount1)/t;
+        Rate q1 = -log(dividendDiscount1)/t;
 
         DiscountFactor dividendDiscount2 =
             process2_->dividendYield()->discount(exercise->lastDate());
-        Rate q2 = -std::log(dividendDiscount2)/t;
+        Rate q2 = -log(dividendDiscount2)/t;
 
         boost::shared_ptr<YieldTermStructure> qTS(
                                             new FlatForward(today, q1, rfdc));
@@ -85,8 +85,8 @@ namespace QuantLib {
         Real variance2 = process2_->blackVolatility()->blackVariance(
                                                 exercise->lastDate(), s2);
         Real variance = variance1 + variance2
-                      - 2*rho_*std::sqrt(variance1)*std::sqrt(variance2);
-        Volatility volatility = std::sqrt(variance/t);
+                      - 2*rho_*sqrt(variance1)*sqrt(variance2);
+        Volatility volatility = sqrt(variance/t);
 
         boost::shared_ptr<BlackVolTermStructure> volTS(
                new BlackConstantVol(today, NullCalendar(), volatility, rfdc));

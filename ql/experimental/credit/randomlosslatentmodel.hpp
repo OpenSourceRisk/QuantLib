@@ -189,8 +189,8 @@ namespace QuantLib {
                 //   not the case in pricing in risk metrics/real  
                 //   probabilities the curves are often flat
                 static_cast<Size>(ceil(maxHorizon_ * 
-                                    std::log(1.-simDefaultProb)
-                /std::log(1.-data_.horizonDefaultPs_[iName])));
+                                    log(1.-simDefaultProb)
+                /log(1.-data_.horizonDefaultPs_[iName])));
                 */
                 // Determine the realized recovery rate:
                 /* For this; 'conditionalRecovery' needs to compute the pdef on 

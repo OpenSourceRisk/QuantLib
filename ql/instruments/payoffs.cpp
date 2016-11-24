@@ -82,9 +82,9 @@ namespace QuantLib {
     Real PlainVanillaPayoff::operator()(Real price) const {
         switch (type_) {
           case Option::Call:
-            return std::max<Real>(price-strike_,0.0);
+            return max<Real>(price-strike_,0.0);
           case Option::Put:
-            return std::max<Real>(strike_-price,0.0);
+            return max<Real>(strike_-price,0.0);
           default:
             QL_FAIL("unknown/illegal option type");
         }
@@ -102,9 +102,9 @@ namespace QuantLib {
     Real PercentageStrikePayoff::operator()(Real price) const {
         switch (type_) {
           case Option::Call:
-            return price*std::max<Real>(Real(1.0)-strike_,0.0);
+            return price*max<Real>(Real(1.0)-strike_,0.0);
           case Option::Put:
-            return price*std::max<Real>(strike_-Real(1.0),0.0);
+            return price*max<Real>(strike_-Real(1.0),0.0);
           default:
             QL_FAIL("unknown/illegal option type");
         }

@@ -42,12 +42,12 @@ inline Disposable<Matrix> moorePenroseInverse(const Matrix &A,
 
     Real tol0 = tol;
     if (tol0 == Null<Real>()) {
-        tol0 = std::max(m, n) * QL_EPSILON * std::abs(svd.singularValues()[0]);
+        tol0 = std::max(m, n) * QL_EPSILON * abs(svd.singularValues()[0]);
     }
 
     Matrix sp(n, n, 0.0);
     for (Size i = 0; i < n; ++i) {
-        if (std::abs(svd.singularValues()[i]) > tol0) {
+        if (abs(svd.singularValues()[i]) > tol0) {
             sp(i, i) = 1.0 / svd.singularValues()[i];
         }
     }

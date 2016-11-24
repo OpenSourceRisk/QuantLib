@@ -110,9 +110,9 @@ void ForwardOptionTest::testValues() {
 
         boost::shared_ptr<StrikedTypePayoff> payoff(
                                  new PlainVanillaPayoff(values[i].type, 0.0));
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
-        Date reset = today + Integer(values[i].start*360+0.5);
+        Date reset = today + Integer(VALUE(values[i].start*360+0.5));
 
         spot ->setValue(values[i].s);
         qRate->setValue(values[i].q);
@@ -124,7 +124,7 @@ void ForwardOptionTest::testValues() {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = 1e-4;
         if (error>tolerance) {
             REPORT_FAILURE("value", payoff, exercise, values[i].s,
@@ -148,8 +148,8 @@ void ForwardOptionTest::testPerformanceValues() {
     */
     ForwardOptionData values[] = {
         //  type, moneyness, spot,  div, rate,start, maturity,  vol,                       result, tol
-        { Option::Call, 1.1, 60.0, 0.04, 0.08, 0.25,      1.0, 0.30, 4.4064/60*std::exp(-0.04*0.25), 1.0e-4 },
-        {  Option::Put, 1.1, 60.0, 0.04, 0.08, 0.25,      1.0, 0.30, 8.2971/60*std::exp(-0.04*0.25), 1.0e-4 }
+        { Option::Call, 1.1, 60.0, 0.04, 0.08, 0.25,      1.0, 0.30, 4.4064/60*exp(-0.04*0.25), 1.0e-4 },
+        {  Option::Put, 1.1, 60.0, 0.04, 0.08, 0.25,      1.0, 0.30, 8.2971/60*exp(-0.04*0.25), 1.0e-4 }
     };
 
     DayCounter dc = Actual360();
@@ -177,9 +177,9 @@ void ForwardOptionTest::testPerformanceValues() {
 
         boost::shared_ptr<StrikedTypePayoff> payoff(
                                  new PlainVanillaPayoff(values[i].type, 0.0));
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
-        Date reset = today + Integer(values[i].start*360+0.5);
+        Date reset = today + Integer(VALUE(values[i].start*360+0.5));
 
         spot ->setValue(values[i].s);
         qRate->setValue(values[i].q);
@@ -191,7 +191,7 @@ void ForwardOptionTest::testPerformanceValues() {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = 1e-4;
         if (error>tolerance) {
             REPORT_FAILURE("value", payoff, exercise, values[i].s,

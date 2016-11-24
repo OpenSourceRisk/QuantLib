@@ -162,7 +162,7 @@ namespace QuantLib {
                 Array c2ub = c2_.upperBound(params);
                 Array rtrnArray(c1ub.size(), 0.0);
                 for (Size iter = 0; iter < c1ub.size(); iter++) {
-                    rtrnArray.at(iter) = std::min(c1ub.at(iter), c2ub.at(iter));
+                    rtrnArray.at(iter) = min(c1ub.at(iter), c2ub.at(iter));
                 }
                 return rtrnArray;
             }
@@ -171,7 +171,7 @@ namespace QuantLib {
                 Array c2lb = c2_.lowerBound(params);
                 Array rtrnArray(c1lb.size(), 0.0);
                 for (Size iter = 0; iter < c1lb.size(); iter++) {
-                    rtrnArray.at(iter) = std::max(c1lb.at(iter), c2lb.at(iter));
+                    rtrnArray.at(iter) = max(c1lb.at(iter), c2lb.at(iter));
                 }
                 return rtrnArray;
             }

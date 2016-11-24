@@ -69,7 +69,7 @@ namespace QuantLib {
                 newI = IntegrationPolicy::integrate(f,a,b,I,N);
                 N *= IntegrationPolicy::nbEvalutions();
                 // good enough? Also, don't run away immediately
-                if (std::fabs(I-newI) <= absoluteAccuracy() && i > 5)
+                if (abs(I-newI) <= absoluteAccuracy() && i > 5)
                     // ok, exit
                     return newI;
                 // oh well. Another step.

@@ -38,7 +38,7 @@ namespace QuantLib {
     }
 
     Real SquareRootProcess::diffusion(Time, Real x) const {
-        return volatility_*std::sqrt(x);
+        return volatility_*sqrt(x);
     }
 
 }

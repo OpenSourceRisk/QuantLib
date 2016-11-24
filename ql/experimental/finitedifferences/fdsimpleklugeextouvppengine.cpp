@@ -196,8 +196,8 @@ namespace QuantLib {
         Array results(exerciseMesher->size());
         for (Size i=0; i < results.size(); ++i) {
 
-            x[3] = std::max(minExerciseValue + tol,
-                            std::min(exerciseMesher->location(i),
+            x[3] = max(minExerciseValue + tol,
+                            min(exerciseMesher->location(i),
                                      maxExerciseValue - tol));
             results[i] = solver->valueAt(x);
         }

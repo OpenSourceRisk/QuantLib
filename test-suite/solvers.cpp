@@ -48,7 +48,7 @@ namespace {
 
     class F3 {
       public:
-        Real operator()(Real x) const { return std::atan(x-1); }
+        Real operator()(Real x) const { return atan(x-1); }
         Real derivative(Real x) const { return 1.0 / (1.0+(x-1.0)*(x-1.0)); }
     };
 
@@ -59,7 +59,7 @@ namespace {
         Real expected = 1.0;
         for (Size i=0; i<LENGTH(accuracy); i++) {
             Real root = solver.solve(f,accuracy[i],guess,0.1);
-            if (std::fabs(root-expected) > accuracy[i]) {
+            if (abs(root-expected) > accuracy[i]) {
                 BOOST_FAIL(name << " solver (not bracketed):\n"
                            << "    expected:   " << expected << "\n"
                            << "    calculated: " << root << "\n"
@@ -76,7 +76,7 @@ namespace {
         for (Size i=0; i<LENGTH(accuracy); i++) {
             // guess on the left side of the root, increasing function
             Real root = solver.solve(f,accuracy[i],guess,0.0,2.0);
-            if (std::fabs(root-expected) > accuracy[i]) {
+            if (abs(root-expected) > accuracy[i]) {
                 BOOST_FAIL(name << " solver (bracketed):\n"
                            << "    expected:   " << expected << "\n"
                            << "    calculated: " << root << "\n"
@@ -123,7 +123,7 @@ namespace {
                                       guesses[i], steps[i]);
             }
 
-            Real error = std::fabs(result-argument);
+            Real error = abs(result-argument);
             // no floating-point comparison: the solver should have
             // called the function with the very same value it's
             // returning

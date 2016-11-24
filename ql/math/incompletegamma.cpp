@@ -59,11 +59,11 @@ namespace QuantLib {
         Real del=1.0/a;
         Real sum=del;
         for (Integer n=1; n<=maxIteration; n++) {
-            ++ap;
+            ap += 1.0;
             del *= x/ap;
             sum += del;
-            if (std::fabs(del) < std::fabs(sum)*accuracy) {
-                return sum*std::exp(-x+a*std::log(x)-gln);
+            if (abs(del) < abs(sum)*accuracy) {
+                return sum*exp(-x+a*log(x)-gln);
             }
         }
         QL_FAIL("accuracy not reached");
@@ -84,14 +84,14 @@ namespace QuantLib {
             an = -i*(i-a);
             b += 2.0;
             d=an*d+b;
-            if (std::fabs(d) < QL_EPSILON) d=QL_EPSILON;
+            if (abs(d) < QL_EPSILON) d=QL_EPSILON;
             c=b+an/c;
-            if (std::fabs(c) < QL_EPSILON) c=QL_EPSILON;
+            if (abs(c) < QL_EPSILON) c=QL_EPSILON;
             d=1.0/d;
             del=d*c;
             h *= del;
-            if (std::fabs(del-1.0) < accuracy) {
-                return std::exp(-x+a*std::log(x)-gln)*h;
+            if (abs(del-1.0) < accuracy) {
+                return exp(-x+a*log(x)-gln)*h;
             }
         }
 

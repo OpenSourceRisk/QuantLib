@@ -67,7 +67,7 @@ namespace QuantLib {
 
         genCashFlows[0][1].timeIndex =  currentIndex_;
 
-        Real obviousCoupon = std::max(strikes_[currentIndex_] - multipliers_[currentIndex_]*liborRate,0.0)*accruals_[currentIndex_];
+        Real obviousCoupon = max(strikes_[currentIndex_] - multipliers_[currentIndex_]*liborRate,Real(0.0))*accruals_[currentIndex_];
 
         couponPaid_+= obviousCoupon;
 

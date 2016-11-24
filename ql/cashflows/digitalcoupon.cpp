@@ -300,7 +300,7 @@ namespace QuantLib {
                 payoff = isCallCashOrNothing_ ? callDigitalPayoff_ : underlyingRate;
             } else {
                 if (isCallATMIncluded_) {
-                    if ( std::abs(callStrike_ - underlyingRate) <= 1.e-16 )
+                    if ( abs(callStrike_ - underlyingRate) <= 1.e-16 )
                         payoff = isCallCashOrNothing_ ? callDigitalPayoff_ : underlyingRate;
                 }
             }
@@ -318,7 +318,7 @@ namespace QuantLib {
             } else {
                 // putStrike_ <= underlyingRate
                 if (isPutATMIncluded_) {
-                    if ( std::abs(putStrike_ - underlyingRate) <= 1.e-16 )
+                    if ( abs(putStrike_ - underlyingRate) <= 1.e-16 )
                         payoff = isPutCashOrNothing_ ? putDigitalPayoff_ : underlyingRate;
                 }
             }

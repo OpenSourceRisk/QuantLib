@@ -49,7 +49,7 @@ namespace QuantLib {
             Real result = 0;
             for (Size i=0; i<vertices.size(); ++i) {
                 Array temp =  vertices[i] - center;
-                result += std::sqrt(DotProduct(temp,temp));
+                result += sqrt(DotProduct(temp,temp));
             }
             return result/Real(vertices.size());
         }
@@ -72,8 +72,8 @@ namespace QuantLib {
             pTry -= vertices_[iHighest]*factor2;
             #endif
             factor *= 0.5;
-        } while (!P.constraint().test(pTry) && std::fabs(factor) > QL_EPSILON);
-        if (std::fabs(factor) <= QL_EPSILON) {
+        } while (!P.constraint().test(pTry) && abs(factor) > QL_EPSILON);
+        if (abs(factor) <= QL_EPSILON) {
             return values_[iHighest];
         }
         factor *= 2.0;
@@ -150,8 +150,8 @@ namespace QuantLib {
             //// Numerical Recipes exit strategy on fx (see NR in C++, p.410)
             //Real low = values_[iLowest];
             //Real high = values_[iHighest];
-            //Real rtol = 2.0*std::fabs(high - low)/
-            //    (std::fabs(high) + std::fabs(low) + QL_EPSILON);
+            //Real rtol = 2.0*abs(high - low)/
+            //    (abs(high) + abs(low) + QL_EPSILON);
             //++iterationNumber_;
             //if (rtol < ftol ||
             //    endCriteria.checkMaxIterations(iterationNumber_, ecType)) {
@@ -175,12 +175,12 @@ namespace QuantLib {
             if ((vTry <= values_[iLowest]) && (factor == -1.0)) {
                 factor = 2.0;
                 extrapolate(P, iHighest, factor);
-            } else if (std::fabs(factor) > QL_EPSILON) {
+            } else if (abs(factor) > QL_EPSILON) {
                 if (vTry >= values_[iNextHighest]) {
                     Real vSave = values_[iHighest];
                     factor = 0.5;
                     vTry = extrapolate(P, iHighest, factor);
-                    if (vTry >= vSave && std::fabs(factor) > QL_EPSILON) {
+                    if (vTry >= vSave && abs(factor) > QL_EPSILON) {
                         for (Size i=0; i<=n; i++) {
                             if (i!=iLowest) {
                                 #if defined(QL_ARRAY_EXPRESSIONS)
@@ -197,7 +197,7 @@ namespace QuantLib {
                 }
             }
             // If can't extrapolate given the constraints, exit
-            if (std::fabs(factor) <= QL_EPSILON) {
+            if (abs(factor) <= QL_EPSILON) {
                 x_ = vertices_[iLowest];
                 Real low = values_[iLowest];
                 P.setFunctionValue(low);

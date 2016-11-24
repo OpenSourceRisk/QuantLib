@@ -59,9 +59,9 @@ namespace QuantLib {
 
     void BrownianBridge::initialize() {
 
-        sqrtdt_[0] = std::sqrt(t_[0]);
+        sqrtdt_[0] = sqrt(t_[0]);
         for (Size i=1; i<size_; ++i)
-            sqrtdt_[i] = std::sqrt(t_[i]-t_[i-1]);
+            sqrtdt_[i] = sqrt(t_[i]-t_[i-1]);
 
         // map is used to indicate which points are already constructed.
         // If map[i] is zero, path point i is yet unconstructed.
@@ -74,7 +74,7 @@ namespace QuantLib {
         //  The global step is constructed from the first variate.
         bridgeIndex_[0] = size_-1;
         //  The variance of the global step
-        stdDev_[0] = std::sqrt(t_[size_-1]);
+        stdDev_[0] = sqrt(t_[size_-1]);
         //  The global step to the last point in time is special.
         leftWeight_[0] = rightWeight_[0] = 0.0;
         for (Size j=0, i=1; i<size_; ++i) {
@@ -96,12 +96,12 @@ namespace QuantLib {
                 leftWeight_[i]= (t_[k]-t_[l])/(t_[k]-t_[j-1]);
                 rightWeight_[i] = (t_[l]-t_[j-1])/(t_[k]-t_[j-1]);
                 stdDev_[i] =
-                    std::sqrt(((t_[l]-t_[j-1])*(t_[k]-t_[l]))
+                    sqrt(((t_[l]-t_[j-1])*(t_[k]-t_[l]))
                               /(t_[k]-t_[j-1]));
             } else {
                 leftWeight_[i]  = (t_[k]-t_[l])/t_[k];
                 rightWeight_[i] =  t_[l]/t_[k];
-                stdDev_[i] = std::sqrt(t_[l]*(t_[k]-t_[l])/t_[k]);
+                stdDev_[i] = sqrt(t_[l]*(t_[k]-t_[l])/t_[k]);
             }
             j=k+1;
             if (j>=size_)

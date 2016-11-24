@@ -66,7 +66,7 @@ namespace QuantLib {
                     s.setMaxEvaluations(maxEvaluations_-evaluationNumber_);
                     return s.solve(f, xAccuracy, root_+dx, xMin_, xMax_);
                 }
-                if (std::fabs(dx) < xAccuracy) {
+                if (abs(dx) < xAccuracy) {
                     f(root_);
                     ++evaluationNumber_;
                     return root_;

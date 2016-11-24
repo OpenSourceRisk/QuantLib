@@ -225,7 +225,7 @@ namespace QuantLib {
                 mean += w[i][j]*var[i][j]*var[i][j];
             }
         }
-        mean = std::sqrt(mean/(nExercise_*nSwapIndexes_));
+        mean = sqrt(mean/(nExercise_*nSwapIndexes_));
         return mean;
     }
 
@@ -234,7 +234,7 @@ namespace QuantLib {
         Array weightedVars(nExercise_*nSwapIndexes_);
         for (Size i=0; i<nExercise_; ++i) {
             for (Size j=0; j<nSwapIndexes_; ++j) {
-                weightedVars[i*nSwapIndexes_+j] = std::sqrt(w[i][j])*var[i][j];
+                weightedVars[i*nSwapIndexes_+j] = sqrt(w[i][j])*var[i][j];
             }
         }
         return weightedVars;

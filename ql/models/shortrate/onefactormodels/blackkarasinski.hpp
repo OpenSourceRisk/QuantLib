@@ -80,11 +80,11 @@ namespace QuantLib {
           fitting_(fitting) {}
 
         Real variable(Time t, Rate r) const {
-            return std::log(r) - fitting_(t);
+            return log(r) - fitting_(t);
         }
 
         Real shortRate(Time t, Real x) const {
-            return std::exp(x + fitting_(t));
+            return exp(x + fitting_(t));
         }
       private:
         Parameter fitting_;

@@ -32,7 +32,7 @@ namespace QuantLib {
             integrand(const boost::function<Real (Real)>& b, Real speed)
             : b(b), speed(speed) {}
             Real operator()(Real x) const {
-                return b(x) * std::exp(speed*x);
+                return b(x) * exp(speed*x);
             }
         };
 
@@ -88,7 +88,7 @@ namespace QuantLib {
         switch (discretization_) {
           case MidPoint:
             return ouProcess_->expectation(t0, x0, dt)
-                    + b_(t0+0.5*dt)*(1.0 - std::exp(-speed_*dt));
+                    + b_(t0+0.5*dt)*(1.0 - exp(-speed_*dt));
             break;
           case Trapezodial:
             {
@@ -96,7 +96,7 @@ namespace QuantLib {
               const Time u = t0;
               const Real bt = b_(t);
               const Real bu = b_(u);
-              const Real ex = std::exp(-speed_*dt);
+              const Real ex = exp(-speed_*dt);
 
               return ouProcess_->expectation(t0, x0, dt)
                     + bt-ex*bu - (bt-bu)/(speed_*dt)*(1-ex);
@@ -104,7 +104,7 @@ namespace QuantLib {
             break;
           case GaussLobatto:
               return ouProcess_->expectation(t0, x0, dt)
-                  + speed_*std::exp(-speed_*(t0+dt))
+                  + speed_*exp(-speed_*(t0+dt))
                   * GaussLobattoIntegral(100000, intEps_)(integrand(b_, speed_),
                                                           t0, t0+dt);
             break;

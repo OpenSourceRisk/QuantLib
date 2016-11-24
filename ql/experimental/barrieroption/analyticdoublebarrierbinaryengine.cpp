@@ -87,35 +87,35 @@ namespace QuantLib {
         Real b = r - q;
 
         Real alpha = -0.5 * ( 2*b/sigmaq - 1);
-        Real beta = -0.25 * std::pow(( 2*b/sigmaq - 1), 2) - 2 * r/sigmaq;
-        Real Z = std::log(barrier_hi / barrier_lo);
-        Real factor = ((2*PI*cash)/std::pow(Z,2)); // common factor
-        Real lo_alpha = std::pow(spot/barrier_lo, alpha); 
-        Real hi_alpha = std::pow(spot/barrier_hi, alpha); 
+        Real beta = -0.25 * pow(( 2*b/sigmaq - 1), 2) - 2 * r/sigmaq;
+        Real Z = log(barrier_hi / barrier_lo);
+        Real factor = ((2*PI*cash)/pow(Z,2)); // common factor
+        Real lo_alpha = pow(spot/barrier_lo, alpha); 
+        Real hi_alpha = pow(spot/barrier_hi, alpha); 
 
         Real tot = 0, term = 0;
         for (Size i = 1 ; i < maxIteration ; ++i)
         {
-           Real term1 = (lo_alpha-std::pow(-1.0, (int)i)*hi_alpha) /
-                              (std::pow(alpha,2)+std::pow(i*PI/Z, 2));
-           Real term2 = std::sin(i*PI/Z * std::log(spot/barrier_lo));
-           Real term3 = std::exp(-0.5*(std::pow(i*PI/Z,2)-beta)*variance);
+           Real term1 = (lo_alpha-pow(-1.0, (int)i)*hi_alpha) /
+                              (pow(alpha,2)+pow(i*PI/Z, 2));
+           Real term2 = sin(i*PI/Z * log(spot/barrier_lo));
+           Real term3 = exp(-0.5*(pow(i*PI/Z,2)-beta)*variance);
            term = factor * i * term1 * term2 * term3;
            tot += term;
         }
 
         // Check if convergence is sufficiently fast (for extreme parameters with big alpha the convergence can be very
         // poor, see for example Hui "One-touch double barrier binary option value")
-        QL_REQUIRE(std::fabs(term) < requiredConvergence, "serie did not converge sufficiently fast");
+        QL_REQUIRE(abs(term) < requiredConvergence, "serie did not converge sufficiently fast");
 
         if (barrierType == DoubleBarrier::KnockOut)
-           return std::max(tot, 0.0); // KO
+            return max(tot, Real(0.0)); // KO
         else {
            Rate discount = process_->riskFreeRate()->discount(
                                              arguments_.exercise->lastDate());
            QL_REQUIRE(discount>0.0,
                         "positive discount required");
-           return std::max(cash * discount - tot, 0.0); // KI
+           return max(cash * discount - tot, Real(0.0)); // KI
         }
     }
 
@@ -148,26 +148,26 @@ namespace QuantLib {
         Real b = r - q;
 
         Real alpha = -0.5 * ( 2*b/sigmaq - 1);
-        Real beta = -0.25 * std::pow(( 2*b/sigmaq - 1), 2) - 2 * r/sigmaq;
-        Real Z = std::log(barrier_hi / barrier_lo);
-        Real log_S_L = std::log(spot / barrier_lo);
+        Real beta = -0.25 * pow(( 2*b/sigmaq - 1), 2) - 2 * r/sigmaq;
+        Real Z = log(barrier_hi / barrier_lo);
+        Real log_S_L = log(spot / barrier_lo);
 
         Real tot = 0, term = 0;
         for (Size i = 1 ; i < maxIteration ; ++i)
         {
-            Real factor = std::pow(i*PI/Z,2)-beta;
-            Real term1 = (beta - std::pow(i*PI/Z,2) * std::exp(-0.5*factor*variance)) / factor;
-            Real term2 = std::sin(i * PI/Z * log_S_L);
+            Real factor = pow(i*PI/Z,2)-beta;
+            Real term1 = (beta - pow(i*PI/Z,2) * exp(-0.5*factor*variance)) / factor;
+            Real term2 = sin(i * PI/Z * log_S_L);
             term = (2.0/(i*PI)) * term1 * term2;
             tot += term;
         }
         tot += 1 - log_S_L / Z;
-        tot *= cash*std::pow(spot/barrier_lo, alpha);
+        tot *= cash*pow(spot/barrier_lo, alpha);
 
         // Check if convergence is sufficiently fast
         QL_REQUIRE(fabs(term) < requiredConvergence, "serie did not converge sufficiently fast");
 
-        return std::max(tot, 0.0);
+        return max(tot, Real(0.0));
     }
 
     AnalyticDoubleBarrierBinaryEngine::AnalyticDoubleBarrierBinaryEngine(

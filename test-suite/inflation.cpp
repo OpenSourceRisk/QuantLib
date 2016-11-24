@@ -47,8 +47,8 @@ using boost::unit_test_framework::test_suite;
 
 using namespace QuantLib;
 
-using std::fabs;
-using std::pow;
+// using std::fabs;
+// using pow;
 
 namespace {
 
@@ -168,7 +168,7 @@ void InflationTest::testZeroIndex() {
                                                    iir->frequency());
         for (Date d=lim.first; d<=lim.second; d++) {
             if (d < inflationPeriod(todayMinusLag,iir->frequency()).first) {
-                if (std::fabs(iir->fixing(d) - fixData[i]) > eps)
+                if (abs(iir->fixing(d) - fixData[i]) > eps)
                     BOOST_ERROR("Fixings not constant within a period: "
                                 << iir->fixing(d)
                                 << ", should be " << fixData[i]);
@@ -257,14 +257,14 @@ void InflationTest::testZeroTermStructure() {
     const Real eps = 0.00000001;
     bool forceLinearInterpolation = false;
     for (Size i=0; i<LENGTH(zcData); i++) {
-        BOOST_REQUIRE_MESSAGE(std::fabs(zcData[i].rate/100.0
+        BOOST_REQUIRE_MESSAGE(abs(zcData[i].rate/100.0
             - pZITS->zeroRate(zcData[i].date, observationLag, forceLinearInterpolation)) < eps,
             "ZITS zeroRate != instrument "
             << pZITS->zeroRate(zcData[i].date, observationLag, forceLinearInterpolation)
             << " vs " << zcData[i].rate/100.0
             << " interpolation: " << ii->interpolated()
             << " forceLinearInterpolation " << forceLinearInterpolation);
-        BOOST_REQUIRE_MESSAGE(std::fabs(helpers[i]->impliedQuote()
+        BOOST_REQUIRE_MESSAGE(abs(helpers[i]->impliedQuote()
             - zcData[i].rate/100.0) < eps,
             "ZITS implied quote != instrument "
             << helpers[i]->impliedQuote()
@@ -295,7 +295,7 @@ void InflationTest::testZeroTermStructure() {
         Real calc = bf * pow( 1+z, t);
         if (t<=0)
             calc = ii->fixing(d,false); // still historical
-        if (std::fabs(calc - ii->fixing(d,true))/10000.0 > eps)
+        if (abs(calc - ii->fixing(d,true))/10000.0 > eps)
             BOOST_ERROR("ZC index does not forecast correctly for date " << d
                         << " from base date " << bd
                         << " with fixing " << bf
@@ -319,7 +319,7 @@ void InflationTest::testZeroTermStructure() {
     IndexedCashFlow iicf(notional,ind,baseDate,fixDate,payDate);
     Real correctIndexed = ii->fixing(iicf.fixingDate())/ii->fixing(iicf.baseDate());
     Real calculatedIndexed = iicf.amount()/iicf.notional();
-    BOOST_REQUIRE_MESSAGE(std::fabs(correctIndexed - calculatedIndexed) < eps,
+    BOOST_REQUIRE_MESSAGE(abs(correctIndexed - calculatedIndexed) < eps,
                "IndexedCashFlow indexing wrong: " << calculatedIndexed << " vs correct = "
                << correctIndexed);
 
@@ -345,7 +345,7 @@ void InflationTest::testZeroTermStructure() {
     nzcis.setPricingEngine(sppe);
 
     // ... and price it, should be zero
-    BOOST_CHECK_MESSAGE(fabs(nzcis.NPV())<0.00001,"ZCIS does not reprice to zero "
+    BOOST_CHECK_MESSAGE(abs(nzcis.NPV())<0.00001,"ZCIS does not reprice to zero "
                         << nzcis.NPV()
                         << evaluationDate << " to " << zcData[6].date << " becoming " << nzcis.maturityDate()
                         << " rate " << zcData[6].rate
@@ -422,7 +422,7 @@ void InflationTest::testZeroTermStructure() {
     };
 
     for(int i=0;i<12;i++){
-        if(std::fabs(fixing[i] - seasonalityFixing_1[i]) > eps) {
+        if(abs(fixing[i] - seasonalityFixing_1[i]) > eps) {
             BOOST_ERROR("Seasonality doesn't work correctly when seasonality factors are set = 1");
         }
     }
@@ -464,7 +464,7 @@ void InflationTest::testZeroTermStructure() {
     };
 
     for(int i=0;i<12;i++){
-        if(std::fabs(expectedFixing[i] - seasonalityFixing_real[i]) > 0.01) {
+        if(abs(expectedFixing[i] - seasonalityFixing_real[i]) > 0.01) {
             BOOST_ERROR("Seasonality doesn't work correctly when considering seasonality factors != 1 "
                         << expectedFixing[i] << " vs " << seasonalityFixing_real[i]);
         }
@@ -492,7 +492,7 @@ void InflationTest::testZeroTermStructure() {
     };
 
     for(int i=0;i<12;i++){
-        if(std::fabs(seasonalityFixing_unset[i] - seasonalityFixing_1[i]) > eps) {
+        if(abs(seasonalityFixing_unset[i] - seasonalityFixing_1[i]) > eps) {
             BOOST_ERROR("UnsetSeasonality doesn't work correctly "
                         << seasonalityFixing_unset[i] << " vs " << seasonalityFixing_1[i]);
         }
@@ -533,7 +533,7 @@ void InflationTest::testZeroTermStructure() {
     // and that the helpers give the correct impled rates
     forceLinearInterpolation = false;   // still
     for (Size i=0; i<LENGTH(zcData); i++) {
-        BOOST_CHECK_MESSAGE(std::fabs(zcData[i].rate/100.0
+        BOOST_CHECK_MESSAGE(abs(zcData[i].rate/100.0
                     - pZITSyes->zeroRate(zcData[i].date, observationLagyes, forceLinearInterpolation)) < eps,
                     "ZITS INTERPOLATED zeroRate != instrument "
                     << pZITSyes->zeroRate(zcData[i].date, observationLagyes, forceLinearInterpolation)
@@ -541,7 +541,7 @@ void InflationTest::testZeroTermStructure() {
                     << " vs " << zcData[i].rate/100.0
                     << " interpolation: " << iiyes->interpolated()
                     << " forceLinearInterpolation " << forceLinearInterpolation);
-        BOOST_CHECK_MESSAGE(std::fabs(helpersyes[i]->impliedQuote()
+        BOOST_CHECK_MESSAGE(abs(helpersyes[i]->impliedQuote()
                         - zcData[i].rate/100.0) < eps,
                     "ZITS INTERPOLATED implied quote != instrument "
                     << helpersyes[i]->impliedQuote()
@@ -568,7 +568,7 @@ void InflationTest::testZeroTermStructure() {
         Real t = hz->dayCounter().yearFraction(bd, d);
         Real calc = bf * pow( 1+z, t);
         if (t<=0) calc = iiyes->fixing(d); // still historical
-        if (std::fabs(calc - iiyes->fixing(d)) > eps)
+        if (abs(calc - iiyes->fixing(d)) > eps)
             BOOST_ERROR("ZC INTERPOLATED index does not forecast correctly for date " << d
                         << " from base date " << bd
                         << " with fixing " << bf
@@ -597,7 +597,7 @@ void InflationTest::testZeroTermStructure() {
     nzcisyes.setPricingEngine(sppe);
 
     // ... and price it, should be zero
-    BOOST_CHECK_MESSAGE(fabs(nzcisyes.NPV())<0.00001,"ZCIS-I does not reprice to zero "
+    BOOST_CHECK_MESSAGE(abs(nzcisyes.NPV())<0.00001,"ZCIS-I does not reprice to zero "
                         << nzcisyes.NPV()
                         << evaluationDate << " to " << zcData[6].date << " becoming " << nzcisyes.maturityDate()
                         << " rate " << zcData[6].rate
@@ -626,7 +626,7 @@ void InflationTest::testZeroIndexFutureFixing() {
     Date evaluationDate = euhicp.fixingCalendar().adjust(sample_date + 2*Weeks);
     Settings::instance().evaluationDate() = evaluationDate;
     Real fixing = euhicp.fixing(sample_date);
-    if (std::fabs(fixing - sample_fixing) > 1e-12)
+    if (abs(fixing - sample_fixing) > 1e-12)
         BOOST_ERROR("Failed to retrieve correct fixing: "
                     << "\n    returned: " << fixing
                     << "\n    expected: " << sample_fixing);
@@ -772,7 +772,7 @@ void InflationTest::testYYIndex() {
             if (d < todayMinusLag) {
                 Rate expected = fixData[i]/fixData[i-12] - 1.0;
                 Rate calculated = iir->fixing(d);
-                BOOST_CHECK_MESSAGE(std::fabs(calculated - expected) < eps,
+                BOOST_CHECK_MESSAGE(abs(calculated - expected) < eps,
                                     "Non-interpolated fixings not constant within a period: "
                                     << calculated
                                     << ", should be "
@@ -789,7 +789,7 @@ void InflationTest::testYYIndex() {
                 Real linearBef = fixData[i-12] + (fixData[i+1-12]-fixData[i-12])*dlBef/dpBef;
                 Rate expectedYES = linearNow / linearBef - 1.0;
                 Rate calculatedYES = iirYES->fixing(d);
-                BOOST_CHECK_MESSAGE(fabs(expectedYES-calculatedYES)<eps,
+                BOOST_CHECK_MESSAGE(abs(expectedYES-calculatedYES)<eps,
                                     "Error in interpolated fixings: expect "<<expectedYES
                                     <<" see " << calculatedYES
                                     <<" flat " << calculated
@@ -920,7 +920,7 @@ void InflationTest::testYYTermStructure() {
 
 
 
-        BOOST_CHECK_MESSAGE(fabs(yyS2.NPV())<eps,"fresh yoy swap NPV!=0 from TS "
+        BOOST_CHECK_MESSAGE(abs(yyS2.NPV())<eps,"fresh yoy swap NPV!=0 from TS "
                 <<"swap quote for pt " << j
                 << ", is " << yyData[j].rate/100.0
                 <<" vs YoY rate "<< pYYTS->yoyRate(yyData[j].date-observationLag)
@@ -956,7 +956,7 @@ void InflationTest::testYYTermStructure() {
 
         yyS3.setPricingEngine(sppe);
 
-        BOOST_CHECK_MESSAGE(fabs(yyS3.NPV())< 20000.0,
+        BOOST_CHECK_MESSAGE(abs(yyS3.NPV())< 20000.0,
                             "unexpected size of aged YoY swap, aged "
                             <<k<<" months: YY aged NPV = " << yyS3.NPV()
                             <<", legs "<< yyS3.legNPV(0) << " and " << yyS3.legNPV(1)

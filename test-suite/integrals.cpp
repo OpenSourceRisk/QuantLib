@@ -52,7 +52,7 @@ namespace {
                     const boost::function<Real (Real)>& f,
                     Real xMin, Real xMax, Real expected) {
         Real calculated = I(f,xMin,xMax);
-        if (std::fabs(calculated-expected) > tolerance) {
+        if (abs(calculated-expected) > tolerance) {
             BOOST_FAIL(std::setprecision(10)
                        << "integrating " << tag
                        << "    calculated: " << calculated
@@ -71,9 +71,9 @@ namespace {
         testSingle(I, "f(x) = x^2",
                    square<Real>(),             0.0, 1.0, 1.0/3.0);
         testSingle(I, "f(x) = sin(x)",
-                   std::ptr_fun<Real,Real>(std::sin), 0.0, M_PI, 2.0);
+                   [](const Real x) { return sin(x); }, 0.0, M_PI, 2.0);
         testSingle(I, "f(x) = cos(x)",
-                   std::ptr_fun<Real,Real>(std::cos), 0.0, M_PI, 0.0);
+                   [](const Real x) { return sin(x); }, 0.0, M_PI, 0.0);
         testSingle(I, "f(x) = Gaussian(x)",
                    NormalDistribution(), -10.0, 10.0, 1.0);
         testSingle(I, "f(x) = Abcd2(x)",
@@ -154,7 +154,7 @@ void IntegralTest::testTwoDimensionalIntegration() {
         std::make_pair(0.0, 0.0), std::make_pair(1.0, 2.0));
 
     const Real expected = 1.0;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         BOOST_FAIL(std::setprecision(10)
                    << "two dimensional integration: "
                    << "\n    calculated: " << calculated
@@ -167,14 +167,14 @@ namespace {
     class sineF {
       public:
         Real operator()(Real x) const {
-            return std::exp(-0.5*(x - M_PI_2/100));
+            return exp(-0.5*(x - M_PI_2/100));
         }
     };
 
     class cosineF {
       public:
         Real operator()(Real x) const {
-            return std::exp(-0.5*x);
+            return exp(-0.5*x);
         }
     };
 
@@ -203,13 +203,13 @@ void IntegralTest::testFolinIntegration() {
             = FilonIntegral(FilonIntegral::Sine, t, n)
                 (sineF(), o,2*M_PI + o);
 
-        if (std::fabs(calculatedCosine-expected[i]) > tol) {
+        if (abs(calculatedCosine-expected[i]) > tol) {
             BOOST_FAIL(std::setprecision(10)
                 << "Filon Cosine integration failed: "
                 << "\n    calculated: " << calculatedCosine
                 << "\n    expected:   " << expected[i]);
         }
-        if (std::fabs(calculatedSine-expected[i]) > tol) {
+        if (abs(calculatedSine-expected[i]) > tol) {
             BOOST_FAIL(std::setprecision(10)
                 << "Filon Sine integration failed: "
                 << "\n    calculated: " << calculatedCosine
@@ -252,14 +252,14 @@ void IntegralTest::testDiscreteIntegrals() {
     const Real calculatedTrapezoid = DiscreteTrapezoidIntegral()(x, f);
 
     const Real tol = 1e-12;
-    if (std::fabs(calculatedSimpson-expectedSimpson) > tol) {
+    if (abs(calculatedSimpson-expectedSimpson) > tol) {
         BOOST_FAIL(std::setprecision(16)
             << "discrete Simpson integration failed: "
             << "\n    calculated: " << calculatedSimpson
             << "\n    expected:   " << expectedSimpson);
     }
 
-    if (std::fabs(calculatedTrapezoid-expectedTrapezoid) > tol) {
+    if (abs(calculatedTrapezoid-expectedTrapezoid) > tol) {
         BOOST_FAIL(std::setprecision(16)
             << "discrete Trapezoid integration failed: "
             << "\n    calculated: " << calculatedTrapezoid

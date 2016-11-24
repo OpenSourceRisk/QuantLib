@@ -40,10 +40,10 @@ namespace QuantLib {
             Rate result = get(spreads, i, 0.0);
             Rate floor = get(floors, i, Null<Rate>());
             if (floor!=Null<Rate>())
-                result = std::max(floor, result);
+                result = max(floor, result);
             Rate cap = get(caps, i, Null<Rate>());
             if (cap!=Null<Rate>())
-                result = std::min(cap, result);
+                result = min(cap, result);
             return result;
         }
 

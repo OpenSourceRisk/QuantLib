@@ -39,8 +39,8 @@ namespace QuantLib {
                                     hullWhiteProcess->sigma())),
       corrEquityShortRate_(corrEquityShortRate),
       discretization_(discretization),
-      maxRho_(std::sqrt(1-hestonProcess->rho()*hestonProcess->rho()) 
-              - std::sqrt(QL_EPSILON) /* reserve for rounding errors */),
+      maxRho_(sqrt(1-hestonProcess->rho()*hestonProcess->rho()) 
+              - sqrt(QL_EPSILON) /* reserve for rounding errors */),
 
       T_(hullWhiteProcess->getForwardMeasureTime()),
       endDiscount_(hestonProcess->riskFreeRate()->discount(T_)) {
@@ -106,7 +106,7 @@ namespace QuantLib {
         const Real sigma = hullWhiteProcess_->sigma();
         retVal[2][0] = corrEquityShortRate_ * sigma;
         retVal[2][1] = - retVal[2][0]*retVal[1][0] / retVal[1][1];
-        retVal[2][2] = std::sqrt( sigma*sigma - retVal[2][1]*retVal[2][1] 
+        retVal[2][2] = sqrt( sigma*sigma - retVal[2][1]*retVal[2][1] 
                                               - retVal[2][0]*retVal[2][0] );
         
         return retVal;
@@ -121,7 +121,7 @@ namespace QuantLib {
         const Real sigma     = hullWhiteProcess_->sigma();
         const Real rho       = corrEquityShortRate_;
         const Real xi        = hestonProcess_->rho();
-        const Volatility eta = (x0[1] > 0.0) ? std::sqrt(x0[1]) : 0.0;
+        const Volatility eta = (x0[1] > 0.0) ? sqrt(x0[1]) : 0.0;
         const Time s = t0;
         const Time t = t0 + dt;
         const Time T = T_;
@@ -130,12 +130,12 @@ namespace QuantLib {
                                                            NoFrequency);
 
         const Real df
-            = std::log(  hestonProcess_->riskFreeRate()->discount(t)
+            = log(  hestonProcess_->riskFreeRate()->discount(t)
                        / hestonProcess_->riskFreeRate()->discount(s));
 
-        const Real eaT=std::exp(-a*T);
-        const Real eat=std::exp(-a*t);
-        const Real eas=std::exp(-a*s);
+        const Real eaT=exp(-a*T);
+        const Real eat=exp(-a*t);
+        const Real eas=exp(-a*s);
         const Real iat=1.0/eat;
         const Real ias=1.0/eas;
 
@@ -160,8 +160,8 @@ namespace QuantLib {
         const Real nu
             = hestonProcess_->kappa()*(hestonProcess_->theta() - eta*eta);
 
-        retVal[1] = x0[1] + nu*dt + eta2*std::sqrt(dt)
-                                          *(xi*dw[0]+std::sqrt(1-xi*xi)*dw[1]);
+        retVal[1] = x0[1] + nu*dt + eta2*sqrt(dt)
+                                          *(xi*dw[0]+sqrt(1-xi*xi)*dw[1]);
 
         if (discretization_ == BSMHullWhite) {
             const Real v1 = eta*eta*dt 
@@ -176,28 +176,28 @@ namespace QuantLib {
             
             // terminal rho must be between -maxRho and +maxRho
             const Real rhoT 
-                = std::min(maxRho_, std::max(-maxRho_, v12/std::sqrt(v1*v2)));
+                = min(maxRho_, max(-maxRho_, v12/sqrt(v1*v2)));
             QL_REQUIRE(    rhoT <= 1.0 && rhoT >= -1.0
                        && 1-rhoT*rhoT/(1-xi*xi) >= 0.0, 
                        "invalid terminal correlation");
             
             const Real dw_0 =  dw[0];
-            const Real dw_2 =  rhoT*dw[0]- rhoT*xi/std::sqrt(1-xi*xi)*dw[1] 
-                             + std::sqrt(1 - rhoT*rhoT/(1-xi*xi))*dw[2];        
+            const Real dw_2 =  rhoT*dw[0]- rhoT*xi/sqrt(1-xi*xi)*dw[1] 
+                             + sqrt(1 - rhoT*rhoT/(1-xi*xi))*dw[2];        
     
             retVal[2] = hullWhiteProcess_->evolve(t0, r, dt, dw_2);
     
-            const Real vol = std::sqrt(v1)*dw_0;
-            retVal[0] = x0[0]*std::exp(mu + vol);
+            const Real vol = sqrt(v1)*dw_0;
+            retVal[0] = x0[0]*exp(mu + vol);
         }
         else if (discretization_ == Euler) {
-            const Real dw_2 =  rho*dw[0]- rho*xi/std::sqrt(1-xi*xi)*dw[1] 
-                             + std::sqrt(1 - rho*rho/(1-xi*xi))*dw[2];        
+            const Real dw_2 =  rho*dw[0]- rho*xi/sqrt(1-xi*xi)*dw[1] 
+                             + sqrt(1 - rho*rho/(1-xi*xi))*dw[2];        
     
             retVal[2] = hullWhiteProcess_->evolve(t0, r, dt, dw_2);
     
-            const Real vol = eta*std::sqrt(dt)*dw[0];
-            retVal[0] = x0[0]*std::exp(mu + vol);            
+            const Real vol = eta*sqrt(dt)*dw[0];
+            retVal[0] = x0[0]*exp(mu + vol);            
         }
         else
             QL_FAIL("unknown discretization scheme");

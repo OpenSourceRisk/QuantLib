@@ -26,9 +26,9 @@
 #include <ql/math/modifiedbessel.hpp>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
-using std::exp;
+// using exp;
 
 void FunctionsTest::testFactorial() {
 
@@ -42,13 +42,13 @@ void FunctionsTest::testFactorial() {
     for (Natural i=1; i<171; ++i) {
         expected *= i;
         calculated = Factorial::get(i);
-        if (std::fabs(calculated-expected)/expected > 1.0e-9)
+        if (abs(calculated-expected)/expected > 1.0e-9)
             BOOST_FAIL("Factorial(" << i << ")" <<
                        std::setprecision(16) << QL_SCIENTIFIC <<
                        "\n calculated: " << calculated <<
                        "\n   expected: " << expected <<
                        "\n rel. error: " <<
-                       std::fabs(calculated-expected)/expected);
+                       abs(calculated-expected)/expected);
     }
 }
 
@@ -58,22 +58,22 @@ void FunctionsTest::testGammaFunction() {
 
     Real expected = 0.0;
     Real calculated = GammaFunction().logValue(1);
-    if (std::fabs(calculated) > 1.0e-15)
+    if (abs(calculated) > 1.0e-15)
         BOOST_ERROR("GammaFunction(1)\n"
                     << std::setprecision(16) << QL_SCIENTIFIC
                     << "    calculated: " << calculated << "\n"
                     << "    expected:   " << expected);
 
     for (Size i=2; i<9000; i++) {
-        expected  += std::log(Real(i));
+        expected  += log(Real(i));
         calculated = GammaFunction().logValue(static_cast<Real>(i+1));
-        if (std::fabs(calculated-expected)/expected > 1.0e-9)
+        if (abs(calculated-expected)/expected > 1.0e-9)
             BOOST_ERROR("GammaFunction(" << i << ")\n"
                         << std::setprecision(16) << QL_SCIENTIFIC
                         << "    calculated: " << calculated << "\n"
                         << "    expected:   " << expected << "\n"
                         << "    rel. error: "
-                        << std::fabs(calculated-expected)/expected);
+                        << abs(calculated-expected)/expected);
     }
 }
 
@@ -99,15 +99,15 @@ void FunctionsTest::testGammaValues() {
         const Real x = tasks[i][0];
         const Real expected = tasks[i][1];
         const Real calculated = GammaFunction().value(x);
-        const Real tol = tasks[i][2] * QL_EPSILON*std::fabs(expected);
+        const Real tol = tasks[i][2] * QL_EPSILON*abs(expected);
 
-        if (std::fabs(calculated - expected) > tol) {
+        if (abs(calculated - expected) > tol) {
             BOOST_ERROR("GammaFunction(" << x << ")\n"
                         << std::setprecision(16) << QL_SCIENTIFIC
                         << "    calculated: " << calculated << "\n"
                         << "    expected:   " << expected << "\n"
                         << "    rel. error: "
-                        << std::fabs(calculated-expected)/expected);
+                        << abs(calculated-expected)/expected);
         }
     }
 }
@@ -134,13 +134,13 @@ void FunctionsTest::testModifiedBesselFunctions() {
         const Real x  = r[i][1];
         const Real expected_i = r[i][2];
         const Real expected_k = r[i][3];
-        const Real tol_i = 5e4 * QL_EPSILON*std::fabs(expected_i);
-        const Real tol_k = 5e4 * QL_EPSILON*std::fabs(expected_k);
+        const Real tol_i = 5e4 * QL_EPSILON*abs(expected_i);
+        const Real tol_k = 5e4 * QL_EPSILON*abs(expected_k);
 
         const Real calculated_i = modifiedBesselFunction_i(nu, x);
         const Real calculated_k = modifiedBesselFunction_k(nu, x);
 
-        if (std::fabs(expected_i - calculated_i) > tol_i) {
+        if (abs(expected_i - calculated_i) > tol_i) {
             BOOST_ERROR("failed to reproduce modified Bessel "
                        << "function of first kind"
                        << "\n order     : " << nu
@@ -148,7 +148,7 @@ void FunctionsTest::testModifiedBesselFunctions() {
                        << "\n calculated: " << calculated_i
                        << "\n expected  : " << expected_i);
         }
-        if (std::fabs(expected_k - calculated_k) > tol_k) {
+        if (abs(expected_k - calculated_k) > tol_k) {
             BOOST_ERROR("failed to reproduce modified Bessel "
                        << "function of second kind"
                        << "\n order     : " << nu
@@ -201,13 +201,13 @@ void FunctionsTest::testModifiedBesselFunctions() {
         const std::complex<Real> expected_k
             = std::complex<Real>(c[i][5],c[i][6]);
 
-        const Real tol_i = 5e4*QL_EPSILON*std::abs(expected_i);
-        const Real tol_k = 1e6*QL_EPSILON*std::abs(expected_k);
+        const Real tol_i = 5e4*QL_EPSILON*abs(expected_i);
+        const Real tol_k = 1e6*QL_EPSILON*abs(expected_k);
 
         const std::complex<Real> calculated_i=modifiedBesselFunction_i(nu, z);
         const std::complex<Real> calculated_k=modifiedBesselFunction_k(nu, z);
 
-        if (std::abs(expected_i - calculated_i) > tol_i) {
+        if (abs(expected_i - calculated_i) > tol_i) {
             BOOST_ERROR("failed to reproduce modified Bessel "
                        << "function of first kind"
                        << "\n order     : " << nu
@@ -215,8 +215,8 @@ void FunctionsTest::testModifiedBesselFunctions() {
                        << "\n calculated: " << calculated_i
                        << "\n expected  : " << expected_i);
         }
-        if (   std::abs(expected_k) > 1e-4 // do not check small values
-            && std::abs(expected_k - calculated_k) > tol_k) {
+        if (   abs(expected_k) > 1e-4 // do not check small values
+            && abs(expected_k - calculated_k) > tol_k) {
             BOOST_ERROR("failed to reproduce modified Bessel "
                        << "function of second kind"
                        << "\n order     : " << nu
@@ -242,20 +242,20 @@ void FunctionsTest::testWeightedModifiedBesselFunctions() {
                 modifiedBesselFunction_k_exponentiallyWeighted(nu, x);
             const Real expected_k = 
                 M_PI_2 * (modifiedBesselFunction_i(-nu,x) -
-                          modifiedBesselFunction_i(nu,x)) * exp(-x) / std::sin(M_PI*nu);
+                          modifiedBesselFunction_i(nu,x)) * exp(-x) / sin(M_PI*nu);
             const Real tol_i = 1e3 * QL_EPSILON *
-                std::fabs(expected_i) * std::max(exp(x), 1.0);
+                abs(expected_i) * std::max(exp(x), Real(1.0));
             const Real tol_k = std::max(QL_EPSILON, 
                 1e3 * QL_EPSILON *
-                std::fabs(expected_k) * std::max(exp(x), 1.0));
-            if (std::abs(expected_i - calculated_i) > tol_i) {
+                                        abs(expected_k) * std::max(exp(x), Real(1.0)));
+            if (abs(expected_i - calculated_i) > tol_i) {
                 BOOST_ERROR("failed to verify exponentially weighted"
                             << "modified Bessel function of first kind"
                             << "\n order      : " << nu << "\n argument   : "
                             << x << "\n calculated  : " << calculated_i
                             << "\n expected   : " << expected_i);
             }
-            if (std::abs(expected_k - calculated_k) > tol_k) {
+            if (abs(expected_k - calculated_k) > tol_k) {
                 BOOST_ERROR("failed to verify exponentially weighted"
                             << "modified Bessel function of second kind"
                             << "\n order      : " << nu << "\n argument   : "
@@ -280,12 +280,12 @@ void FunctionsTest::testWeightedModifiedBesselFunctions() {
                 const std::complex<Real> calculated_k =
                     modifiedBesselFunction_k_exponentiallyWeighted(nu, z);
                 const std::complex<Real> expected_k =
-                    M_PI_2 * (modifiedBesselFunction_i(-nu, z) * exp(-z) -
+                    Real(M_PI_2) * (modifiedBesselFunction_i(-nu, z) * exp(-z) -
                               modifiedBesselFunction_i(nu, z) * exp(-z)) /
-                    std::sin(M_PI * nu);
-                const Real tol_i = 1e3 * QL_EPSILON*std::abs(calculated_i);
-                const Real tol_k = 1e3 * QL_EPSILON*std::abs(calculated_k);
-                if (std::abs(calculated_i - expected_i) > tol_i) {
+                    sin(M_PI * nu);
+                const Real tol_i = 1e3 * QL_EPSILON*abs(calculated_i);
+                const Real tol_k = 1e3 * QL_EPSILON*abs(calculated_k);
+                if (abs(calculated_i - expected_i) > tol_i) {
                     BOOST_ERROR("failed to verify exponentially weighted"
                                 << "modified Bessel function of first kind"
                                 << "\n order      : " << nu
@@ -293,7 +293,7 @@ void FunctionsTest::testWeightedModifiedBesselFunctions() {
                                 "\n calculated: "
                                 << calculated_i << "\n expected   : " << expected_i);
                 }
-                if (std::abs(calculated_k - expected_k) > tol_k) {
+                if (abs(calculated_k - expected_k) > tol_k) {
                     BOOST_ERROR("failed to verify exponentially weighted"
                                 << "modified Bessel function of second kind"
                                 << "\n order      : " << nu
@@ -309,8 +309,8 @@ void FunctionsTest::testWeightedModifiedBesselFunctions() {
     }
 }
 
-test_suite* FunctionsTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Factorial tests");
+boost::unit_test_framework::test_suite* FunctionsTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Factorial tests");
     suite->add(QUANTLIB_TEST_CASE(&FunctionsTest::testFactorial));
     suite->add(QUANTLIB_TEST_CASE(&FunctionsTest::testGammaFunction));
     suite->add(QUANTLIB_TEST_CASE(&FunctionsTest::testGammaValues));

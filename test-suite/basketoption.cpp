@@ -279,7 +279,7 @@ void BasketOptionTest::testEuroTwoValues() {
         boost::shared_ptr<PlainVanillaPayoff> payoff(new
             PlainVanillaPayoff(values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot1 ->setValue(values[i].s1);
@@ -360,7 +360,7 @@ void BasketOptionTest::testEuroTwoValues() {
         basketOption.setPricingEngine(analyticEngine);
         Real calculated = basketOption.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error > values[i].tol) {
             REPORT_FAILURE_2("value", values[i].basketType, payoff, exercise,
                              values[i].s1, values[i].s2, values[i].q1,
@@ -511,7 +511,7 @@ void BasketOptionTest::testBarraquandThreeValues() {
         boost::shared_ptr<PlainVanillaPayoff> payoff(new
             PlainVanillaPayoff(values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t)*30;
+        Date exDate = today + Integer(VALUE(values[i].t)*30);
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
         boost::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate));
@@ -662,7 +662,7 @@ void BasketOptionTest::testTavellaValues() {
     boost::shared_ptr<PlainVanillaPayoff> payoff(new
         PlainVanillaPayoff(values[0].type, values[0].strike));
 
-    Date exDate = today + Integer(values[0].t*360+0.5);
+    Date exDate = today + Integer(VALUE(values[0].t*360+0.5));
     boost::shared_ptr<Exercise> exercise(new AmericanExercise(today, exDate));
 
     spot1 ->setValue(values[0].s1);
@@ -829,7 +829,7 @@ void BasketOptionTest::testOneDAmericanValues(unsigned from, unsigned to) {
         boost::shared_ptr<PlainVanillaPayoff> payoff(new
             PlainVanillaPayoff(oneDataValues[i].type, oneDataValues[i].strike));
 
-        Date exDate = today + Integer(oneDataValues[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(oneDataValues[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new AmericanExercise(today,
                                                                   exDate));
 
@@ -847,7 +847,7 @@ void BasketOptionTest::testOneDAmericanValues(unsigned from, unsigned to) {
         Real expected = oneDataValues[i].result;
         // Real errorEstimate = basketOption.errorEstimate();
         Real relError = relativeError(calculated, expected, oneDataValues[i].s);
-        // Real error = std::fabs(calculated-expected);
+        // Real error = abs(calculated-expected);
 
         if (relError > oneDataValues[i].tol) {
             BOOST_FAIL("expected value: " << oneDataValues[i].result << "\n"
@@ -918,7 +918,7 @@ void BasketOptionTest::testOddSamples() {
         boost::shared_ptr<PlainVanillaPayoff> payoff(new
             PlainVanillaPayoff(values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new AmericanExercise(today,
                                                                   exDate));
 
@@ -936,7 +936,7 @@ void BasketOptionTest::testOddSamples() {
         Real expected = values[i].result;
         // Real errorEstimate = basketOption.errorEstimate();
         Real relError = relativeError(calculated, expected, values[i].s);
-        // Real error = std::fabs(calculated-expected);
+        // Real error = abs(calculated-expected);
 
         if (relError > values[i].tol) {
             BOOST_FAIL("expected value: " << values[i].result << "\n"

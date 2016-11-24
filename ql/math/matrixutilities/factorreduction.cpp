@@ -39,8 +39,8 @@ namespace QuantLib {
             for (Size iCol=0; iCol<iRow; iCol++)
                 QL_REQUIRE(mtrx[iRow][iCol] == mtrx[iCol][iRow],
                            "input matrix is not symmetric");
-        QL_REQUIRE(*std::max_element(mtrx.begin(), mtrx.end()) <=1 &&
-            *std::min_element(mtrx.begin(), mtrx.end()) >=-1,
+        QL_REQUIRE(*max_element(mtrx.begin(), mtrx.end()) <=1 &&
+            *min_element(mtrx.begin(), mtrx.end()) >=-1,
                     "input matrix data is not correlation data");
         #endif
 
@@ -51,7 +51,7 @@ namespace QuantLib {
                 previousCorrels[iCol] +=
                     mtrx[iRow][iCol] * mtrx[iRow][iCol];
             previousCorrels[iCol] =
-                std::sqrt((previousCorrels[iCol]-1.)/(n-1.));
+                sqrt((previousCorrels[iCol]-1.)/(n-1.));
         }
 
         // iterative solution
@@ -78,11 +78,11 @@ namespace QuantLib {
                 // strictly is:
                 // abs(\sqrt{\rho}- \sqrt{\rho_{old}})/\sqrt{\rho_{old}}
                 distances.push_back(
-                    std::abs(thisCorrel - previousCorrels[iCol])/
+                    abs(thisCorrel - previousCorrels[iCol])/
                         previousCorrels[iCol]);
             }
             previousCorrels = newCorrels;
-            distance = *std::max_element(distances.begin(), distances.end());
+            distance = *max_element(distances.begin(), distances.end());
         }while(distance > tolerance && ++iteration <= maxIters );
 
         // test it did not go up to the max iteration and the matrix can
@@ -92,9 +92,9 @@ namespace QuantLib {
                    iteration << " iterations");
 
         #if defined(QL_EXTRA_SAFETY_CHECKS)
-        QL_REQUIRE(*std::max_element(previousCorrels.begin(),
+        QL_REQUIRE(*max_element(previousCorrels.begin(),
                                      previousCorrels.end()) <=1 &&
-                   *std::min_element(previousCorrels.begin(),
+                   *min_element(previousCorrels.begin(),
                                      previousCorrels.end()) >=-1,
                 "matrix can not be decomposed to a single factor dependence");
         #endif

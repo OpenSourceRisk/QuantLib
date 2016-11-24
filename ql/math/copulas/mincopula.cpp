@@ -28,7 +28,7 @@ namespace QuantLib {
                    "1st argument (" << x << ") must be in [0,1]");
         QL_REQUIRE(y >= 0.0 && y <=1.0 ,
                    "2nd argument (" << y << ") must be in [0,1]");
-        return std::max(x+y-1.0, 0.0);
+        return max(x+y-1.0, Real(0.0));
     }
 
 }

@@ -90,7 +90,7 @@ void CdsOptionTest::testCached() {
                                              riskFree, cdsVol)));
 
     Real cachedValue = 270.976348;
-    if (std::fabs(option1.NPV() - cachedValue) > 1.0e-5)
+    if (abs(option1.NPV() - cachedValue) > 1.0e-5)
         BOOST_ERROR("failed to reproduce cached value:\n"
                     << std::fixed << std::setprecision(6)
                     << "    calculated: " << option1.NPV() << "\n"
@@ -107,7 +107,7 @@ void CdsOptionTest::testCached() {
                                              riskFree, cdsVol)));
 
     cachedValue = 270.976348;
-    if (std::fabs(option2.NPV() - cachedValue) > 1.0e-5)
+    if (abs(option2.NPV() - cachedValue) > 1.0e-5)
         BOOST_ERROR("failed to reproduce cached value:\n"
                     << std::fixed << std::setprecision(6)
                     << "    calculated: " << option2.NPV() << "\n"

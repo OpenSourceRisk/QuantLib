@@ -55,7 +55,7 @@ namespace {
 }
 
 #define CHECK(results, garch, member, tolerance) \
-    if (std::fabs(results.member - garch.member()) > tolerance) { \
+    if (abs(results.member - garch.member()) > tolerance) { \
         BOOST_ERROR("Failed to reproduce expected " #member \
                     << "\n    calculated: " << garch.member() \
                     << "\n    expected:   " << results.member); \
@@ -73,7 +73,7 @@ void GARCHTest::testCalibration() {
     Volatility r = 0.0, v = 0.0;
     for (std::size_t i = 0; i < 50000; ++i, d += 1) {
         v = garch.forecast(r, v);
-        r = rng.next().value * std::sqrt(v);
+        r = rng.next().value * sqrt(v);
         ts[d] = r;
     }
 
@@ -159,7 +159,7 @@ namespace {
                         << "\n    expected:   [22835, 22844]");
         }
         Real error =
-            std::fabs(x.second - expected_calc[x.first.serialNumber()-22835]);
+            abs(x.second - expected_calc[x.first.serialNumber()-22835]);
         if (error > tolerance) {
             BOOST_ERROR("Failed to reproduce calculated GARCH value at "
                         << x.first.serialNumber() << ": "

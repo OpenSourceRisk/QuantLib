@@ -82,13 +82,13 @@ namespace QuantLib {
                 a = effStrike;
                 b = coupon_->indexFixing();
             }
-            return std::max(a - b, 0.0)* accrualPeriod_*discount_;
+            return max<Real>(a - b, Real(0.0))* accrualPeriod_*discount_;
         } else {
             // not yet determined, use Black model
             QL_REQUIRE(!capletVolatility().empty(),
                        "missing optionlet volatility");
             Real stdDev =
-                std::sqrt(capletVolatility()->blackVariance(fixingDate,
+                sqrt(capletVolatility()->blackVariance(fixingDate,
                                                             effStrike));
             Real shift = capletVolatility()->displacement();
             bool shiftedLn =

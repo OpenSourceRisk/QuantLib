@@ -23,8 +23,8 @@
 #include <ql/pricingengines/blackformula.hpp>
 #include <boost/make_shared.hpp>
 
-using std::fabs;
-using std::sqrt;
+// using abs;
+// using sqrt;
 
 namespace QuantLib {
 

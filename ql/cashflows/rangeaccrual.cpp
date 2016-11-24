@@ -374,7 +374,7 @@ namespace QuantLib {
         const Real adjustment = (startTime_*muU[0]+(expiry-startTime_)*muU[1]);
 
 
-       Real d2 = (std::log(initialValue/strike) + adjustment - 0.5*variance)/std::sqrt(variance);
+       Real d2 = (log(initialValue/strike) + adjustment - 0.5*variance)/sqrt(variance);
 
        CumulativeNormalDistribution phi;
        const Real result = deflator*phi(d2);
@@ -402,14 +402,14 @@ namespace QuantLib {
 
             //drift of Lognormal process (of Libor) "a_U()" nel paper
             std::vector<Real> lambdaU = lambdasOverPeriod(expiry, lambdaS, lambdaT);
-            const Real previousVariance = std::max(startTime_, 0.)*lambdaU[0]*lambdaU[0]+
-                         std::min(expiry-startTime_, expiry)*lambdaU[1]*lambdaU[1];
+            const Real previousVariance = max(startTime_, Real(0.))*lambdaU[0]*lambdaU[0]+
+                         min(expiry-startTime_, expiry)*lambdaU[1]*lambdaU[1];
 
             Real lambdaSATM = smilesOnExpiry_->volatility(initialValue);
             Real lambdaTATM = smilesOnPayment_->volatility(initialValue);
             std::vector<Real> muU = driftsOverPeriod(expiry, lambdaSATM, lambdaTATM, correlation_);
-            const Real previousAdjustment = std::exp(std::max(startTime_, 0.)*muU[0] +
-                                         std::min(expiry-startTime_, expiry)*muU[1]);
+            const Real previousAdjustment = exp(max(startTime_, Real(0.))*muU[0] +
+                                         min(expiry-startTime_, expiry)*muU[1]);
             const Real previousForward = initialValue * previousAdjustment ;
 
             // Next strike
@@ -418,12 +418,12 @@ namespace QuantLib {
             lambdaT = smilesOnPayment_->volatility(nextStrike);
 
             lambdaU = lambdasOverPeriod(expiry, lambdaS, lambdaT);
-            const Real nextVariance = std::max(startTime_, 0.)*lambdaU[0]*lambdaU[0]+
-                         std::min(expiry-startTime_, expiry)*lambdaU[1]*lambdaU[1];
+            const Real nextVariance = max(startTime_, Real(0.))*lambdaU[0]*lambdaU[0]+
+                         min(expiry-startTime_, expiry)*lambdaU[1]*lambdaU[1];
             //drift of Lognormal process (of Libor) "a_U()" nel paper
             muU = driftsOverPeriod(expiry, lambdaSATM, lambdaTATM, correlation_);
-            const Real nextAdjustment = std::exp(std::max(startTime_, 0.)*muU[0] +
-                                         std::min(expiry-startTime_, expiry)*muU[1]);
+            const Real nextAdjustment = exp(max(startTime_, Real(0.))*muU[0] +
+                                         min(expiry-startTime_, expiry)*muU[1]);
             const Real nextForward = initialValue * nextAdjustment ;
 
             result = callSpreadPrice(previousForward,nextForward,previousStrike, nextStrike,
@@ -435,9 +435,9 @@ namespace QuantLib {
                      smileCorrection(strike, initialValue, expiry, deflator);
         }
 
-        QL_REQUIRE(result > -std::pow(eps_,.5),
+        QL_REQUIRE(result > -pow(eps_,Real(.5)),
             "RangeAccrualPricerByBgm::digitalPriceWithSmile: result< 0 Result:"<<result);
-        QL_REQUIRE(result/deflator <=  1.0 + std::pow(eps_,.2),
+        QL_REQUIRE(result/deflator <=  1.0 + pow(eps_,Real(.2)),
             "RangeAccrualPricerByBgm::digitalPriceWithSmile: result/deflator > 1. Ratio: "
             << result/deflator << " result: " << result<< " deflator: " << deflator);
 
@@ -473,18 +473,18 @@ namespace QuantLib {
         //drift of Lognormal process (of Libor) "a_U()" nel paper
         std::vector<Real> muU = driftsOverPeriod(expiry, lambdaSATM, lambdaTATM, correlation_);
 
-        const Real variance = std::max(startTime_, 0.)*lambdasOverPeriodU[0]*lambdasOverPeriodU[0] +
-                       std::min(expiry-startTime_, expiry)*lambdasOverPeriodU[1]*lambdasOverPeriodU[1];
+        const Real variance = max(startTime_, Real(0.))*lambdasOverPeriodU[0]*lambdasOverPeriodU[0] +
+                       min(expiry-startTime_, expiry)*lambdasOverPeriodU[1]*lambdasOverPeriodU[1];
 
-        const Real forwardAdjustment = std::exp(std::max(startTime_, 0.)*muU[0] +
-                                         std::min(expiry-startTime_, expiry)*muU[1]);
+        const Real forwardAdjustment = exp(max(startTime_, Real(0.))*muU[0] +
+                                         min(expiry-startTime_, expiry)*muU[1]);
         const Real forwardAdjusted = forward * forwardAdjustment;
 
-        const Real d1 = (std::log(forwardAdjusted/strike)+0.5*variance)/std::sqrt(variance);
+        const Real d1 = (log(forwardAdjusted/strike)+0.5*variance)/sqrt(variance);
 
-        const Real sqrtOfTimeToExpiry = (std::max(startTime_, 0.)*lambdasOverPeriodU[0] +
-                                std::min(expiry-startTime_, expiry)*lambdasOverPeriodU[1])*
-                                (1./std::sqrt(variance));
+        const Real sqrtOfTimeToExpiry = (max(startTime_, Real(0.))*lambdasOverPeriodU[0] +
+                                min(expiry-startTime_, expiry)*lambdasOverPeriodU[1])*
+                                (1./sqrt(variance));
 
         CumulativeNormalDistribution phi;
         NormalDistribution psi;
@@ -493,7 +493,7 @@ namespace QuantLib {
 
         result *= deflator;
 
-        QL_REQUIRE(std::fabs(result/deflator) <= 1.0 + std::pow(eps_,.2),
+        QL_REQUIRE(abs(result/deflator) <= 1.0 + pow(eps_,.2),
             "RangeAccrualPricerByBgm::smileCorrection: abs(result/deflator) > 1. Ratio: "
             << result/deflator << " result: " << result<< " deflator: " << deflator);
 
@@ -509,9 +509,9 @@ namespace QuantLib {
                                             Real previousVariance,
                                             Real nextVariance) const{
          const Real nextCall =
-            blackFormula(Option::Call, nextStrike, nextForward, std::sqrt(nextVariance), deflator);
+            blackFormula(Option::Call, nextStrike, nextForward, sqrt(nextVariance), deflator);
          const Real previousCall =
-            blackFormula(Option::Call, previousStrike, previousForward, std::sqrt(previousVariance), deflator);
+            blackFormula(Option::Call, previousStrike, previousForward, sqrt(previousVariance), deflator);
 
          QL_ENSURE(nextCall <previousCall,"RangeAccrualPricerByBgm::callSpreadPrice: nextCall > previousCall"
             "\n nextCall: strike :" << nextStrike << "; variance: " << nextVariance <<

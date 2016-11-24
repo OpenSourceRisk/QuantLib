@@ -71,8 +71,8 @@ namespace QuantLib {
                 return 1.0/(1.0+detail::avgRate*c->times()[1]);
 
             // flat rate extrapolation
-            Real r = -std::log(c->data()[i-1])/c->times()[i-1];
-            return std::exp(-r * c->times()[i]);
+            Real r = -log(c->data()[i-1])/c->times()[i-1];
+            return exp(-r * c->times()[i]);
         }
 
         // possible constraints based on previous values
@@ -84,14 +84,14 @@ namespace QuantLib {
         {
             if (validData) {
                 #if defined(QL_NEGATIVE_RATES)
-                return *(std::min_element(c->data().begin(),
+                return *(min_element(c->data().begin(),
                                           c->data().end()))/2.0;
                 #else
                 return c->data().back()/2.0;
                 #endif
             }
             Time dt = c->times()[i] - c->times()[i-1];
-            return c->data()[i-1] * std::exp(- detail::maxRate * dt);
+            return c->data()[i-1] * exp(- detail::maxRate * dt);
         }
         template <class C>
         static Real maxValueAfter(Size i,
@@ -101,7 +101,7 @@ namespace QuantLib {
         {
             #if defined(QL_NEGATIVE_RATES)
             Time dt = c->times()[i] - c->times()[i-1];
-            return c->data()[i-1] * std::exp(detail::maxRate * dt);
+            return c->data()[i-1] * exp(detail::maxRate * dt);
             #else
             // discounts cannot increase
             return c->data()[i-1];
@@ -165,7 +165,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::min_element(c->data().begin(), c->data().end()));
+                Real r = *(min_element(c->data().begin(), c->data().end()));
                 #if defined(QL_NEGATIVE_RATES)
                 return r<0.0 ? r*2.0 : r/2.0;
                 #else
@@ -187,7 +187,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::max_element(c->data().begin(), c->data().end()));
+                Real r = *(max_element(c->data().begin(), c->data().end()));
                 #if defined(QL_NEGATIVE_RATES)
                 return r<0.0 ? r/2.0 : r*2.0;
                 #else
@@ -258,7 +258,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::min_element(c->data().begin(), c->data().end()));
+                Real r = *(min_element(c->data().begin(), c->data().end()));
                 #if defined(QL_NEGATIVE_RATES)
                 return r<0.0 ? r*2.0 : r/2.0;
                 #else
@@ -280,7 +280,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::max_element(c->data().begin(), c->data().end()));
+                Real r = *(max_element(c->data().begin(), c->data().end()));
                 #if defined(QL_NEGATIVE_RATES)
                 return r<0.0 ? r/2.0 : r*2.0;
                 #else

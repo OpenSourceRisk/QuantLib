@@ -66,7 +66,7 @@ namespace QuantLib {
                        "greater than or equal to timeSteps, "
                        << maxTimeSteps << " not allowed");
             if (maxTimeSteps_==0)
-               maxTimeSteps_ = std::max( (Size)1000, timeSteps_*5);
+                maxTimeSteps_ = std::max( (Size)1000, timeSteps_*5);
             registerWith(process_);
         }
         void calculate() const;
@@ -127,12 +127,12 @@ namespace QuantLib {
         if (maxTimeSteps_ > timeSteps_ && s0 > 0 && arguments_.barrier > 0) {
             Real divisor;
             if (s0 > arguments_.barrier)
-               divisor = std::pow(std::log(s0 / arguments_.barrier), 2);
+               divisor = pow(log(s0 / arguments_.barrier), 2);
             else
-               divisor = std::pow(std::log(arguments_.barrier / s0), 2);
+               divisor = pow(log(arguments_.barrier / s0), 2);
             if (!close(divisor,0)) {
                 for (Size i=1; i < timeSteps_ ; ++i) {
-                    Size optimum = Size(( i*i * v*v * maturity) / divisor);
+                    Size optimum = Size(VALUE(( i*i * v*v * maturity) / divisor));
                     if (timeSteps_ < optimum) {
                         optimum_steps = optimum;
                         break; // found first minimum with iterations>=timesteps

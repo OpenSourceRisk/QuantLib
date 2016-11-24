@@ -73,10 +73,10 @@ namespace QuantLib {
             std::pair<Integer, Integer> subDays(daysMinMax(subPeriod));
 
             //obtain the approximate time ratio
-            Real minPeriodRatio =
-                ((Real)superDays.first)/((Real)subDays.second);
-            Real maxPeriodRatio =
-                ((Real)superDays.second)/((Real)subDays.first);
+            double minPeriodRatio =
+                ((double)superDays.first)/((double)subDays.second);
+            double maxPeriodRatio =
+                ((double)superDays.second)/((double)subDays.first);
             Integer lowRatio = static_cast<Integer>(std::floor(minPeriodRatio));
             Integer highRatio = static_cast<Integer>(std::ceil(maxPeriodRatio));
 
@@ -120,7 +120,7 @@ namespace QuantLib {
             notionals.front() = initialNotional;
             Real coupon = couponRate / static_cast<Real>(sinkingFrequency);
             Real compoundedInterest = 1.0;
-            Real totalValue = std::pow(1.0+coupon, nPeriods);
+            Real totalValue = pow(1.0+coupon, nPeriods);
             for(Size i = 0; i < (Size)nPeriods-1; ++i) {
                 compoundedInterest *= (1.0 + coupon);
                 Real currentNotional = 0.0;

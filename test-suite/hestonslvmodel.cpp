@@ -160,7 +160,7 @@ namespace {
 
         Array payoffTimesDensity(x.size());
         for (Size i=0; i < x.size(); ++i) {
-            payoffTimesDensity[i] = payoff->operator()(std::exp(x[i]))*p[i];
+            payoffTimesDensity[i] = payoff->operator()(exp(x[i]))*p[i];
         }
 
         CubicNaturalSpline f(x.begin(), x.end(), payoffTimesDensity.begin());
@@ -182,7 +182,7 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation() {
     const Time maturity = dc.yearFraction(todaysDate, maturityDate);
 
     const Real s0 = 100;
-    const Real x0 = std::log(s0);
+    const Real x0 = log(s0);
     const Rate r = 0.035;
     const Rate q = 0.01;
     const Volatility v = 0.35;
@@ -249,7 +249,7 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation() {
                                   payoff, x0, maturity, tGrid);
         const Real tol = 0.02;
 
-        if (std::fabs(expected - calcUniform) > tol) {
+        if (abs(expected - calcUniform) > tol) {
             BOOST_FAIL("failed to reproduce european option price "
                        << "with an uniform mesher"
                        << "\n   strike:     " << strikes[i]
@@ -258,7 +258,7 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation() {
                        << "\n   expected:   " << expected
                        << "\n   tolerance:  " << tol);
         }
-        if (std::fabs(expected - calcConcentrated) > tol) {
+        if (abs(expected - calcConcentrated) > tol) {
             BOOST_FAIL("failed to reproduce european option price "
                        << "with a concentrated mesher"
                        << "\n   strike:     " << strikes[i]
@@ -267,7 +267,7 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation() {
                        << "\n   expected:   " << expected
                        << "\n   tolerance:  " << tol);
         }
-        if (std::fabs(expected - calcShifted) > tol) {
+        if (abs(expected - calcShifted) > tol) {
             BOOST_FAIL("failed to reproduce european option price "
                        << "with a shifted mesher"
                        << "\n   strike:     " << strikes[i]
@@ -286,8 +286,8 @@ namespace {
         const Real alpha = 2*kappa*theta/(sigma*sigma);
         const Real beta = alpha/theta;
 
-        return std::pow(beta, alpha)*std::exp(z*alpha)
-                *std::exp(-beta*std::exp(z)-GammaFunction().logValue(alpha));
+        return pow(beta, alpha)*exp(z*alpha)
+                *exp(-beta*exp(z)-GammaFunction().logValue(alpha));
     }
 }
 
@@ -348,11 +348,11 @@ void HestonSLVModelTest::testSquareRootZeroFlowBC() {
                                 + (kappa*(v0-theta)+sigma*sigma/2)*p0;
 
         const Real tol = 0.000002;
-        if (   std::fabs(expected[i][0] - flowSym2Order) > tol
-            || std::fabs(expected[i][1] - flowSym4Order) > tol
-            || std::fabs(expected[i][2] - fwd1Order) > tol
-            || std::fabs(expected[i][3] - fwd2Order) > tol
-            || std::fabs(expected[i][4] - fwd3Order) > tol ) {
+        if (   abs(expected[i][0] - flowSym2Order) > tol
+            || abs(expected[i][1] - flowSym4Order) > tol
+            || abs(expected[i][2] - fwd1Order) > tol
+            || abs(expected[i][3] - fwd2Order) > tol
+            || abs(expected[i][4] - fwd3Order) > tol ) {
             BOOST_ERROR("failed to reproduce Zero Flow BC at"
                        << "\n   v:          " << v
                        << "\n   tolerance:  " << tol);
@@ -419,7 +419,7 @@ void HestonSLVModelTest::testTransformedZeroFlowBC() {
         const Real flow = 0.5*sigma*sigma*v[i]*df + kappa*v[i]*q[i];
 
         const Real tol = 1e-6;
-        if (std::fabs(flow) > tol) {
+        if (abs(flow) > tol) {
             BOOST_ERROR("failed to reproduce Zero Flow BC at"
                        << "\n v:          " << v
                        << "\n flow:       " << flow
@@ -437,7 +437,7 @@ namespace {
         }
 
         Real operator()(Real v) const {
-            return (*spline_)(v, true)*std::pow(v, -alpha_);
+            return (*spline_)(v, true)*pow(v, -alpha_);
         }
       private:
         const Array v_, q_;
@@ -479,7 +479,7 @@ void HestonSLVModelTest::testSquareRootEvolveWithStationaryDensity() {
         Array vq (v.size());
         Array vmq(v.size());
         for (Size i=0; i < v.size(); ++i) {
-            vmq[i] = 1.0/(vq[i] = std::pow(v[i], alpha));
+            vmq[i] = 1.0/(vq[i] = pow(v[i], alpha));
         }
 
         Array p(vGrid);
@@ -517,7 +517,7 @@ void HestonSLVModelTest::testSquareRootEvolveWithStationaryDensity() {
                                         f, v.front(), v.back());
 
         const Real tol = 0.005;
-        if (std::fabs(calculated-expected) > tol) {
+        if (abs(calculated-expected) > tol) {
             BOOST_ERROR("failed to reproduce stationary probability function"
                     << "\n    calculated: " << calculated
                     << "\n    expected:   " << expected
@@ -585,7 +585,7 @@ void HestonSLVModelTest::testSquareRootLogEvolveWithStationaryDensity() {
             = FdmMesherIntegral(mesher, DiscreteSimpsonIntegral()).integrate(p);
 
         const Real tol = 0.005;
-        if (std::fabs(calculated-expected) > tol) {
+        if (abs(calculated-expected) > tol) {
             BOOST_ERROR("failed to reproduce stationary probability function for "
                     << "\n    sigma:      " << sigma
                     << "\n    calculated: " << calculated
@@ -612,9 +612,9 @@ void HestonSLVModelTest::testSquareRootFokkerPlanckFwdEquation() {
     const Size xGrid = 1001;
     const Size tGrid = 500;
 
-    const Real vol = sigma*std::sqrt(theta/(2*kappa));
+    const Real vol = sigma*sqrt(theta/(2*kappa));
     const Real upperBound = theta+6*vol;
-    const Real lowerBound = std::max(0.0002, theta-6*vol);
+    const Real lowerBound = std::max(Real(0.0002), theta-6*vol);
 
     const boost::shared_ptr<FdmMesher> mesher(
         new FdmMesherComposite(boost::shared_ptr<Fdm1dMesher>(
@@ -650,7 +650,7 @@ void HestonSLVModelTest::testSquareRootFokkerPlanckFwdEquation() {
         const Real expected = rndCalculator.pdf(x[i], maturity);
 
         const Real calculated = p[i];
-        if (std::fabs(expected - calculated) > tol) {
+        if (abs(expected - calculated) > tol) {
             BOOST_FAIL("failed to reproduce pdf at"
                        << QL_FIXED << std::setprecision(5)
                        << "\n   x:          " << x[i]
@@ -730,7 +730,7 @@ namespace {
         const Time maturity = dc.yearFraction(todaysDate, maturityDate);
 
         const Real s0 = testCase.s0;
-        const Real x0 = std::log(s0);
+        const Real x0 = log(s0);
         const Rate r = testCase.r;
         const Rate q = testCase.q;
 
@@ -766,10 +766,10 @@ namespace {
         switch (transformationType) {
         case FdmSquareRootFwdOp::Log:
           {
-            upperBound = std::log(rnd.stationary_invcdf(0.9995));
-            lowerBound = std::log(0.00001);
+            upperBound = log(rnd.stationary_invcdf(0.9995));
+            lowerBound = log(0.00001);
 
-            const Real v0Center = std::log(v0);
+            const Real v0Center = log(v0);
             const Real v0Density = 10.0;
             const Real upperBoundDensity = 100;
             const Real lowerBoundDensity = 1.0;
@@ -812,9 +812,9 @@ namespace {
 
         const Real sEps = 1e-4;
         const Real sLowerBound
-            = std::log(hestonPxBoundary(maturity, sEps, model));
+            = log(hestonPxBoundary(maturity, sEps, model));
         const Real sUpperBound
-            = std::log(hestonPxBoundary(maturity, 1-sEps,model));
+            = log(hestonPxBoundary(maturity, 1-sEps,model));
 
         const boost::shared_ptr<Fdm1dMesher> spotMesher(
             new Concentrating1dMesher(sLowerBound, sUpperBound, xGrid,
@@ -865,12 +865,12 @@ namespace {
                 for (FdmLinearOpIterator iter = layout->begin();
                     iter != layout->end(); ++iter) {
                     const Size idx = iter.index();
-                    const Real s = std::exp(mesher->location(iter, 0));
+                    const Real s = exp(mesher->location(iter, 0));
 
                     pd[idx] = payoff->operator()(s)*p[idx];
                     if (transformationType == FdmSquareRootFwdOp::Power) {
                         const Real v = mesher->location(iter, 1);
-                        pd[idx] *= std::pow(v, -alpha);
+                        pd[idx] *= pow(v, -alpha);
                     }
                 }
 
@@ -884,7 +884,7 @@ namespace {
                 option.setPricingEngine(engine);
 
                 const Real expected = option.NPV();
-                const Real absDiff = std::fabs(expected - calculated);
+                const Real absDiff = abs(expected - calculated);
                 const Real relDiff = absDiff / std::max(QL_EPSILON, expected);
                 const Real diff = std::min(absDiff, relDiff);
 
@@ -936,7 +936,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquation() {
             100.0, 0.01, 0.02,
             // Feller constraint violated, high vol-of-vol case
             // \frac{2\kappa\theta}{\sigma^2} = 2.0 * 1.0 * 0.05 / 0.2 = 0.5 < 1
-            0.05, 1.0, 0.05, -0.75, std::sqrt(0.2),
+            0.05, 1.0, 0.05, -0.75, sqrt(0.2),
             101, 401, 25, 25,
             0.02, 0.05,
             FdmSquareRootFwdOp::Power,
@@ -947,7 +947,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquation() {
             100.0, 0.01, 0.02,
             // Feller constraint violated, high vol-of-vol case
             // \frac{2\kappa\theta}{\sigma^2} = 2.0 * 1.0 * 0.05 / 0.2 = 0.5 < 1
-            0.05, 1.0, 0.05, -0.75, std::sqrt(0.2),
+            0.05, 1.0, 0.05, -0.75, sqrt(0.2),
             201, 501, 10, 10,
             0.005, 0.02,
             FdmSquareRootFwdOp::Log,
@@ -958,7 +958,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquation() {
             100.0, 0.01, 0.02,
             // Feller constraint violated, high vol-of-vol case
             // \frac{2\kappa\theta}{\sigma^2} = 2.0 * 1.0 * 0.05 / 0.2 = 0.5 < 1
-            0.05, 1.0, 0.05, -0.75, std::sqrt(0.2),
+            0.05, 1.0, 0.05, -0.75, sqrt(0.2),
             201, 501, 25, 25,
             0.01, 0.03,
             FdmSquareRootFwdOp::Log,
@@ -969,7 +969,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquation() {
             100.0, 0.01, 0.02,
             // Feller constraint fulfilled, low vol-of-vol case
             // \frac{2\kappa\theta}{\sigma^2} = 2.0 * 1.0 * 0.05 / 0.05 = 2.0 > 1
-            0.05, 1.0, 0.05, -0.75, std::sqrt(0.05),
+            0.05, 1.0, 0.05, -0.75, sqrt(0.05),
             201, 401, 5, 5,
             0.01, 0.02,
             FdmSquareRootFwdOp::Plain,
@@ -1092,7 +1092,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
     const Time maturity = dc.yearFraction(todaysDate, maturityDate);
 
     const Real s0 = 100;
-    const Real x0 = std::log(s0);
+    const Real x0 = log(s0);
     const Rate r = 0.0;
     const Rate q = 0.0;
 
@@ -1133,7 +1133,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
             new Concentrating1dMesher(lowerBound, upperBound, vGrid, critPoints));
 
     const boost::shared_ptr<Fdm1dMesher> equityMesher(
-        new Concentrating1dMesher(std::log(2.0), std::log(600.0), xGrid,
+        new Concentrating1dMesher(log(2.0), log(600.0), xGrid,
             std::make_pair(x0+0.005, 0.1), true));
 
     const boost::shared_ptr<FdmMesherComposite>
@@ -1163,8 +1163,8 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
             v = mesher->location(iter, 1);
             p_v = rndCalculator.pdf(v, eT);
         }
-        const Real p_x = 1.0/(std::sqrt(M_TWOPI*bsV0*eT))
-            * std::exp(-0.5*square<Real>()(x - x0)/(bsV0*eT));
+        const Real p_x = 1.0/(sqrt(M_TWOPI*bsV0*eT))
+            * exp(-0.5*square<Real>()(x - x0)/(bsV0*eT));
         p[iter.index()] = p_v*p_x;
     }
     const Time dt = (maturity-eT)/tGrid;
@@ -1221,7 +1221,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
         for (FdmLinearOpIterator iter = layout->begin();
             iter != layout->end(); ++iter) {
             const Size idx = iter.index();
-            const Real s = std::exp(mesher->location(iter, 0));
+            const Real s = exp(mesher->location(iter, 0));
 
             pd[idx] = payoff->operator()(s)*p[idx];
         }
@@ -1234,7 +1234,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
         const Real expected = option.NPV();
 
         const Real tol = 0.015;
-        if (std::fabs(expected - calculated ) > tol) {
+        if (abs(expected - calculated ) > tol) {
             BOOST_FAIL("failed to reproduce Heston prices at"
                        << "\n   strike      " << strike
                        << QL_FIXED << std::setprecision(5)
@@ -1257,7 +1257,7 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol() {
     Settings::instance().evaluationDate() = todaysDate;
 
     const Real s0 = 100;
-    const Real x0 = std::log(s0);
+    const Real x0 = log(s0);
     const Rate r = 0.035;
     const Rate q = 0.01;
 
@@ -1355,15 +1355,15 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol() {
                     * rTS->discount(maturityDate);
             const Real tol = 0.05;
 
-            if (std::fabs(expected - calcUniform) > tol) {
+            if (abs(expected - calcUniform) > tol) {
                 BOOST_FAIL(
                         "failed to reproduce european option price " << "with an uniform mesher" << "\n   strike:     " << strikes[i] << QL_FIXED << std::setprecision(8) << "\n   calculated: " << calcUniform << "\n   expected:   " << expected << "\n   tolerance:  " << tol);
             }
-            if (std::fabs(expected - calcConcentrated) > tol) {
+            if (abs(expected - calcConcentrated) > tol) {
                 BOOST_FAIL(
                         "failed to reproduce european option price " << "with a concentrated mesher" << "\n   strike:     " << strikes[i] << QL_FIXED << std::setprecision(8) << "\n   calculated: " << calcConcentrated << "\n   expected:   " << expected << "\n   tolerance:  " << tol);
             }
-            if (std::fabs(expected - calcShifted) > tol) {
+            if (abs(expected - calcShifted) > tol) {
                 BOOST_FAIL(
                         "failed to reproduce european option price " << "with a shifted mesher" << "\n   strike:     " << strikes[i] << QL_FIXED << std::setprecision(8) << "\n   calculated: " << calcShifted << "\n   expected:   " << expected << "\n   tolerance:  " << tol);
             }
@@ -1470,7 +1470,7 @@ namespace {
                                                       dc))));
 
                 const Real tol = 0.0005;//testCase.eps;
-                if (std::fabs((calculated-expected)/vega) > tol) {
+                if (abs((calculated-expected)/vega) > tol) {
                     BOOST_FAIL("failed to reproduce round trip vola "
                               << "\n   strike         " << strike
                               << "\n   time           " << times[t]
@@ -1523,8 +1523,8 @@ void HestonSLVModelTest::testFDMCalibration() {
 
     const HestonSLVTestCase testCases[] = {
         { {0.035, 0.01, 1.0, 0.06, -0.75, 0.1, 0.09}, plainParams},
-        { {0.035, 0.01, 1.0, 0.06, -0.75, std::sqrt(0.2), 0.09}, logParams },
-        { {0.035, 0.01, 1.0, 0.09, -0.75, std::sqrt(0.2), 0.06}, logParams },
+        { {0.035, 0.01, 1.0, 0.06, -0.75, sqrt(0.2), 0.09}, logParams },
+        { {0.035, 0.01, 1.0, 0.09, -0.75, sqrt(0.2), 0.06}, logParams },
         { {0.035, 0.01, 1.0, 0.06, -0.75, 0.2, 0.09}, powerParams }
     };
 
@@ -1619,13 +1619,13 @@ void HestonSLVModelTest::testLocalVolsvSLVPropDensity() {
                              prob->begin()+(i+1)*xGrid));
 
                 const Real expected
-                    = squareRootRndCalculator.pdf(std::exp(z[i]), t);
-                const Real calculated = pCalc/std::exp(z[i]);
+                    = squareRootRndCalculator.pdf(exp(z[i]), t);
+                const Real calculated = pCalc/exp(z[i]);
 
-                if (   std::fabs(expected-calculated) > 0.01
-                    && std::fabs((expected-calculated)/expected) > 0.04) {
+                if (   abs(expected-calculated) > 0.01
+                    && abs((expected-calculated)/expected) > 0.04) {
                     BOOST_ERROR("failed to reproduce probability at "
-                            << "\n  v :          " << std::exp(z[i])
+                            << "\n  v :          " << exp(z[i])
                             << "\n  t :          " << t
                             << "\n  expected :   " << expected
                             << "\n  calculated : " << calculated);
@@ -1721,19 +1721,19 @@ void HestonSLVModelTest::testBarrierPricingViaHestonLocalVol() {
             const Real localVolNPV = option.NPV();
 
             const Real tol = 1e-3;
-            if (std::fabs(analyticNPV - hestonNPV) > tol)
+            if (abs(analyticNPV - hestonNPV) > tol)
                 BOOST_ERROR("Heston and BS price do not match "
                         << "\n  Heston :       " << hestonNPV
                         << "\n  Black-Scholes: " << analyticNPV
                         << "\n  diff :   "
-                        << std::fabs(analyticNPV - hestonNPV));
+                        << abs(analyticNPV - hestonNPV));
 
-            if (std::fabs(analyticNPV - localVolNPV) > tol)
+            if (abs(analyticNPV - localVolNPV) > tol)
                 BOOST_ERROR("LocalVol and BS price do not match "
                         << "\n  LocalVol :     " << localVolNPV
                         << "\n  Black-Scholes: " << analyticNPV
                         << "\n  diff :   "
-                        << std::fabs(analyticNPV - localVolNPV));
+                        << abs(analyticNPV - localVolNPV));
         }
     }
 }
@@ -1804,12 +1804,12 @@ void HestonSLVModelTest::testBarrierPricingMixedModels() {
     const Real localDeltaExpected =  -0.439068;
     const Real hestonDeltaExpected = -0.342059;
     const Real tol = 0.0001;
-    if (std::fabs(hestonDeltaExpected - hestonDeltaCalculated) > tol) {
+    if (abs(hestonDeltaExpected - hestonDeltaCalculated) > tol) {
         BOOST_ERROR("Heston Delta does not match"
                 << "\n calculated : " << hestonDeltaCalculated
                 << "\n expected   : " << hestonDeltaExpected);
     }
-    if (std::fabs(localDeltaExpected - localDeltaCalculated) > tol) {
+    if (abs(localDeltaExpected - localDeltaCalculated) > tol) {
         BOOST_ERROR("Local Vol Delta does not match"
                 << "\n calculated : " << localDeltaCalculated
                 << "\n expected   : " << localDeltaExpected);
@@ -1855,7 +1855,7 @@ void HestonSLVModelTest::testBarrierPricingMixedModels() {
         barrierOption.setPricingEngine(slvEngine);
         const Real slvDeltaCalculated = barrierOption.delta();
 
-        if (std::fabs(slvDeltaExpected[i] - slvDeltaCalculated) > tol) {
+        if (abs(slvDeltaExpected[i] - slvDeltaCalculated) > tol) {
             BOOST_ERROR("Stochastic Local Vol Delta does not match"
                     << "\n calculated : " << slvDeltaCalculated
                     << "\n expected   : " << slvDeltaExpected);
@@ -1940,7 +1940,7 @@ void HestonSLVModelTest::testMonteCarloVsFdmPricing() {
                     << "\n Limit   : " << 0.1);
         }
 
-        if (std::fabs(priceFDM - priceMC) > 2.3*priceError) {
+        if (abs(priceFDM - priceMC) > 2.3*priceError) {
             BOOST_ERROR("Heston Monte-Carlo price does not match with FDM"
                     << "\n MC Price : " << priceMC
                     << "\n MC Error : " << priceError
@@ -2029,7 +2029,7 @@ void HestonSLVModelTest::testMonteCarloCalibration() {
 
             const boost::shared_ptr<PricingEngine> fdEngine
                 = boost::make_shared<FdHestonVanillaEngine>(
-                    hestonModel, std::max(Size(26), Size(maturityTime*51)),
+                    hestonModel, std::max(Size(26), Size(VALUE(maturityTime*51))),
                     401, 101, 0,
                     FdmSchemeDesc::ModifiedCraigSneyd(), leverageFct);
 
@@ -2052,7 +2052,7 @@ void HestonSLVModelTest::testMonteCarloCalibration() {
                     option.setPricingEngine(fdEngine);
                     const Real fdmNPV = option.NPV();
 
-                    const Real diff = std::fabs(fdmNPV-bsNPV)/bsVega*1e4;
+                    const Real diff = abs(fdmNPV-bsNPV)/bsVega*1e4;
 
                     qualityFactor+=diff;
                     maxQualityFactor = std::max(maxQualityFactor, diff);
@@ -2202,12 +2202,12 @@ void HestonSLVModelTest::testForwardSkewSLV() {
                 const Real strike = strikes[j];
                 if (strike < 1.0)
                     stats[k][j].add(0.5*(
-                          S_t1 * std::max(0.0, strike - S_T1/S_t1)
-                        + S_t2 * std::max(0.0, strike - S_T2/S_t2)));
+                                        S_t1 * std::max(Real(0.0), strike - S_T1/S_t1)
+                                        + S_t2 * std::max(Real(0.0), strike - S_T2/S_t2)));
                 else
                     stats[k][j].add(0.5*(
-                          S_t1 * std::max(0.0, S_T1/S_t1 - strike)
-                        + S_t2 * std::max(0.0, S_T2/S_t2 - strike)));
+                                        S_t1 * std::max(Real(0.0), S_T1/S_t1 - strike)
+                                        + S_t2 * std::max(Real(0.0), S_T2/S_t2 - strike)));
             }
         }
     }
@@ -2251,7 +2251,7 @@ void HestonSLVModelTest::testForwardSkewSLV() {
                     *fwdOption, *fwdEngine, *vol, npv, 1e-8, 200, 1e-4, 2.0);
 
             const Real tol = 0.001;
-            const Volatility volError = std::fabs(implVol - expected[j]);
+            const Volatility volError = abs(implVol - expected[j]);
 
             if (volError > tol) {
                 BOOST_ERROR("Implied forward volatility error is too large"
@@ -2284,7 +2284,7 @@ namespace {
                 hestonProcess->riskFreeRate(),
                 hestonProcess->dividendYield(),
                 hestonProcess->s0(),
-                std::sqrt(hestonProcess->theta())));
+                sqrt(hestonProcess->theta())));
 
 
         const boost::shared_ptr<LocalVolRNDCalculator> localVolRND(
@@ -2306,7 +2306,7 @@ namespace {
                 boost::make_shared<std::vector<Real> >(logStrikes.size()));
 
             for (Size j=0; j < logStrikes.size(); ++j) {
-                (*strikeSlice)[j] = std::exp(logStrikes[j]);
+                (*strikeSlice)[j] = exp(logStrikes[j]);
             }
 
             strikes.push_back(strikeSlice);
@@ -2391,7 +2391,7 @@ void HestonSLVModelTest::testMoustacheGraph() {
     const Volatility implVol = vanillaOption.impliedVolatility(
         vanillaOption.NPV(),
         boost::make_shared<GeneralizedBlackScholesProcess>(spot, qTS, rTS,
-            Handle<BlackVolTermStructure>(flatVol(std::sqrt(theta), dc))));
+            Handle<BlackVolTermStructure>(flatVol(sqrt(theta), dc))));
 
     const boost::shared_ptr<PricingEngine> analyticEngine(
         boost::make_shared<AnalyticDoubleBarrierBinaryEngine>(
@@ -2448,7 +2448,7 @@ void HestonSLVModelTest::testMoustacheGraph() {
     for (Size i=0; i < 18; ++i) {
         const Real dist = 10.0+5.0*i;
 
-        const Real barrier_lo = std::max(s0 - dist, 1e-2);
+        const Real barrier_lo = max(s0 - dist, Real(1e-2));
         const Real barrier_hi = s0 + dist;
         DoubleBarrierOption doubleBarrier(
             DoubleBarrier::KnockOut, barrier_lo, barrier_hi, 0.0,
@@ -2463,7 +2463,7 @@ void HestonSLVModelTest::testMoustacheGraph() {
         const Real slvNPV = doubleBarrier.NPV();
 
         const Real diff = slvNPV - bsNPV;
-        if (std::fabs(diff - expected[i]) > tol) {
+        if (abs(diff - expected[i]) > tol) {
             BOOST_ERROR(
                 "Failed to reproduce price difference for a Double-No-Touch "
                 << "option between Black-Scholes and "

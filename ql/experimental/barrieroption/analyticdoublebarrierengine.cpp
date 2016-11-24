@@ -121,7 +121,7 @@ namespace QuantLib {
     }
 
     Real AnalyticDoubleBarrierEngine::stdDeviation() const {
-        return volatility() * std::sqrt(residualTime());
+        return volatility() * sqrt(residualTime());
     }
 
     Real AnalyticDoubleBarrierEngine::barrierLo() const {
@@ -174,32 +174,32 @@ namespace QuantLib {
        Real acc1 = 0;
        Real acc2 = 0;
        for (int n = -series_ ; n <= series_ ; ++n) {
-          Real L2n = std::pow(barrierLo(), 2 * n);
-          Real U2n = std::pow(barrierHi(), 2 * n);
-          Real d1 = std::log( underlying()* U2n / (strike() * L2n) ) / stdDeviation() + bsigma;
-          Real d2 = std::log( underlying()* U2n / (barrierHi() * L2n) ) / stdDeviation() + bsigma;
-          Real d3 = std::log( std::pow(barrierLo(), 2 * n + 2) / (strike() * underlying() * U2n) ) / stdDeviation() + bsigma;
-          Real d4 = std::log( std::pow(barrierLo(), 2 * n + 2) / (barrierHi() * underlying() * U2n) ) / stdDeviation() + bsigma;
+          Real L2n = pow(barrierLo(), 2 * n);
+          Real U2n = pow(barrierHi(), 2 * n);
+          Real d1 = log( underlying()* U2n / (strike() * L2n) ) / stdDeviation() + bsigma;
+          Real d2 = log( underlying()* U2n / (barrierHi() * L2n) ) / stdDeviation() + bsigma;
+          Real d3 = log( pow(barrierLo(), 2 * n + 2) / (strike() * underlying() * U2n) ) / stdDeviation() + bsigma;
+          Real d4 = log( pow(barrierLo(), 2 * n + 2) / (barrierHi() * underlying() * U2n) ) / stdDeviation() + bsigma;
 
-          acc1 += std::pow( std::pow(barrierHi(), n) / std::pow(barrierLo(), n), mu1 ) * 
+          acc1 += pow( pow(barrierHi(), n) / pow(barrierLo(), n), mu1 ) * 
                   (f_(d1) - f_(d2)) -
-                  std::pow( std::pow(barrierLo(), n+1) / (std::pow(barrierHi(), n) * underlying()), mu1 ) * 
+                  pow( pow(barrierLo(), n+1) / (pow(barrierHi(), n) * underlying()), mu1 ) * 
                   (f_(d3) - f_(d4));
 
-          acc2 += std::pow( std::pow(barrierHi(), n) / std::pow(barrierLo(), n), mu1-2) * 
+          acc2 += pow( pow(barrierHi(), n) / pow(barrierLo(), n), mu1-2) * 
                   (f_(d1 - stdDeviation()) - f_(d2 - stdDeviation())) -
-                  std::pow( std::pow(barrierLo(), n+1) / (std::pow(barrierHi(), n) * underlying()), mu1-2 ) * 
+                  pow( pow(barrierLo(), n+1) / (pow(barrierHi(), n) * underlying()), mu1-2 ) * 
                   (f_(d3-stdDeviation()) - f_(d4-stdDeviation()));
        }
 
-       Real rend = std::exp(-dividendYield() * residualTime());
+       Real rend = exp(-dividendYield() * residualTime());
        Real kov = underlying() * rend * acc1 - strike() * riskFreeDiscount() * acc2;
-       return std::max(0.0, kov);
+       return max(Real(0.0), kov);
     }
     
     Real AnalyticDoubleBarrierEngine::callKI() const {
         // Call KI equates to vanilla - callKO
-        return std::max(0.0, vanillaEquivalent() - callKO());
+        return max(Real(0.0), vanillaEquivalent() - callKO());
     }
 
     Real AnalyticDoubleBarrierEngine::putKO() const {
@@ -209,33 +209,33 @@ namespace QuantLib {
        Real acc1 = 0;
        Real acc2 = 0;
        for (int n = -series_ ; n <= series_ ; ++n) {
-          Real L2n = std::pow(barrierLo(), 2 * n);
-          Real U2n = std::pow(barrierHi(), 2 * n);
-          Real y1 = std::log( underlying()* U2n / (std::pow(barrierLo(), 2 * n + 1)) ) / stdDeviation() + bsigma;
-          Real y2 = std::log( underlying()* U2n / (strike() * L2n) ) / stdDeviation() + bsigma;
-          Real y3 = std::log( std::pow(barrierLo(), 2 * n + 2) / (barrierLo() * underlying() * U2n) ) / stdDeviation() + bsigma;
-          Real y4 = std::log( std::pow(barrierLo(), 2 * n + 2) / (strike() * underlying() * U2n) ) / stdDeviation() + bsigma;
+          Real L2n = pow(barrierLo(), 2 * n);
+          Real U2n = pow(barrierHi(), 2 * n);
+          Real y1 = log( underlying()* U2n / (pow(barrierLo(), 2 * n + 1)) ) / stdDeviation() + bsigma;
+          Real y2 = log( underlying()* U2n / (strike() * L2n) ) / stdDeviation() + bsigma;
+          Real y3 = log( pow(barrierLo(), 2 * n + 2) / (barrierLo() * underlying() * U2n) ) / stdDeviation() + bsigma;
+          Real y4 = log( pow(barrierLo(), 2 * n + 2) / (strike() * underlying() * U2n) ) / stdDeviation() + bsigma;
 
-          acc1 += std::pow( std::pow(barrierHi(), n) / std::pow(barrierLo(), n), mu1-2) * 
+          acc1 += pow( pow(barrierHi(), n) / pow(barrierLo(), n), mu1-2) * 
                   (f_(y1 - stdDeviation()) - f_(y2 - stdDeviation())) -
-                  std::pow( std::pow(barrierLo(), n+1) / (std::pow(barrierHi(), n) * underlying()), mu1-2 ) * 
+                  pow( pow(barrierLo(), n+1) / (pow(barrierHi(), n) * underlying()), mu1-2 ) * 
                   (f_(y3-stdDeviation()) - f_(y4-stdDeviation()));
 
-          acc2 += std::pow( std::pow(barrierHi(), n) / std::pow(barrierLo(), n), mu1 ) * 
+          acc2 += pow( pow(barrierHi(), n) / pow(barrierLo(), n), mu1 ) * 
                   (f_(y1) - f_(y2)) -
-                  std::pow( std::pow(barrierLo(), n+1) / (std::pow(barrierHi(), n) * underlying()), mu1 ) * 
+                  pow( pow(barrierLo(), n+1) / (pow(barrierHi(), n) * underlying()), mu1 ) * 
                   (f_(y3) - f_(y4));
 
        }
 
-       Real rend = std::exp(-dividendYield() * residualTime());
+       Real rend = exp(-dividendYield() * residualTime());
        Real kov = strike() * riskFreeDiscount() * acc1 - underlying() * rend  * acc2;
-       return std::max(0.0, kov);
+       return max(Real(0.0), kov);
     }
     
     Real AnalyticDoubleBarrierEngine::putKI() const {
         // Put KI equates to vanilla - putKO
-        return std::max(0.0, vanillaEquivalent() - putKO());
+        return max(Real(0.0), vanillaEquivalent() - putKO());
     }
 
     

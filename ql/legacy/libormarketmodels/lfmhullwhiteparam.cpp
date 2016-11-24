@@ -53,9 +53,9 @@ namespace QuantLib {
                 std::transform(
                     tmpSqrtCorr[i], tmpSqrtCorr[i]+factors_, sqrtCorr[i],
                     std::bind2nd(std::divides<Real>(),
-                                 std::sqrt(std::inner_product(
+                                 sqrt(std::inner_product(
                                      tmpSqrtCorr[i],tmpSqrtCorr[i]+factors_,
-                                     tmpSqrtCorr[i], 0.0))));
+                                     tmpSqrtCorr[i], Real(0.0)))));
             }
         }
 
@@ -76,7 +76,7 @@ namespace QuantLib {
                 * capletVol->dayCounter().yearFraction(fixingDates[0],
                                                        fixingDates[i]);
 
-            lambda.push_back(std::sqrt(  (var - cumVar)
+            lambda.push_back(sqrt(  (var - cumVar)
                                        / (fixingTimes[1] - fixingTimes[0])) );
 
             for (Size q=0; q<factors_; ++q) {

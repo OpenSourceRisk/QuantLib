@@ -22,7 +22,7 @@
 
 #include <boost/make_shared.hpp>
 
-using std::sqrt;
+//using sqrt;
 
 namespace QuantLib {
 
@@ -36,7 +36,7 @@ namespace QuantLib {
             quotes.size(),
             //g++ complains default value not seen as typename
             GaussianCopulaPolicy::initTraits()),
-          sqrt1minuscorrel_(std::sqrt(1.-correlQuote->value())),
+          sqrt1minuscorrel_(sqrt(1.-correlQuote->value())),
           correl_(correlQuote),
           rrQuotes_(quotes), 
           beta_(sqrt(correlQuote->value())),
@@ -54,7 +54,7 @@ namespace QuantLib {
             recoveries.size(),
             //g++ complains default value not seen as typename
             GaussianCopulaPolicy::initTraits()),
-          sqrt1minuscorrel_(std::sqrt(1.-correlation)),
+          sqrt1minuscorrel_(sqrt(1.-correlation)),
           correl_(Handle<Quote>(boost::make_shared<SimpleQuote>(correlation))),
           beta_(sqrt(correlation)),
           biphi_(-sqrt(correlation))
@@ -71,7 +71,7 @@ namespace QuantLib {
             recoveries.size(),
             //g++ complains default value not seen as typename
             GaussianCopulaPolicy::initTraits()),
-          sqrt1minuscorrel_(std::sqrt(1.-correlQuote->value())),
+          sqrt1minuscorrel_(sqrt(1.-correlQuote->value())),
           correl_(correlQuote),
           beta_(sqrt(correlQuote->value())),
           biphi_(-sqrt(correlQuote->value()))
@@ -96,9 +96,9 @@ namespace QuantLib {
             if (remainingNot == 0.) return 0.;
 
             const Real one = 1.0 - 1.0e-12;  // FIXME DUE TO THE INV CUMUL AT 1
-            const Real k1 = std::min(one, attachLimit /(1.0 - averageRR)
+            const Real k1 = min(one, attachLimit /(1.0 - averageRR)
                 ) + QL_EPSILON;
-            const Real k2 = std::min(one, detachLimit /(1.0 - averageRR)
+            const Real k2 = min(one, detachLimit /(1.0 - averageRR)
                 ) + QL_EPSILON;
 
             if (prob > 0) {
@@ -128,9 +128,9 @@ namespace QuantLib {
 
             const Real remainingBasktNot = basket_->remainingNotional(d);
             const Real attach = 
-                std::min(remainingAttachAmount / remainingBasktNot, 1.);
+                min(remainingAttachAmount / remainingBasktNot, Real(1.));
             const Real detach = 
-                std::min(remainingDetachAmount / remainingBasktNot, 1.);
+                min(remainingDetachAmount / remainingBasktNot, Real(1.));
 
             Real portfFract = 
                 attach + remainingLossFraction * (detach - attach);
@@ -164,14 +164,14 @@ namespace QuantLib {
 
             const Real remainingNot = basket_->remainingNotional(d);
             const Real attach = 
-                std::min(remainingAttachAmount / remainingNot, 1.);
+                min(remainingAttachAmount / remainingNot, Real(1.));
             const Real detach = 
-                std::min(remainingDetachAmount / remainingNot, 1.);
+                min(remainingDetachAmount / remainingNot, Real(1.));
 
             if(ptflLossPerc >= detach-QL_EPSILON) 
                 return remainingNot * (detach-attach);//equivalent
 
-            Real maxLossLevel = std::max(attach, ptflLossPerc);
+            Real maxLossLevel = max(attach, ptflLossPerc);
             Probability prob = averageProb(d);
             Real averageRR = averageRecovery(d);
 
@@ -179,8 +179,8 @@ namespace QuantLib {
                 averageRR, maxLossLevel, detach);
             Real valB = // probOverLoss(d, maxLossLevel);//in live tranche units
             // from fraction of basket notional to fraction of tranche notional
-                probOverLoss(d, std::min(std::max((maxLossLevel - attach)
-                /(detach - attach), 0.), 1.));
+                probOverLoss(d, min(max((maxLossLevel - attach)
+                                        /(detach - attach), Real(0.)), Real(1.)));
             return ( valA + (maxLossLevel - attach) * remainingNot * valB )
                 / (1.-perctl);
         }

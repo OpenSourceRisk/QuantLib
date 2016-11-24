@@ -76,7 +76,7 @@ namespace QuantLib {
                                             Size steps)
     : TreeLattice1D<BlackScholesLattice<T> >(TimeGrid(end, steps), 2),
       tree_(tree), riskFreeRate_(riskFreeRate), dt_(end/steps),
-      discount_(std::exp(-riskFreeRate*(dt_))) {
+      discount_(exp(-riskFreeRate*(dt_))) {
         pd_ = tree->probability(0, 0, 0);
         pu_ = tree->probability(0, 0, 1);
     }

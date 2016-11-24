@@ -68,7 +68,7 @@ namespace QuantLib {
             for (Size k=0; k<numberOfRates_; ++k) {
                 Real variance =
                     std::inner_product(A.row_begin(k), A.row_end(k),
-                    A.row_begin(k), 0.0);
+                    A.row_begin(k), Real(0.0));
                 variances[k] = variance;
                 fixed[k] = -0.5*variance;
             }
@@ -88,7 +88,7 @@ namespace QuantLib {
         QL_REQUIRE(forwards.size()==numberOfRates_,
                    "mismatch between forwards and rateTimes");
         for (Size i=0; i<numberOfRates_; ++i)
-            initialLogForwards_[i] = std::log(forwards[i] +
+            initialLogForwards_[i] = log(forwards[i] +
                                               displacements_[i]);
         calculators_[initialStep_].compute(forwards, initialDrifts_);
     }
@@ -146,7 +146,7 @@ namespace QuantLib {
         isConstraintActive_ = isConstraintActive;
 
         for (unsigned long i=0; i < rateConstraints_.size(); i++)
-            rateConstraints_[i] = std::log(rateConstraints_[i]+displacements_[i]);
+            rateConstraints_[i] = log(rateConstraints_[i]+displacements_[i]);
     }
 
 
@@ -179,7 +179,7 @@ namespace QuantLib {
             logForwards_[i] += drifts1_[i] + fixedDrift[i];
             logForwards_[i] +=
                 std::inner_product(A.row_begin(i), A.row_end(i),
-                brownians_.begin(), 0.0);
+                brownians_.begin(), Real(0.0));
         }
 
         // check constraint active
@@ -216,7 +216,7 @@ namespace QuantLib {
         }
 
         for (Size i=alive; i<numberOfRates_; i++)
-            forwards_[i] = std::exp(logForwards_[i]) - displacements_[i];
+            forwards_[i] = exp(logForwards_[i]) - displacements_[i];
 
         // c) update curve state
         curveState_.setOnForwardRates(forwards_);

@@ -262,7 +262,7 @@ void CatBondTest::testRiskFreeAgainstFloatingRateBond() {
 
     Real price = bond1.cleanPrice();
     Real catPrice = catBond1.cleanPrice();
-    if (std::fabs(price-cachedPrice1) > tolerance || std::fabs(catPrice-price) > tolerance) {
+    if (abs(price-cachedPrice1) > tolerance || abs(catPrice-price) > tolerance) {
         BOOST_FAIL("failed to reproduce floating rate bond price:\n"
                    << std::fixed
                    << "    floating bond: " << price << "\n"
@@ -309,7 +309,7 @@ void CatBondTest::testRiskFreeAgainstFloatingRateBond() {
 
     price = bond2.cleanPrice();
     catPrice = catBond2.cleanPrice();
-    if (std::fabs(price-cachedPrice2) > tolerance || std::fabs(catPrice-price) > tolerance) {
+    if (abs(price-cachedPrice2) > tolerance || abs(catPrice-price) > tolerance) {
         BOOST_FAIL("failed to reproduce floating rate bond price:\n"
                    << std::fixed
                    << "    floating bond: " << price << "\n"
@@ -357,7 +357,7 @@ void CatBondTest::testRiskFreeAgainstFloatingRateBond() {
 
     price = bond3.cleanPrice();
     catPrice = catBond3.cleanPrice();
-    if (std::fabs(price-cachedPrice3) > tolerance || std::fabs(catPrice-price) > tolerance) {
+    if (abs(price-cachedPrice3) > tolerance || abs(catPrice-price) > tolerance) {
         BOOST_FAIL("failed to reproduce floating rate bond price:\n"
                    << std::fixed
                    << "    floating bond: " << price << "\n"
@@ -507,7 +507,7 @@ void CatBondTest::testCatBondWithDoomOnceInTenYears() {
     
     BOOST_CHECK_CLOSE(Real(0.0), riskFreeLossProbability, tolerance);
     BOOST_CHECK_CLOSE(Real(0.0), riskFreeExhaustionProbability, tolerance);
-    BOOST_CHECK(std::abs(riskFreeExpectedLoss) < tolerance);
+    BOOST_CHECK(abs(riskFreeExpectedLoss) < tolerance);
     
     BOOST_CHECK_CLOSE(riskFreePrice*0.9, price, tolerance);
     BOOST_CHECK_LT(riskFreeYield, yield);
@@ -586,7 +586,7 @@ void CatBondTest::testCatBondWithDoomOnceInTenYearsProportional() {
     Real riskFreeExpectedLoss = catBond.expectedLoss();
     
     BOOST_CHECK_CLOSE(Real(0.0), riskFreeLossProbability, tolerance);
-    BOOST_CHECK(std::abs(riskFreeExpectedLoss) < tolerance);
+    BOOST_CHECK(abs(riskFreeExpectedLoss) < tolerance);
     
     BOOST_CHECK_CLOSE(riskFreePrice*0.95, price, tolerance);
     BOOST_CHECK_LT(riskFreeYield, yield);
@@ -662,7 +662,7 @@ void CatBondTest::testCatBondWithGeneratedEventsProportional() {
     Real riskFreeExpectedLoss = catBond.expectedLoss();
     
     BOOST_CHECK_CLOSE(Real(0.0), riskFreeLossProbability, tolerance);
-    BOOST_CHECK(std::abs(riskFreeExpectedLoss) < tolerance);
+    BOOST_CHECK(abs(riskFreeExpectedLoss) < tolerance);
     
     BOOST_CHECK_GT(riskFreePrice, price);
     BOOST_CHECK_LT(riskFreeYield, yield);

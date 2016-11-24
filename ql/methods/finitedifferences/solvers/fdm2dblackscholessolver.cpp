@@ -56,16 +56,16 @@ namespace QuantLib {
 
     Real Fdm2dBlackScholesSolver::valueAt(Real u, Real v) const {
         calculate();
-        const Real x = std::log(u);
-        const Real y = std::log(v);
+        const Real x = log(u);
+        const Real y = log(v);
 
         return solver_->interpolateAt(x, y);
     }
     
     Real Fdm2dBlackScholesSolver::thetaAt(Real u, Real v) const {
         calculate();
-        const Real x = std::log(u);
-        const Real y = std::log(v);
+        const Real x = log(u);
+        const Real y = log(v);
         return solver_->thetaAt(x, y);
     }
 
@@ -73,8 +73,8 @@ namespace QuantLib {
     Real Fdm2dBlackScholesSolver::deltaXat(Real u, Real v) const {
         calculate();
 
-        const Real x = std::log(u);
-        const Real y = std::log(v);
+        const Real x = log(u);
+        const Real y = log(v);
 
         return solver_->derivativeX(x, y)/u;
     }
@@ -82,8 +82,8 @@ namespace QuantLib {
     Real Fdm2dBlackScholesSolver::deltaYat(Real u, Real v) const {
         calculate();
 
-        const Real x = std::log(u);
-        const Real y = std::log(v);
+        const Real x = log(u);
+        const Real y = log(v);
 
         return solver_->derivativeY(x, y)/v;
     }
@@ -91,8 +91,8 @@ namespace QuantLib {
     Real Fdm2dBlackScholesSolver::gammaXat(Real u, Real v) const {
         calculate();
         
-        const Real x = std::log(u);
-        const Real y = std::log(v);
+        const Real x = log(u);
+        const Real y = log(v);
         
         return (solver_->derivativeXX(x, y)
                 -solver_->derivativeX(x, y))/(u*u);
@@ -101,8 +101,8 @@ namespace QuantLib {
     Real Fdm2dBlackScholesSolver::gammaYat(Real u, Real v) const {
         calculate();
         
-        const Real x = std::log(u);
-        const Real y = std::log(v);
+        const Real x = log(u);
+        const Real y = log(v);
         
         return (solver_->derivativeYY(x, y)
                 -solver_->derivativeY(x, y))/(v*v);

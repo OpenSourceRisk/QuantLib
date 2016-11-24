@@ -211,8 +211,8 @@ namespace QuantLib {
             return v;
 
         const Real t = 0.5*(t1+t2);
-        const Time time = std::min(leverageFct_->maxTime(), t);
-                                   //std::max(leverageFct_->minTime(), t));
+        const Time time = min(leverageFct_->maxTime(), t);
+                                   //max(leverageFct_->minTime(), t));
 
         const FdmLinearOpIterator endIter = layout->end();
         for (FdmLinearOpIterator iter = layout->begin();
@@ -220,10 +220,10 @@ namespace QuantLib {
             const Size nx = iter.coordinates()[0];
 
             if (iter.coordinates()[1] == 0) {
-                const Real x = std::exp(mesher_->location(iter, 0));
-                const Real spot = std::min(leverageFct_->maxStrike(),
-                                           std::max(leverageFct_->minStrike(), x));
-                v[nx] = std::max(0.01, leverageFct_->localVol(time, spot, true));
+                const Real x = exp(mesher_->location(iter, 0));
+                const Real spot = min(leverageFct_->maxStrike(),
+                                           max(leverageFct_->minStrike(), x));
+                v[nx] = max(Real(0.01), leverageFct_->localVol(time, spot, true));
             }
             else {
                 v[iter.index()] = v[nx];

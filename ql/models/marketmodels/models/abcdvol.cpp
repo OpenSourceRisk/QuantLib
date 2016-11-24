@@ -76,7 +76,7 @@ namespace QuantLib {
         Matrix covariance(numberOfRates_, numberOfRates_);
         for (Size k=0, kk=0; k<numberOfSteps_; ++k) {
             // one covariance per evolution step
-            std::fill(covariance.begin(), covariance.end(), 0.0);
+            std::fill(covariance.begin(), covariance.end(), Real(0.0));
 
             // there might be more than one correlation matrix
             // in a single evolution step,

@@ -21,7 +21,7 @@
 #include <ql/math/distributions/bivariatenormaldistribution.hpp>
 #include <ql/exercise.hpp>
 
-using std::log;
+//using log;
 
 namespace QuantLib {
 
@@ -65,15 +65,15 @@ namespace QuantLib {
         Rate b2=r-q2;
         Real rho = correlation_->value();
 
-        Real y1=(log(s1/strike)+(b1-(sigma1*sigma1)/2)*T)/(sigma1*std::sqrt(T));
-        Real y2=(log(s2/arguments_.X2)+(b2-(sigma2*sigma2)/2)*T)/(sigma2*std::sqrt(T));
+        Real y1=(log(s1/strike)+(b1-(sigma1*sigma1)/2)*T)/(sigma1*sqrt(T));
+        Real y2=(log(s2/arguments_.X2)+(b2-(sigma2*sigma2)/2)*T)/(sigma2*sqrt(T));
 
         switch (payoff->optionType()) {
           case Option::Call:
-            results_.value=s2*std::exp((b2-r)*T)*M(y2+sigma2*std::sqrt(T),y1+rho*sigma2*std::sqrt(T))-arguments_.X2*std::exp(-r*T)*M(y2,y1);
+            results_.value=s2*exp((b2-r)*T)*M(y2+sigma2*sqrt(T),y1+rho*sigma2*sqrt(T))-arguments_.X2*exp(-r*T)*M(y2,y1);
             break;
           case Option::Put:
-            results_.value=arguments_.X2*std::exp(-r*T)*M(-y2,-y1)-s2*std::exp((b2-r)*T)*M(-y2-sigma2*std::sqrt(T),-y1-rho*sigma2*std::sqrt(T));
+            results_.value=arguments_.X2*exp(-r*T)*M(-y2,-y1)-s2*exp((b2-r)*T)*M(-y2-sigma2*sqrt(T),-y1-rho*sigma2*sqrt(T));
             break;
           default:
             QL_FAIL("unknown option type");

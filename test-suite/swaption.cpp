@@ -355,7 +355,7 @@ void SwaptionTest::testSpreadTreatment() {
                     boost::shared_ptr<Swaption> swaption2_cash =
                         vars.makeSwaption(equivalentSwap,exerciseDate,0.20,
                                           Settlement::Cash);
-                    if (std::fabs(swaption1->NPV()-swaption2->NPV()) > 1.0e-6)
+                    if (abs(swaption1->NPV()-swaption2->NPV()) > 1.0e-6)
                         BOOST_ERROR("wrong spread treatment:" <<
                             "\nexercise: " << exerciseDate <<
                             "\nlength:   " << lengths[j] <<
@@ -364,7 +364,7 @@ void SwaptionTest::testSpreadTreatment() {
                             "\noriginal swaption value:   " << swaption1->NPV() <<
                             "\nequivalent swaption value: " << swaption2->NPV());
 
-                    if (std::fabs(swaption1_cash->NPV()-swaption2_cash->NPV()) > 1.0e-6)
+                    if (abs(swaption1_cash->NPV()-swaption2_cash->NPV()) > 1.0e-6)
                         BOOST_ERROR("wrong spread treatment:" <<
                             "\nexercise date: " << exerciseDate <<
                             "\nlength: " << lengths[j] <<
@@ -407,7 +407,7 @@ void SwaptionTest::testCachedValue() {
     #endif
 
     // FLOATING_POINT_EXCEPTION
-    if (std::fabs(swaption->NPV()-cachedNPV) > 1.0e-12)
+    if (abs(swaption->NPV()-cachedNPV) > 1.0e-12)
         BOOST_ERROR("failed to reproduce cached swaption value:\n" <<
                     QL_FIXED << std::setprecision(12) <<
                     "\ncalculated: " << swaption->NPV() <<
@@ -457,7 +457,7 @@ void SwaptionTest::testVega() {
                         if (numericalVegaPerPoint/swaptionNPV>1.0e-7) {
                             Real analyticalVegaPerPoint =
                                 swaption->result<Real>("vega")/100.0;
-                            Real discrepancy = std::fabs(analyticalVegaPerPoint
+                            Real discrepancy = abs(analyticalVegaPerPoint
                                 - numericalVegaPerPoint);
                             discrepancy /= numericalVegaPerPoint;
                             Real tolerance = 0.015;
@@ -692,7 +692,7 @@ void SwaptionTest::testCashSettledSwaptions() {
             Real npv_ratio_u365 = value_c_u365 / value_p_u365;
             Real annuity_ratio_u365 =  cashannuity_u365 / annuity_u365;
 
-            if (std::fabs(annuity_ratio_u360-npv_ratio_u360)>1e-10 ) {
+            if (abs(annuity_ratio_u360-npv_ratio_u360)>1e-10 ) {
                 BOOST_ERROR("\n" <<
                             "    The npv's ratio must be equal to " <<
                             " annuities ratio" << "\n"
@@ -724,7 +724,7 @@ void SwaptionTest::testCashSettledSwaptions() {
                             "    difference : " <<
                             (annuity_ratio_u360-npv_ratio_u360) );
             }
-            if (std::fabs(annuity_ratio_a365-npv_ratio_a365)>1e-10) {
+            if (abs(annuity_ratio_a365-npv_ratio_a365)>1e-10) {
                 BOOST_ERROR("\n" <<
                             "    The npv's ratio must be equal to " <<
                             " annuities ratio" << "\n"
@@ -756,7 +756,7 @@ void SwaptionTest::testCashSettledSwaptions() {
                             "    difference : " <<
                             (annuity_ratio_a365-npv_ratio_a365) );
                 }
-            if (std::fabs(annuity_ratio_a360-npv_ratio_a360)>1e-10) {
+            if (abs(annuity_ratio_a360-npv_ratio_a360)>1e-10) {
                 BOOST_ERROR("\n" <<
                             "    The npv's ratio must be equal to " <<
                             " annuities ratio" << "\n"
@@ -788,7 +788,7 @@ void SwaptionTest::testCashSettledSwaptions() {
                             "    difference : " <<
                             (annuity_ratio_a360-npv_ratio_a360) );
             }
-            if (std::fabs(annuity_ratio_u365-npv_ratio_u365)>1e-10) {
+            if (abs(annuity_ratio_u365-npv_ratio_u365)>1e-10) {
                 BOOST_ERROR("\n" <<
                             "    The npv's ratio must be equal to " <<
                             " annuities ratio" << "\n"
@@ -877,7 +877,7 @@ void SwaptionTest::testImpliedVolatility() {
                                 // couldn't bracket?
                                 swaption->setPricingEngine(vars.makeEngine(0.0));
                                 Real value2 = swaption->NPV();
-                                if (std::fabs(value-value2) < tolerance) {
+                                if (abs(value-value2) < tolerance) {
                                     // ok, just skip:
                                     continue;
                                 }
@@ -891,11 +891,11 @@ void SwaptionTest::testImpliedVolatility() {
                                             "\nprice:      " << value <<
                                             "\n" << e.what());
                             }
-                            if (std::fabs(implVol-vols[u]) > tolerance) {
+                            if (abs(implVol-vols[u]) > tolerance) {
                                 // the difference might not matter
                                 swaption->setPricingEngine(vars.makeEngine(implVol));
                                 Real value2 = swaption->NPV();
-                                if (std::fabs(value-value2) > tolerance) {
+                                if (abs(value-value2) > tolerance) {
                                     BOOST_ERROR("implied vol failure: " <<
                                         exercises[i] << "x" << lengths[j] << " " << type[k] <<
                                         "\nsettlement:    " << types[h] <<

@@ -187,7 +187,7 @@ void DoubleBinaryOptionTest::testHaugValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             Option::Call, 0, values[i].cash));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise;
         if (values[i].barrierType == DoubleBarrier::KIKO ||
             values[i].barrierType == DoubleBarrier::KOKI)
@@ -219,7 +219,7 @@ void DoubleBinaryOptionTest::testHaugValues() {
 
         Real calculated = opt.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, exercise, values[i].barrierType, 
                            values[i].barrier_lo, values[i].barrier_hi, values[i].s,
@@ -236,7 +236,7 @@ void DoubleBinaryOptionTest::testHaugValues() {
         opt.setPricingEngine(engine);
         calculated = opt.NPV();
         expected = values[i].result;
-        error = std::fabs(calculated-expected);
+        error = abs(calculated-expected);
         double tol = 0.22;
         if (error>tol) {
             REPORT_FAILURE("Binomial value", payoff, exercise, values[i].barrierType, 

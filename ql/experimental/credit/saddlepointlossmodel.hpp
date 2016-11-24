@@ -338,9 +338,9 @@ namespace QuantLib {
         void resetModel() {
             remainingNotionals_ = basket_->remainingNotionals();
             remainingNotional_  = basket_->remainingNotional();
-            attachRatio_ = std::min(basket_->remainingAttachmentAmount() 
+            attachRatio_ = min(basket_->remainingAttachmentAmount() 
                 / basket_->remainingNotional(), 1.);
-            detachRatio_ = std::min(basket_->remainingDetachmentAmount() 
+            detachRatio_ = min(basket_->remainingDetachmentAmount() 
                 / basket_->remainingNotional(), 1.);
             copula_->resetBasket(basket_.currentLink());
         }
@@ -639,8 +639,8 @@ namespace QuantLib {
             Probability pBuffer = 
                 copula_->conditionalDefaultProbabilityInvP(
                     invUncondProbs[iName], iName, mktFactor);
-            sum += std::log(1. - pBuffer + 
-                pBuffer * std::exp(remainingNotionals_[iName] * 
+            sum += log(1. - pBuffer + 
+                pBuffer * exp(remainingNotionals_[iName] * 
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName],
                     iName, mktFactor)) * lossFraction / remainingNotional_));
         }
@@ -664,7 +664,7 @@ namespace QuantLib {
             Real lossInDef = remainingNotionals_[iName] * 
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                     iName, mktFactor)) / remainingNotional_;
-            Real midFactor = pBuffer * std::exp(lossInDef * saddle);
+            Real midFactor = pBuffer * exp(lossInDef * saddle);
             sum += lossInDef * midFactor / (1.-pBuffer + midFactor);
         }
        return sum;
@@ -687,10 +687,10 @@ namespace QuantLib {
             Real lossInDef = remainingNotionals_[iName] * 
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                     iName, mktFactor)) / remainingNotional_;
-            Real midFactor = pBuffer * std::exp(lossInDef * saddle);
+            Real midFactor = pBuffer * exp(lossInDef * saddle);
             Real denominator = 1.-pBuffer + midFactor;
             sum += lossInDef * lossInDef * midFactor / denominator - 
-                std::pow(lossInDef * midFactor / denominator , 2.);
+                pow(lossInDef * midFactor / denominator , 2.);
         }
        return sum;
     }
@@ -712,7 +712,7 @@ namespace QuantLib {
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                     iName, mktFactor)) / remainingNotional_;
 
-            const Real midFactor = pBuffer * std::exp(lossInDef * saddle);
+            const Real midFactor = pBuffer * exp(lossInDef * saddle);
             const Real denominator = 1.-pBuffer + midFactor;
 
             const Real& suma0 = denominator;
@@ -720,7 +720,7 @@ namespace QuantLib {
             const Real suma2  = lossInDef * suma1;
             const Real suma3  = lossInDef * suma2;
 
-            sum += (suma3 + (2.*std::pow(suma1, 3.)/suma0 - 
+            sum += (suma3 + (2.*pow(suma1, 3.)/suma0 - 
                 3.*suma1*suma2)/suma0)/suma0;
         }
        return sum;
@@ -743,7 +743,7 @@ namespace QuantLib {
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                     iName, mktFactor)) / remainingNotional_;
 
-            Real midFactor = pBuffer * std::exp(lossInDef * saddle);
+            Real midFactor = pBuffer * exp(lossInDef * saddle);
             Real denominator = 1.-pBuffer + midFactor;
 
             const Real& suma0 = denominator;
@@ -754,7 +754,7 @@ namespace QuantLib {
 
             sum += (suma4 + (-4.*suma1*suma3 - 3.*suma2*suma2 + 
                 (12.*suma1*suma1*suma2 - 
-                    6.*std::pow(suma1,4.)/suma0)/suma0)/suma0)/suma0;
+                    6.*pow(suma1,4.)/suma0)/suma0)/suma0)/suma0;
         }
        return sum;
     }
@@ -780,7 +780,7 @@ namespace QuantLib {
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                     iName, mktFactor)) / remainingNotional_;
 
-            Real midFactor = pBuffer * std::exp(lossInDef * saddle);
+            Real midFactor = pBuffer * exp(lossInDef * saddle);
             Real denominator = 1.-pBuffer + midFactor;
 
             const Real& suma0 = denominator;
@@ -790,14 +790,14 @@ namespace QuantLib {
             const Real suma4  = lossInDef * suma3;
 
             // To do: optimize these:
-            deriv0 += std::log(suma0);
+            deriv0 += log(suma0);
             //deriv1 += suma1 / suma0;
-            deriv2 += suma2 / suma0 - std::pow(suma1 / suma0 , 2.);
-            deriv3 += (suma3 + (2.*std::pow(suma1, 3.)/suma0 - 
+            deriv2 += suma2 / suma0 - pow(suma1 / suma0 , 2.);
+            deriv3 += (suma3 + (2.*pow(suma1, 3.)/suma0 - 
                 3.*suma1*suma2)/suma0)/suma0;
             deriv4 += (suma4 + (-4.*suma1*suma3 - 3.*suma2*suma2 + 
                 (12.*suma1*suma1*suma2 - 
-                    6.*std::pow(suma1,4.)/suma0)/suma0)/suma0)/suma0;
+                    6.*pow(suma1,4.)/suma0)/suma0)/suma0)/suma0;
         }
         return boost::tuples::tuple<Real, Real, Real, Real>(deriv0, deriv2, 
             deriv3, deriv4);
@@ -822,7 +822,7 @@ namespace QuantLib {
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                     iName, mktFactor)) / remainingNotional_;
 
-            Real midFactor = pBuffer * std::exp(lossInDef * saddle);
+            Real midFactor = pBuffer * exp(lossInDef * saddle);
             Real denominator = 1.-pBuffer + midFactor;
 
             const Real& suma0 = denominator;
@@ -830,9 +830,9 @@ namespace QuantLib {
             const Real suma2  = lossInDef * suma1;
 
             // To do: optimize these:
-            deriv0 += std::log(suma0);
+            deriv0 += log(suma0);
             //deriv1 += suma1 / suma0;
-            deriv2 += suma2 / suma0 - std::pow(suma1 / suma0 , 2.);
+            deriv2 += suma2 / suma0 - pow(suma1 / suma0 , 2.);
         }
         return boost::tuples::tuple<Real, Real>(deriv0, deriv2);
     }
@@ -864,7 +864,7 @@ namespace QuantLib {
         // position of the name with the largest relative exposure loss (i.e.:
         //   largest: N_i LGD_i / N_{total})
         Size iNamMax = std::distance(lgds.begin(), 
-            std::max_element(lgds.begin(), lgds.end()) );
+            max_element(lgds.begin(), lgds.end()) );
         // gap to be considered zero at the negative side of the logistic 
         //   inversion:
         static const Real deltaMin = 1.e-5;
@@ -875,7 +875,7 @@ namespace QuantLib {
         //   it by using only the smallest logistic term and thus this is 
         //   smaller than the true value:
         Real saddleMin = 1./(lgds[iNamMax]/remainingNotional_) * 
-            std::log(deltaMin*(1.-pMaxName)/
+            log(deltaMin*(1.-pMaxName)/
                 (pMaxName*lgds[iNamMax]/remainingNotional_-pMaxName*deltaMin));
         // and the associated minimum loss is approximately: (this is thence 
         //   the minimum loss we can resolve/invert)
@@ -888,7 +888,7 @@ namespace QuantLib {
         if(lossLevel < minLoss) return saddleMin;
 
         Real saddleMax = 1./(lgds[iNamMax]/remainingNotional_) * 
-            std::log((lgds[iNamMax]/remainingNotional_
+            log((lgds[iNamMax]/remainingNotional_
                 -deltaMin)*(1.-pMaxName)/(pMaxName*deltaMin));
         Real maxLoss = 
             CumGen1stDerivativeCond(invUncondPs, saddleMax, mktFactor);
@@ -1031,11 +1031,11 @@ namespace QuantLib {
         if(saddlePt > 0.) { // <-> (loss > condEL)
             Real exponent = baseVal - relativeLoss * saddlePt + 
                 .5 * saddleTo2 * secondVal;
-            if( std::abs(exponent) > 700.) return 0.;
+            if( abs(exponent) > 700.) return 0.;
             return 
-                std::exp(exponent)
-                * CumulativeNormalDistribution()(-std::abs(saddlePt)*
-                    std::sqrt(/*saddleTo2 **/secondVal))
+                exp(exponent)
+                * CumulativeNormalDistribution()(-abs(saddlePt)*
+                    sqrt(/*saddleTo2 **/secondVal))
 
                 // high order corrections:
                 * (1. - saddleTo3*K3Saddle/6. + saddleTo4*K4Saddle/24. + 
@@ -1047,7 +1047,7 @@ namespace QuantLib {
                         (saddlePt*K4Saddle-4.*K3Saddle)
                     - saddlePt*K3SaddleTo2*(3.-saddleTo2*secondVal + 
                             saddleTo4*secondVal*secondVal)) 
-                     / (72.*M_SQRTPI*M_SQRT_2*std::pow(secondVal, 5./2.) ) 
+                     / (72.*M_SQRTPI*M_SQRT_2*pow(secondVal, 5./2.) ) 
                  */
                  ;
         }else if(saddlePt==0.){// <-> (loss == condEL)
@@ -1055,12 +1055,12 @@ namespace QuantLib {
         }else {// <->(loss < condEL)
             Real exponent = baseVal - relativeLoss * saddlePt + 
                 .5 * saddleTo2 * secondVal;
-            if( std::abs(exponent) > 700.) return 0.;
+            if( abs(exponent) > 700.) return 0.;
             return 
                 1.-
-                std::exp(exponent)
-                * CumulativeNormalDistribution()(-std::abs(saddlePt)
-                    * std::sqrt(/*saddleTo2 **/secondVal))// static call?
+                exp(exponent)
+                * CumulativeNormalDistribution()(-abs(saddlePt)
+                    * sqrt(/*saddleTo2 **/secondVal))// static call?
 
                 // high order corrections:
                 * (1. - saddleTo3*K3Saddle/6. + saddleTo4*K4Saddle/24. + 
@@ -1070,7 +1070,7 @@ namespace QuantLib {
                     (saddlePt*K4Saddle-4.*K3Saddle)
                   - saddlePt*K3SaddleTo2*(3.-saddleTo2*secondVal +
                         saddleTo4*secondVal*secondVal)) 
-                    / (72.*M_SQRTPI*M_SQRT_2*std::pow(secondVal, 5./2.) ) 
+                    / (72.*M_SQRTPI*M_SQRT_2*pow(secondVal, 5./2.) ) 
                 */
                 ;
         }
@@ -1114,28 +1114,28 @@ namespace QuantLib {
         if(saddlePt > 0.) { // <-> (loss > condEL)
             Real exponent = baseVal - relativeLoss * saddlePt + 
                 .5 * saddleTo2 * secondVal;
-            if( std::abs(exponent) > 700.) return 0.;
+            if( abs(exponent) > 700.) return 0.;
             return 
                 // dangerous exponential; fix me
-                std::exp(exponent)
-                /*  std::exp(baseVal - relativeLoss * saddlePt 
+                exp(exponent)
+                /*  exp(baseVal - relativeLoss * saddlePt 
                     + .5 * saddleTo2 * secondVal)*/
-                * CumulativeNormalDistribution()(-std::abs(saddlePt)*
-                    std::sqrt(/*saddleTo2 **/secondVal));
+                * CumulativeNormalDistribution()(-abs(saddlePt)*
+                    sqrt(/*saddleTo2 **/secondVal));
         }else if(saddlePt==0.){// <-> (loss == condEL)
             return .5;
         }else {// <->(loss < condEL)
             Real exponent = baseVal - relativeLoss * saddlePt + 
                 .5 * saddleTo2 * secondVal;
-            if( std::abs(exponent) > 700.) return 0.;
+            if( abs(exponent) > 700.) return 0.;
 
             return 
                 1.-
-               /* std::exp(baseVal - relativeLoss * saddlePt 
+               /* exp(baseVal - relativeLoss * saddlePt 
                + .5 * saddleTo2 * secondVal)*/
-                std::exp(exponent)
-                * CumulativeNormalDistribution()(-std::abs(saddlePt)*
-                    std::sqrt(/*saddleTo2 **/secondVal));
+                exp(exponent)
+                * CumulativeNormalDistribution()(-abs(saddlePt)*
+                    sqrt(/*saddleTo2 **/secondVal));
         }
     }
 
@@ -1173,11 +1173,11 @@ namespace QuantLib {
             (
             1.
             + K4Saddle
-                /(8.*std::pow(K2Saddle, 2.))
-            - 5.*std::pow(K3Saddle,2.)
-                /(24.*std::pow(K2Saddle, 3.))
-            ) * std::exp(K0Saddle - saddlePt * relativeLoss)
-             / (std::sqrt(2. * M_PI * K2Saddle));
+                /(8.*pow(K2Saddle, 2.))
+            - 5.*pow(K3Saddle,2.)
+                /(24.*pow(K2Saddle, 3.))
+            ) * exp(K0Saddle - saddlePt * relativeLoss)
+             / (sqrt(2. * M_PI * K2Saddle));
     }
 
     /*    NOTICE THIS IS ON THE TOTAL PORTFOLIO ---- UNTRANCHED..
@@ -1211,7 +1211,7 @@ namespace QuantLib {
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                     iName, mktFactor));
             Real midFactor = pBuffer * 
-                std::exp(lossInDef * saddlePt/ remainingNotional_);
+                exp(lossInDef * saddlePt/ remainingNotional_);
             Real denominator = 1.-pBuffer + midFactor;
 
             condContrib[iName] = lossInDef * midFactor / denominator; 
@@ -1253,8 +1253,8 @@ namespace QuantLib {
                 (1.-copula_->conditionalRecoveryInvP(invUncondProbs[iName], 
                 iName, mktFactor));
         }
-        return std::min(
-            std::max(eloss - attachRatio_ * remainingNotional_, 0.), 
+        return min(
+            max(eloss - attachRatio_ * remainingNotional_, 0.), 
                 (detachRatio_ - attachRatio_) * remainingNotional_);
     }
 
@@ -1288,7 +1288,7 @@ namespace QuantLib {
 
         std::vector<Real> esfPartition(nNames, 0.);
         for(Size iName=0; iName < nNames; iName++) {
-            Real uEdisp = (lossPerc-muTot)/std::sqrt(volaTot);
+            Real uEdisp = (lossPerc-muTot)/sqrt(volaTot);
             esfPartition[iName] = mu[iName]
                 * CumulativeNormalDistribution()(uEdisp) // static call?
                 + vola[iName] * NormalDistribution()(uEdisp);
@@ -1326,7 +1326,7 @@ namespace QuantLib {
         }
 
         return expectedShortfallFullPortfolioCond(invUncondProbs, 
-            std::max(lossPerc, basket_->attachmentAmount()), mktFactor)
+            max(lossPerc, basket_->attachmentAmount()), mktFactor)
             + expectedShortfallFullPortfolioCond(invUncondProbs, 
                 basket_->detachmentAmount(), mktFactor)
             - correctionTerm;
@@ -1376,8 +1376,8 @@ namespace QuantLib {
         Real K0Saddle = cumulants.get<0>();///USE THEM DIRECTLY
         Real K2Saddle = cumulants.get<1>();
 
-        Real wq = std::sqrt(2. * saddlePt * lossPercRatio - 2. * K0Saddle);
-        //std::sqrt(-2. * saddlePt * lossPerc + 2. * K0Saddle);????
+        Real wq = sqrt(2. * saddlePt * lossPercRatio - 2. * K0Saddle);
+        //sqrt(-2. * saddlePt * lossPerc + 2. * K0Saddle);????
         Real factor = 1.;
         if(saddlePt<0.) {
             wq = -wq;
@@ -1386,11 +1386,11 @@ namespace QuantLib {
 
         Real numNames = static_cast<Real>(nNames);
 
-        Real term1 = CumulativeNormalDistribution()(wq)// * std::sqrt(numNames)
+        Real term1 = CumulativeNormalDistribution()(wq)// * sqrt(numNames)
             * elCond ;
-        Real term2 = .5 * M_2_SQRTPI * M_SQRT1_2 * (1./std::sqrt(numNames))
+        Real term2 = .5 * M_2_SQRTPI * M_SQRT1_2 * (1./sqrt(numNames))
             * exp(-wq*wq * numNames/2.)*(elCond/wq - 
-                lossPerc/(saddlePt * std::sqrt(K2Saddle)));
+                lossPerc/(saddlePt * sqrt(K2Saddle)));
         return term1 + term2;
         */
     }

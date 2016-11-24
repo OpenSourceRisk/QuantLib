@@ -268,7 +268,7 @@ namespace QuantLib {
             // We fall back to about one day.
             Time dt = 1.0/365;
             InterestRate r(this->data_[0], dayCounter(), compounding, frequency);
-            this->data_[0] = r.equivalentRate(Continuous, NoFrequency, dt);
+            this->data_[0] = r.equivalentRate(Continuous, NoFrequency, dt).rate();
             #if !defined(QL_NEGATIVE_RATES)
             QL_REQUIRE(this->data_[0] > 0.0, "non-positive yield");
             #endif
@@ -287,7 +287,7 @@ namespace QuantLib {
             if (compounding != Continuous)
             {
                 InterestRate r(this->data_[i], dayCounter(), compounding, frequency);
-                this->data_[i] = r.equivalentRate(Continuous, NoFrequency, this->times_[i]);
+                this->data_[i] = r.equivalentRate(Continuous, NoFrequency, this->times_[i]).rate();
             }
 
             #if !defined(QL_NEGATIVE_RATES)

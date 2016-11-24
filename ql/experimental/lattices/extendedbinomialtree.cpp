@@ -70,13 +70,13 @@ namespace QuantLib {
                                                         process, end, steps) {
 
           up_ = - 0.5 * this->driftStep(0.0) + 0.5 *
-            std::sqrt(4.0*process->variance(0.0, x0_, dt_)-
+            sqrt(4.0*process->variance(0.0, x0_, dt_)-
                       3.0*this->driftStep(0.0)*this->driftStep(0.0));
     }
 
     Real ExtendedAdditiveEQPBinomialTree::upStep(Time stepTime) const {
         return (- 0.5 * this->driftStep(stepTime) + 0.5 *
-            std::sqrt(4.0*this->treeProcess_->variance(stepTime, x0_, dt_)-
+            sqrt(4.0*this->treeProcess_->variance(stepTime, x0_, dt_)-
             3.0*this->driftStep(stepTime)*this->driftStep(stepTime)));
     }
 
@@ -88,7 +88,7 @@ namespace QuantLib {
                         Time end, Size steps, Real)
     : ExtendedEqualJumpsBinomialTree<ExtendedTrigeorgis>(process, end, steps) {
 
-        dx_ = std::sqrt(process->variance(0.0, x0_, dt_)+
+        dx_ = sqrt(process->variance(0.0, x0_, dt_)+
             this->driftStep(0.0)*this->driftStep(0.0));
         pu_ = 0.5 + 0.5*this->driftStep(0.0)/this->dxStep(0.0);
         pd_ = 1.0 - pu_;
@@ -98,7 +98,7 @@ namespace QuantLib {
     }
 
     Real ExtendedTrigeorgis::dxStep(Time stepTime) const {
-        return std::sqrt(this->treeProcess_->variance(stepTime, x0_, dt_)+
+        return sqrt(this->treeProcess_->variance(stepTime, x0_, dt_)+
             this->driftStep(stepTime)*this->driftStep(stepTime));
     }
 
@@ -112,12 +112,12 @@ namespace QuantLib {
                         Time end, Size steps, Real)
     : ExtendedBinomialTree<ExtendedTian>(process, end, steps) {
 
-        Real q = std::exp(process->variance(0.0, x0_, dt_));
+        Real q = exp(process->variance(0.0, x0_, dt_));
 
-        Real r = std::exp(this->driftStep(0.0))*std::sqrt(q);
+        Real r = exp(this->driftStep(0.0))*sqrt(q);
 
-        up_ = 0.5 * r * q * (q + 1 + std::sqrt(q * q + 2 * q - 3));
-        down_ = 0.5 * r * q * (q + 1 - std::sqrt(q * q + 2 * q - 3));
+        up_ = 0.5 * r * q * (q + 1 + sqrt(q * q + 2 * q - 3));
+        down_ = 0.5 * r * q * (q + 1 - sqrt(q * q + 2 * q - 3));
 
         pu_ = (r - down_) / (up_ - down_);
         pd_ = 1.0 - pu_;
@@ -132,23 +132,23 @@ namespace QuantLib {
 
     Real ExtendedTian::underlying(Size i, Size index) const {
         Time stepTime = i*this->dt_;
-        Real q = std::exp(this->treeProcess_->variance(stepTime, x0_, dt_));
-        Real r = std::exp(this->driftStep(stepTime))*std::sqrt(q);
+        Real q = exp(this->treeProcess_->variance(stepTime, x0_, dt_));
+        Real r = exp(this->driftStep(stepTime))*sqrt(q);
 
-        Real up = 0.5 * r * q * (q + 1 + std::sqrt(q * q + 2 * q - 3));
-        Real down = 0.5 * r * q * (q + 1 - std::sqrt(q * q + 2 * q - 3));
+        Real up = 0.5 * r * q * (q + 1 + sqrt(q * q + 2 * q - 3));
+        Real down = 0.5 * r * q * (q + 1 - sqrt(q * q + 2 * q - 3));
 
-        return x0_ * std::pow(down, Real(BigInteger(i)-BigInteger(index)))
-            * std::pow(up, Real(index));
+        return x0_ * pow(down, Real(BigInteger(i)-BigInteger(index)))
+            * pow(up, Real(index));
     }
 
     Real ExtendedTian::probability(Size i, Size, Size branch) const {
         Time stepTime = i*this->dt_;
-        Real q = std::exp(this->treeProcess_->variance(stepTime, x0_, dt_));
-        Real r = std::exp(this->driftStep(stepTime))*std::sqrt(q);
+        Real q = exp(this->treeProcess_->variance(stepTime, x0_, dt_));
+        Real r = exp(this->driftStep(stepTime))*sqrt(q);
 
-        Real up = 0.5 * r * q * (q + 1 + std::sqrt(q * q + 2 * q - 3));
-        Real down = 0.5 * r * q * (q + 1 - std::sqrt(q * q + 2 * q - 3));
+        Real up = 0.5 * r * q * (q + 1 + sqrt(q * q + 2 * q - 3));
+        Real down = 0.5 * r * q * (q + 1 - sqrt(q * q + 2 * q - 3));
 
         Real pu = (r - down) / (up - down);
         Real pd = 1.0 - pu;
@@ -170,13 +170,13 @@ namespace QuantLib {
         QL_REQUIRE(strike>0.0, "strike " << strike << "must be positive");
         Real variance = process->variance(0.0, x0_, end);
 
-        Real ermqdt = std::exp(this->driftStep(0.0) + 0.5*variance/oddSteps_);
-        Real d2 = (std::log(x0_/strike) + this->driftStep(0.0)*oddSteps_ ) /
-            std::sqrt(variance);
+        Real ermqdt = exp(this->driftStep(0.0) + 0.5*variance/oddSteps_);
+        Real d2 = (log(x0_/strike) + this->driftStep(0.0)*oddSteps_ ) /
+            sqrt(variance);
 
         pu_ = PeizerPrattMethod2Inversion(d2, oddSteps_);
         pd_ = 1.0 - pu_;
-        Real pdash = PeizerPrattMethod2Inversion(d2+std::sqrt(variance),
+        Real pdash = PeizerPrattMethod2Inversion(d2+sqrt(variance),
                                                  oddSteps_);
         up_ = ermqdt * pdash / pu_;
         down_ = (ermqdt - pu_ * up_) / (1.0 - pu_);
@@ -186,25 +186,25 @@ namespace QuantLib {
     Real ExtendedLeisenReimer::underlying(Size i, Size index) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
-        Real ermqdt = std::exp(this->driftStep(stepTime) + 0.5*variance/oddSteps_);
-        Real d2 = (std::log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
-            std::sqrt(variance);
+        Real ermqdt = exp(this->driftStep(stepTime) + 0.5*variance/oddSteps_);
+        Real d2 = (log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
+            sqrt(variance);
 
         Real pu = PeizerPrattMethod2Inversion(d2, oddSteps_);
-        Real pdash = PeizerPrattMethod2Inversion(d2+std::sqrt(variance),
+        Real pdash = PeizerPrattMethod2Inversion(d2+sqrt(variance),
             oddSteps_);
         Real up = ermqdt * pdash / pu;
         Real down = (ermqdt - pu * up) / (1.0 - pu);
 
-        return x0_ * std::pow(down, Real(BigInteger(i)-BigInteger(index)))
-            * std::pow(up, Real(index));
+        return x0_ * pow(down, Real(BigInteger(i)-BigInteger(index)))
+            * pow(up, Real(index));
     }
 
     Real ExtendedLeisenReimer::probability(Size i, Size, Size branch) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
-        Real d2 = (std::log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
-            std::sqrt(variance);
+        Real d2 = (log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
+            sqrt(variance);
 
         Real pu = PeizerPrattMethod2Inversion(d2, oddSteps_);
         Real pd = 1.0 - pu;
@@ -215,7 +215,7 @@ namespace QuantLib {
 
 
     Real ExtendedJoshi4::computeUpProb(Real k, Real dj) const {
-        Real alpha = dj/(std::sqrt(8.0));
+        Real alpha = dj/(sqrt(8.0));
         Real alpha2 = alpha*alpha;
         Real alpha3 = alpha*alpha2;
         Real alpha5 = alpha3*alpha2;
@@ -226,7 +226,7 @@ namespace QuantLib {
         Real delta = -0.1025 *alpha- 0.9285 *alpha3
             -1.43 *alpha5 -0.5 *alpha7;
         Real p =0.5;
-        Real rootk= std::sqrt(k);
+        Real rootk= sqrt(k);
         p+= alpha/rootk;
         p+= beta /(k*rootk);
         p+= gamma/(k*k*rootk);
@@ -245,13 +245,13 @@ namespace QuantLib {
         QL_REQUIRE(strike>0.0, "strike " << strike << "must be positive");
         Real variance = process->variance(0.0, x0_, end);
 
-        Real ermqdt = std::exp(this->driftStep(0.0) + 0.5*variance/oddSteps_);
-        Real d2 = (std::log(x0_/strike) + this->driftStep(0.0)*oddSteps_ ) /
-            std::sqrt(variance);
+        Real ermqdt = exp(this->driftStep(0.0) + 0.5*variance/oddSteps_);
+        Real d2 = (log(x0_/strike) + this->driftStep(0.0)*oddSteps_ ) /
+            sqrt(variance);
 
         pu_ = computeUpProb((oddSteps_-1.0)/2.0,d2 );
         pd_ = 1.0 - pu_;
-        Real pdash = computeUpProb((oddSteps_-1.0)/2.0,d2+std::sqrt(variance));
+        Real pdash = computeUpProb((oddSteps_-1.0)/2.0,d2+sqrt(variance));
         up_ = ermqdt * pdash / pu_;
         down_ = (ermqdt - pu_ * up_) / (1.0 - pu_);
     }
@@ -259,24 +259,24 @@ namespace QuantLib {
     Real ExtendedJoshi4::underlying(Size i, Size index) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
-        Real ermqdt = std::exp(this->driftStep(stepTime) + 0.5*variance/oddSteps_);
-        Real d2 = (std::log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
-            std::sqrt(variance);
+        Real ermqdt = exp(this->driftStep(stepTime) + 0.5*variance/oddSteps_);
+        Real d2 = (log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
+            sqrt(variance);
 
         Real pu = computeUpProb((oddSteps_-1.0)/2.0,d2 );
-        Real pdash = computeUpProb((oddSteps_-1.0)/2.0,d2+std::sqrt(variance));
+        Real pdash = computeUpProb((oddSteps_-1.0)/2.0,d2+sqrt(variance));
         Real up = ermqdt * pdash / pu;
         Real down = (ermqdt - pu * up) / (1.0 - pu);
 
-        return x0_ * std::pow(down, Real(BigInteger(i)-BigInteger(index)))
-            * std::pow(up, Real(index));
+        return x0_ * pow(down, Real(BigInteger(i)-BigInteger(index)))
+            * pow(up, Real(index));
     }
 
     Real ExtendedJoshi4::probability(Size i, Size, Size branch) const {
         Time stepTime = i*this->dt_;
         Real variance = this->treeProcess_->variance(stepTime, x0_, end_);
-        Real d2 = (std::log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
-            std::sqrt(variance);
+        Real d2 = (log(x0_/strike_) + this->driftStep(stepTime)*oddSteps_ ) /
+            sqrt(variance);
 
         Real pu = computeUpProb((oddSteps_-1.0)/2.0,d2 );
         Real pd = 1.0 - pu;

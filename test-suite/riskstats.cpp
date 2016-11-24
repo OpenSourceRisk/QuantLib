@@ -42,7 +42,7 @@ void RiskStatisticsTest::testResults() {
     Real averages[] = { -100.0, -1.0, 0.0, 1.0, 100.0 };
     Real sigmas[] = { 0.1, 1.0, 100.0 };
     Size i, j, k, N;
-    N = Size(std::pow(2.0,16))-1;
+    N = Size(pow(2.0,16))-1;
     Real dataMin, dataMax;
     std::vector<Real> data(N), weights(N);
 
@@ -85,7 +85,7 @@ void RiskStatisticsTest::testResults() {
             tolerance = 1e-10;
             expected = std::accumulate(weights.begin(),weights.end(),Real(0.0));
             calculated = igs.weightSum();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong sum of weights\n"
                            << std::setprecision(16)
@@ -93,7 +93,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.weightSum();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong sum of weights\n"
                            << std::setprecision(16)
                            << "    calculated: " << calculated << "\n"
@@ -105,7 +105,7 @@ void RiskStatisticsTest::testResults() {
             tolerance = 1e-12;
             expected = dataMin;
             calculated = igs.min();
-            if (std::fabs(calculated-expected)>tolerance)
+            if (abs(calculated-expected)>tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong minimum value\n"
                            << std::setprecision(16)
@@ -113,7 +113,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.min();
-            if (std::fabs(calculated-expected)>tolerance)
+            if (abs(calculated-expected)>tolerance)
                 BOOST_FAIL("RiskStatistics: "
                            << "wrong minimum value\n"
                            << std::setprecision(16)
@@ -125,7 +125,7 @@ void RiskStatisticsTest::testResults() {
             // max
             expected = dataMax;
             calculated = igs.max();
-            if (std::fabs(calculated-expected)>tolerance)
+            if (abs(calculated-expected)>tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong maximum value\n"
                            << std::setprecision(16)
@@ -133,7 +133,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.max();
-            if (std::fabs(calculated-expected)>tolerance)
+            if (abs(calculated-expected)>tolerance)
                 BOOST_FAIL("RiskStatistics: "
                            << "wrong maximum value\n"
                            << std::setprecision(16)
@@ -145,9 +145,9 @@ void RiskStatisticsTest::testResults() {
             // mean
             expected = averages[i];
             tolerance = (expected == 0.0 ? 1.0e-13 :
-                                           std::fabs(expected)*1.0e-13);
+                                           abs(expected)*1.0e-13);
             calculated = igs.mean();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong mean value"
                            << " for N(" << averages[i] << ", "
@@ -157,7 +157,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.mean();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong mean value"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -171,7 +171,7 @@ void RiskStatisticsTest::testResults() {
             expected = sigmas[j]*sigmas[j];
             tolerance = expected*1.0e-1;
             calculated = igs.variance();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong variance"
                            << " for N(" << averages[i] << ", "
@@ -181,7 +181,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.variance();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong variance"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -195,7 +195,7 @@ void RiskStatisticsTest::testResults() {
             expected = sigmas[j];
             tolerance = expected*1.0e-1;
             calculated = igs.standardDeviation();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong standard deviation"
                            << " for N(" << averages[i] << ", "
@@ -205,7 +205,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.standardDeviation();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong standard deviation"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -221,7 +221,7 @@ void RiskStatisticsTest::testResults() {
             expected = 0.0;
             tolerance = 1.0e-4;
             calculated = igs.skewness();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong skewness"
                            << " for N(" << averages[i] << ", "
@@ -231,7 +231,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.skewness();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong skewness"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -245,7 +245,7 @@ void RiskStatisticsTest::testResults() {
             expected = 0.0;
             tolerance = 1.0e-1;
             calculated = igs.kurtosis();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong kurtosis"
                            << " for N(" << averages[i] << ", "
@@ -255,7 +255,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.kurtosis();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong kurtosis"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -268,9 +268,9 @@ void RiskStatisticsTest::testResults() {
             // percentile
             expected = averages[i];
             tolerance = (expected == 0.0 ? 1.0e-3 :
-                                           std::fabs(expected*1.0e-3));
+                                           abs(expected*1.0e-3));
             calculated = igs.gaussianPercentile(0.5);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian percentile"
                            << " for N(" << averages[i] << ", "
@@ -280,7 +280,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.gaussianPercentile(0.5);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong Gaussian percentile"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -289,7 +289,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.percentile(0.5);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong percentile"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -307,9 +307,9 @@ void RiskStatisticsTest::testResults() {
 
             expected = std::max<Real>(upper_tail,0.0);
             tolerance = (expected == 0.0 ? 1.0e-3 :
-                                           std::fabs(expected*1.0e-3));
+                                           abs(expected*1.0e-3));
             calculated = igs.gaussianPotentialUpside(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian potential upside"
                            << " for N(" << averages[i] << ", "
@@ -319,7 +319,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.gaussianPotentialUpside(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong Gaussian potential upside"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -328,7 +328,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.potentialUpside(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong potential upside"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -352,9 +352,9 @@ void RiskStatisticsTest::testResults() {
             // value-at-risk
             expected = -std::min<Real>(lower_tail,0.0);
             tolerance = (expected == 0.0 ? 1.0e-3 :
-                                           std::fabs(expected*1.0e-3));
+                                           abs(expected*1.0e-3));
             calculated = igs.gaussianValueAtRisk(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian value-at-risk"
                            << " for N(" << averages[i] << ", "
@@ -364,7 +364,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.gaussianValueAtRisk(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong Gaussian value-at-risk"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -373,7 +373,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.valueAtRisk(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong value-at-risk"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -397,9 +397,9 @@ void RiskStatisticsTest::testResults() {
                                        * normal(lower_tail)/(1.0-twoSigma),
                                        0.0);
             tolerance = (expected == 0.0 ? 1.0e-4
-                                         : std::fabs(expected)*1.0e-2);
+                                         : abs(expected)*1.0e-2);
             calculated = igs.gaussianExpectedShortfall(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian expected shortfall"
                            << " for N(" << averages[i] << ", "
@@ -409,7 +409,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.gaussianExpectedShortfall(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong Gaussian expected shortfall"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -418,7 +418,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.expectedShortfall(twoSigma);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong expected shortfall"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -431,9 +431,9 @@ void RiskStatisticsTest::testResults() {
             // shortfall
             expected = 0.5;
             tolerance = (expected == 0.0 ? 1.0e-3 :
-                                           std::fabs(expected*1.0e-3));
+                                           abs(expected*1.0e-3));
             calculated = igs.gaussianShortfall(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian shortfall"
                            << " for N(" << averages[i] << ", "
@@ -443,7 +443,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.gaussianShortfall(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong Gaussian shortfall"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -452,7 +452,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.shortfall(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong shortfall"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -463,10 +463,10 @@ void RiskStatisticsTest::testResults() {
 
 
             // average shortfall
-            expected = sigmas[j]/std::sqrt(2.0*M_PI)*2.0;
+            expected = sigmas[j]/sqrt(2.0*M_PI)*2.0;
             tolerance = expected*1.0e-3;
             calculated = igs.gaussianAverageShortfall(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian average shortfall"
                            << " for N(" << averages[i] << ", "
@@ -476,7 +476,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.gaussianAverageShortfall(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong Gaussian average shortfall"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -485,7 +485,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.averageShortfall(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: wrong average shortfall"
                            << " for N(" << averages[i] << ", "
                            << sigmas[j] << ")\n"
@@ -499,7 +499,7 @@ void RiskStatisticsTest::testResults() {
             expected = sigmas[j]*sigmas[j];
             tolerance = expected*1.0e-1;
             calculated = igs.gaussianRegret(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian regret(" << averages[i] << ") "
                            << "for N(" << averages[i] << ", "
@@ -509,7 +509,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.gaussianRegret(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: "
                            << "wrong Gaussian regret(" << averages[i] << ") "
                            << "for N(" << averages[i] << ", "
@@ -519,7 +519,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = s.regret(averages[i]);
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("RiskStatistics: "
                            << "wrong regret(" << averages[i] << ") "
                            << "for N(" << averages[i] << ", "
@@ -533,9 +533,9 @@ void RiskStatisticsTest::testResults() {
             // downsideVariance
             expected = s.downsideVariance();
             tolerance = (expected == 0.0 ? 1.0e-3 :
-                                           std::fabs(expected*1.0e-3));
+                                           abs(expected*1.0e-3));
             calculated = igs.downsideVariance();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong downside variance"
                            << "for N(" << averages[i] << ", "
@@ -545,7 +545,7 @@ void RiskStatisticsTest::testResults() {
                            << "    expected:   " << expected << "\n"
                            << "    tolerance:  " << tolerance);
             calculated = igs.gaussianDownsideVariance();
-            if (std::fabs(calculated-expected) > tolerance)
+            if (abs(calculated-expected) > tolerance)
                 BOOST_FAIL("IncrementalGaussianStatistics: "
                            << "wrong Gaussian downside variance"
                            << "for N(" << averages[i] << ", "
@@ -560,7 +560,7 @@ void RiskStatisticsTest::testResults() {
                 expected = sigmas[j]*sigmas[j];
                 tolerance = expected*1.0e-3;
                 calculated = igs.downsideVariance();
-                if (std::fabs(calculated-expected) > tolerance)
+                if (abs(calculated-expected) > tolerance)
                     BOOST_FAIL("IncrementalGaussianStatistics: "
                                << "wrong downside variance"
                                << "for N(" << averages[i] << ", "
@@ -570,7 +570,7 @@ void RiskStatisticsTest::testResults() {
                                << "    expected:   " << expected << "\n"
                                << "    tolerance:  " << tolerance);
                 calculated = igs.gaussianDownsideVariance();
-                if (std::fabs(calculated-expected) > tolerance)
+                if (abs(calculated-expected) > tolerance)
                     BOOST_FAIL("IncrementalGaussianStatistics: "
                                << "wrong Gaussian downside variance"
                                << "for N(" << averages[i] << ", "
@@ -580,7 +580,7 @@ void RiskStatisticsTest::testResults() {
                                << "    expected:   " << expected << "\n"
                                << "    tolerance:  " << tolerance);
                 calculated = s.downsideVariance();
-                if (std::fabs(calculated-expected) > tolerance)
+                if (abs(calculated-expected) > tolerance)
                     BOOST_FAIL("RiskStatistics: wrong downside variance"
                                << "for N(" << averages[i] << ", "
                                << sigmas[j] << ")\n"
@@ -589,7 +589,7 @@ void RiskStatisticsTest::testResults() {
                                << "    expected:   " << expected << "\n"
                                << "    tolerance:  " << tolerance);
                 calculated = s.gaussianDownsideVariance();
-                if (std::fabs(calculated-expected) > tolerance)
+                if (abs(calculated-expected) > tolerance)
                     BOOST_FAIL("RiskStatistics: wrong Gaussian downside variance"
                                << "for N(" << averages[i] << ", "
                                << sigmas[j] << ")\n"

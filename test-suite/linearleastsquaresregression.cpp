@@ -51,7 +51,7 @@ void LinearLeastSquaresRegressionTest::testRegression() {
     v.push_back(constant<Real, Real>(1.0));
     v.push_back(identity<Real>());
     v.push_back(square<Real>());
-    v.push_back(std::ptr_fun<Real, Real>(std::sin));
+    v.push_back([](const Real x) { return sin(x); });
 
     std::vector<boost::function1<Real, Real> > w(v);
     w.push_back(square<Real>());
@@ -80,7 +80,7 @@ void LinearLeastSquaresRegressionTest::testRegression() {
                     << "\n    error:     " << m.standardErrors()[i]
                 << "\n    tolerance: " << tolerance);
             }
-            if (std::fabs(m.coefficients()[i]-a[i]) > 3*m.standardErrors()[i]) {
+            if (abs(m.coefficients()[i]-a[i]) > 3*m.standardErrors()[i]) {
                 BOOST_ERROR("Failed to reproduce linear regression coef."
                     << "\n    calculated: " << m.coefficients()[i]
                 << "\n    error:      " << m.standardErrors()[i]
@@ -94,11 +94,11 @@ void LinearLeastSquaresRegressionTest::testRegression() {
             m.coefficients()[2]+m.coefficients()[4],
             m.coefficients()[3]};
         const Real err[] = {m.standardErrors()[0], m.standardErrors()[1],
-            std::sqrt( m.standardErrors()[2]*m.standardErrors()[2]
+            sqrt( m.standardErrors()[2]*m.standardErrors()[2]
         +m.standardErrors()[4]*m.standardErrors()[4]),
             m.standardErrors()[3]};
         for (i=0; i<v.size(); ++i) {
-            if (std::fabs(ma[i] - a[i]) > 3*err[i]) {
+            if (abs(ma[i] - a[i]) > 3*err[i]) {
                 BOOST_ERROR("Failed to reproduce linear regression coef."
                     << "\n    calculated: " << ma[i]
                 << "\n    error:      " << err[i]
@@ -159,7 +159,7 @@ void LinearLeastSquaresRegressionTest::testMultiDimRegression() {
             << "\n    tolerance: " << tolerance);
         }
 
-        if (std::fabs(m.coefficients()[i]-coeff[i]) > 3*tolerance) {
+        if (abs(m.coefficients()[i]-coeff[i]) > 3*tolerance) {
             BOOST_ERROR("Failed to reproduce linear regression coef."
                 << "\n    calculated: " << m.coefficients()[i]
             << "\n    error:      " << m.standardErrors()[i]
@@ -177,7 +177,7 @@ void LinearLeastSquaresRegressionTest::testMultiDimRegression() {
             << "\n    tolerance: " << tolerance);
         }
 
-        if (std::fabs(m1.coefficients()[i]-coeff[i]) > 3*tolerance) {
+        if (abs(m1.coefficients()[i]-coeff[i]) > 3*tolerance) {
             BOOST_ERROR("Failed to reproduce linear regression coef."
                 << "\n    calculated: " << m1.coefficients()[i]
             << "\n    error:      " << m1.standardErrors()[i]
@@ -213,14 +213,14 @@ void LinearLeastSquaresRegressionTest::test1dLinearRegression() {
     const Real errorsExpected[] = { 0.3654, 0.1487 };
 
     for (Size i=0; i < 2; ++i) {
-        if (std::fabs(m.standardErrors()[i]-errorsExpected[i]) > tol) {
+        if (abs(m.standardErrors()[i]-errorsExpected[i]) > tol) {
             BOOST_ERROR("Failed to reproduce linear regression standard errors"
                 << "\n    calculated: " << m.standardErrors()[i]
             << "\n    expected:   " << errorsExpected[i]                                          
             << "\n    tolerance:  " << tol);
         }
 
-        if (std::fabs(m.coefficients()[i]-coeffExpected[i]) > tol) {
+        if (abs(m.coefficients()[i]-coeffExpected[i]) > tol) {
             BOOST_ERROR("Failed to reproduce linear regression coef."
                 << "\n    calculated: " << m.coefficients()[i]
             << "\n    expected:   " << coeffExpected[i]
@@ -233,14 +233,14 @@ void LinearLeastSquaresRegressionTest::test1dLinearRegression() {
     LinearRegression m1(cx, cy);
 
     for (Size i=0; i < 2; ++i) {
-        if (std::fabs(m1.standardErrors()[i]-errorsExpected[i]) > tol) {
+        if (abs(m1.standardErrors()[i]-errorsExpected[i]) > tol) {
             BOOST_ERROR("Failed to reproduce linear regression standard errors"
                 << "\n    calculated: " << m1.standardErrors()[i]
             << "\n    expected:   " << errorsExpected[i]                                          
             << "\n    tolerance:  " << tol);
         }
 
-        if (std::fabs(m1.coefficients()[i]-coeffExpected[i]) > tol) {
+        if (abs(m1.coefficients()[i]-coeffExpected[i]) > tol) {
             BOOST_ERROR("Failed to reproduce linear regression coef."
                 << "\n    calculated: " << m1.coefficients()[i]
             << "\n    expected:   " << coeffExpected[i]

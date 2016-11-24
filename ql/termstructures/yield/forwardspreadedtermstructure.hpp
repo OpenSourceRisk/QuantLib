@@ -117,12 +117,12 @@ namespace QuantLib {
     }
 
     inline Rate ForwardSpreadedTermStructure::forwardImpl(Time t) const {
-        return originalCurve_->forwardRate(t, t, Continuous, NoFrequency, true)
+        return originalCurve_->forwardRate(t, t, Continuous, NoFrequency, true).rate()
             + spread_->value();
     }
 
     inline Rate ForwardSpreadedTermStructure::zeroYieldImpl(Time t) const {
-        return originalCurve_->zeroRate(t, Continuous, NoFrequency, true)
+        return originalCurve_->zeroRate(t, Continuous, NoFrequency, true).rate()
             + spread_->value();
     }
 

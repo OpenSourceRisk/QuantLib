@@ -68,7 +68,7 @@ namespace QuantLib {
 
     Frequency Period::frequency() const {
         // unsigned version
-        Size length = std::abs(length_);
+        Size length = abs(length_);
 
         if (length==0) {
             if (units_==Years) return Once;

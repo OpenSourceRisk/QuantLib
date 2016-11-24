@@ -56,15 +56,15 @@ namespace QuantLib {
     Disposable<Array> GJRGARCHProcess::drift(Time t, const Array& x) const {
         Array tmp(2);
         const Real N = CumulativeNormalDistribution()(lambda_);
-        const Real n = std::exp(-lambda_*lambda_/2.0)/std::sqrt(2*M_PI);
+        const Real n = exp(-lambda_*lambda_/2.0)/sqrt(2*M_PI);
         const Real q2 = 1.0 + lambda_*lambda_;
         const Real q3 = lambda_*n + N + lambda_*lambda_*N;
-        const Real vol = (x[1] > 0.0) ? std::sqrt(x[1])
-                         : (discretization_ == Reflection) ? - std::sqrt(-x[1])
+        const Real vol = (x[1] > 0.0) ? sqrt(x[1])
+                         : (discretization_ == Reflection) ? - sqrt(-x[1])
                          : 0.0;
 
-        tmp[0] = riskFreeRate_->forwardRate(t, t, Continuous)
-               - dividendYield_->forwardRate(t, t, Continuous)
+        tmp[0] = riskFreeRate_->forwardRate(t, t, Continuous).rate()
+            - dividendYield_->forwardRate(t, t, Continuous).rate()
                - 0.5 * vol * vol;
 
         tmp[1] = daysPerYear_*daysPerYear_*omega_ + daysPerYear_*(beta_ 
@@ -79,11 +79,11 @@ namespace QuantLib {
            | rho   1  |
            whose square root (which is used here) is
            |  1          0       |
-           | rho   std::sqrt(1-rho^2) |
+           | rho   sqrt(1-rho^2) |
         */
         Matrix tmp(2,2);
         const Real N = CumulativeNormalDistribution()(lambda_);
-        const Real n = std::exp(-lambda_*lambda_/2.0)/std::sqrt(2*M_PI);
+        const Real n = exp(-lambda_*lambda_/2.0)/sqrt(2*M_PI);
         const Real sigma2 = 2.0 + 4.0*lambda_*lambda_;
         const Real q3 = lambda_*n + N + lambda_*lambda_*N;
         const Real Eml_e4 = lambda_*lambda_*lambda_*n + 5.0*lambda_*n 
@@ -93,14 +93,14 @@ namespace QuantLib {
         const Real sigma12 = -2.0*lambda_;
         const Real sigma13 = -2.0*n - 2*lambda_*N;
         const Real sigma23 = 2.0*N + sigma12*sigma13;
-        const Real vol = (x[1] > 0.0) ? std::sqrt(x[1])
-                         : (discretization_ == Reflection) ? - std::sqrt(-x[1])
+        const Real vol = (x[1] > 0.0) ? sqrt(x[1])
+                         : (discretization_ == Reflection) ? - sqrt(-x[1])
                          : 1e-8; // set vol to (almost) zero but still
                                  // expose some correlation information
-        const Real rho1 = std::sqrt(daysPerYear_)*(alpha_*sigma12 
+        const Real rho1 = sqrt(daysPerYear_)*(alpha_*sigma12 
                                             + gamma_*sigma13) * vol * vol;
-        const Real rho2 = vol*vol*std::sqrt(daysPerYear_)
-            *std::sqrt(alpha_*alpha_*(sigma2 - sigma12*sigma12) 
+        const Real rho2 = vol*vol*sqrt(daysPerYear_)
+            *sqrt(alpha_*alpha_*(sigma2 - sigma12*sigma12) 
                        + gamma_*gamma_*(sigma3 - sigma13*sigma13) 
                        + 2.0*alpha_*gamma_*(sigma23 - sigma12*sigma13)); 
 
@@ -114,7 +114,7 @@ namespace QuantLib {
     Disposable<Array> GJRGARCHProcess::apply(const Array& x0,
                                            const Array& dx) const {
         Array tmp(2);
-        tmp[0] = x0[0] * std::exp(dx[0]);
+        tmp[0] = x0[0] * exp(dx[0]);
         tmp[1] = x0[1] + dx[1];
         return tmp;
     }
@@ -124,9 +124,9 @@ namespace QuantLib {
         Array retVal(2);
         Real vol, mu, nu;
 
-        const Real sdt = std::sqrt(dt);
+        const Real sdt = sqrt(dt);
         const Real N = CumulativeNormalDistribution()(lambda_);
-        const Real n = std::exp(-lambda_*lambda_/2.0)/std::sqrt(2*M_PI);
+        const Real n = exp(-lambda_*lambda_/2.0)/sqrt(2*M_PI);
         const Real sigma2 = 2.0 + 4.0*lambda_*lambda_;
         const Real q2 = 1.0 + lambda_*lambda_;
         const Real q3 = lambda_*n + N + lambda_*lambda_*N;
@@ -137,9 +137,9 @@ namespace QuantLib {
         const Real sigma12 = -2.0*lambda_;
         const Real sigma13 = -2.0*n - 2*lambda_*N;
         const Real sigma23 = 2.0*N + sigma12*sigma13;
-        const Real rho1 = std::sqrt(daysPerYear_)*(alpha_*sigma12 + gamma_*sigma13);
-        const Real rho2 = std::sqrt(daysPerYear_)
-            *std::sqrt(alpha_*alpha_*(sigma2 - sigma12*sigma12) 
+        const Real rho1 = sqrt(daysPerYear_)*(alpha_*sigma12 + gamma_*sigma13);
+        const Real rho2 = sqrt(daysPerYear_)
+            *sqrt(alpha_*alpha_*(sigma2 - sigma12*sigma12) 
                        + gamma_*gamma_*(sigma3 - sigma13*sigma13) 
                        + 2.0*alpha_*gamma_*(sigma23 - sigma12*sigma13));
 
@@ -150,36 +150,36 @@ namespace QuantLib {
           //  stochastic volatility models",
           // Working Paper, Tinbergen Institute
           case PartialTruncation:
-            vol = (x0[1] > 0.0) ? std::sqrt(x0[1]) : 0.0;
-            mu =    riskFreeRate_->forwardRate(t0, t0+dt, Continuous)
-                  - dividendYield_->forwardRate(t0, t0+dt, Continuous)
+            vol = (x0[1] > 0.0) ? sqrt(x0[1]) : 0.0;
+            mu =    riskFreeRate_->forwardRate(t0, t0+dt, Continuous).rate()
+                - dividendYield_->forwardRate(t0, t0+dt, Continuous).rate()
                     - 0.5 * vol * vol;
             nu = daysPerYear_*daysPerYear_*omega_ 
                 + daysPerYear_*(beta_ + alpha_*q2 + gamma_*q3 - 1.0) * x0[1];
 
-            retVal[0] = x0[0] * std::exp(mu*dt+vol*dw[0]*sdt);
+            retVal[0] = x0[0] * exp(mu*dt+vol*dw[0]*sdt);
             retVal[1] = x0[1] + nu*dt + sdt*vol*vol*(rho1*dw[0] + rho2*dw[1]);
             break;
           case FullTruncation:
-            vol = (x0[1] > 0.0) ? std::sqrt(x0[1]) : 0.0;
-            mu =    riskFreeRate_->forwardRate(t0, t0+dt, Continuous)
-                  - dividendYield_->forwardRate(t0, t0+dt, Continuous)
+            vol = (x0[1] > 0.0) ? sqrt(x0[1]) : 0.0;
+            mu =    riskFreeRate_->forwardRate(t0, t0+dt, Continuous).rate()
+                - dividendYield_->forwardRate(t0, t0+dt, Continuous).rate()
                     - 0.5 * vol * vol;
             nu = daysPerYear_*daysPerYear_*omega_ 
                 + daysPerYear_*(beta_ + alpha_*q2 + gamma_*q3 - 1.0) * vol *vol;
 
-            retVal[0] = x0[0] * std::exp(mu*dt+vol*dw[0]*sdt);
+            retVal[0] = x0[0] * exp(mu*dt+vol*dw[0]*sdt);
             retVal[1] = x0[1] + nu*dt + sdt*vol*vol*(rho1*dw[0] + rho2*dw[1]);
             break;
           case Reflection:
-            vol = std::sqrt(std::fabs(x0[1]));
-            mu =    riskFreeRate_->forwardRate(t0, t0+dt, Continuous)
-                  - dividendYield_->forwardRate(t0, t0+dt, Continuous)
+            vol = sqrt(abs(x0[1]));
+            mu =    riskFreeRate_->forwardRate(t0, t0+dt, Continuous).rate()
+                - dividendYield_->forwardRate(t0, t0+dt, Continuous).rate()
                     - 0.5 * vol*vol;
             nu = daysPerYear_*daysPerYear_*omega_ 
                 + daysPerYear_*(beta_ + alpha_*q2 + gamma_*q3 - 1.0) * vol * vol;
 
-            retVal[0] = x0[0]*std::exp(mu*dt+vol*dw[0]*sdt);
+            retVal[0] = x0[0]*exp(mu*dt+vol*dw[0]*sdt);
             retVal[1] = vol*vol
                         +nu*dt + sdt*vol*vol*(rho1*dw[0] + rho2*dw[1]);
             break;

@@ -57,11 +57,11 @@ namespace QuantLib {
             const Size j = i % sss;
 
             if (j < tMinUp_-1) {
-                retVal[i] = std::max(state[i+1], state[tMinUp_+i+1]);
+                retVal[i] = max(state[i+1], state[tMinUp_+i+1]);
             }
             else if (j == tMinUp_-1) {
-                retVal[i] = std::max(state[i+tMinUp_+1],
-                                     std::max(state[i], state[i+tMinUp_]));
+                retVal[i] = max(state[i+tMinUp_+1],
+                                     max(state[i], state[i+tMinUp_]));
             }
             else if (j < 2*tMinUp_) {
                 retVal[i] = retVal[i-tMinUp_];
@@ -70,13 +70,13 @@ namespace QuantLib {
                 retVal[i] = state[i+1];
             }
             else if (nStarts_ == Null<Size>()) {
-                retVal[i] = std::max(state[i],
-                    std::max(state.front(), state[tMinUp_]) - startUpCost);
+                retVal[i] = max(state[i],
+                    max(state.front(), state[tMinUp_]) - startUpCost);
 
             }
             else if (i >= sss) {
-                retVal[i] = std::max(state[i],
-                    std::max(state[i+1-2*sss], state[i+1-2*sss+tMinUp_])
+                retVal[i] = max(state[i],
+                    max(state[i+1-2*sss], state[i+1-2*sss+tMinUp_])
                             - startUpCost);
             }
             else {

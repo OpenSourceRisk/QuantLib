@@ -101,7 +101,7 @@ namespace QuantLib {
 
         } else {
             Real Theta = 0.5;        // Mixed Scheme: 0.5 = Crank Nicolson
-            Real Z_0 = cont_strategy(0,T1,T2,q,r) - std::exp(-r*T) * X /S_0;
+            Real Z_0 = cont_strategy(0,T1,T2,q,r) - exp(-r*T) * X /S_0;
 
             QL_REQUIRE(Z_0>=z_min_ && Z_0<=z_max_,
                        "spot not on grid");
@@ -130,7 +130,7 @@ namespace QuantLib {
             TridiagonalOperator implicit_part(gammaOp.size());
 
             for (Natural i= 0; i<= SVec.size()-1;i++) {
-                u_initial[i] = std::max<Real>(SVec[i] , 0.0); // Call Payoff
+                u_initial[i] = max<Real>(SVec[i] , 0.0); // Call Payoff
             }
 
             u = u_initial;
@@ -148,7 +148,7 @@ namespace QuantLib {
             for (Natural j = 1; j<=timeSteps_;j++) {
                 if (Theta != 1.0) { // Explicit Part
                     for (Natural i = 1; i<= SVec.size()-2;i++) {
-                        vecerTerm = SVec[i] - std::exp(-q * (T-(j-1)*k))
+                        vecerTerm = SVec[i] - exp(-q * (T-(j-1)*k))
                                   * cont_strategy(T-(j-1)*k,T1,T2,q,r);
                         gammaOp.setMidRow(i,
                             0.5 * sigma2 * vecerTerm * vecerTerm  * lowerD[i-1],
@@ -169,7 +169,7 @@ namespace QuantLib {
 
                 if (Theta != 0.0) {  // Implicit Part
                     for (Natural i = 1; i<= SVec.size()-2;i++) {
-                        vecerTerm = SVec[i] - std::exp(-q * (T-j*k)) *
+                        vecerTerm = SVec[i] - exp(-q * (T-j*k)) *
                                     cont_strategy(T-j*k,T1,T2,q,r);
                         gammaOp.setMidRow(i,
                             0.5 * sigma2 * vecerTerm * vecerTerm * lowerD[i-1],
@@ -196,7 +196,7 @@ namespace QuantLib {
             } // End Time Loop
 
             DownRounding Rounding(0);
-            Integer lowerI = Integer(Rounding( (Z_0-z_min_)/h));
+            Integer lowerI = Integer(VALUE(Rounding((Z_0-z_min_)/h)));
             // Interpolate solution
             Real pv;
 
@@ -209,11 +209,11 @@ namespace QuantLib {
                     expectedAverage = S_0;
                 } else {
                     expectedAverage =
-                        S_0 * (std::exp( (r-q) * T2) -
-                               std::exp( (r-q) * T1)) / ((r-q) * (T2-T1));
+                        S_0 * (exp( (r-q) * T2) -
+                               exp( (r-q) * T1)) / ((r-q) * (T2-T1));
                 }
 
-                Real asianForward = std::exp(-r * T2) * (expectedAverage -  X);
+                Real asianForward = exp(-r * T2) * (expectedAverage -  X);
                 results_.value = results_.value - asianForward;
             }
         }
@@ -228,24 +228,24 @@ namespace QuantLib {
         Real const eps= 0.00001;
 
         QL_REQUIRE(T1 <= T2, "Average Start must be before Average End");
-        if (std::fabs(t-T2) < eps) {
+        if (abs(t-T2) < eps) {
             return 0.0;
         } else {
             if (t<T1) {
-                if (std::fabs(r-v) >= eps) {
-                    return (std::exp(v * (t-T2)) *
-                           (1 - std::exp((v-r) * (T2-T1) ))  /
+                if (abs(r-v) >= eps) {
+                    return (exp(v * (t-T2)) *
+                           (1 - exp((v-r) * (T2-T1) ))  /
                            (( r - v) * (T2 - T1) ));
                 } else {
-                    return std::exp(v*(t-T2));
+                    return exp(v*(t-T2));
                 } // end else v-r ==0
             } else { // t<T1
-                if (std::fabs(r-v) >= eps) {
-                    return std::exp(v * (t-T2)) *
-                           (1 - std::exp( (v - r) * (T2-t) )) /
+                if (abs(r-v) >= eps) {
+                    return exp(v * (t-T2)) *
+                           (1 - exp( (v - r) * (T2-t) )) /
                            (( r - v) * (T2 - T1)  );
                 } else {
-                    return std::exp(v * (t-T2)) * (T2 - t) / (T2 - T1);
+                    return exp(v * (t-T2)) * (T2 - t) / (T2 - T1);
                 }
             }
         }

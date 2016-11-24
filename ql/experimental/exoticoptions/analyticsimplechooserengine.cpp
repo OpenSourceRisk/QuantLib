@@ -66,22 +66,22 @@ namespace QuantLib {
         QL_REQUIRE(timeToChoosing > 0.0,
                    "choosing date earlier than or equal to evaluation date");
 
-        Real d = (std::log(spot/strike)
+        Real d = (log(spot/strike)
             + ((riskFreeRate-dividendRate) + volatility*volatility*0.5)*timeToMaturity)
-            /(volatility*std::sqrt(timeToMaturity));
+            /(volatility*sqrt(timeToMaturity));
 
-        Real y = (std::log(spot/strike) + (riskFreeRate-dividendRate)*timeToMaturity
+        Real y = (log(spot/strike) + (riskFreeRate-dividendRate)*timeToMaturity
             + (volatility*volatility*timeToChoosing/2))
-            /(volatility*std::sqrt(timeToChoosing));
+            /(volatility*sqrt(timeToChoosing));
 
         CumulativeNormalDistribution f;
 
-        results_.value = spot*std::exp(-dividendRate*timeToMaturity)*f(d)
-            - strike*std::exp(-riskFreeRate*timeToMaturity)
-            *f(d-volatility*std::sqrt(timeToMaturity))
-            -spot*std::exp(-dividendRate*timeToMaturity)*f(-y)
-            +strike*std::exp(-riskFreeRate*timeToMaturity)
-            *f(-y+volatility*std::sqrt(timeToChoosing));
+        results_.value = spot*exp(-dividendRate*timeToMaturity)*f(d)
+            - strike*exp(-riskFreeRate*timeToMaturity)
+            *f(d-volatility*sqrt(timeToMaturity))
+            -spot*exp(-dividendRate*timeToMaturity)*f(-y)
+            +strike*exp(-riskFreeRate*timeToMaturity)
+            *f(-y+volatility*sqrt(timeToChoosing));
      }
 
 }

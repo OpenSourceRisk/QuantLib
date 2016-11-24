@@ -41,13 +41,13 @@ namespace QuantLib {
         QL_REQUIRE(variance_>=0.0,
                    "negative variance not allowed");
 
-        stdDev_ = std::sqrt(variance_);
+        stdDev_ = sqrt(variance_);
 
         Option::Type type   = payoff->optionType();
         strike_ = payoff->strike();
         forward_ = spot_ * dividendDiscount_ / discount_;
 
-        mu_ = std::log(dividendDiscount_/discount_)/variance_ - 0.5;
+        mu_ = log(dividendDiscount_/discount_)/variance_ - 0.5;
 
         // binary cash-or-nothing payoff?
         boost::shared_ptr<CashOrNothingPayoff> coo =
@@ -65,8 +65,8 @@ namespace QuantLib {
         }
 
 
-        log_H_S_ = std::log(strike_/spot_);
-        Real log_S_H_ = std::log(spot_/strike_);
+        log_H_S_ = log(strike_/spot_);
+        Real log_S_H_ = log(spot_/strike_);
 
         double eta;
         double phi;
@@ -173,7 +173,7 @@ namespace QuantLib {
             if (cum_d2_ == 0.0)
                 Y_ = 0.0; // check needed on some extreme cases
             else
-                Y_ = std::pow(Real(strike_/spot_), Real(2.0*mu_));
+                Y_ = pow(Real(strike_/spot_), Real(2.0*mu_));
         }
         if (!knock_in_)
            Y_ *= -1.0; 

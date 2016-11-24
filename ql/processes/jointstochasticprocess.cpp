@@ -212,10 +212,10 @@ namespace QuantLib {
                 Matrix stdDev = l_[j]->stdDeviation(t0, slice(x0,j), dt);
 
                 for (Size i=0; i < stdDev.rows(); ++i) {
-                    const Volatility vol = std::sqrt(
+                    const Volatility vol = sqrt(
                         std::inner_product(stdDev.row_begin(i),
                                            stdDev.row_end(i),
-                                           stdDev.row_begin(i), 0.0));
+                                           stdDev.row_begin(i), Real(0.0)));
                     if (vol > 0.0) {
                         std::transform(stdDev.row_begin(i), stdDev.row_end(i),
                                        stdDev.row_begin(i),
@@ -233,7 +233,7 @@ namespace QuantLib {
                 const Array& s = svd.singularValues();
                 Matrix w(s.size(), s.size(), 0.0);
                 for (Size i=0; i < s.size(); ++i) {
-                    if (std::fabs(s[i]) > std::sqrt(QL_EPSILON)) {
+                    if (abs(s[i]) > sqrt(QL_EPSILON)) {
                         w[i][i] = 1.0/s[i];
                     }
                 }

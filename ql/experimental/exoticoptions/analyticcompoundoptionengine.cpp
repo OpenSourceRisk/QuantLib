@@ -77,7 +77,7 @@ namespace QuantLib {
                                                         strikeDaughter());
 
         Time helpTimeToMat=process_->time(helpMaturity);
-        vol=vol*std::sqrt(helpTimeToMat);
+        vol=vol*sqrt(helpTimeToMat);
 
         DiscountFactor dividendDiscount =
             process_->dividendYield()->discount(helpMaturity);
@@ -101,7 +101,7 @@ namespace QuantLib {
         Real phi=typeDaughter(); // -1 or 1
         Real w=typeMother(); // -1 or 1
 
-        Real rho=std::sqrt(residualTimeMother()/residualTimeDaughter());
+        Real rho=sqrt(residualTimeMother()/residualTimeDaughter());
         BivariateCumulativeNormalDistributionDr78 N2(w*rho) ;
 
         DiscountFactor ddD=dividendDiscountDaughter();
@@ -131,8 +131,8 @@ namespace QuantLib {
         Real NT12=N_(phi*dPT12);
         Real ndP=n_(dP);
         Real nXm=n_(XmSM);
-        Real invMTime=1/std::sqrt(rTM);
-        Real invDTime=1/std::sqrt(rTD);
+        Real invMTime=1/sqrt(rTM);
+        Real invDTime=1/sqrt(rTD);
 
         Real tempRes=phi*w*S*ddD*N2XmSM-phi*w*strD*rdD*N2X-w*strM*rdM*NX;
         Real tempDelta=phi*w*ddD*N2XmSM;
@@ -190,11 +190,11 @@ namespace QuantLib {
     }
 
     Real AnalyticCompoundOptionEngine::stdDeviationDaughter() const {
-        return volatilityDaughter()*std::sqrt(residualTimeDaughter());
+        return volatilityDaughter()*sqrt(residualTimeDaughter());
     }
 
     Real AnalyticCompoundOptionEngine::stdDeviationMother() const {
-        return volatilityMother()*std::sqrt(residualTimeMother());
+        return volatilityMother()*sqrt(residualTimeMother());
     }
 
 
@@ -250,7 +250,7 @@ namespace QuantLib {
     Real AnalyticCompoundOptionEngine::dPlus() const {
         Real forward = spot() * dividendDiscountDaughter() / riskFreeDiscountDaughter();
         Real sd=stdDeviationDaughter();
-        return std::log(forward/strikeDaughter())/sd+0.5*sd;
+        return log(forward/strikeDaughter())/sd+0.5*sd;
     }
 
     Real AnalyticCompoundOptionEngine::dMinus() const {
@@ -259,8 +259,8 @@ namespace QuantLib {
 
     Real AnalyticCompoundOptionEngine::dPlusTau12(Real S) const {
         Real forward = S * dividendDiscountMotherDaughter() / riskFreeDiscountMotherDaughter();
-        Real sd=volatilityDaughter()*std::sqrt(residualTimeMotherDaughter());
-        return std::log(forward/strikeDaughter())/sd+0.5*sd;
+        Real sd=volatilityDaughter()*sqrt(residualTimeMotherDaughter());
+        return log(forward/strikeDaughter())/sd+0.5*sd;
     }
 
     Real AnalyticCompoundOptionEngine::spot() const {
@@ -283,8 +283,8 @@ namespace QuantLib {
 
         Real sd=stdDeviationMother();
         Real resX=riskFreeDiscountMother()*X/(spot()*dividendDiscountMother());
-        resX=resX*std::exp(0.5*sd*sd);
-        resX=std::log(resX);
+        resX=resX*exp(0.5*sd*sd);
+        resX=log(resX);
 
         return resX/sd;
     }
@@ -293,7 +293,7 @@ namespace QuantLib {
         Real rtM=residualTimeMother();
         Real rtD=residualTimeDaughter();
 
-        return (X*std::sqrt(rtD)+std::sqrt(rtM)*dMinus())/std::sqrt(rtD-rtM);
+        return (X*sqrt(rtD)+sqrt(rtM)*dMinus())/sqrt(rtD-rtM);
     }
 
 }

@@ -42,26 +42,26 @@ namespace QuantLib {
         Real variance, Real tolerance) {
 
         // Calculation of seed value, Si
-        Real n= 2.0*std::log(dividendDiscount/riskFreeDiscount)/(variance);
-        Real m=-2.0*std::log(riskFreeDiscount)/(variance);
-        Real bT = std::log(dividendDiscount/riskFreeDiscount);
+        Real n= 2.0*log(dividendDiscount/riskFreeDiscount)/(variance);
+        Real m=-2.0*log(riskFreeDiscount)/(variance);
+        Real bT = log(dividendDiscount/riskFreeDiscount);
 
         Real qu, Su, h, Si;
         switch (payoff->optionType()) {
           case Option::Call:
-            qu = (-(n-1.0) + std::sqrt(((n-1.0)*(n-1.0)) + 4.0*m))/2.0;
+            qu = (-(n-1.0) + sqrt(((n-1.0)*(n-1.0)) + 4.0*m))/2.0;
             Su = payoff->strike() / (1.0 - 1.0/qu);
-            h = -(bT + 2.0*std::sqrt(variance)) * payoff->strike() /
+            h = -(bT + 2.0*sqrt(variance)) * payoff->strike() /
                 (Su - payoff->strike());
             Si = payoff->strike() + (Su - payoff->strike()) *
-                (1.0 - std::exp(h));
+                (1.0 - exp(h));
             break;
           case Option::Put:
-            qu = (-(n-1.0) - std::sqrt(((n-1.0)*(n-1.0)) + 4.0*m))/2.0;
+            qu = (-(n-1.0) - sqrt(((n-1.0)*(n-1.0)) + 4.0*m))/2.0;
             Su = payoff->strike() / (1.0 - 1.0/qu);
-            h = (bT - 2.0*std::sqrt(variance)) * payoff->strike() /
+            h = (bT - 2.0*sqrt(variance)) * payoff->strike() /
                 (payoff->strike() - Su);
-            Si = Su + (payoff->strike() - Su) * std::exp(h);
+            Si = Su + (payoff->strike() - Su) * exp(h);
             break;
           default:
             QL_FAIL("unknown option type");
@@ -71,57 +71,57 @@ namespace QuantLib {
         // Newton Raphson algorithm for finding critical price Si
         Real Q, LHS, RHS, bi;
         Real forwardSi = Si * dividendDiscount / riskFreeDiscount;
-        Real d1 = (std::log(forwardSi/payoff->strike()) + 0.5*variance) /
-            std::sqrt(variance);
+        Real d1 = (log(forwardSi/payoff->strike()) + 0.5*variance) /
+            sqrt(variance);
         CumulativeNormalDistribution cumNormalDist;
         Real K = (!close(riskFreeDiscount, 1.0, 1000))
-                ? -2.0*std::log(riskFreeDiscount)
+                ? -2.0*log(riskFreeDiscount)
                    / (variance*(1.0-riskFreeDiscount))
                  : 2.0/variance;
         Real temp = blackFormula(payoff->optionType(), payoff->strike(),
-                forwardSi, std::sqrt(variance))*riskFreeDiscount;
+                forwardSi, sqrt(variance))*riskFreeDiscount;
         switch (payoff->optionType()) {
           case Option::Call:
-            Q = (-(n-1.0) + std::sqrt(((n-1.0)*(n-1.0)) + 4 * K)) / 2;
+            Q = (-(n-1.0) + sqrt(((n-1.0)*(n-1.0)) + 4 * K)) / 2;
             LHS = Si - payoff->strike();
             RHS = temp + (1 - dividendDiscount * cumNormalDist(d1)) * Si / Q;
             bi =  dividendDiscount * cumNormalDist(d1) * (1 - 1/Q) +
                 (1 - dividendDiscount *
-                 cumNormalDist.derivative(d1) / std::sqrt(variance)) / Q;
-            while (std::fabs(LHS - RHS)/payoff->strike() > tolerance) {
+                 cumNormalDist.derivative(d1) / sqrt(variance)) / Q;
+            while (abs(LHS - RHS)/payoff->strike() > tolerance) {
                 Si = (payoff->strike() + RHS - bi * Si) / (1 - bi);
                 forwardSi = Si * dividendDiscount / riskFreeDiscount;
-                d1 = (std::log(forwardSi/payoff->strike())+0.5*variance)
-                    /std::sqrt(variance);
+                d1 = (log(forwardSi/payoff->strike())+0.5*variance)
+                    /sqrt(variance);
                 LHS = Si - payoff->strike();
                 Real temp2 = blackFormula(payoff->optionType(), payoff->strike(),
-                    forwardSi, std::sqrt(variance))*riskFreeDiscount;
+                    forwardSi, sqrt(variance))*riskFreeDiscount;
                 RHS = temp2 + (1 - dividendDiscount * cumNormalDist(d1)) * Si / Q;
                 bi = dividendDiscount * cumNormalDist(d1) * (1 - 1 / Q)
                     + (1 - dividendDiscount *
-                       cumNormalDist.derivative(d1) / std::sqrt(variance))
+                       cumNormalDist.derivative(d1) / sqrt(variance))
                     / Q;
             }
             break;
           case Option::Put:
-            Q = (-(n-1.0) - std::sqrt(((n-1.0)*(n-1.0)) + 4 * K)) / 2;
+            Q = (-(n-1.0) - sqrt(((n-1.0)*(n-1.0)) + 4 * K)) / 2;
             LHS = payoff->strike() - Si;
             RHS = temp - (1 - dividendDiscount * cumNormalDist(-d1)) * Si / Q;
             bi = -dividendDiscount * cumNormalDist(-d1) * (1 - 1/Q)
                 - (1 + dividendDiscount * cumNormalDist.derivative(-d1)
-                   / std::sqrt(variance)) / Q;
-            while (std::fabs(LHS - RHS)/payoff->strike() > tolerance) {
+                   / sqrt(variance)) / Q;
+            while (abs(LHS - RHS)/payoff->strike() > tolerance) {
                 Si = (payoff->strike() - RHS + bi * Si) / (1 + bi);
                 forwardSi = Si * dividendDiscount / riskFreeDiscount;
-                d1 = (std::log(forwardSi/payoff->strike())+0.5*variance)
-                    /std::sqrt(variance);
+                d1 = (log(forwardSi/payoff->strike())+0.5*variance)
+                    /sqrt(variance);
                 LHS = payoff->strike() - Si;
                 Real temp2 = blackFormula(payoff->optionType(), payoff->strike(),
-                    forwardSi, std::sqrt(variance))*riskFreeDiscount;
+                    forwardSi, sqrt(variance))*riskFreeDiscount;
                 RHS = temp2 - (1 - dividendDiscount * cumNormalDist(-d1)) * Si / Q;
                 bi = -dividendDiscount * cumNormalDist(-d1) * (1 - 1 / Q)
                     - (1 + dividendDiscount * cumNormalDist.derivative(-d1)
-                       / std::sqrt(variance)) / Q;
+                       / sqrt(variance)) / Q;
             }
             break;
           default:
@@ -155,7 +155,7 @@ namespace QuantLib {
         Real spot = process_->stateVariable()->value();
         QL_REQUIRE(spot > 0.0, "negative or null underlying given");
         Real forwardPrice = spot * dividendDiscount / riskFreeDiscount;
-        BlackCalculator black(payoff, forwardPrice, std::sqrt(variance),
+        BlackCalculator black(payoff, forwardPrice, sqrt(variance),
                               riskFreeDiscount);
 
         if (dividendDiscount>=1.0 && payoff->optionType()==Option::Call) {
@@ -193,32 +193,32 @@ namespace QuantLib {
             Real Sk = criticalPrice(payoff, riskFreeDiscount,
                 dividendDiscount, variance, tolerance);
             Real forwardSk = Sk * dividendDiscount / riskFreeDiscount;
-            Real d1 = (std::log(forwardSk/payoff->strike()) + 0.5*variance)
-                /std::sqrt(variance);
-            Real n = 2.0*std::log(dividendDiscount/riskFreeDiscount)/variance;
+            Real d1 = (log(forwardSk/payoff->strike()) + 0.5*variance)
+                /sqrt(variance);
+            Real n = 2.0*log(dividendDiscount/riskFreeDiscount)/variance;
             Real K = (!close(riskFreeDiscount, 1.0, 1000))
-                    ? -2.0*std::log(riskFreeDiscount)
+                    ? -2.0*log(riskFreeDiscount)
                        / (variance*(1.0-riskFreeDiscount))
                      : 2.0/variance;
             Real Q, a;
             switch (payoff->optionType()) {
                 case Option::Call:
-                    Q = (-(n-1.0) + std::sqrt(((n-1.0)*(n-1.0))+4.0*K))/2.0;
+                    Q = (-(n-1.0) + sqrt(((n-1.0)*(n-1.0))+4.0*K))/2.0;
                     a =  (Sk/Q) * (1.0 - dividendDiscount * cumNormalDist(d1));
                     if (spot<Sk) {
                         results_.value = black.value() +
-                            a * std::pow((spot/Sk), Q);
+                            a * pow((spot/Sk), Q);
                     } else {
                         results_.value = spot - payoff->strike();
                     }
                     break;
                 case Option::Put:
-                    Q = (-(n-1.0) - std::sqrt(((n-1.0)*(n-1.0))+4.0*K))/2.0;
+                    Q = (-(n-1.0) - sqrt(((n-1.0)*(n-1.0))+4.0*K))/2.0;
                     a = -(Sk/Q) *
                         (1.0 - dividendDiscount * cumNormalDist(-d1));
                     if (spot>Sk) {
                         results_.value = black.value() +
-                            a * std::pow((spot/Sk), Q);
+                            a * pow((spot/Sk), Q);
                     } else {
                         results_.value = payoff->strike() - spot;
                     }

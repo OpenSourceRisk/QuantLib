@@ -84,7 +84,7 @@ namespace QuantLib {
             rSqr = v*v + u*u;
         }while(rSqr >= 1.);
         return sample_type(u * 
-            std::sqrt(degFreedom_ * (std::pow(rSqr, -2./degFreedom_)-1.) 
+            sqrt(degFreedom_ * (pow(rSqr, -2./degFreedom_)-1.) 
                 / rSqr),
             1.);
     }

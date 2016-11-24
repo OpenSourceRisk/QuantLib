@@ -64,7 +64,7 @@ namespace QuantLib {
                                            const Real xNew,
                                            Size& statStateIterations,
                                            EndCriteria::Type& ecType) const {
-        if (std::fabs(xNew-xOld) >= rootEpsilon_) {
+        if (abs(xNew-xOld) >= rootEpsilon_) {
             statStateIterations = 0;
             return false;
         }
@@ -80,7 +80,7 @@ namespace QuantLib {
                                             const Real fxNew,
                                             Size& statStateIterations,
                                             EndCriteria::Type& ecType) const {
-        if (std::fabs(fxNew-fxOld) >= functionEpsilon_) {
+        if (abs(fxNew-fxOld) >= functionEpsilon_) {
             statStateIterations = 0;
             return false;
         }
@@ -107,7 +107,7 @@ namespace QuantLib {
     //                                        const Real gNormOld,
     //                                        const Real gNormNew,
     //                                        EndCriteria::Type& ecType) const {
-    //    if (std::fabs(gNormNew-gNormOld) >= gradientNormEpsilon_)
+    //    if (abs(gNormNew-gNormOld) >= gradientNormEpsilon_)
     //        return false;
     //    ecType = StationaryGradient;
     //    return true;

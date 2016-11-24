@@ -58,11 +58,11 @@ namespace QuantLib {
         Real xMax=Null<Real>();
         if (   arguments_.barrierType == Barrier::DownIn
             || arguments_.barrierType == Barrier::DownOut) {
-            xMin = std::log(arguments_.barrier);
+            xMin = log(arguments_.barrier);
         }
         if (   arguments_.barrierType == Barrier::UpIn
             || arguments_.barrierType == Barrier::UpOut) {
-            xMax = std::log(arguments_.barrier);
+            xMax = log(arguments_.barrier);
         }
 
         const boost::shared_ptr<Fdm1dMesher> equityMesher(
@@ -165,7 +165,7 @@ namespace QuantLib {
 
             rebateOption->setPricingEngine(boost::shared_ptr<PricingEngine>(
                     new FdBlackScholesRebateEngine(
-                            process_, tGrid_, std::max(min_grid_size, xGrid_/5), 
+                        process_, tGrid_, std::max(min_grid_size, xGrid_/5), 
                             rebateDampingSteps, schemeDesc_, localVol_, 
                             illegalLocalVolOverwrite_)));
 

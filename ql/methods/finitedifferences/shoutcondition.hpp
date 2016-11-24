@@ -51,7 +51,7 @@ namespace QuantLib {
       private:
         virtual Real applyToValue(Real current,
                                   Real intrinsic) const {
-            return std::max(current, disc_ * intrinsic );
+            return max(current, disc_ * intrinsic );
         }
         Time resTime_;
         Rate rate_;
@@ -70,7 +70,7 @@ namespace QuantLib {
           resTime_(resTime), rate_(rate) {}
 
     inline void ShoutCondition::applyTo(Array& a, Time t) const {
-        disc_ = std::exp(-rate_ * (t - resTime_));
+        disc_ = exp(-rate_ * (t - resTime_));
         StandardCurveDependentStepCondition::applyTo(a, t);
     }
 }

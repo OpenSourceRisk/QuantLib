@@ -78746,7 +78746,7 @@ namespace QuantLib {
                         // the direction integer has at most the
                         // rightmost l bits non-zero
                         directionIntegers_[k][l-1] =
-                            (unsigned long)(u*(1UL<<l));
+                            (unsigned long)(VALUE(u)*(1UL<<l));
                     } while (!(directionIntegers_[k][l-1] & 1UL));
                     // iterate until the direction integer is odd
                     // that is it has the rightmost bit set
@@ -78792,7 +78792,7 @@ namespace QuantLib {
         /* bool printDirectionIntegers = false;
            if (printDirectionIntegers) {
                std::ofstream outStream("directionIntegers.txt");
-               for (k=0; k<std::min(32UL,dimensionality_); k++) {
+               for (k=0; k<min(32UL,dimensionality_); k++) {
                    outStream << std::endl << k+1       << "\t"
                                           << degree[k] << "\t"
                                           << ppmt[k]   << "\t";
@@ -78814,7 +78814,7 @@ namespace QuantLib {
 
     void SobolRsg::skipTo(unsigned long skip) {
         unsigned long N = skip+1;
-        unsigned int ops = (unsigned int)(std::log((double)N)/M_LN2)+1;
+        unsigned int ops = (unsigned int)(log((double)N)/M_LN2)+1;
 
         // Convert to Gray code
         unsigned long G = N ^ (N>>1);

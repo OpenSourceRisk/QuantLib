@@ -99,7 +99,7 @@ namespace QuantLib {
             Real value = discountBondPrice_;
             Real x = xMin_;
             for (Size j=0; j<size_; j++) {
-                Real discount = std::exp(- fInverse_(theta+x)*dt_);
+                Real discount = exp(- fInverse_(theta+x)*dt_);
                 value -= statePrices_[j]*discount;
                 x += dx_;
             }
@@ -238,10 +238,10 @@ namespace QuantLib {
 
     Real GeneralizedHullWhite::B(Time t, Time T) const {
         Real _a = a();
-        if (_a < std::sqrt(QL_EPSILON))
+        if (_a < sqrt(QL_EPSILON))
             return (T - t);
         else
-            return (1.0 - std::exp(-_a*(T - t)))/_a;
+            return (1.0 - exp(-_a*(T - t)))/_a;
     }
 
     void GeneralizedHullWhite::generateArguments() {
@@ -254,11 +254,11 @@ namespace QuantLib {
 
         Real _a = a();
         Real v;
-        if (_a < std::sqrt(QL_EPSILON)) {
-            v = sigma()*B(maturity, bondMaturity)* std::sqrt(maturity);
+        if (_a < sqrt(QL_EPSILON)) {
+            v = sigma()*B(maturity, bondMaturity)* sqrt(maturity);
         } else {
             v = sigma()*B(maturity, bondMaturity)*
-                std::sqrt(0.5*(1.0 - std::exp(-2.0*_a*maturity))/_a);
+                sqrt(0.5*(1.0 - exp(-2.0*_a*maturity))/_a);
         }
         Real f = termStructure()->discount(bondMaturity);
         Real k = termStructure()->discount(maturity)*strike;
@@ -273,7 +273,7 @@ namespace QuantLib {
                                                     Continuous, NoFrequency);
         Real temp = sigma()*B(t,T);
         Real value = B(t,T)*forward - 0.25*temp*temp*B(0.0,2.0*t);
-        return std::exp(value)*discount2/discount1;
+        return exp(value)*discount2/discount1;
     }
 
 

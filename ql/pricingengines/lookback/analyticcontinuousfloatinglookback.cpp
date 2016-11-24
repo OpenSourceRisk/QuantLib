@@ -63,7 +63,7 @@ namespace QuantLib {
     }
 
     Real AnalyticContinuousFloatingLookbackEngine::stdDeviation() const {
-        return volatility() * std::sqrt(residualTime());
+        return volatility() * sqrt(residualTime());
     }
 
     Rate AnalyticContinuousFloatingLookbackEngine::riskFreeRate() const {
@@ -94,12 +94,12 @@ namespace QuantLib {
         Volatility vol = volatility();
         Real lambda = 2.0*(riskFreeRate() - dividendYield())/(vol*vol);
         Real s = underlying()/minmax();
-        Real d1 = std::log(s)/stdDeviation() + 0.5*(lambda+1.0)*stdDeviation();
+        Real d1 = log(s)/stdDeviation() + 0.5*(lambda+1.0)*stdDeviation();
         Real n1 = f_(eta*d1);
         Real n2 = f_(eta*(d1-stdDeviation()));
         Real n3 = f_(eta*(-d1+lambda*stdDeviation()));
         Real n4 = f_(eta*-d1);
-        Real pow_s = std::pow(s, -lambda);
+        Real pow_s = pow(s, -lambda);
         return eta*((underlying() * dividendDiscount() * n1 -
                     minmax() * riskFreeDiscount() * n2) +
                     (underlying() * riskFreeDiscount() *

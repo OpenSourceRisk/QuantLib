@@ -24,7 +24,9 @@
 #include <ql/experimental/credit/defaultlossmodel.hpp>
 #include <boost/make_shared.hpp>
 
-using namespace std;
+//using namespace std;
+using std::vector;
+using std::string;
 
 namespace QuantLib {
 
@@ -293,8 +295,8 @@ namespace QuantLib {
         QL_REQUIRE(endDate >= refDate_, 
             "Target date lies before basket inception");
         Real loss = settledLoss(endDate);
-        return std::min(detachmentAmount_, attachmentAmount_ + 
-            std::max(0.0, loss - attachmentAmount_));
+        return min(detachmentAmount_, attachmentAmount_ + 
+                   max(Real(0.0), loss - attachmentAmount_));
     }
 
     Probability Basket::probOverLoss(const Date& d, Real lossFraction) const {

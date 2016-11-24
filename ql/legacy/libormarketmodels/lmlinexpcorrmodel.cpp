@@ -65,7 +65,7 @@ namespace QuantLib {
         for (Size i=0; i<size_; ++i) {
             for (Size j=i; j<size_; ++j) {
                 corrMatrix_[i][j] = corrMatrix_[j][i]
-                    = rho + (1-rho)*std::exp(-beta*std::fabs(Real(i)-Real(j)));
+                    = rho + (1-rho)*exp(-beta*abs(Real(i)-Real(j)));
             }
         }
 

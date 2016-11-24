@@ -176,21 +176,21 @@ namespace QuantLib {
             capletMaxError_ = swaptionMaxError_ = -1.0;
 
             for (Size i=0; i<numberOfRates_; ++i) {
-                mdlSwaptionVols_[i] = std::sqrt(swaptionTotCovariance[i][i]/rateTimes[i]);
-                Real swaptionError = std::fabs(mktSwaptionVols_[i]-mdlSwaptionVols_[i]);
+                mdlSwaptionVols_[i] = sqrt(swaptionTotCovariance[i][i]/rateTimes[i]);
+                Real swaptionError = abs(mktSwaptionVols_[i]-mdlSwaptionVols_[i]);
                 swaptionRmsError_ += swaptionError*swaptionError;
-                swaptionMaxError_ = std::max(swaptionMaxError_, swaptionError);
+                swaptionMaxError_ = max(swaptionMaxError_, swaptionError);
 
-                mdlCapletVols_[i] = std::sqrt(capletTotCovariance[i][i]/rateTimes[i]);
-                Real capletError = std::fabs(mktCapletVols_[i]-mdlCapletVols_[i]);
+                mdlCapletVols_[i] = sqrt(capletTotCovariance[i][i]/rateTimes[i]);
+                Real capletError = abs(mktCapletVols_[i]-mdlCapletVols_[i]);
                 capletRmsError_ += capletError*capletError;
-                capletMaxError_ = std::max(capletMaxError_, capletError);
+                capletMaxError_ = max(capletMaxError_, capletError);
 
                 if (i < numberOfRates_-1)
                     usedCapletVols_[i] *= mktCapletVols_[i]/mdlCapletVols_[i];
             }
-            swaptionRmsError_ = std::sqrt(swaptionRmsError_/numberOfRates_);
-            capletRmsError_ = std::sqrt(capletRmsError_/numberOfRates_);
+            swaptionRmsError_ = sqrt(swaptionRmsError_/numberOfRates_);
+            capletRmsError_ = sqrt(capletRmsError_/numberOfRates_);
             ++iterations;
         } while (iterations<maxIterations &&
                  capletRmsError_>capletVolTolerance);

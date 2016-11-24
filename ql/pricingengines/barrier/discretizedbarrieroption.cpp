@@ -88,7 +88,7 @@ namespace QuantLib {
                   if (grid[j] <= arguments_.barrier) {
                      // knocked in
                      if (stoppingTime) {
-                        optvalues[j] = std::max(vanilla_.values()[j],
+                        optvalues[j] = max(vanilla_.values()[j],
                                       (*arguments_.payoff)(grid[j]));
                      }
                      else
@@ -101,7 +101,7 @@ namespace QuantLib {
                   if (grid[j] <= arguments_.barrier)
                       optvalues[j] = arguments_.rebate; // knocked out
                   else if (stoppingTime) {
-                      optvalues[j] = std::max(optvalues[j],
+                      optvalues[j] = max(optvalues[j],
                                      (*arguments_.payoff)(grid[j]));
                   }
                   break;
@@ -109,7 +109,7 @@ namespace QuantLib {
                   if (grid[j] >= arguments_.barrier) {
                      // knocked in
                      if (stoppingTime) {
-                         optvalues[j] = std::max(vanilla_.values()[j],
+                         optvalues[j] = max(vanilla_.values()[j],
                                       (*arguments_.payoff)(grid[j]));
                      }
                      else
@@ -122,7 +122,7 @@ namespace QuantLib {
                   if (grid[j] >= arguments_.barrier)
                      optvalues[j] = arguments_.rebate; // knocked out
                   else if (stoppingTime)
-                      optvalues[j] = std::max(optvalues[j],
+                      optvalues[j] = max(optvalues[j],
                                      (*arguments_.payoff)(grid[j]));
                   break;
               default:
@@ -168,7 +168,7 @@ namespace QuantLib {
                       Real htol = (grid[j+1]-grid[j]);
                       Real u1 = unenhanced_.values()[j+1];
                       Real t1 = unenhanced_.vanilla()[j+1];
-                      optvalues[j+1] = std::max(0.0, (ltob*t1+htob*u1)/htol);
+                      optvalues[j+1] = max(Real(0.0), (ltob*t1+htob*u1)/htol);
                   }
               }
               break;
@@ -180,7 +180,7 @@ namespace QuantLib {
                       Real a = (barrier-grid[j])*rebate;
                       Real b = (grid[j+1]-barrier)*unenhanced_.values()[j+1];
                       Real c = (grid[j+1]-grid[j]);
-                      optvalues[j+1] = std::max(0.0, (a+b)/c);
+                      optvalues[j+1] = max(Real(0.0), (a+b)/c);
                   }
               }
               break;
@@ -194,7 +194,7 @@ namespace QuantLib {
                       Real htol = (grid[j+1]-grid[j]);
                       Real u = unenhanced_.values()[j];
                       Real t = unenhanced_.vanilla()[j];
-                      optvalues[j] = std::max(0.0, (ltob*u+htob*t)/htol); // derman std
+                      optvalues[j] = max(Real(0.0), (ltob*u+htob*t)/htol); // derman std
                   }
                }
               break;
@@ -206,7 +206,7 @@ namespace QuantLib {
                       Real a = (barrier-grid[j])*unenhanced_.values()[j];
                       Real b = (grid[j+1]-barrier)*rebate;
                       Real c = (grid[j+1]-grid[j]);
-                      optvalues[j] = std::max(0.0, (a+b)/c);
+                      optvalues[j] = max(Real(0.0), (a+b)/c);
                   }
               }
               break;

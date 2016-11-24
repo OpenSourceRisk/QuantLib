@@ -46,10 +46,10 @@ namespace QuantLib {
         */
         Real hypot(const Real &a, const Real &b) {
             if (a == 0) {
-                return std::fabs(b);
+                return abs(b);
             } else {
                 Real c = b/a;
-                return std::fabs(a) * std::sqrt(1 + c*c);
+                return abs(a) * sqrt(1 + c*c);
             }
         }
 
@@ -271,7 +271,7 @@ namespace QuantLib {
 
         Integer p = n_, pp = p-1;
         Integer iter = 0;
-        Real eps = std::pow(2.0,-52.0);
+        Real eps = pow(2.0,-52.0);
         while (p > 0) {
             Integer k;
             Integer kase;
@@ -292,8 +292,8 @@ namespace QuantLib {
                 if (k == -1) {
                     break;
                 }
-                if (std::fabs(e[k]) <= eps*(std::fabs(s_[k]) +
-                                            std::fabs(s_[k+1]))) {
+                if (abs(e[k]) <= eps*(abs(s_[k]) +
+                                            abs(s_[k+1]))) {
                     e[k] = 0.0;
                     break;
                 }
@@ -306,9 +306,9 @@ namespace QuantLib {
                     if (ks == k) {
                         break;
                     }
-                    Real t = (ks != p ? std::fabs(e[ks]) : 0.) +
-                        (ks != k+1 ? std::fabs(e[ks-1]) : 0.);
-                    if (std::fabs(s_[ks]) <= eps*t)  {
+                    Real t = (ks != p ? abs(e[ks]) : 0.) +
+                        (ks != k+1 ? abs(e[ks-1]) : 0.);
+                    if (abs(s_[ks]) <= eps*t)  {
                         s_[ks] = 0.0;
                         break;
                     }
@@ -377,14 +377,14 @@ namespace QuantLib {
               case 3: {
 
                   // Calculate the shift.
-                  Real scale = std::max(
-                                     std::max(
-                                         std::max(
-                                             std::max(std::fabs(s_[p-1]),
-                                                    std::fabs(s_[p-2])),
-                                             std::fabs(e[p-2])),
-                                         std::fabs(s_[k])),
-                                     std::fabs(e[k]));
+                  Real scale = max(
+                                     max(
+                                         max(
+                                             max(abs(s_[p-1]),
+                                                    abs(s_[p-2])),
+                                             abs(e[p-2])),
+                                         abs(s_[k])),
+                                     abs(e[k]));
                   Real sp = s_[p-1]/scale;
                   Real spm1 = s_[p-2]/scale;
                   Real epm1 = e[p-2]/scale;
@@ -394,7 +394,7 @@ namespace QuantLib {
                   Real c = (sp*epm1)*(sp*epm1);
                   Real shift = 0.0;
                   if ((b != 0.0) | (c != 0.0)) {
-                      shift = std::sqrt(b*b + c);
+                      shift = sqrt(b*b + c);
                       if (b < 0.0) {
                           shift = -shift;
                       }

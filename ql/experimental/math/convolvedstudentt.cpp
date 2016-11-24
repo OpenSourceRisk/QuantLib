@@ -58,7 +58,7 @@ namespace QuantLib {
         for(Size i=0; i<degreesFreedom_.size(); i++) {
             Real multiplier = 1.;
             for(Size k=1; k<polynCharFnc_[i].size(); k++) {
-                multiplier *= std::abs(factors_[i]);
+                multiplier *= abs(factors_[i]);
                 polynCharFnc_[i][k] *= multiplier;
             }
         }
@@ -78,8 +78,8 @@ namespace QuantLib {
           }
           // cache 'a' value (the exponent)
           for(Size i=0; i<degreesFreedom_.size(); i++)
-              a_ += std::sqrt(static_cast<Real>(degreesFreedom_[i]))
-                * std::abs(factors_[i]);
+              a_ += sqrt(static_cast<Real>(degreesFreedom_[i]))
+                * abs(factors_[i]);
           a2_ = a_ * a_;
     }
 
@@ -87,7 +87,7 @@ namespace QuantLib {
     CumulativeBehrensFisher::polynCharactT(Natural n) const {
         Natural nu = 2 * n +1;
         std::vector<Real> low(1,1.), high(1,1.);
-        high.push_back(std::sqrt(static_cast<Real>(nu)));
+        high.push_back(sqrt(static_cast<Real>(nu)));
         if(n==0) return low;
         if(n==1) return high;
 
@@ -130,17 +130,17 @@ namespace QuantLib {
 
     Probability CumulativeBehrensFisher::operator()(const Real x) const {
         // 1st & 0th terms with the table integration
-        Real integral = polyConvolved_[0] * std::atan(x/a_);
+        Real integral = polyConvolved_[0] * atan(x/a_);
         Real squared = a2_ + x*x;
-        Real rootsqr = std::sqrt(squared);
-        Real atan2xa = std::atan2(-x,a_);
+        Real rootsqr = sqrt(squared);
+        Real atan2xa = atan2(-x,a_);
         if(polyConvolved_.size()>1)
             integral += polyConvolved_[1] * x/squared;
 
         for(Size exponent = 2; exponent <polyConvolved_.size(); exponent++) {
             integral -= polyConvolved_[exponent] *
-                Factorial::get(exponent-1) * std::sin((exponent)*atan2xa)
-                    /std::pow(rootsqr, static_cast<Real>(exponent));
+                Factorial::get(exponent-1) * sin((exponent)*atan2xa)
+                    /pow(rootsqr, static_cast<Real>(exponent));
          }
         return .5 + integral / M_PI;
     }
@@ -149,12 +149,12 @@ namespace QuantLib {
     CumulativeBehrensFisher::density(const Real x) const {
         Real squared = a2_ + x*x;
         Real integral = polyConvolved_[0] * a_ / squared;
-        Real rootsqr = std::sqrt(squared);
-        Real atan2xa = std::atan2(-x,a_);
+        Real rootsqr = sqrt(squared);
+        Real atan2xa = atan2(-x,a_);
         for(Size exponent=1; exponent <polyConvolved_.size(); exponent++) {
             integral += polyConvolved_[exponent] *
-                Factorial::get(exponent) * std::cos((exponent+1)*atan2xa)
-                    /std::pow(rootsqr, static_cast<Real>(exponent+1) );
+                Factorial::get(exponent) * cos((exponent+1)*atan2xa)
+                    /pow(rootsqr, static_cast<Real>(exponent+1) );
         }
         return integral / M_PI;
     }
@@ -166,7 +166,7 @@ namespace QuantLib {
         const std::vector<Real>& factors,
         Real accuracy)
     : normSqr_(std::inner_product(factors.begin(), factors.end(),
-        factors.begin(), 0.)),
+                                  factors.begin(), Real(0.))),
       accuracy_(accuracy), distrib_(degreesFreedom, factors) { }
 
     Real InverseCumulativeBehrensFisher::operator()(const Probability q) const {

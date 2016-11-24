@@ -39,7 +39,7 @@ namespace QuantLib {
 
     inline Real binomialCoefficient(BigNatural n, BigNatural k) {
 
-        return std::floor(0.5+std::exp(binomialCoefficientLn(n, k)));
+        return std::floor(VALUE(0.5+exp(binomialCoefficientLn(n, k))));
 
     }
 
@@ -95,8 +95,8 @@ namespace QuantLib {
             QL_REQUIRE(p>0, "negative p not allowed");
             QL_REQUIRE(p<1.0, "p>1.0 not allowed");
 
-            logP_ = std::log(p);
-            logOneMinusP_ = std::log(1.0-p);
+            logP_ = log(p);
+            logOneMinusP_ = log(1.0-p);
         }
     }
 
@@ -122,7 +122,7 @@ namespace QuantLib {
         else if (logOneMinusP_==0.0)
             return (k==0 ? 1.0 : 0.0);
         else
-            return std::exp(binomialCoefficientLn(n_, k) +
+            return exp(binomialCoefficientLn(n_, k) +
                             k * logP_ + (n_-k) * logOneMinusP_);
     }
 
@@ -141,8 +141,8 @@ namespace QuantLib {
 
         Real result = (z/(n+1.0/3.0+0.1/(n+1.0)));
         result *= result;
-        result = std::exp(-result*(n+1.0/6.0));
-        result = 0.5 + (z>0 ? 1 : -1) * std::sqrt((0.25 * (1.0-result)));
+        result = exp(-result*(n+1.0/6.0));
+        result = 0.5 + (z>0 ? 1 : -1) * sqrt((0.25 * (1.0-result)));
         return result;
     }
 

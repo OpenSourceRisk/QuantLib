@@ -46,8 +46,8 @@ namespace QuantLib {
                    "non-negative standard deviation required: "
                    << stdDev_ << " not allowed");
 
-        fExpPos_    =forward_*std::exp(0.5*stdDev_*stdDev_);
-        fExpNeg_    =forward_*std::exp(-0.5*stdDev_*stdDev_);
+        fExpPos_    =forward_*exp(0.5*stdDev_*stdDev_);
+        fExpNeg_    =forward_*exp(-0.5*stdDev_*stdDev_);
     }
 
 
@@ -97,19 +97,19 @@ namespace QuantLib {
 
         switch (dt) {
           case DeltaVolQuote::Spot:
-            QL_REQUIRE(std::fabs(delta)<=fDiscount_,
+            QL_REQUIRE(abs(delta)<=fDiscount_,
                        "Spot delta out of range.");
 
             arg=-phi_*f(phi_*delta/fDiscount_)*stdDev_+0.5*stdDev_*stdDev_;
-            res=forward_*std::exp(arg);
+            res=forward_*exp(arg);
             break;
 
           case DeltaVolQuote::Fwd:
-            QL_REQUIRE(std::fabs(delta)<=1.0,
+            QL_REQUIRE(abs(delta)<=1.0,
                        "Forward delta out of range.");
 
             arg=-phi_*f(phi_*delta)*stdDev_+0.5*stdDev_*stdDev_;
-            res=forward_*std::exp(arg);
+            res=forward_*exp(arg);
             break;
 
           case DeltaVolQuote::PaSpot:
@@ -219,7 +219,7 @@ namespace QuantLib {
 
         if (stdDev_>=QL_EPSILON) {
             if(strike>0) {
-                d1_ = std::log(forward_/strike)/stdDev_ + 0.5*stdDev_;
+                d1_ = log(forward_/strike)/stdDev_ + 0.5*stdDev_;
                 return f(phi_*d1_);
             }
         } else {
@@ -247,7 +247,7 @@ namespace QuantLib {
 
         if (stdDev_>=QL_EPSILON){
             if(strike>0){
-                d1_ = std::log(forward_/strike)/stdDev_ + 0.5*stdDev_;
+                d1_ = log(forward_/strike)/stdDev_ + 0.5*stdDev_;
                 CumulativeNormalDistribution f;
                 n_d1_ = f.derivative(d1_);
             }
@@ -268,7 +268,7 @@ namespace QuantLib {
         if (stdDev_>=QL_EPSILON){
 
             if(strike>0){
-                d2_ = std::log(forward_/strike)/stdDev_ - 0.5*stdDev_;
+                d2_ = log(forward_/strike)/stdDev_ - 0.5*stdDev_;
                 return f(phi_*d2_);
             }
 
@@ -299,7 +299,7 @@ namespace QuantLib {
 
         if (stdDev_>=QL_EPSILON){
             if(strike>0){
-                d2_ = std::log(forward_/strike)/stdDev_ - 0.5*stdDev_;
+                d2_ = log(forward_/strike)/stdDev_ - 0.5*stdDev_;
                 CumulativeNormalDistribution f;
                 n_d2_ = f.derivative(d2_);
             }

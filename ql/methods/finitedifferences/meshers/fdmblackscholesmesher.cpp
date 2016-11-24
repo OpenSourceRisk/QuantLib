@@ -47,10 +47,10 @@ namespace QuantLib {
         const Real normInvEps = InverseCumulativeNormal()(1-eps);
         const Real sigmaSqrtT 
             = process->blackVolatility()->blackVol(maturity, strike)
-                                                        *std::sqrt(maturity);
+                                                        *sqrt(maturity);
         
-        Real xMin = std::log(S) - sigmaSqrtT*normInvEps*scaleFactor;
-        Real xMax = std::log(S) + sigmaSqrtT*normInvEps*scaleFactor;
+        Real xMin = log(S) - sigmaSqrtT*normInvEps*scaleFactor;
+        Real xMax = log(S) + sigmaSqrtT*normInvEps*scaleFactor;
                 
         if (xMinConstraint != Null<Real>()) {
             xMin = xMinConstraint;
@@ -61,11 +61,11 @@ namespace QuantLib {
 
         boost::shared_ptr<Fdm1dMesher> helper;
         if (   cPoint.first != Null<Real>() 
-            && std::log(cPoint.first) >=xMin && std::log(cPoint.first) <=xMax) {
+            && log(cPoint.first) >=xMin && log(cPoint.first) <=xMax) {
             
             helper = boost::shared_ptr<Fdm1dMesher>(
                 new Concentrating1dMesher(xMin, xMax, size, 
-                    std::pair<Real,Real>(std::log(cPoint.first),
+                    std::pair<Real,Real>(log(cPoint.first),
                                          cPoint.second)));
         }
         else {

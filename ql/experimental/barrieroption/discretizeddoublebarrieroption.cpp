@@ -86,7 +86,7 @@ namespace QuantLib {
                   if (grid[j] <= arguments_.barrier_lo) {
                      // knocked in dn
                      if (stoppingTime) {
-                         optvalues[j] = std::max(vanilla()[j],
+                         optvalues[j] = max(vanilla()[j],
                                       (*arguments_.payoff)(grid[j]));
                      }
                      else
@@ -95,7 +95,7 @@ namespace QuantLib {
                   else if (grid[j] >= arguments_.barrier_hi) {
                      // knocked in up
                      if (stoppingTime) {
-                         optvalues[j] = std::max(vanilla()[j],
+                         optvalues[j] = max(vanilla()[j],
                                       (*arguments_.payoff)(grid[j]));
                      }
                      else
@@ -110,7 +110,7 @@ namespace QuantLib {
                   else if (grid[j] >= arguments_.barrier_hi)
                      optvalues[j] = arguments_.rebate; // knocked out hi
                   else if (stoppingTime)
-                      optvalues[j] = std::max(optvalues[j],
+                      optvalues[j] = max(optvalues[j],
                                      (*arguments_.payoff)(grid[j]));
                   break;
               case DoubleBarrier::KIKO:
@@ -118,7 +118,7 @@ namespace QuantLib {
                   if (grid[j] <= arguments_.barrier_lo) {
                      // knocked in dn
                      if (stoppingTime) {
-                         optvalues[j] = std::max(vanilla()[j],
+                         optvalues[j] = max(vanilla()[j],
                                       (*arguments_.payoff)(grid[j]));
                      }
                      else
@@ -136,7 +136,7 @@ namespace QuantLib {
                   else if (grid[j] >= arguments_.barrier_hi) {
                      // knocked in up
                      if (stoppingTime) {
-                         optvalues[j] = std::max(vanilla()[j],
+                         optvalues[j] = max(vanilla()[j],
                                       (*arguments_.payoff)(grid[j]));
                      }
                      else
@@ -189,7 +189,7 @@ namespace QuantLib {
                      Real htol = (grid[j+1]-grid[j]);
                      Real u1 = unenhanced_.values()[j+1];
                      Real t1 = unenhanced_.vanilla()[j+1];
-                     optvalues[j+1] = std::max(0.0, (ltob*t1+htob*u1)/htol); // derman std
+                     optvalues[j+1] = max(Real(0.0), (ltob*t1+htob*u1)/htol); // derman std
                   }
                   else if (grid[j] < barrier_hi && grid[j+1] >= barrier_hi) {
                      // grid[j+1] above barrier_hi (in), grid[j] under, 
@@ -199,7 +199,7 @@ namespace QuantLib {
                      Real htol = (grid[j+1]-grid[j]);
                      Real u = unenhanced_.values()[j];
                      Real t = unenhanced_.vanilla()[j];
-                     optvalues[j] = std::max(0.0, (ltob*u+htob*t)/htol); // derman std
+                     optvalues[j] = max(Real(0.0), (ltob*u+htob*t)/htol); // derman std
                   }
               }
               break;
@@ -211,7 +211,7 @@ namespace QuantLib {
                      Real a = (barrier_lo-grid[j])*rebate;
                      Real b = (grid[j+1]-barrier_lo)*unenhanced_.values()[j+1];
                      Real c = (grid[j+1]-grid[j]);
-                     optvalues[j+1] = std::max(0.0, (a+b)/c);
+                     optvalues[j+1] = max(Real(0.0), (a+b)/c);
                   }
                   else if (grid[j] < barrier_hi && grid[j+1] >= barrier_hi) {
                      // grid[j+1] above barrier_hi (out), grid[j] under, 
@@ -219,7 +219,7 @@ namespace QuantLib {
                      Real a = (barrier_hi-grid[j])*unenhanced_.values()[j];
                      Real b = (grid[j+1]-barrier_hi)*rebate;
                      Real c = (grid[j+1]-grid[j]);
-                     optvalues[j] = std::max(0.0, (a+b)/c);
+                     optvalues[j] = max(Real(0.0), (a+b)/c);
                   }
               }
               break;

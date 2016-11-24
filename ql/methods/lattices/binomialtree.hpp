@@ -72,7 +72,7 @@ namespace QuantLib {
         Real underlying(Size i, Size index) const {
             BigInteger j = 2*BigInteger(index) - BigInteger(i);
             // exploiting the forward value tree centering
-            return this->x0_*std::exp(i*this->driftPerStep_ + j*this->up_);
+            return this->x0_*exp(i*this->driftPerStep_ + j*this->up_);
         }
         Real probability(Size, Size, Size) const { return 0.5; }
       protected:
@@ -93,7 +93,7 @@ namespace QuantLib {
         Real underlying(Size i, Size index) const {
             BigInteger j = 2*BigInteger(index) - BigInteger(i);
             // exploiting equal jump and the x0_ tree centering
-            return this->x0_*std::exp(j*this->dx_);
+            return this->x0_*exp(j*this->dx_);
         }
         Real probability(Size, Size, Size branch) const {
             return (branch == 1 ? pu_ : pd_);
@@ -159,8 +159,8 @@ namespace QuantLib {
              Size steps,
              Real strike);
         Real underlying(Size i, Size index) const {
-            return x0_ * std::pow(down_, Real(BigInteger(i)-BigInteger(index)))
-                       * std::pow(up_, Real(index));
+            return x0_ * pow(down_, Real(BigInteger(i)-BigInteger(index)))
+                       * pow(up_, Real(index));
         };
         Real probability(Size, Size, Size branch) const {
             return (branch == 1 ? pu_ : pd_);
@@ -178,8 +178,8 @@ namespace QuantLib {
                      Size steps,
                      Real strike);
         Real underlying(Size i, Size index) const {
-            return x0_ * std::pow(down_, Real(BigInteger(i)-BigInteger(index)))
-                       * std::pow(up_, Real(index));
+            return x0_ * pow(down_, Real(BigInteger(i)-BigInteger(index)))
+                       * pow(up_, Real(index));
         }
         Real probability(Size, Size, Size branch) const {
             return (branch == 1 ? pu_ : pd_);
@@ -196,8 +196,8 @@ namespace QuantLib {
                Size steps,
                Real strike);
         Real underlying(Size i, Size index) const {
-            return x0_ * std::pow(down_, Real(BigInteger(i)-BigInteger(index)))
-                       * std::pow(up_, Real(index));
+            return x0_ * pow(down_, Real(BigInteger(i)-BigInteger(index)))
+                       * pow(up_, Real(index));
         }
         Real probability(Size, Size, Size branch) const {
             return (branch == 1 ? pu_ : pd_);

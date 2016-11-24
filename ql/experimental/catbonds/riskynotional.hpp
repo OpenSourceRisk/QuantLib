@@ -105,7 +105,7 @@ namespace QuantLib {
                 losses+=events[i].second;
                 if(losses>attachement_ && previousNotional>0)
                 {
-                    previousNotional = std::max(0.0, (exhaustion_-losses)/(exhaustion_-attachement_));
+                    previousNotional = max(Real(0.0), (exhaustion_-losses)/(exhaustion_-attachement_));
                     path.addReduction(paymentOffset_->paymentDate(events[i].first), previousNotional);
                 }
             }

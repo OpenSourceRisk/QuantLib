@@ -153,7 +153,7 @@ void BinaryOptionTest::testCashOrNothingHaugValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, values[i].cash));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate,
                                                                     true));
@@ -180,7 +180,7 @@ void BinaryOptionTest::testCashOrNothingHaugValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, amExercise, values[i].barrierType, 
                            values[i].barrier, values[i].s,
@@ -239,7 +239,7 @@ void BinaryOptionTest::testAssetOrNothingHaugValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate,
                                                                     true));
@@ -266,7 +266,7 @@ void BinaryOptionTest::testAssetOrNothingHaugValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, amExercise, values[i].barrierType, 
                            values[i].barrier, values[i].s,

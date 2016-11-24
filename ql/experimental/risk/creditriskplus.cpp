@@ -20,7 +20,7 @@
 #include <ql/experimental/risk/creditriskplus.hpp>
 #include <map>
 
-using std::sqrt;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -123,7 +123,7 @@ namespace QuantLib {
         std::map<unsigned long, Real, std::less<unsigned long> >::iterator iter;
 
         for (Size k = 0; k < m_; ++k) {
-            unsigned long exUnit = (unsigned long)(std::floor(0.5 + exposure_[k] / unit_)); // round
+            unsigned long exUnit = (unsigned long)(std::floor(0.5 + VALUE(exposure_[k] / unit_))); // round
             if (exposure_[k] > 0 && exUnit == 0)
                 exUnit = 1; // but avoid zero exposure
             if (exUnit > maxNu_)
@@ -162,7 +162,7 @@ namespace QuantLib {
                 if (j != i) {
                     sectorSpecTerms_[i] +=
                         correlation_[i][j] *
-                        std::sqrt(relativeDefaultVariance_[i] *
+                        sqrt(relativeDefaultVariance_[i] *
                                   relativeDefaultVariance_[j]) *
                         sectorEl_[j];
                 }
@@ -179,7 +179,7 @@ namespace QuantLib {
             for (Size j = 0; j < n_; ++j) {
                 if (j != i) {
                     ul_ += correlation_[i][j] *
-                           std::sqrt(relativeDefaultVariance_[i] *
+                           sqrt(relativeDefaultVariance_[i] *
                                      relativeDefaultVariance_[j]) *
                            sectorEl_[i] * sectorEl_[j];
                 }
@@ -192,9 +192,9 @@ namespace QuantLib {
             sectorUl_[sector_[k]] += tmp;
             ul_ += tmp;
         }
-        ul_ = std::sqrt(ul_);
+        ul_ = sqrt(ul_);
         for (Size i = 0; i < n_; ++i)
-            sectorUl_[i] = std::sqrt(sectorUl_[i]);
+            sectorUl_[i] = sqrt(sectorUl_[i]);
 
         // compute risk contributions (formula 15 in [1])
 
@@ -213,7 +213,7 @@ namespace QuantLib {
         // compute loss distribution
 
         loss_.clear();
-        loss_.push_back(std::pow(1.0 - pC_, alphaC_)); // A(0)
+        loss_.push_back(pow(1.0 - pC_, alphaC_)); // A(0)
 
         Real res;
         for (unsigned long n = 0; n < upperIndex_ - 1; ++n) { // compute A(n+1)

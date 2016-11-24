@@ -152,7 +152,7 @@ namespace QuantLib {
         for (Size i=0; i<nSwaps_; ++i) {
             swapLenghts_[i] = static_cast<Real>(i+1);
             swaps_[i] = MakeVanillaSwap(
-                swapLenghts_[i]*Years, euriborIndex_, dummyRate, 1*Days)
+                VALUE(swapLenghts_[i])*Years, euriborIndex_, dummyRate, 1*Days)
                                 .withDiscountingTermStructure(discountCurve_);
         }
     }
@@ -176,7 +176,7 @@ namespace QuantLib {
         }
         duration_ = std::inner_product(basket_->weights().begin(),
                                        basket_->weights().end(),
-                                       durations_.begin(), 0.0);
+                                       durations_.begin(), Real(0.0));
 
         Natural settlDays = 2;
         DayCounter fixedDayCount = swaps_[0]->fixedDayCount();

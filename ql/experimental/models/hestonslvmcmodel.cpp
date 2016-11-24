@@ -68,7 +68,7 @@ namespace QuantLib {
         gridTimes.push_back(dc.yearFraction(refDate, endDate));
 
         timeGrid_ = boost::make_shared<TimeGrid>(gridTimes.begin(), gridTimes.end(),
-                std::max(Size(2), Size(gridTimes.back()*timeStepsPerYear)));
+                                                 std::max(Size(2), Size(VALUE(gridTimes.back()*timeStepsPerYear))));
     }
 
     void HestonSLVMCModel::update() {
@@ -105,7 +105,7 @@ namespace QuantLib {
         const Date referenceDate = hestonProcess->riskFreeRate()->referenceDate();
 
         const Volatility lv0
-            = localVol_->localVol(0.0, spot->value())/std::sqrt(v0);
+            = localVol_->localVol(0.0, spot->value())/sqrt(v0);
 
         const boost::shared_ptr<Matrix> L(new Matrix(nBins_, timeGrid_->size()));
 
@@ -113,7 +113,7 @@ namespace QuantLib {
             vStrikes(timeGrid_->size());
         for (Size i=0; i < timeGrid_->size(); ++i) {
             const Integer u = nBins_/2;
-            const Real dx = spot->value()*std::sqrt(QL_EPSILON);
+            const Real dx = spot->value()*sqrt(QL_EPSILON);
 
             vStrikes[i] = boost::make_shared<std::vector<Real> >(nBins_);
 
@@ -188,7 +188,7 @@ namespace QuantLib {
                 sum/=inc;
 
                 vStrikes[n]->at(i) = 0.5*(pairs[e-1].first + pairs[s].first);
-                (*L)[i][n] = std::sqrt(square<Real>()(
+                (*L)[i][n] = sqrt(square<Real>()(
                      localVol_->localVol(t, vStrikes[n]->at(i), true))/sum);
 
                 s = e;

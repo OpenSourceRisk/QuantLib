@@ -41,7 +41,7 @@ namespace QuantLib {
                         Volatility vol, Real discount, Real npv) {
 
             return blackFormula(optionType, strike, forward,
-                                std::max(0.0, vol)*std::sqrt(maturity),
+                                max(Real(0.0), vol)*sqrt(maturity),
                                 discount)-npv;
         }
     }
@@ -110,11 +110,11 @@ namespace QuantLib {
             payoff, integration_, cpxLogFormula,
             hestonEnginePtr, npv, evaluations);
 
-        if (npv <= 0.0) return std::sqrt(theta);
+        if (npv <= 0.0) return sqrt(theta);
 
         Brent solver;
         solver.setMaxEvaluations(10000);
-        const Volatility guess = std::sqrt(theta);
+        const Volatility guess = sqrt(theta);
         const Real accuracy = std::numeric_limits<Real>::epsilon();
 
         const boost::function<Real(Real)> f = boost::bind(

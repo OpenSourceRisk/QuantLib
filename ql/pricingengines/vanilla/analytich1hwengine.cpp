@@ -67,16 +67,16 @@ namespace QuantLib {
     }
 
     Real AnalyticH1HWEngine::Fj_Helper::c(Time t) const {
-        return gamma_*gamma_/(4*kappa_)*(1.0-std::exp(-kappa_*t));
+        return gamma_*gamma_/(4*kappa_)*(1.0-exp(-kappa_*t));
     }
 
     Real AnalyticH1HWEngine::Fj_Helper::lambda(Time t) const {
-        return  4.0*kappa_*v0_*std::exp(-kappa_*t)
-               /(gamma_*gamma_*(1.0-std::exp(-kappa_*t)));
+        return  4.0*kappa_*v0_*exp(-kappa_*t)
+               /(gamma_*gamma_*(1.0-exp(-kappa_*t)));
     }
 
     Real AnalyticH1HWEngine::Fj_Helper::LambdaApprox(Time t) const {
-        return std::sqrt( c(t)*(lambda(t)-1.0)
+        return sqrt( c(t)*(lambda(t)-1.0)
                         + c(t)*d_*(1.0 + 1.0/(2.0*(d_+lambda(t)))));
     }
 
@@ -90,14 +90,14 @@ namespace QuantLib {
 
         do {
             Real k = static_cast<Real>(i);
-            s=std::exp(k*std::log(0.5*lambdaT) + g.logValue(0.5*(1+d_)+k)
+            s=exp(k*log(0.5*lambdaT) + g.logValue(0.5*(1+d_)+k)
                         - g.logValue(k+1) - g.logValue(0.5*d_+k));
             retVal += s;
         } while (s > std::numeric_limits<float>::epsilon() && ++i < maxIter);
 
         QL_REQUIRE(i < maxIter, "can not calculate Lambda");
 
-        retVal *= std::sqrt(2*c(t)) * std::exp(-0.5*lambdaT);
+        retVal *= sqrt(2*c(t)) * exp(-0.5*lambdaT);
         return retVal;
     }
 
@@ -107,32 +107,32 @@ namespace QuantLib {
 
         Real a, b, c;
         if (8.0*kappa_*theta_/gamma2 > 1.0) {
-            a = std::sqrt(theta_-gamma2/(8.0*kappa_));
-            b = std::sqrt(v0_) - a;
-            c =-std::log((LambdaApprox(1.0)-a)/b);
+            a = sqrt(theta_-gamma2/(8.0*kappa_));
+            b = sqrt(v0_) - a;
+            c =-log((LambdaApprox(1.0)-a)/b);
         }
         else {
-            a = std::sqrt(gamma2/(2.0*kappa_))
-                *std::exp(  GammaFunction().logValue(0.5*(d_+1.0))
+            a = sqrt(gamma2/(2.0*kappa_))
+                *exp(  GammaFunction().logValue(0.5*(d_+1.0))
                           - GammaFunction().logValue(0.5*d_));
 
             const Time t1 = 0.0;
             const Time t2 = 1.0/kappa_;
 
-            const Real Lambda_t1 = std::sqrt(v0_);
+            const Real Lambda_t1 = sqrt(v0_);
             const Real Lambda_t2 = Lambda(t2);
 
-            c = std::log((Lambda_t2-a)/(Lambda_t1-a))/(t1-t2);
-            b = std::exp(c*t1)*(Lambda_t1-a);
+            c = log((Lambda_t2-a)/(Lambda_t1-a))/(t1-t2);
+            b = exp(c*t1)*(Lambda_t1-a);
         }
 
         const std::complex<Real> I4 =
             -1.0/lambda_* std::complex<Real>(u*u, ((j_ == 1u)? -u : u))
-              *(  b/c*(1.0 - std::exp(-c*term_))
+              *(  b/c*(1.0 - exp(-c*term_))
                 + a*term_
-                + a/lambda_*(std::exp(-lambda_*term_) - 1.0)
-                + b/(c-lambda_)*std::exp(-c*term_)
-                    *(1.0 - std::exp(-term_*(lambda_-c))) );
+                + a/lambda_*(exp(-lambda_*term_) - 1.0)
+                + b/(c-lambda_)*exp(-c*term_)
+                    *(1.0 - exp(-term_*(lambda_-c))) );
 
         return eta_*rhoSr_*I4;
     }

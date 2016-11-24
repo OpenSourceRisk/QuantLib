@@ -245,9 +245,9 @@ namespace QuantLib {
                  break;
 
             // exit condition
-            Real change = std::fabs(data[1]-previousData_[1]);
+            Real change = abs(data[1]-previousData_[1]);
             for (Size i=2; i<=alive_; ++i)
-                change = std::max(change, std::fabs(data[i]-previousData_[i]));
+                change = max(change, abs(data[i]-previousData_[i]));
             if (change<=accuracy)  // convergence reached
                 break;
 

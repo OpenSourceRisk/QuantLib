@@ -110,7 +110,7 @@ namespace QuantLib {
             const Integer yIndex = iter.coordinates()[1];
 
             for (Size i=0; i < yInt.size(); ++i) {
-                const Real weight = std::exp(-yInt[i])*weights[i];
+                const Real weight = exp(-yInt[i])*weights[i];
 
                 const Real ys = y + yInt[i]/eta;
                 const Integer l = (ys > yLoc.back()) ? yLoc.size()-2
@@ -200,7 +200,7 @@ namespace QuantLib {
             }
         }
 
-        return std::exp(-u)*valueOfDerivative;
+        return exp(-u)*valueOfDerivative;
     }
 
     Disposable<Array> FdmExtOUJumpOp::integro(const Array& r) const {

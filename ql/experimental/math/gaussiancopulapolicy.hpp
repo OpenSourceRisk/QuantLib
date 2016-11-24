@@ -49,7 +49,7 @@ namespace QuantLib {
                 Real factorsNorm = 
                     std::inner_product(factorWeights[iLVar].begin(), 
                         factorWeights[iLVar].end(), 
-                        factorWeights[iLVar].begin(), 0.);
+                                       factorWeights[iLVar].begin(), Real(0.));
                 QL_REQUIRE(factorsNorm < 1., 
                     "Non normal random factor combination.");
             }

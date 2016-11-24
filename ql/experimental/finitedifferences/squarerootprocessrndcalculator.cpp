@@ -32,57 +32,57 @@ namespace QuantLib {
 
 
     Real SquareRootProcessRNDCalculator::pdf(Real v, Time t) const {
-        const Real e   = std::exp(-kappa_*t);
+        const Real e   = exp(-kappa_*t);
         const Real k   = d_/(1-e);
         const Real ncp = k*v0_*e;
 
-        const boost::math::non_central_chi_squared_distribution<Real>
-            dist(df_, ncp);
+        const boost::math::non_central_chi_squared_distribution<double>
+            dist(VALUE(df_), VALUE(ncp));
 
-        return boost::math::pdf(dist, v*k) * k;
+        return boost::math::pdf(dist, VALUE(v*k)) * k;
     }
 
     Real SquareRootProcessRNDCalculator::cdf(Real v, Time t) const {
-        const Real e   = std::exp(-kappa_*t);
+        const Real e   = exp(-kappa_*t);
         const Real k   = d_/(1-e);
         const Real ncp = k*v0_*e;
 
-        const boost::math::non_central_chi_squared_distribution<Real>
-            dist(df_, ncp);
+        const boost::math::non_central_chi_squared_distribution<double>
+            dist(VALUE(df_), VALUE(ncp));
 
-        return boost::math::cdf(dist, v*k);
+        return boost::math::cdf(dist, VALUE(v*k));
     }
 
     Real SquareRootProcessRNDCalculator::invcdf(Real q, Time t) const {
-        const Real e   = std::exp(-kappa_*t);
+        const Real e   = exp(-kappa_*t);
         const Real k   = d_/(1-e);
         const Real ncp = k*v0_*e;
 
-        const boost::math::non_central_chi_squared_distribution<Real>
-            dist(df_, ncp);
+        const boost::math::non_central_chi_squared_distribution<double>
+            dist(VALUE(df_), VALUE(ncp));
 
-        return boost::math::quantile(dist, q) / k;
+        return boost::math::quantile(dist, VALUE(q)) / k;
     }
 
     Real SquareRootProcessRNDCalculator::stationary_pdf(Real v) const {
         const Real alpha = 0.5*df_;
         const Real beta = alpha/theta_;
 
-        return std::pow(beta, alpha)*std::pow(v, alpha-1)
-                *std::exp(-beta*v-boost::math::lgamma(alpha));
+        return pow(beta, alpha)*pow(v, alpha-1)
+            *exp(-beta*v-boost::math::lgamma(VALUE(alpha)));
     }
 
     Real SquareRootProcessRNDCalculator::stationary_cdf(Real v) const {
         const Real alpha = 0.5*df_;
         const Real beta = alpha/theta_;
 
-        return boost::math::gamma_p(alpha, beta*v);
+        return boost::math::gamma_p(VALUE(alpha), VALUE(beta*v));
     }
 
     Real SquareRootProcessRNDCalculator::stationary_invcdf(Real q) const {
         const Real alpha = 0.5*df_;
         const Real beta = alpha/theta_;
 
-        return boost::math::gamma_p_inv(alpha, q)/beta;
+        return boost::math::gamma_p_inv(VALUE(alpha), VALUE(q))/beta;
     }
 }

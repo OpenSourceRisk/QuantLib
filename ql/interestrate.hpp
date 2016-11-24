@@ -51,7 +51,7 @@ namespace QuantLib {
         //@}
         //! \name conversions
         //@{
-        operator Rate() const { return r_; }
+        operator Real() const { return r_; }
         //@}
         //! \name inspectors
         //@{
@@ -59,7 +59,7 @@ namespace QuantLib {
         const DayCounter& dayCounter() const { return dc_; }
         Compounding compounding() const { return comp_; }
         Frequency frequency() const {
-            return freqMakesSense_ ? Frequency(Integer(freq_)) : NoFrequency;
+            return freqMakesSense_ ? Frequency(freq_) : NoFrequency;
         }
         //@}
 
@@ -185,7 +185,8 @@ namespace QuantLib {
         DayCounter dc_;
         Compounding comp_;
         bool freqMakesSense_;
-        Real freq_;
+        Integer freq_;
+        Real freqReal_;
     };
 
     /*! \relates InterestRate */

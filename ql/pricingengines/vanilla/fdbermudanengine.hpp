@@ -61,7 +61,7 @@ namespace QuantLib {
             Size size = this->intrinsicValues_.size();
             for (Size j=0; j<size; j++) {
                 this->prices_.value(j) =
-                    std::max(this->prices_.value(j),
+                    max(this->prices_.value(j),
                              this->intrinsicValues_.value(j));
             }
         }

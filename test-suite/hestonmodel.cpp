@@ -182,8 +182,8 @@ void HestonModelTest::testBlackCalibration() {
                                                   optionMaturities[i]));
         const Real fwdPrice = s0->value()*dividendTS->discount(tau)
                             / riskFreeTS->discount(tau);
-        const Real strikePrice = fwdPrice * std::exp(-moneyness * volatility
-                                                     * std::sqrt(tau));
+        const Real strikePrice = fwdPrice * exp(-moneyness * volatility
+                                                     * sqrt(tau));
 
         options.push_back(boost::shared_ptr<CalibrationHelper>(
                           new HestonModelHelper(optionMaturities[i], calendar,
@@ -222,14 +222,14 @@ void HestonModelTest::testBlackCalibration() {
                         << "\n    tolerance:  " << tolerance);
         }
 
-        if (std::fabs(model->kappa()
+        if (abs(model->kappa()
                   *(model->theta()-volatility*volatility)) > tolerance) {
             BOOST_ERROR("Failed to reproduce expected theta"
                         << "\n    calculated: " << model->theta()
                         << "\n    expected:   " << volatility*volatility);
         }
 
-        if (std::fabs(model->v0()-volatility*volatility) > tolerance) {
+        if (abs(model->v0()-volatility*volatility) > tolerance) {
             BOOST_ERROR("Failed to reproduce expected v0"
                         << "\n    calculated: " << model->v0()
                         << "\n    expected:   " << volatility*volatility);
@@ -283,7 +283,7 @@ void HestonModelTest::testDAXCalibration() {
         sse += diff*diff;
     }
     Real expected = 177.2; //see article by A. Sepp.
-    if (std::fabs(sse - expected) > 1.0) {
+    if (abs(sse - expected) > 1.0) {
         BOOST_FAIL("Failed to reproduce calibration error"
                    << "\n    calculated: " << sse
                    << "\n    expected:   " << expected);
@@ -327,11 +327,11 @@ void HestonModelTest::testAnalyticVsBlack() {
     Real calculated = option.NPV();
 
     Real yearFraction = dayCounter.yearFraction(settlementDate, exerciseDate);
-    Real forwardPrice = 32*std::exp((0.1-0.04)*yearFraction);
+    Real forwardPrice = 32*exp((0.1-0.04)*yearFraction);
     Real expected = blackFormula(payoff->optionType(), payoff->strike(),
-        forwardPrice, std::sqrt(0.05*yearFraction)) *
-                                            std::exp(-0.1*yearFraction);
-    Real error = std::fabs(calculated - expected);
+        forwardPrice, sqrt(0.05*yearFraction)) *
+                                            exp(-0.1*yearFraction);
+    Real error = abs(calculated - expected);
     Real tolerance = 2.0e-7;
     if (error > tolerance) {
         BOOST_FAIL("failed to reproduce Black price with AnalyticHestonEngine"
@@ -346,7 +346,7 @@ void HestonModelTest::testAnalyticVsBlack() {
     option.setPricingEngine(engine);
 
     calculated = option.NPV();
-    error = std::fabs(calculated - expected);
+    error = abs(calculated - expected);
     tolerance = 1.0e-3;
     if (error > tolerance) {
         BOOST_FAIL("failed to reproduce Black price with FdHestonVanillaEngine"
@@ -396,7 +396,7 @@ void HestonModelTest::testAnalyticVsCached() {
     Real calculated1 = option.NPV();
     Real tolerance = 1.0e-8;
 
-    if (std::fabs(calculated1 - expected1) > tolerance) {
+    if (abs(calculated1 - expected1) > tolerance) {
         BOOST_ERROR("Failed to reproduce cached analytic price"
                     << "\n    calculated: " << calculated1
                     << "\n    expected:   " << expected1);
@@ -445,7 +445,7 @@ void HestonModelTest::testAnalyticVsCached() {
         const Real interpolated =
             calculated2[i]+(calculated2[i+3]-calculated2[i])/(t2-t1)*(0.7-t1);
 
-        if (std::fabs(interpolated - expected2[i]) > 100*tolerance) {
+        if (abs(interpolated - expected2[i]) > 100*tolerance) {
             BOOST_ERROR("Failed to reproduce cached analytic prices:"
                         << "\n    calculated: " << interpolated
                         << "\n    expected:   " << expected2[i] );
@@ -495,7 +495,7 @@ void HestonModelTest::testMcVsCached() {
     Real errorEstimate = option.errorEstimate();
     Real tolerance = 7.5e-4;
 
-    if (std::fabs(calculated - expected) > 2.34*errorEstimate) {
+    if (abs(calculated - expected) > 2.34*errorEstimate) {
         BOOST_ERROR("Failed to reproduce cached price"
                     << "\n    calculated: " << calculated
                     << "\n    expected:   " << expected
@@ -540,7 +540,7 @@ void HestonModelTest::testFdBarrierVsCached() {
 
     Real calculated = option.NPV();
     Real expected = 9.0246;
-    Real error = std::fabs(calculated-expected);
+    Real error = abs(calculated-expected);
     if (error > 1.0e-3) {
         BOOST_FAIL("failed to reproduce cached price with FD Barrier engine"
                    << "\n    calculated: " << calculated
@@ -553,7 +553,7 @@ void HestonModelTest::testFdBarrierVsCached() {
 
     calculated = option.NPV();
     expected = 7.7627;
-    error = std::fabs(calculated-expected);
+    error = abs(calculated-expected);
     if (error > 1.0e-3) {
         BOOST_FAIL("failed to reproduce cached price with FD Barrier engine"
                    << "\n    calculated: " << calculated
@@ -595,7 +595,7 @@ void HestonModelTest::testFdVanillaVsCached() {
 
     Real expected = 0.06325;
     Real calculated = option.NPV();
-    Real error = std::fabs(calculated - expected);
+    Real error = abs(calculated - expected);
     Real tolerance = 1.0e-4;
 
     if (error > tolerance) {
@@ -638,7 +638,7 @@ void HestonModelTest::testFdVanillaVsCached() {
     // Value calculated with an independent FD framework, validated with
     // an independent MC framework
     expected = 12.946;
-    error = std::fabs(calculated - expected);
+    error = abs(calculated - expected);
     tolerance = 5.0e-3;
 
     if (error > tolerance) {
@@ -673,7 +673,7 @@ void HestonModelTest::testFdVanillaVsCached() {
     option.setPricingEngine(ref_engine);
     expected = option.NPV();
 
-    error = std::fabs(calculated - expected);
+    error = abs(calculated - expected);
     tolerance = 1.0e-3;
 
     if (error > tolerance) {
@@ -757,7 +757,7 @@ void HestonModelTest::testKahlJaeckelCase() {
         const Real calculated = option.NPV();
         const Real errorEstimate = option.errorEstimate();
 
-        if (std::fabs(calculated - expected) > 2.34*errorEstimate) {
+        if (abs(calculated - expected) > 2.34*errorEstimate) {
             BOOST_ERROR("Failed to reproduce cached price with MC engine"
                         << "\n    discretization: " << descriptions[i].name
                         << "\n    expected:       " << expected
@@ -783,7 +783,7 @@ void HestonModelTest::testKahlJaeckelCase() {
         .withSamples(1023));
 
     Real calculated = option.NPV();
-    if (std::fabs(calculated - expected) > tolerance) {
+    if (abs(calculated - expected) > tolerance) {
         BOOST_ERROR("Failed to reproduce cached price with MC engine"
                     << "\n    discretization: BroadieKayaExactSchemeLobatto"
                     << "\n    calculated:     " << calculated
@@ -800,7 +800,7 @@ void HestonModelTest::testKahlJaeckelCase() {
             200,400,100)));
 
     calculated = option.NPV();
-    const Real error = std::fabs(calculated - expected);
+    const Real error = abs(calculated - expected);
     if (error > 5.0e-2) {
         BOOST_FAIL("failed to reproduce cached price with FD engine"
                    << "\n    calculated: " << calculated
@@ -911,16 +911,16 @@ void HestonModelTest::testDifferentIntegrals() {
 
                     maxLaguerreDiff
                         = std::max(maxLaguerreDiff,
-                                   std::fabs(lobattoNPV-laguerre));
+                                   abs(lobattoNPV-laguerre));
                     maxLegendreDiff
                         = std::max(maxLegendreDiff,
-                                   std::fabs(lobattoNPV-legendre));
+                                   abs(lobattoNPV-legendre));
                     maxChebyshevDiff
                         = std::max(maxChebyshevDiff,
-                                   std::fabs(lobattoNPV-chebyshev));
+                                   abs(lobattoNPV-chebyshev));
                     maxChebyshev2ndDiff
                         = std::max(maxChebyshev2ndDiff,
-                                   std::fabs(lobattoNPV-chebyshev2nd));
+                                   abs(lobattoNPV-chebyshev2nd));
 
                 }
             }
@@ -990,25 +990,25 @@ void HestonModelTest::testMultipleStrikesEngine() {
         Real gammaExpected = aOption.gamma();
         Real thetaExpected = aOption.theta();
 
-        if (std::fabs(npvCalculated-npvExpected)/npvExpected > relTol) {
+        if (abs(npvCalculated-npvExpected)/npvExpected > relTol) {
             BOOST_FAIL("failed to reproduce price with FD multi strike engine"
                        << "\n    calculated: " << npvCalculated
                        << "\n    expected:   " << npvExpected
                        << "\n    error:      " << QL_SCIENTIFIC << relTol);
         }
-        if (std::fabs(deltaCalculated-deltaExpected)/deltaExpected > relTol) {
+        if (abs(deltaCalculated-deltaExpected)/deltaExpected > relTol) {
             BOOST_FAIL("failed to reproduce delta with FD multi strike engine"
                        << "\n    calculated: " << deltaCalculated
                        << "\n    expected:   " << deltaExpected
                        << "\n    error:      " << QL_SCIENTIFIC << relTol);
         }
-        if (std::fabs(gammaCalculated-gammaExpected)/gammaExpected > relTol) {
+        if (abs(gammaCalculated-gammaExpected)/gammaExpected > relTol) {
             BOOST_FAIL("failed to reproduce gamma with FD multi strike engine"
                        << "\n    calculated: " << gammaCalculated
                        << "\n    expected:   " << gammaExpected
                        << "\n    error:      " << QL_SCIENTIFIC << relTol);
         }
-        if (std::fabs(thetaCalculated-thetaExpected)/thetaExpected > relTol) {
+        if (abs(thetaCalculated-thetaExpected)/thetaExpected > relTol) {
             BOOST_FAIL("failed to reproduce theta with FD multi strike engine"
                        << "\n    calculated: " << thetaCalculated
                        << "\n    expected:   " << thetaExpected
@@ -1075,7 +1075,7 @@ void HestonModelTest::testAnalyticPiecewiseTimeDependent() {
     
     const Real expected = option.NPV();
     
-    if (std::fabs(calculated-expected) > 1e-12) {
+    if (abs(calculated-expected) > 1e-12) {
         BOOST_ERROR("failed to reproduce heston prices "
                    << "\n    calculated: " << calculated
                    << "\n    expected:   " << expected);
@@ -1136,7 +1136,7 @@ void HestonModelTest::testDAXCalibrationOfTimeDependentModel() {
     }
     
     Real expected = 74.4;
-    if (std::fabs(sse - expected) > 1.0) {
+    if (abs(sse - expected) > 1.0) {
         BOOST_ERROR("Failed to reproduce calibration error"
                    << "\n    calculated: " << sse
                    << "\n    expected:   " << expected);
@@ -1220,7 +1220,7 @@ void HestonModelTest::testAlanLewisReferencePrices() {
 
                 const Real expected = expectedResults[i][j];
                 const Real calculated = option.NPV();
-                const Real relError = std::fabs(calculated-expected)/expected;
+                const Real relError = abs(calculated-expected)/expected;
 
                 if (relError > tol) {
                     BOOST_ERROR(
@@ -1285,14 +1285,14 @@ void HestonModelTest::testAnalyticPDFHestonEngine() {
         planVanillaOption.setPricingEngine(analyticEngine);
         const Real expected = planVanillaOption.NPV();
 
-        if (std::fabs(calculated-expected) > 3*tol) {
+        if (abs(calculated-expected) > 3*tol) {
             BOOST_FAIL(
                    "failed to reproduce plain vanilla european prices with"
                    " the analytic probability density engine"
                 << "\n    strike     : " << strike
                 << "\n    expected   : " << expected
                 << "\n    calculated : " << calculated
-                << "\n    diff       : " << std::fabs(calculated-expected)
+                << "\n    diff       : " << abs(calculated-expected)
                 << "\n    tol        ; " << tol);
         }
     }
@@ -1320,14 +1320,14 @@ void HestonModelTest::testAnalyticPDFHestonEngine() {
         shortCall.setPricingEngine(analyticEngine);
 
         const Real expected = (longCall.NPV() - shortCall.NPV())/(2*eps);
-        if (std::fabs(calculated-expected) > tol) {
+        if (abs(calculated-expected) > tol) {
             BOOST_FAIL(
                    "failed to reproduce european digital prices with"
                    " the analytic probability density engine"
                 << "\n    strike     : " << strike
                 << "\n    expected   : " << expected
                 << "\n    calculated : " << calculated
-                << "\n    diff       : " << std::fabs(calculated-expected)
+                << "\n    diff       : " << abs(calculated-expected)
                 << "\n    tol        : " << tol);
         }
 
@@ -1335,14 +1335,14 @@ void HestonModelTest::testAnalyticPDFHestonEngine() {
         const Real expectedCDF = 1.0 - expected/d;
         const Real calculatedCDF = pdfEngine->cdf(strike, maturity);
 
-        if (std::fabs(expectedCDF - calculatedCDF) > tol) {
+        if (abs(expectedCDF - calculatedCDF) > tol) {
             BOOST_FAIL(
                    "failed to reproduce cumulative distribution function"
                 << "\n    strike        : " << strike
                 << "\n    expected CDF  : " << expectedCDF
                 << "\n    calculated CDF: " << calculatedCDF
                 << "\n    diff          : "
-                << std::fabs(calculatedCDF-expectedCDF)
+                << abs(calculatedCDF-expectedCDF)
                 << "\n    tol           : " << tol);
 
         }
@@ -1424,7 +1424,7 @@ void HestonModelTest::testExpansionOnAlanLewisReference() {
 
                 const Real expected = expectedResults[i][j];
                 const Real calculated = option.NPV();
-                const Real relError = std::fabs(calculated-expected)/expected;
+                const Real relError = abs(calculated-expected)/expected;
 
                 if (relError > tol[k]) {
                     BOOST_ERROR(
@@ -1491,7 +1491,7 @@ void HestonModelTest::testExpansionOnFordeReference() {
 
                 const Real expected = referenceVols[j][i];
                 const Real calculated = expansion->impliedVolatility(strike, forward);
-                const Real relError = std::fabs(calculated-expected)/expected;
+                const Real relError = abs(calculated-expected)/expected;
                 const Real refTol = strike == forward ? tolAtm[k][j] : tol[k][j];
                 if (relError > refTol) {
                     BOOST_ERROR(

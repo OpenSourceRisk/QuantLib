@@ -172,7 +172,7 @@ namespace QuantLib {
         bool forceLinearInterpolation = false;
         Rate zero = zeroInflation_->zeroRate(fixingDate, Period(0,Days), forceLinearInterpolation);
         // Annual compounding is the convention for zero inflation rates (or quotes)
-        return baseFixing * std::pow(1.0 + zero, t);
+        return baseFixing * pow(1.0 + zero, t);
     }
 
 

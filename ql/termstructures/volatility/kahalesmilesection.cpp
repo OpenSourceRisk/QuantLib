@@ -19,7 +19,7 @@
 
 #include <ql/termstructures/volatility/kahalesmilesection.hpp>
 
-using std::sqrt;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -195,7 +195,7 @@ namespace QuantLib {
                     QL_REQUIRE(-cp0 / c0 > 0.0, "dummy"); // this is caught
                                                           // below
                     cFct = boost::shared_ptr<cFunction>(
-                        new cFunction(-cp0 / c0, std::log(c0) - cp0 / c0 * k0));
+                        new cFunction(-cp0 / c0, log(c0) - cp0 / c0 * k0));
                 } else {
                     sHelper sh(k0, c0, cp0);
                     Real s;
@@ -229,7 +229,7 @@ namespace QuantLib {
         // option prices are directly available, so implement this function
         // rather than use smileSection
         // standard implementation
-        Real shifted_strike = std::max(strike + shift(), QL_KAHALE_EPS);
+        Real shifted_strike = max(strike + shift(), QL_KAHALE_EPS);
         int i = index(shifted_strike);
         if (interpolate_ ||
             (i == 0 || i == (int)(rightIndex_ - leftIndex_ + 1)))
@@ -242,7 +242,7 @@ namespace QuantLib {
     }
 
     Real KahaleSmileSection::volatilityImpl(Rate strike) const {
-        Real shifted_strike = std::max(strike + shift(), QL_KAHALE_EPS);
+        Real shifted_strike = max(strike + shift(), QL_KAHALE_EPS);
         int i = index(shifted_strike);
         if (!interpolate_ &&
             !(i == 0 || i == (int)(rightIndex_ - leftIndex_ + 1)))

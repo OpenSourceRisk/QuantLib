@@ -37,13 +37,13 @@ namespace detail {
 inline void checkSviParameters(const Real a, const Real b, const Real sigma,
                                const Real rho, const Real m) {
     QL_REQUIRE(b >= 0.0, "b (" << b << ") must be non negative");
-    QL_REQUIRE(std::fabs(rho) < 1.0, "rho (" << rho << ") must be in (-1,1)");
+    QL_REQUIRE(abs(rho) < 1.0, "rho (" << rho << ") must be in (-1,1)");
     QL_REQUIRE(sigma > 0.0, "sigma (" << sigma << ") must be positive");
-    QL_REQUIRE(a + b * sigma * std::sqrt(1.0 - rho * rho) >= 0.0,
+    QL_REQUIRE(a + b * sigma * sqrt(1.0 - rho * rho) >= 0.0,
                "a + b sigma sqrt(1-rho^2) (a=" << a << ", b=" << b << ", sigma="
                                                << sigma << ", rho=" << rho
                                                << ") must be non negative");
-    QL_REQUIRE(b * (1.0 + std::fabs(rho)) < 4.0,
+    QL_REQUIRE(b * (1.0 + abs(rho)) < 4.0,
                "b(1+|rho|) must be less than 4");
     return;
 }
@@ -51,7 +51,7 @@ inline void checkSviParameters(const Real a, const Real b, const Real sigma,
 inline Real sviTotalVariance(const Real a, const Real b, const Real sigma,
                              const Real rho, const Real m, const Real k) {
     return a +
-           b * (rho * (k - m) + std::sqrt((k - m) * (k - m) + sigma * sigma));
+           b * (rho * (k - m) + sqrt((k - m) * (k - m) + sigma * sigma));
 }
 
 typedef SviSmileSection SviWrapper;
@@ -69,15 +69,15 @@ struct SviSpecs {
         if (params[4] == Null<Real>())
             params[4] = 0.0;
         if (params[1] == Null<Real>())
-            params[1] = 2.0 / (1.0 + std::fabs(params[3]));
+            params[1] = 2.0 / (1.0 + abs(params[3]));
         if (params[0] == Null<Real>()) {
-            params[0] = std::max(
+            params[0] = max(
                 0.20 * 0.20 * expiryTime -
                     params[1] * (params[3] * (-params[4]) +
-                                 std::sqrt((-params[4]) * (-params[4]) +
+                                 sqrt((-params[4]) * (-params[4]) +
                                            params[2] * params[2])),
                 -params[1] * params[2] *
-                std::sqrt(1.0 - params[3] * params[3]) + eps1());
+                sqrt(1.0 - params[3] * params[3]) + eps1());
         }
     }
     void guess(Array &values, const std::vector<bool> &paramIsFixed,
@@ -91,22 +91,22 @@ struct SviSpecs {
         if (!paramIsFixed[4])
             values[4] = (2.0 * r[j++] - 1.0);
         if (!paramIsFixed[1])
-            values[1] = r[j++] * 4.0 / (1.0 + std::fabs(values[3])) * eps2();
+            values[1] = r[j++] * 4.0 / (1.0 + abs(values[3])) * eps2();
         if (!paramIsFixed[0])
             values[0] = r[j++] * expiryTime -
                         eps2() * (values[1] * values[2] *
-                                  std::sqrt(1.0 - values[3] * values[3]));
+                                  sqrt(1.0 - values[3] * values[3]));
     }
     Array inverse(const Array &y, const std::vector<bool> &,
                   const std::vector<Real> &, const Real) {
         Array x(5);
-        x[2] = std::sqrt(y[2] - eps1());
-        x[3] = std::asin(y[3] / eps2());
+        x[2] = sqrt(y[2] - eps1());
+        x[3] = asin(y[3] / eps2());
         x[4] = y[4];
-        x[1] = std::tan(y[1] / 4.0 * (1.0 + std::fabs(y[3])) / eps2() * M_PI -
+        x[1] = tan(y[1] / 4.0 * (1.0 + abs(y[3])) / eps2() * M_PI -
                         M_PI / 2.0);
-        x[0] = std::sqrt(y[0] - eps1() +
-                         y[1] * y[2] * std::sqrt(1.0 - y[3] * y[3]));
+        x[0] = sqrt(y[0] - eps1() +
+                         y[1] * y[2] * sqrt(1.0 - y[3] * y[3]));
         return x;
     }
     Real eps1() { return 0.000001; }
@@ -115,18 +115,18 @@ struct SviSpecs {
                  const std::vector<Real> &params, const Real forward) {
         Array y(5);
         y[2] = x[2] * x[2] + eps1();
-        y[3] = std::sin(x[3]) * eps2();
+        y[3] = sin(x[3]) * eps2();
         y[4] = x[4];
         if (paramIsFixed[1])
             y[1] = params[1];
         else
-            y[1] = (std::atan(x[1]) + M_PI / 2.0) / M_PI * eps2() * 4.0 /
-                   (1.0 + std::fabs(y[3]));
+            y[1] = (atan(x[1]) + M_PI / 2.0) / M_PI * eps2() * 4.0 /
+                   (1.0 + abs(y[3]));
         if (paramIsFixed[0])
             y[0] = params[0];
         else
             y[0] = eps1() + x[0] * x[0] -
-                   y[1] * y[2] * std::sqrt(1.0 - y[3] * y[3]);
+                   y[1] * y[2] * sqrt(1.0 - y[3] * y[3]);
         return y;
     }
     Real weight(const Real strike, const Real forward, const Real stdDev,

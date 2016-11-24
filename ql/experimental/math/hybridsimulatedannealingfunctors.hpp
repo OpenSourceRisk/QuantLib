@@ -384,10 +384,10 @@ namespace QuantLib
                 Real tRatio = initialTemp_[i] / currTemp[i];
                 Real sRatio = finiteDiffMax / finiteDiffs[i];
                 if (sRatio*tRatio < functionTol_)
-                    steps[i] = std::pow(std::fabs(std::log(functionTol_)),
+                    steps[i] = std::pow(std::fabs(log(functionTol_)),
                                         Integer(N_));
                 else
-                    steps[i] = std::pow(std::fabs(std::log(sRatio*tRatio)),
+                    steps[i] = std::pow(std::fabs(log(sRatio*tRatio)),
                                         Integer(N_));
             }
         }

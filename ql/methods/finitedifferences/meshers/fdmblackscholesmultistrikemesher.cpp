@@ -44,8 +44,8 @@ namespace QuantLib {
 
         const DiscountFactor d =   process->dividendYield()->discount(maturity)
                                  / process->riskFreeRate()->discount(maturity);
-        const Real minStrike= *std::min_element(strikes.begin(), strikes.end());
-        const Real maxStrike= *std::max_element(strikes.begin(), strikes.end());
+        const Real minStrike= *min_element(strikes.begin(), strikes.end());
+        const Real maxStrike= *max_element(strikes.begin(), strikes.end());
                 
         const Real Fmin = spot*spot/maxStrike*d;
         const Real Fmax = spot*spot/minStrike*d;
@@ -56,27 +56,27 @@ namespace QuantLib {
         const Real normInvEps = InverseCumulativeNormal()(1-eps);
         const Real sigmaSqrtTmin 
             = process->blackVolatility()->blackVol(maturity, minStrike)
-                                                        *std::sqrt(maturity);
+                                                        *sqrt(maturity);
         const Real sigmaSqrtTmax 
             = process->blackVolatility()->blackVol(maturity, maxStrike)
-                                                        *std::sqrt(maturity);
+                                                        *sqrt(maturity);
         
         const Real xMin
-            = std::min(0.8*std::log(0.8*spot*spot/maxStrike),
-                       std::log(Fmin) - sigmaSqrtTmin*normInvEps*scaleFactor
+            = min(0.8*log(0.8*spot*spot/maxStrike),
+                       log(Fmin) - sigmaSqrtTmin*normInvEps*scaleFactor
                                       - sigmaSqrtTmin*sigmaSqrtTmin/2.0);
         const Real xMax
-            = std::max(1.2*std::log(0.8*spot*spot/minStrike),
-                       std::log(Fmax) + sigmaSqrtTmax*normInvEps*scaleFactor
+            = max(1.2*log(0.8*spot*spot/minStrike),
+                       log(Fmax) + sigmaSqrtTmax*normInvEps*scaleFactor
                                       - sigmaSqrtTmax*sigmaSqrtTmax/2.0);
 
         boost::shared_ptr<Fdm1dMesher> helper;
         if (   cPoint.first != Null<Real>() 
-            && std::log(cPoint.first) >=xMin && std::log(cPoint.first) <=xMax) {
+            && log(cPoint.first) >=xMin && log(cPoint.first) <=xMax) {
             
             helper = boost::shared_ptr<Fdm1dMesher>(
                 new Concentrating1dMesher(xMin, xMax, size, 
-                    std::pair<Real,Real>(std::log(cPoint.first),cPoint.second)));
+                    std::pair<Real,Real>(log(cPoint.first),cPoint.second)));
         }
         else {
             helper = boost::shared_ptr<Fdm1dMesher>(

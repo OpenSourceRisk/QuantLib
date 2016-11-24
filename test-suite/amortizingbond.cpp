@@ -61,7 +61,7 @@ void AmortizingBondTest::testAmortizingFixedRateBond() {
 
 			// Check the amount is same as pmt returned
 
-			Real error = std::fabs(totalAmount-amounts[i]);
+			Real error = abs(totalAmount-amounts[i]);
 			if (error > tolerance) {
 				BOOST_ERROR("\n" <<
 					        " Rate: " << rates[i] <<
@@ -73,7 +73,7 @@ void AmortizingBondTest::testAmortizingFixedRateBond() {
 
 			// Check the coupon result
 			Real expectedCoupon = notionals[k] * rates[i] / freq;
-			error = std::fabs(coupon- expectedCoupon);
+			error = abs(coupon- expectedCoupon);
 
 			if(error > tolerance) {
 				BOOST_ERROR("\n" <<

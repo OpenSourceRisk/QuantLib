@@ -63,8 +63,8 @@ namespace QuantLib {
 
         // Compute lower and upper extrema for (non reduced) drift calculation
         //for (Size i=alive_; i<numberOfRates_; ++i) {
-        //    downs_[i] = std::min(i+1, numeraire_);
-        //    ups_[i]   = std::max(i+1, numeraire_);
+        //    downs_[i] = min(i+1, numeraire_);
+        //    ups_[i]   = max(i+1, numeraire_);
         //}
     }
 

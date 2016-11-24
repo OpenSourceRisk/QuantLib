@@ -43,7 +43,7 @@ namespace QuantLib {
             : StandardCurveDependentStepCondition(intrinsicValues) {};
     private:
         Real applyToValue(Real current, Real intrinsic) const {
-            return std::max(current, intrinsic);
+            return max(current, intrinsic);
         }
     };
 }

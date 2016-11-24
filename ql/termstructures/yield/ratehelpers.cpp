@@ -794,7 +794,7 @@ namespace QuantLib {
                                                  swap_->floatingLeg().back());
         Date fixingValueDate = iborIndex_->valueDate(lastCoupon->fixingDate());
         Date endValueDate = iborIndex_->maturityDate(fixingValueDate);
-        latestRelevantDate_ = std::max(latestRelevantDate_, endValueDate);
+        latestRelevantDate_ = max(latestRelevantDate_, endValueDate);
         #endif
 
         switch (pillarChoice_) {

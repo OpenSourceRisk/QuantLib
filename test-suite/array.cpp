@@ -23,7 +23,7 @@
 #include <ql/utilities/dataformatters.hpp>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 class FSquared : std::unary_function<Real,Real> {
   public:
@@ -168,7 +168,7 @@ void ArrayTest::testConstruction() {
     std::transform(a10.begin(), a10.end(), a10.begin(), FSquared());
     for (i=0; i < a10.size(); i++) {
         Real calculated = f2(static_cast<Real>(i));
-        if (std::fabs(a10[i] -  calculated) >= 1e-5) {
+        if (abs(a10[i] -  calculated) >= 1e-5) {
             BOOST_ERROR("Array transform test failed " << a10[i] << " "
                         << calculated);
         }
@@ -181,7 +181,7 @@ void ArrayTest::testArrayFunctions() {
 
     Array a(5);
     for (Size i=0; i < a.size(); ++i) {
-        a[i] = std::sin(Real(i))+1.1;
+        a[i] = sin(Real(i))+1.1;
     }
 
     const Real exponential = -2.3;
@@ -192,24 +192,24 @@ void ArrayTest::testArrayFunctions() {
 
     const Real tol = 10*QL_EPSILON;
     for (Size i=0; i < a.size(); ++i) {
-        if (std::fabs(p[i]-std::pow(a[i], exponential)) > tol) {
+        if (abs(p[i]-pow(a[i], exponential)) > tol) {
             BOOST_FAIL("Array function test Pow failed");
         }
-        if (std::fabs(e[i]-std::exp(a[i])) > tol) {
+        if (abs(e[i]-exp(a[i])) > tol) {
             BOOST_FAIL("Array function test Exp failed");
         }
-        if (std::fabs(l[i]-std::log(a[i])) > tol) {
+        if (abs(l[i]-log(a[i])) > tol) {
             BOOST_FAIL("Array function test Log failed");
         }
-        if (std::fabs(s[i]-std::sqrt(a[i])) > tol) {
+        if (abs(s[i]-sqrt(a[i])) > tol) {
             BOOST_FAIL("Array function test Sqrt failed");
         }
     }
 
 }
 
-test_suite* ArrayTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("array tests");
+boost::unit_test::test_suite* ArrayTest::suite() {
+    boost::unit_test::test_suite* suite = BOOST_TEST_SUITE("array tests");
     suite->add(QUANTLIB_TEST_CASE(&ArrayTest::testConstruction));
     suite->add(QUANTLIB_TEST_CASE(&ArrayTest::testArrayFunctions));
     return suite;

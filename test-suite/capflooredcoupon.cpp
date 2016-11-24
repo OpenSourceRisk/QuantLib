@@ -221,7 +221,7 @@ void CapFlooredCouponTest::testLargeRates() {
     vanillaLeg.setPricingEngine(engine);
     collarLeg.setPricingEngine(engine);
 
-    if (std::abs(vanillaLeg.NPV()-collarLeg.NPV())>tolerance) {
+    if (abs(vanillaLeg.NPV()-collarLeg.NPV())>tolerance) {
         BOOST_ERROR("Lenght: " << vars.length << " y" << "\n" <<
                     "Volatility: " << vars.volatility*100 << "%\n" <<
                     "Notional: " << vars.nominal << "\n" <<
@@ -230,7 +230,7 @@ void CapFlooredCouponTest::testLargeRates() {
                     "Collared floating leg NPV (strikes 0 and 100): "
                     << collarLeg.NPV()
                     << "\n" <<
-                    "Diff: " << std::abs(vanillaLeg.NPV()-collarLeg.NPV()));
+                    "Diff: " << abs(vanillaLeg.NPV()-collarLeg.NPV()));
    }
 }
 
@@ -296,7 +296,7 @@ void CapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg.NPV();
     npvCappedLeg = capLeg.NPV();
     npvCap = cap.NPV();
-    error = std::abs(npvCappedLeg - (npvVanilla-npvCap));
+    error = abs(npvCappedLeg - (npvVanilla-npvCap));
     if (error>tolerance) {
         BOOST_ERROR("\nCapped Leg: gearing=1, spread=0%, strike=" << capstrike*100 <<
                     "%\n" <<
@@ -322,7 +322,7 @@ void CapFlooredCouponTest::testDecomposition() {
     floor.setPricingEngine(vars.makeEngine(vars.volatility));
     npvFlooredLeg = floorLeg.NPV();
     npvFloor = floor.NPV();
-    error = std::abs(npvFlooredLeg-(npvVanilla + npvFloor));
+    error = abs(npvFlooredLeg-(npvVanilla + npvFloor));
     if (error>tolerance) {
         BOOST_ERROR("Floored Leg: gearing=1, spread=0%, strike=" << floorstrike *100 <<
                     "%\n" <<
@@ -348,7 +348,7 @@ void CapFlooredCouponTest::testDecomposition() {
     collar.setPricingEngine(vars.makeEngine(vars.volatility));
     npvCollaredLeg = collarLeg.NPV();
     npvCollar = collar.NPV();
-    error = std::abs(npvCollaredLeg -(npvVanilla - npvCollar));
+    error = abs(npvCollaredLeg -(npvVanilla - npvCollar));
     if (error>tolerance) {
         BOOST_ERROR("\nCollared Leg: gearing=1, spread=0%, strike=" <<
                     floorstrike*100 << "% and " << capstrike*100 << "%\n" <<
@@ -381,7 +381,7 @@ void CapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_p.NPV();
     npvCappedLeg = capLeg_p.NPV();
     npvCap = cap_p.NPV();
-    error = std::abs(npvCappedLeg - (npvVanilla-npvCap));
+    error = abs(npvCappedLeg - (npvVanilla-npvCap));
     if (error>tolerance) {
         BOOST_ERROR("\nCapped Leg: gearing=" << gearing_p << ", " <<
                     "spread= " << spread_p *100 <<
@@ -406,7 +406,7 @@ void CapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_n.NPV();
     npvCappedLeg = capLeg_n.NPV();
     npvFloor = floor_n.NPV();
-    error = std::abs(npvCappedLeg - (npvVanilla+ gearing_n*npvFloor));
+    error = abs(npvCappedLeg - (npvVanilla+ gearing_n*npvFloor));
     if (error>tolerance) {
         BOOST_ERROR("\nCapped Leg: gearing=" << gearing_n << ", " <<
                     "spread= " << spread_n *100 <<
@@ -444,7 +444,7 @@ void CapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_p.NPV();
     npvFlooredLeg = floorLeg_p1.NPV();
     npvFloor = floor_p1.NPV();
-    error = std::abs(npvFlooredLeg - (npvVanilla+npvFloor));
+    error = abs(npvFlooredLeg - (npvVanilla+npvFloor));
     if (error>tolerance) {
         BOOST_ERROR("\nFloored Leg: gearing=" << gearing_p << ", "
                       << "spread= " << spread_p *100<< "%, strike=" << floorstrike *100 << "%, "
@@ -467,7 +467,7 @@ void CapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_n.NPV();
     npvFlooredLeg = floorLeg_n.NPV();
     npvCap = cap_n.NPV();
-    error = std::abs(npvFlooredLeg - (npvVanilla - gearing_n*npvCap));
+    error = abs(npvFlooredLeg - (npvVanilla - gearing_n*npvCap));
     if (error>tolerance) {
         BOOST_ERROR("\nCapped Leg: gearing=" << gearing_n << ", " <<
                     "spread= " << spread_n *100 <<
@@ -499,7 +499,7 @@ void CapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_p.NPV();
     npvCollaredLeg = collarLeg_p1.NPV();
     npvCollar = collar_p.NPV();
-    error = std::abs(npvCollaredLeg - (npvVanilla - npvCollar));
+    error = abs(npvCollaredLeg - (npvVanilla - npvCollar));
     if (error>tolerance) {
         BOOST_ERROR("\nCollared Leg: gearing=" << gearing_p << ", "
                       << "spread= " << spread_p*100 << "%, strike="
@@ -527,7 +527,7 @@ void CapFlooredCouponTest::testDecomposition() {
     npvVanilla = vanillaLeg_n.NPV();
     npvCollaredLeg = collarLeg_n1.NPV();
     npvCollar = collar_n.NPV();
-    error = std::abs(npvCollaredLeg - (npvVanilla - gearing_n*npvCollar));
+    error = abs(npvCollaredLeg - (npvVanilla - gearing_n*npvCollar));
     if (error>tolerance) {
         BOOST_ERROR("\nCollared Leg: gearing=" << gearing_n << ", "
                       << "spread= " << spread_n*100 << "%, strike="

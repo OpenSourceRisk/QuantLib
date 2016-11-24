@@ -37,12 +37,12 @@ namespace QuantLib {
                                       const StochasticProcess& process,
                                       Time t0, const Array& x0,
                                       Time dt) const {
-        return process.diffusion(t0+dt, x0) * std::sqrt(dt);
+        return process.diffusion(t0+dt, x0) * sqrt(dt);
     }
 
     Real EndEulerDiscretization::diffusion(const StochasticProcess1D& process,
                                            Time t0, Real x0, Time dt) const {
-        return process.diffusion(t0+dt, x0) * std::sqrt(dt);
+        return process.diffusion(t0+dt, x0) * sqrt(dt);
     }
 
     Disposable<Matrix> EndEulerDiscretization::covariance(

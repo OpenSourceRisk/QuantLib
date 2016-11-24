@@ -51,8 +51,8 @@ namespace QuantLib {
             Disposable<std::vector<Real> > 
                 operator()(Real d,  Disposable<std::vector<Real> > v) 
             {
-                std::transform(v.begin(), v.end(), v.begin(), 
-                    boost::lambda::_1 * d);
+                std::transform(v.begin(), v.end(), v.begin(),
+                               [d](const Real x) { return x*d; });
                 return v;
             }
         };
@@ -651,7 +651,7 @@ namespace QuantLib {
       nVariables_(factorWeights.size()), copula_(factorWeights, ini)
     {
         for(Size i=0; i<factorWeights.size(); i++) {
-            idiosyncFctrs_.push_back(std::sqrt(1.-
+            idiosyncFctrs_.push_back(sqrt(1.-
                     std::inner_product(factorWeights[i].begin(), 
                 factorWeights[i].end(), 
                 factorWeights[i].begin(), 0.)));
@@ -672,7 +672,7 @@ namespace QuantLib {
             factorWeights_.push_back(std::vector<Real>(1, 
                 factorWeights[iName]));
         for(Size iName=0; iName < factorWeights.size(); iName++)
-            idiosyncFctrs_.push_back(std::sqrt(1. - 
+            idiosyncFctrs_.push_back(sqrt(1. - 
                 factorWeights[iName]*factorWeights[iName]));
         //convert row to column vector....
         copula_ = copulaType(factorWeights_, ini);
@@ -685,7 +685,7 @@ namespace QuantLib {
         const typename Impl::initTraits& ini)
     : factorWeights_(nVariables, std::vector<Real>(1, correlSqr)),
       idiosyncFctrs_(nVariables, 
-        std::sqrt(1.-correlSqr*correlSqr)),
+        sqrt(1.-correlSqr*correlSqr)),
       nFactors_(1), 
       nVariables_(nVariables),
       copula_(factorWeights_, ini)
@@ -697,10 +697,10 @@ namespace QuantLib {
         Size nVariables,
         const typename Impl::initTraits& ini)
     : factorWeights_(nVariables, std::vector<Real>(1, 
-        std::sqrt(singleFactorCorrel->value()))),
+        sqrt(singleFactorCorrel->value()))),
       cachedMktFactor_(singleFactorCorrel),
       idiosyncFctrs_(nVariables, 
-        std::sqrt(1.-singleFactorCorrel->value())),
+        sqrt(1.-singleFactorCorrel->value())),
       nFactors_(1), 
       nVariables_(nVariables),
       copula_(factorWeights_, ini)
@@ -717,9 +717,9 @@ namespace QuantLib {
         square root of the correlation.
         */
         factorWeights_ = std::vector<std::vector<Real> >(nVariables_, 
-            std::vector<Real>(1, std::sqrt(cachedMktFactor_->value())));
+            std::vector<Real>(1, sqrt(cachedMktFactor_->value())));
         idiosyncFctrs_ = std::vector<Real>(nVariables_, 
-            std::sqrt(1.-cachedMktFactor_->value()));
+            sqrt(1.-cachedMktFactor_->value()));
         copula_ = copulaType(factorWeights_, copula_.getInitTraits());
         notifyObservers();
     }

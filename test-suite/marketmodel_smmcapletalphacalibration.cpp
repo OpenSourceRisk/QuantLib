@@ -308,7 +308,7 @@ void MarketModelSmmCapletAlphaCalibrationTest::testFunction() {
 
     std::vector<Volatility> capletVols(numberOfRates);
     for (Size i=0; i<numberOfRates; ++i) {
-        capletVols[i] = std::sqrt(capletTotCovariance[i][i]/rateTimes_[i]);
+        capletVols[i] = sqrt(capletTotCovariance[i][i]/rateTimes_[i]);
     }
     if (printReport_) {
         BOOST_TEST_MESSAGE("caplet smm implied vols: " << QL_FIXED <<
@@ -327,8 +327,8 @@ void MarketModelSmmCapletAlphaCalibrationTest::testFunction() {
     for (Size i=0; i<numberOfRates; ++i) {
         Volatility expSwaptionVol = swapVariances[i]->totalVolatility(i);
         swapTerminalCovariance += swapPseudoRoots[i] * transpose(swapPseudoRoots[i]);
-        Volatility swaptionVol = std::sqrt(swapTerminalCovariance[i][i]/rateTimes_[i]);
-        error = std::fabs(swaptionVol-expSwaptionVol);
+        Volatility swaptionVol = sqrt(swapTerminalCovariance[i][i]/rateTimes_[i]);
+        error = abs(swaptionVol-expSwaptionVol);
         if (error>swapTolerance)
             BOOST_ERROR("failed to reproduce " << io::ordinal(i+1) << " swaption vol:"
                         "\n expected:  " << io::rate(expSwaptionVol) <<
@@ -339,7 +339,7 @@ void MarketModelSmmCapletAlphaCalibrationTest::testFunction() {
 
     // check caplet fit
     for (Size i=0; i<numberOfRates; ++i) {
-        error = std::fabs(capletVols[i]-capletVols_[i]);
+        error = abs(capletVols[i]-capletVols_[i]);
         if (error>capletTolerance)
             BOOST_ERROR("failed to reproduce " << io::ordinal(i+1) << " caplet vol:"
                         "\n expected:         " << io::rate(capletVols_[i]) <<

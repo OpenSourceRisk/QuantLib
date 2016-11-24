@@ -41,7 +41,7 @@ namespace QuantLib {
         averagePerformance /= numAssets;
 
         return discount_ * fraction_
-            * std::max<Real>(0.0, std::min(roof_, averagePerformance));
+            * max<Real>(0.0, min(roof_, averagePerformance));
     }
 
 }

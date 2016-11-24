@@ -136,7 +136,7 @@ namespace QuantLib {
     Real relativeError(Real x1, Real x2, Real reference);
 
     //bool checkAbsError(Real x1, Real x2, Real tolerance){
-    //    return std::fabs(x1 - x2) < tolerance;
+    //    return abs(x1 - x2) < tolerance;
     //};
 
     class Flag : public QuantLib::Observer {
@@ -159,7 +159,7 @@ namespace QuantLib {
         // numeric integral of f^2
         Real I = h * (std::accumulate(f2.begin(),f2.end(),Real(0.0))
                       - 0.5*f2.front() - 0.5*f2.back());
-        return std::sqrt(I);
+        return sqrt(I);
     }
 
 

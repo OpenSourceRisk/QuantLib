@@ -145,37 +145,37 @@ namespace QuantLib {
     }
 
     Real AnalyticTwoAssetBarrierEngine::d1() const {
-        return (std::log(underlying1()/strike())+(mu(costOfCarry1(),volatility1())+volatility1()*volatility1())*residualTime())/
-            (volatility1()*std::sqrt(residualTime()));
+        return (log(underlying1()/strike())+(mu(costOfCarry1(),volatility1())+volatility1()*volatility1())*residualTime())/
+            (volatility1()*sqrt(residualTime()));
     }
 
     Real AnalyticTwoAssetBarrierEngine::d2() const {
-        return d1() - volatility1()*std::sqrt(residualTime());
+        return d1() - volatility1()*sqrt(residualTime());
     }
 
     Real AnalyticTwoAssetBarrierEngine::d3() const {
-        return d1()+ (2*rho()*std::log(barrier()/underlying2()))/(volatility2()*std::sqrt(residualTime()));
+        return d1()+ (2*rho()*log(barrier()/underlying2()))/(volatility2()*sqrt(residualTime()));
     }
 
     Real AnalyticTwoAssetBarrierEngine::d4() const {
-        return d2()+ (2*rho()*std::log(barrier()/underlying2()))/(volatility2()*std::sqrt(residualTime()));
+        return d2()+ (2*rho()*log(barrier()/underlying2()))/(volatility2()*sqrt(residualTime()));
     }
 
     Real AnalyticTwoAssetBarrierEngine::e1() const {
-        return (std::log(barrier()/underlying2())-(mu(costOfCarry2(),volatility2())+rho()*volatility1()*volatility2())*residualTime())/
-        (volatility2()*std::sqrt(residualTime()));
+        return (log(barrier()/underlying2())-(mu(costOfCarry2(),volatility2())+rho()*volatility1()*volatility2())*residualTime())/
+        (volatility2()*sqrt(residualTime()));
     }
 
     Real AnalyticTwoAssetBarrierEngine::e2() const {
-         return e1()+rho()*volatility1()*std::sqrt(residualTime());
+         return e1()+rho()*volatility1()*sqrt(residualTime());
     }
 
     Real AnalyticTwoAssetBarrierEngine::e3() const {
-            return e1()-(2*std::log(barrier()/underlying2()))/(volatility2()*std::sqrt(residualTime()));
+            return e1()-(2*log(barrier()/underlying2()))/(volatility2()*sqrt(residualTime()));
     }
 
     Real AnalyticTwoAssetBarrierEngine::e4() const {
-        return e2()-(2*std::log(barrier()/underlying2()))/(volatility2()*std::sqrt(residualTime()));
+        return e2()-(2*log(barrier()/underlying2()))/(volatility2()*sqrt(residualTime()));
     }
 
     Real AnalyticTwoAssetBarrierEngine::mu(Real b, Real vol) const {
@@ -184,12 +184,12 @@ namespace QuantLib {
 
     Real AnalyticTwoAssetBarrierEngine::call() const {
         CumulativeNormalDistribution nd;
-        return underlying1()*nd(d1())-strike()*std::exp(-riskFreeRate()*residualTime())*nd(d2());
+        return underlying1()*nd(d1())-strike()*exp(-riskFreeRate()*residualTime())*nd(d2());
     }
 
     Real AnalyticTwoAssetBarrierEngine::put() const {
         CumulativeNormalDistribution nd;
-        return strike()*std::exp(-riskFreeRate()*residualTime())*nd(-d2())-underlying1()*nd(-d1());
+        return strike()*exp(-riskFreeRate()*residualTime())*nd(-d2())-underlying1()*nd(-d1());
     }
 
     Real AnalyticTwoAssetBarrierEngine::A(Real eta, Real phi) const {
@@ -204,27 +204,27 @@ namespace QuantLib {
         Rate mu1 = b1 - sigma1*sigma1/2.0;
         Rate mu2 = b2 - sigma2*sigma2/2.0;
 
-        Real d1 = (std::log(S1/X)+(mu1+sigma1*sigma1)*T)/
-            (sigma1*std::sqrt(T));
-        Real d2 = d1 - sigma1*std::sqrt(T);
-        Real d3 = d1 + (2*rho*std::log(H/S2))/(sigma2*std::sqrt(T));
-        Real d4 = d2 + (2*rho*std::log(H/S2))/(sigma2*std::sqrt(T));
+        Real d1 = (log(S1/X)+(mu1+sigma1*sigma1)*T)/
+            (sigma1*sqrt(T));
+        Real d2 = d1 - sigma1*sqrt(T);
+        Real d3 = d1 + (2*rho*log(H/S2))/(sigma2*sqrt(T));
+        Real d4 = d2 + (2*rho*log(H/S2))/(sigma2*sqrt(T));
 
-        Real e1 = (std::log(H/S2)-(mu2+rho*sigma1*sigma2)*T)/
-            (sigma2*std::sqrt(T));
-        Real e2 = e1 + rho*sigma1*std::sqrt(T);
-        Real e3 = e1 - (2*std::log(H/S2))/(sigma2*std::sqrt(T));
-        Real e4 = e2 - (2*std::log(H/S2))/(sigma2*std::sqrt(T));
+        Real e1 = (log(H/S2)-(mu2+rho*sigma1*sigma2)*T)/
+            (sigma2*sqrt(T));
+        Real e2 = e1 + rho*sigma1*sqrt(T);
+        Real e3 = e1 - (2*log(H/S2))/(sigma2*sqrt(T));
+        Real e4 = e2 - (2*log(H/S2))/(sigma2*sqrt(T));
 
         Real w =
-            eta*S1*std::exp((b1-r)*T) *
+            eta*S1*exp((b1-r)*T) *
             (M(eta*d1, phi*e1,-eta*phi*rho)
-             -std::exp((2*(mu2+rho*sigma1*sigma2)*std::log(H/S2))/(sigma2*sigma2))
+             -exp((2*(mu2+rho*sigma1*sigma2)*log(H/S2))/(sigma2*sigma2))
              *M(eta*d3, phi*e3, -eta*phi*rho))
 
-            - eta*X*std::exp(-r*T) *
+            - eta*X*exp(-r*T) *
             (M(eta*d2, phi*e2, -eta*phi*rho)
-             -std::exp((2*mu2*std::log(H/S2))/(sigma2*sigma2))*
+             -exp((2*mu2*log(H/S2))/(sigma2*sigma2))*
              M(eta*d4, phi*e4, -eta*phi*rho) ) ;
 
         return w;

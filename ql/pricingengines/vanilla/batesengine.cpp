@@ -44,8 +44,8 @@ namespace QuantLib {
         const std::complex<Real> g(i, phi);
 
         //it can throw: to be fixed
-        return t*lambda_*(std::exp(nu_*g + delta2_*g*g) - 1.0
-                          -g*(std::exp(nu_+delta2_) - 1.0));
+        return t*lambda_*(exp(nu_*g + delta2_*g*g) - Real(1.0)
+                          -g*(exp(nu_+delta2_) - 1.0));
     }
 
 
@@ -72,9 +72,9 @@ namespace QuantLib {
         const Real kappaLambda = batesDetJumpModel->kappaLambda();
         const Real thetaLambda = batesDetJumpModel->thetaLambda();
 
-        return (kappaLambda*t - 1.0 + std::exp(-kappaLambda*t))
+        return (kappaLambda*t - 1.0 + exp(-kappaLambda*t))
             * thetaLambda*l/(kappaLambda*t*lambda)
-            + (1.0 - std::exp(-kappaLambda*t))*l/(kappaLambda*t);
+            + (1.0 - exp(-kappaLambda*t))*l/(kappaLambda*t);
     }
 
 
@@ -101,8 +101,8 @@ namespace QuantLib {
         const Real i      = (j == 1)? 1.0 : 0.0;
         const std::complex<Real> g(i, phi);
 
-        return t*lambda_*(p_/(1.0-g*nuUp_) + q_/(1.0+g*nuDown_) - 1.0
-                          - g*(p_/(1-nuUp_) + q_/(1+nuDown_)-1));
+        return t*lambda_*(p_/(Real(1.0)-g*nuUp_) + q_/(Real(1.0)+g*nuDown_) - Real(1.0)
+                          - g*(p_/(Real(1)-nuUp_) + q_/(Real(1)+nuDown_)-Real(1)));
     }
 
     BatesDoubleExpDetJumpEngine::BatesDoubleExpDetJumpEngine(
@@ -127,9 +127,9 @@ namespace QuantLib {
         const Real kappaLambda = doubleExpDetJumpModel->kappaLambda();
         const Real thetaLambda = doubleExpDetJumpModel->thetaLambda();
 
-        return (kappaLambda*t - 1.0 + std::exp(-kappaLambda*t))
+        return (kappaLambda*t - 1.0 + exp(-kappaLambda*t))
             * thetaLambda*l/(kappaLambda*t*lambda)
-            + (1.0 - std::exp(-kappaLambda*t))*l/(kappaLambda*t);
+            + (1.0 - exp(-kappaLambda*t))*l/(kappaLambda*t);
     }
 
 }

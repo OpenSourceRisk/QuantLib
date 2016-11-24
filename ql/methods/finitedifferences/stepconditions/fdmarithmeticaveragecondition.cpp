@@ -45,13 +45,13 @@ namespace QuantLib {
         const Size xSpacing = mesher_->layout()->spacing()[equityDirection];
         Array tmp = mesher_->locations(equityDirection);
         for (Size i = 0; i < x_.size(); ++i) {
-            x_[i] = std::exp(tmp[i*xSpacing]);
+            x_[i] = exp(tmp[i*xSpacing]);
         }
         const Size averageDirection = equityDirection == 0 ? 1 : 0;
         const Size aSpacing = mesher_->layout()->spacing()[averageDirection];
         tmp = mesher_->locations(averageDirection);
         for (Size i = 0; i < a_.size(); ++i) {
-            a_[i] = std::exp(tmp[i*aSpacing]);
+            a_[i] = exp(tmp[i*aSpacing]);
         }
     }
 

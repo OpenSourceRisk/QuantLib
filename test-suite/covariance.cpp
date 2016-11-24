@@ -34,7 +34,7 @@ namespace {
         for (Size i=0; i<m.rows(); i++)
             for (Size j=0; j<m.columns(); j++)
                 sum += m[i][j]*m[i][j];
-        return std::sqrt(sum);
+        return sqrt(sum);
     }
 
 }
@@ -66,7 +66,7 @@ void CovarianceTest::testRankReduction() {
         for (Size j=0; j<n; j++) {
             expected   = goodCorr[i][j];
             calculated = calcCorr[i][j];
-            if (std::fabs(calculated-expected) > 1.0e-10)
+            if (abs(calculated-expected) > 1.0e-10)
                 BOOST_ERROR("Salvaging correlation with spectral alg "
                             "through rankReducedSqrt "
                             << "cor[" << i << "][" << j << "]:\n"
@@ -124,7 +124,7 @@ void CovarianceTest::testSalvagingMatrix() {
         for (Size j=0; j<n; j++) {
             expected   = goodCorr[i][j];
             calculated = calcCorr[i][j];
-            if (std::fabs(calculated-expected) > 1.0e-10)
+            if (abs(calculated-expected) > 1.0e-10)
                 BOOST_ERROR("SalvagingCorrelation with spectral alg "
                             << "cor[" << i << "][" << j << "]:\n"
                             << std::setprecision(10)
@@ -197,7 +197,7 @@ void CovarianceTest::testCovariance() {
         for (j=0; j<n; j++) {
             expected   =  expCor[i][j];
             calculated = calcCor[i][j];
-            if (std::fabs(calculated-expected) > 1.0e-10)
+            if (abs(calculated-expected) > 1.0e-10)
                 BOOST_ERROR("SequenceStatistics "
                             << "cor[" << i << "][" << j << "]:\n"
                             << std::setprecision(10)
@@ -206,7 +206,7 @@ void CovarianceTest::testCovariance() {
 
             expected   =  expCov[i][j];
             calculated = calcCov[i][j];
-            if (std::fabs(calculated-expected) > 1.0e-10)
+            if (abs(calculated-expected) > 1.0e-10)
                 BOOST_ERROR("SequenceStatistics "
                             << "cov[" << i << "][" << j << "]:\n"
                             << std::setprecision(10)
@@ -221,7 +221,7 @@ void CovarianceTest::testCovariance() {
         for (j=0; j<n; j++) {
             Real calculated = calcCov[i][j],
                  expected   = expCov[i][j];
-            if (std::fabs(calculated-expected) > 1.0e-10) {
+            if (abs(calculated-expected) > 1.0e-10) {
                 BOOST_ERROR("getCovariance "
                             << "cov[" << i << "][" << j << "]:\n"
                             << std::setprecision(10)
@@ -241,7 +241,7 @@ void CovarianceTest::testCovariance() {
     for (i=0; i<n; i++) {
         calculated = calcStd[i];
         expected   = std[i];
-        if (std::fabs(calculated-expected) > 1.0e-16) {
+        if (abs(calculated-expected) > 1.0e-16) {
             BOOST_ERROR("CovarianceDecomposition "
                         << "standardDev[" << i << "]:\n"
                         << std::setprecision(16) << QL_SCIENTIFIC
@@ -251,7 +251,7 @@ void CovarianceTest::testCovariance() {
         for (j=0; j<n; j++) {
             calculated = calcCor[i][j];
             expected   = expCor[i][j];
-            if (std::fabs(calculated-expected) > 1.0e-14) {
+            if (abs(calculated-expected) > 1.0e-14) {
                 BOOST_ERROR("\nCovarianceDecomposition "
                             << "corr[" << i << "][" << j << "]:\n"
                             << std::setprecision(14) << QL_SCIENTIFIC

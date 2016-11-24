@@ -73,7 +73,7 @@ namespace QuantLib {
             BOOST_FOREACH (Volatility r2, r2_) {
                 sigma2 = x[0] + x[1] * u2 + x[2] * sigma2;
                 u2 = r2;
-                retval += std::log(sigma2) + u2 / sigma2;
+                retval += log(sigma2) + u2 / sigma2;
             }
             return retval / (2.0*r2_.size());
         }
@@ -86,7 +86,7 @@ namespace QuantLib {
             BOOST_FOREACH (Volatility r2, r2_) {
                 sigma2 = x[0] + x[1] * u2 + x[2] * sigma2;
                 u2 = r2;
-                retval[i++] = (std::log(sigma2) + u2 / sigma2)/(2.0*r2_.size());
+                retval[i++] = (log(sigma2) + u2 / sigma2)/(2.0*r2_.size());
             }
             return retval;
         }
@@ -124,7 +124,7 @@ namespace QuantLib {
             BOOST_FOREACH (Volatility r2, r2_) {
                 sigma2 = x[0] + x[1] * u2 + x[2] * sigma2;
                 u2 = r2;
-                retval += std::log(sigma2) + u2 / sigma2;
+                retval += log(sigma2) + u2 / sigma2;
                 Real w = (sigma2 - u2) / (sigma2*sigma2);
                 grad[0] += w;
                 grad[1] += u2prev * w;
@@ -173,7 +173,7 @@ namespace QuantLib {
             fct2fit[1] = gamma * (1 - fct2fit[0]) - beta;
             for (std::size_t i = 2; i < idx_.size(); ++i) {
                 target[i] = acf_[idx_[i]] / A4;
-                fct2fit[i] = std::pow(gamma, (int)idx_[i]-1)* fct2fit[1];
+                fct2fit[i] = pow(gamma, (int)idx_[i]-1)* fct2fit[1];
             }
         }
 
@@ -196,7 +196,7 @@ namespace QuantLib {
             grad_fct2fit[1][1] = -gamma * grad_fct2fit[0][1] - 1;
             for (std::size_t i = 2; i < idx_.size(); ++i) {
                 target[i] = acf_[idx_[i]] / A4;
-                w1 = std::pow(gamma, (int)idx_[i]-1);
+                w1 = pow(gamma, (int)idx_[i]-1);
                 fct2fit[i] = w1 * fct2fit[1];
                 grad_fct2fit[i][0] = (idx_[i]-1) * (w1/gamma)*fct2fit[1] + w1*grad_fct2fit[1][0];
                 grad_fct2fit[i][1] = w1 * grad_fct2fit[1][1];
@@ -235,29 +235,29 @@ namespace QuantLib {
             Real A = mean_r2*mean_r2/A4; // 1/sigma^2
             Real B = A21 / A4; // rho(1)
 
-            Real gammaLower = A <= 1./3. - tol_level ? std::sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : tol_level;
+            Real gammaLower = A <= 1./3. - tol_level ? sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : tol_level;
             Garch11Constraint constraints(gammaLower, 1.0 - tol_level);
 
             Real gamma = gammaLower + (1 - gammaLower) * 0.5;
-            beta = std::min(gamma, std::max(gamma * (1 - A) - B, 0.0));
+            beta = min(gamma, max(gamma * (1 - A) - B, Real(0.0)));
             alpha = gamma - beta;
             omega = mean_r2 * (1 - gamma);
 
-            if (std::fabs(A-0.5) < QL_EPSILON) {
-                gamma = std::max(gammaLower, -(1+4*B*B)/(4*B));
-                beta = std::min(gamma, std::max(gamma * (1 - A) - B, 0.0));
+            if (abs(A-0.5) < QL_EPSILON) {
+                gamma = max(gammaLower, -(1+4*B*B)/(4*B));
+                beta = min(gamma, max(gamma * (1 - A) - B, Real(0.0)));
                 alpha = gamma - beta;
                 omega = mean_r2 * (1 - gamma);
             } else {
                 if (A > 1.0 - QL_EPSILON) {
-                    gamma = std::max(gammaLower, -(1+B*B)/(2*B));
-                    beta = std::min(gamma, std::max(gamma * (1 - A) - B, 0.0));
+                    gamma = max(gammaLower, -(1+B*B)/(2*B));
+                    beta = min(gamma, max(gamma * (1 - A) - B, Real(0.0)));
                     alpha = gamma - beta;
                     omega = mean_r2 * (1 - gamma);
                 } else {
                     Real D = (3*A-1)*(2*B*B+(1-A)*(2*A-1));
                     if (D >= 0) {
-                        Real d = std::sqrt(D);
+                        Real d = sqrt(D);
                         Real b = (B - d)/(2*A-1);
                         Real g = 0;
                         if (b >= tol_level && b <= 1.0 - tol_level) {
@@ -271,7 +271,7 @@ namespace QuantLib {
                         }
                         if (g >= gammaLower) {
                             gamma = g;
-                            beta = std::min(gamma, std::max(gamma * (1 - A) - B, 0.0));
+                            beta = min(gamma, max(gamma * (1 - A) - B, Real(0.0)));
                             alpha = gamma - beta;
                             omega = mean_r2 * (1 - gamma);
                         }
@@ -321,7 +321,7 @@ namespace QuantLib {
             Real A4 = acf[0] + mean_r2*mean_r2;
             Real A = mean_r2*mean_r2/A4; // 1/sigma^2
             Real B = A21 / A4; // rho(1)
-            Real gammaLower = A <= 1./3. - tol_level ? std::sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : tol_level;
+            Real gammaLower = A <= 1./3. - tol_level ? sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : tol_level;
             Garch11Constraint constraints(gammaLower, 1.0 - tol_level);
 
             // ACF
@@ -340,7 +340,7 @@ namespace QuantLib {
             if (nn > 0)
                 gamma /= nn;
             if (gamma < gammaLower) gamma = gammaLower;
-            beta = std::min(gamma, std::max(gamma * (1 - A) - B, 0.0));
+            beta = min(gamma, max(gamma * (1 - A) - B, Real(0.0)));
             omega = mean_r2 * (1 - gamma);
 
             Array x(2);
@@ -379,13 +379,13 @@ namespace QuantLib {
         Real sigma2 = u*u;
         while (++cur != quoteSeries.end()) {
             sigma2 = omega + alpha * u * u + beta * sigma2;
-            retval[cur->first] = std::sqrt(sigma2);
+            retval[cur->first] = sqrt(sigma2);
             u = cur->second;
         }
         sigma2 = omega + alpha * u * u + beta * sigma2;
         --cur;
         const_iterator prev = cur;
-        retval[cur->first + (cur->first - (--prev)->first) ] = std::sqrt(sigma2);
+        retval[cur->first + (cur->first - (--prev)->first) ] = sqrt(sigma2);
         return retval;
     }
 
@@ -413,7 +413,7 @@ namespace QuantLib {
         omega = mean_r2 * dataSize / (dataSize - 1);
 
         // ACF
-        Size maxLag = (Size)std::sqrt(dataSize);
+        Size maxLag = (Size)VALUE(sqrt(dataSize));
         Array acf(maxLag+1);
         std::vector<Volatility> tmp(r2.size());
         std::transform (r2.begin(), r2.end(), tmp.begin(),
@@ -467,7 +467,7 @@ namespace QuantLib {
                 opt1[2] = beta;
                 opt1[0] = omega;
                 if (constraints.test(opt1))
-                    fCost1 = std::min(fCost1, cost.value(opt1));
+                    fCost1 = min(fCost1, cost.value(opt1));
             } catch (const std::exception &) {
                 fCost1 = QL_MAX_REAL;
             }
@@ -479,7 +479,7 @@ namespace QuantLib {
                 opt2[2] = beta;
                 opt2[0] = omega;
                 if (constraints.test(opt2))
-                    fCost2 = std::min(fCost2, cost.value(opt2));
+                    fCost2 = min(fCost2, cost.value(opt2));
             } catch (const std::exception &) {
                 fCost2 = QL_MAX_REAL;
             }

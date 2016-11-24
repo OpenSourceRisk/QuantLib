@@ -64,7 +64,7 @@ namespace QuantLib {
                     strike = arguments_.capRates[i];
                     if (fixingDate <= settlement) {
                         values[i] =
-                            std::max(arguments_.forwards[i] - strike, 0.0) * f *
+                            max(arguments_.forwards[i] - strike, Real(0.0)) * f *
                             arguments_.accrualTimes[i];
                     } else {
 
@@ -90,7 +90,7 @@ namespace QuantLib {
                                 arguments_.accrualTimes[i] *
                                 model_->zerobond(paymentDate, fixingDate, z[j]);
                             p[j] =
-                                std::max((floatingLegNpv - fixedLegNpv), 0.0) /
+                                max((floatingLegNpv - fixedLegNpv), Real(0.0)) /
                                 model_->numeraire(fixingTime, z[j],
                                                   discountCurve_);
                         }
@@ -139,7 +139,7 @@ namespace QuantLib {
                     Real floorlet;
                     if (fixingDate <= settlement) {
                         floorlet =
-                            std::max(-(arguments_.forwards[i] - strike), 0.0) *
+                            max(-(arguments_.forwards[i] - strike), Real(0.0)) *
                             f * arguments_.accrualTimes[i];
                     } else {
                         for (Size j = 0; j < z.size(); j++) {
@@ -162,7 +162,7 @@ namespace QuantLib {
                                 arguments_.accrualTimes[i] *
                                 model_->zerobond(paymentDate, fixingDate, z[j]);
                             p[j] =
-                                std::max(-(floatingLegNpv - fixedLegNpv), 0.0) /
+                                max(-(floatingLegNpv - fixedLegNpv), Real(0.0)) /
                                 model_->numeraire(fixingTime, z[j],
                                                   discountCurve_);
                         }

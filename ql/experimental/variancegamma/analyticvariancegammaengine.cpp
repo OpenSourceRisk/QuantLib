@@ -36,24 +36,24 @@ namespace QuantLib {
                 : payoff_(payoff), s0_(s0), t_(t), riskFreeDiscount_(riskFreeDiscount),
                     dividendDiscount_(dividendDiscount),
                     sigma_(sigma), nu_(nu), theta_(theta) {
-                omega_ = std::log(1.0 - theta_ * nu_ - (sigma_ * sigma_ * nu_) / 2.0) / nu_;
+                omega_ = log(1.0 - theta_ * nu_ - (sigma_ * sigma_ * nu_) / 2.0) / nu_;
                 // We can precompute the denominator of the gamma pdf (does not depend on x)
                 // shape = t_/nu_, scale = nu_
                 GammaFunction gf;
-                gammaDenom_ = std::exp(gf.logValue(t_ / nu_)) * std::pow(nu_, t_ / nu_);
+                gammaDenom_ = exp(gf.logValue(t_ / nu_)) * pow(nu_, t_ / nu_);
             }
 
             Real operator()(Real x) const {
                 // Compute adjusted black scholes price
-                Real s0_adj = s0_ * std::exp(theta_ * x + omega_ * t_ + (sigma_ * sigma_ * x) / 2.0);
-                Real vol_adj = sigma_ * std::sqrt(x / t_);
-                vol_adj *= std::sqrt(t_);
+                Real s0_adj = s0_ * exp(theta_ * x + omega_ * t_ + (sigma_ * sigma_ * x) / 2.0);
+                Real vol_adj = sigma_ * sqrt(x / t_);
+                vol_adj *= sqrt(t_);
 
                 BlackScholesCalculator bs(payoff_, s0_adj, dividendDiscount_, vol_adj, riskFreeDiscount_);
                 Real bsprice = bs.value();
 
                 // Multiply by gamma distribution
-                Real gamp = (std::pow(x, t_ / nu_ - 1.0) * std::exp(-x / nu_)) / gammaDenom_;
+                Real gamp = (pow(x, t_ / nu_ - 1.0) * exp(-x / nu_)) / gammaDenom_;
                 Real result = bsprice * gamp;
                 return result;
             }
@@ -104,7 +104,7 @@ namespace QuantLib {
 
         SimpsonIntegral integrator(1e-4, 5000);
 
-        Real infinity = 15.0 * std::sqrt(process_->nu() * t);
+        Real infinity = 15.0 * sqrt(process_->nu() * t);
         results_.value = integrator(f, 0, infinity);
     }
 

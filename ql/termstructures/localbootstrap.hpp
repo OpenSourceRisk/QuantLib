@@ -264,7 +264,7 @@ namespace QuantLib {
         helper_iterator instIt = rateHelpersStart_;
         while (instIt != rateHelpersEnd_) {
             Real quoteError = (*instIt)->quoteError();
-            penalty += std::fabs(quoteError);
+            penalty += abs(quoteError);
             ++instIt;
         }
         return penalty;
@@ -287,7 +287,7 @@ namespace QuantLib {
         Array::iterator penIt = penalties.begin();
         while (instIt != rateHelpersEnd_) {
             Real quoteError = (*instIt)->quoteError();
-            *penIt = std::fabs(quoteError);
+            *penIt = abs(quoteError);
             ++instIt;
             ++penIt;
         }

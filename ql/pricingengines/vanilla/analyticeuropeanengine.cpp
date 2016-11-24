@@ -52,7 +52,7 @@ namespace QuantLib {
         QL_REQUIRE(spot > 0.0, "negative or null underlying given");
         Real forwardPrice = spot * dividendDiscount / riskFreeDiscount;
 
-        BlackCalculator black(payoff, forwardPrice, std::sqrt(variance),
+        BlackCalculator black(payoff, forwardPrice, sqrt(variance),
                               riskFreeDiscount);
 
 

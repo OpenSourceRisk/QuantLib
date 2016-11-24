@@ -82,7 +82,7 @@ namespace QuantLib {
                         Rate strike = arguments_.capRates[i];
                         value += discount * arguments_.nominals[i] * tenor
                                * arguments_.gearings[i]
-                               * std::max(0.0, fixing - strike);
+                               * max(Real(0.0), fixing - strike);
                     }
                     if (type == CapFloor::Floor || type == CapFloor::Collar) {
                         DiscountFactor discount = model_->discount(paymentTime);
@@ -90,7 +90,7 @@ namespace QuantLib {
                         Real mult = (type == CapFloor::Floor) ? 1.0 : -1.0;
                         value += discount * arguments_.nominals[i] * tenor
                                * mult * arguments_.gearings[i]
-                               * std::max(0.0, strike - fixing);
+                               * max(Real(0.0), strike - fixing);
                     }
                 } else {
                     Time maturity =

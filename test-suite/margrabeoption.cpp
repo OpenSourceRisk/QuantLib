@@ -115,7 +115,7 @@ namespace {
 
     Integer timeToDays(Time t) {
         // FLOATING_POINT_EXCEPTION
-        return Integer(t*360+0.5);
+        return Integer(VALUE(t*360+0.5));
     }
 }
 
@@ -182,7 +182,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
     for (Size i=0; i<LENGTH(values); i++) {
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot1 ->setValue(values[i].s1);
@@ -226,7 +226,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
         Real calculated = margrabeOption.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         Real tolerance = values[i].tol;
         if (error > tolerance) {
             REPORT_FAILURE("value", exercise,
@@ -239,7 +239,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
         calculated = margrabeOption.delta1();
         expected = values[i].delta1;
-        error= std::fabs(calculated-expected);
+        error= abs(calculated-expected);
         if (error>tolerance) {
             REPORT_FAILURE("delta1", exercise,
                              values[i].s1, values[i].s2, values[i].Q1,
@@ -251,7 +251,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
         calculated = margrabeOption.delta2();
         expected = values[i].delta2;
-        error= std::fabs(calculated-expected);
+        error= abs(calculated-expected);
         if (error>tolerance) {
             REPORT_FAILURE("delta2", exercise,
                              values[i].s1, values[i].s2, values[i].Q1,
@@ -263,7 +263,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
         calculated = margrabeOption.gamma1();
         expected = values[i].gamma1;
-        error= std::fabs(calculated-expected);
+        error= abs(calculated-expected);
         if (error>tolerance) {
             REPORT_FAILURE("gamma1", exercise,
                              values[i].s1, values[i].s2, values[i].Q1,
@@ -275,7 +275,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
         calculated = margrabeOption.gamma2();
         expected = values[i].gamma2;
-        error= std::fabs(calculated-expected);
+        error= abs(calculated-expected);
         if (error>tolerance) {
             REPORT_FAILURE("gamma2", exercise,
                              values[i].s1, values[i].s2, values[i].Q1,
@@ -287,7 +287,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
         calculated = margrabeOption.theta();
         expected = values[i].theta;
-        error= std::fabs(calculated-expected);
+        error= abs(calculated-expected);
         if (error>tolerance) {
             REPORT_FAILURE("theta", exercise,
                              values[i].s1, values[i].s2, values[i].Q1,
@@ -299,7 +299,7 @@ void MargrabeOptionTest::testEuroExchangeTwoAssets() {
 
         calculated = margrabeOption.rho();
         expected = values[i].rho_greek;
-        error= std::fabs(calculated-expected);
+        error= abs(calculated-expected);
         if (error>tolerance) {
             REPORT_FAILURE("rho_greek", exercise,
                              values[i].s1, values[i].s2, values[i].Q1,
@@ -543,7 +543,7 @@ void MargrabeOptionTest::testAmericanExchangeTwoAssets() {
 
     for (Size i=0; i<LENGTH(values); i++) {
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new AmericanExercise(today, exDate));
 
         spot1 ->setValue(values[i].s1);
@@ -587,7 +587,7 @@ void MargrabeOptionTest::testAmericanExchangeTwoAssets() {
 
         Real calculated = margrabeOption.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         Real tolerance = values[i].tol;
         if (error > tolerance) {
             REPORT_FAILURE("value", exercise,

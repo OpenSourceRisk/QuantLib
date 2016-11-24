@@ -242,7 +242,7 @@ namespace QuantLib {
             for (; begin != end; ++begin, ++N) {
                 sigma2 = omega + alpha * u2 + beta * sigma2;
                 u2 = *begin; u2 *= u2;
-                retval += std::log(sigma2) + u2 / sigma2;
+                retval += log(sigma2) + u2 / sigma2;
             }
             return N > 0 ? retval / (2*N) : 0.0;
         }

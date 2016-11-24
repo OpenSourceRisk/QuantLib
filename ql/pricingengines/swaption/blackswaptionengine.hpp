@@ -89,7 +89,7 @@ namespace QuantLib {
         Real vega(const Real strike, const Real atmForward, const Real stdDev,
                   const Real exerciseTime, const Real annuity,
                   const Real displacement) {
-            return std::sqrt(exerciseTime) *
+            return sqrt(exerciseTime) *
                    blackFormulaStdDevDerivative(strike, atmForward, stdDev,
                                                 annuity, displacement);
         }
@@ -106,7 +106,7 @@ namespace QuantLib {
         }
         Real vega(const Real strike, const Real atmForward, const Real stdDev,
                   const Real exerciseTime, const Real annuity, const Real) {
-            return std::sqrt(exerciseTime) *
+            return sqrt(exerciseTime) *
                    bachelierBlackFormulaStdDevDerivative(
                        strike, atmForward, stdDev, annuity);
         }
@@ -233,7 +233,7 @@ namespace QuantLib {
         // with a corresponding correction on the fixed leg.
         if (swap.spread()!=0.0) {
             Spread correction = swap.spread() *
-                std::fabs(swap.floatingLegBPS()/swap.fixedLegBPS());
+                abs(swap.floatingLegBPS()/swap.fixedLegBPS());
             strike -= correction;
             atmForward -= correction;
             results_.additionalResults["spreadCorrection"] = correction;
@@ -249,7 +249,7 @@ namespace QuantLib {
         Real annuity;
         switch(arguments_.settlementType) {
           case Settlement::Physical: {
-              annuity = std::fabs(swap.fixedLegBPS())/basisPoint;
+              annuity = abs(swap.fixedLegBPS())/basisPoint;
               break;
           }
           case Settlement::Cash: {
@@ -261,7 +261,7 @@ namespace QuantLib {
                   CashFlows::bps(fixedLeg,
                                  InterestRate(atmForward, dayCount, Compounded, Annual),
                                  false, discountCurve_->referenceDate()) ;
-              annuity = std::fabs(fixedLegCashBPS/basisPoint);
+              annuity = abs(fixedLegCashBPS/basisPoint);
               break;
           }
           default:
@@ -286,7 +286,7 @@ namespace QuantLib {
                                 ? vol_->shift(exerciseDate, swapLength)
                                 : displacement_;
 
-        Real stdDev = std::sqrt(variance);
+        Real stdDev = sqrt(variance);
         results_.additionalResults["stdDev"] = stdDev;
         Option::Type w = (arguments_.type==VanillaSwap::Payer) ?
                                                 Option::Call : Option::Put;

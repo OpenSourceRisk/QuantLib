@@ -49,7 +49,7 @@ namespace QuantLib {
                          const Date& endDate,
                          const boost::shared_ptr<BMAIndex>& index,
                          Real gearing = 1.0,
-                         Spread spread = 0.0,
+                         Spread spread = Real(0.0),
                          const Date& refPeriodStart = Date(),
                          const Date& refPeriodEnd = Date(),
                          const DayCounter& dayCounter = DayCounter());

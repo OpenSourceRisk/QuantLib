@@ -75,7 +75,7 @@ void ExtensibleOptionsTest::testAnalyticHolderExtensibleOptionEngine() {
 
     Real calculated = option.NPV();
     Real expected = 9.4233;
-    Real error = std::fabs(calculated-expected);
+    Real error = abs(calculated-expected);
     Real tolerance = 1e-4;
     if (error > tolerance)
         BOOST_ERROR("Failed to reproduce holder-extensible option value"
@@ -140,7 +140,7 @@ void ExtensibleOptionsTest::testAnalyticWriterExtensibleOptionEngine() {
     //Compare the calculated NPV value to the theoretical value:
     Real calculated = option.NPV();
     Real expected = 6.8238;
-    Real error = std::fabs(calculated-expected);
+    Real error = abs(calculated-expected);
     Real tolerance = 1e-4;
     if (error > tolerance)
         BOOST_ERROR("Failed to reproduce writer-extensible option value"

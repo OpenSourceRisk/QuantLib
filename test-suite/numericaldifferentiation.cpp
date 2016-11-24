@@ -37,10 +37,10 @@ namespace {
     bool isTheSame(Real a, Real b) {
         const Real eps = 500*QL_EPSILON;
 
-        if (std::fabs(b) < QL_EPSILON)
-            return std::fabs(a) < eps;
+        if (abs(b) < QL_EPSILON)
+            return abs(a) < eps;
         else
-            return std::fabs((a - b)/b) < eps;
+            return abs((a - b)/b) < eps;
     }
 
 
@@ -65,7 +65,7 @@ namespace {
 
     void singleValueTest(const std::string comment,
                          Real calculated, Real expected, Real tol) {
-        if (std::fabs(calculated - expected) > tol)
+        if (abs(calculated - expected) > tol)
             BOOST_FAIL("Failed to reproduce " << comment
                         << " order derivative"
                         << "\n    calculated: " << calculated
@@ -99,7 +99,7 @@ void NumericalDifferentiationTest::testTabulatedCentralScheme() {
                             (0.0)(12/4.0)(-12/20.0)(4/60.0)));
 
     checkTwoArraysAreTheSame(
-        NumericalDifferentiation(f, 4, std::pow(0.5, 0.25), 9, central).weights(),
+        NumericalDifferentiation(f, 4, pow(0.5, 0.25), 9, central).weights(),
         listToArray(list_of(14/240.0)(-4/5.0)(338/60.0)(-244/15.0)(182/8.0)
                            (-244/15.0)(338/60.0)(-4/5.0)(14/240.0)));
 
@@ -208,25 +208,25 @@ void NumericalDifferentiationTest::testDerivativesOfSineFunction() {
     BOOST_TEST_MESSAGE("Testing numerical differentiation"
                        " of sin function...");
 
-    const boost::function<Real(Real)> f=std::ptr_fun<Real,Real>(std::sin);
+    const boost::function<Real(Real)> f=[](const Real x) { return sin(x); };
 
     const boost::function<Real(Real)> df_central
-        = NumericalDifferentiation(f, 1, std::sqrt(QL_EPSILON), 3,
+        = NumericalDifferentiation(f, 1, sqrt(QL_EPSILON), 3,
                                    NumericalDifferentiation::Central);
 
     const boost::function<Real(Real)> df_backward
-        = NumericalDifferentiation(f, 1, std::sqrt(QL_EPSILON), 3,
+        = NumericalDifferentiation(f, 1, sqrt(QL_EPSILON), 3,
                                    NumericalDifferentiation::Backward);
 
     const boost::function<Real(Real)> df_forward
-        = NumericalDifferentiation(f, 1, std::sqrt(QL_EPSILON), 3,
+        = NumericalDifferentiation(f, 1, sqrt(QL_EPSILON), 3,
                                    NumericalDifferentiation::Forward);
 
     for (Real x=0.0; x < 5.0; x+=0.1) {
         const Real calculatedCentral = df_central(x);
         const Real calculatedBackward = df_backward(x);
         const Real calculatedForward = df_forward(x);
-        const Real expected = std::cos(x);
+        const Real expected = cos(x);
 
         singleValueTest("central first", calculatedCentral, expected, 1e-8);
         singleValueTest("backward first", calculatedBackward, expected, 1e-6);
@@ -247,7 +247,7 @@ void NumericalDifferentiationTest::testDerivativesOfSineFunction() {
         const Real calculatedCentral = df4_central(x);
         const Real calculatedBackward = df4_backward(x);
         const Real calculatedForward = df4_forward(x);
-        const Real expected = std::sin(x);
+        const Real expected = sin(x);
 
         singleValueTest("central 4th", calculatedCentral, expected, 1e-4);
         singleValueTest("backward 4th", calculatedBackward, expected, 1e-4);
@@ -262,7 +262,7 @@ void NumericalDifferentiationTest::testDerivativesOfSineFunction() {
 
     for (Real x=0.0; x < 5.0; x+=0.1) {
         const Real calculatedIrregular = df3_irregular(x);
-        const Real expected = -std::cos(x);
+        const Real expected = -cos(x);
 
         singleValueTest("irregular 3th", calculatedIrregular, expected, 5e-5);
     }
@@ -279,7 +279,7 @@ namespace {
         for (Size i=1; i < n; ++i) {
             const Real fact = Factorial::get(i);
             for (Size j=0; j < n; ++j)
-                m[i][j] = std::pow(q[j], Integer(i)) / fact;
+                m[i][j] = pow(q[j], Integer(i)) / fact;
         }
 
         Array b(n, 0.0);
@@ -301,7 +301,7 @@ void NumericalDifferentiationTest::testCoefficientBasedOnVandermonde() {
             Array gridPoints(nGridPoints);
             for (Natural i=0; i < nGridPoints; ++i) {
                 const Real p = Real(i);
-                gridPoints[i] = std::sin(p) + std::cos(p); // strange points
+                gridPoints[i] = sin(p) + cos(p); // strange points
             }
 
             const Real x = 0.3902842; // strange points

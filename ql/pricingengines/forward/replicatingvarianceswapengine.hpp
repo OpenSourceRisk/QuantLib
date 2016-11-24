@@ -83,10 +83,10 @@ namespace QuantLib {
         QL_REQUIRE(process_, "no process given");
         QL_REQUIRE(!callStrikes.empty() && !putStrikes.empty(),
                    "no strike(s) given");
-        QL_REQUIRE(*std::min_element(putStrikes.begin(),putStrikes.end())>0.0,
+        QL_REQUIRE(*min_element(putStrikes.begin(),putStrikes.end())>0.0,
                    "min put strike must be positive");
-        QL_REQUIRE(*std::min_element(callStrikes.begin(), callStrikes.end())==
-                   *std::max_element(putStrikes.begin(), putStrikes.end()),
+        QL_REQUIRE(*min_element(callStrikes.begin(), callStrikes.end())==
+                   *max_element(putStrikes.begin(), putStrikes.end()),
                    "min call and max put strikes differ");
     }
 
@@ -108,7 +108,7 @@ namespace QuantLib {
             break;
           case Option::Put:
             std::sort(strikes.begin(), strikes.end(), std::greater<Real>());
-            strikes.push_back(std::max(strikes.back() - dk_, 0.0));
+            strikes.push_back(max(strikes.back() - dk_, Real(0.0)));
             break;
           default:
             QL_FAIL("invalid option type");
@@ -130,7 +130,7 @@ namespace QuantLib {
              // added end-strike discarded
              k<strikes.end()-1;
              k++) {
-            slope = std::fabs((computeLogPayoff(*(k+1), f) -
+            slope = abs((computeLogPayoff(*(k+1), f) -
                                computeLogPayoff(*k, f))/
                               (*(k+1) - *k));
             boost::shared_ptr<StrikedTypePayoff> payoff(
@@ -149,7 +149,7 @@ namespace QuantLib {
                          const Real strike,
                          const Real callPutStrikeBoundary) const {
         Real f = callPutStrikeBoundary;
-        return (2.0/residualTime()) * (((strike - f)/f) - std::log(strike/f));
+        return (2.0/residualTime()) * (((strike - f)/f) - log(strike/f));
     }
 
 
@@ -176,7 +176,7 @@ namespace QuantLib {
         return 2.0 * riskFreeRate() -
             2.0/residualTime() *
             (((underlying()/riskFreeDiscount() - f)/f) +
-             std::log(f/underlying())) +
+             log(f/underlying())) +
             optionsValue/riskFreeDiscount();
     }
 

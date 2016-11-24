@@ -39,7 +39,8 @@ namespace QuantLib {
             freqMakesSense_ = true;
             QL_REQUIRE(freq!=Once && freq!=NoFrequency,
                        "frequency not allowed for this interest rate");
-            freq_ = Real(freq);
+            freq_ = freq;
+            freqReal_ = Real(static_cast<double>(freq));
         }
     }
 
@@ -51,14 +52,14 @@ namespace QuantLib {
           case Simple:
             return 1.0 + r_*t;
           case Compounded:
-            return std::pow(1.0+r_/freq_, freq_*t);
+            return pow(1.0+r_/freqReal_, freqReal_*t);
           case Continuous:
-            return std::exp(r_*t);
+            return exp(r_*t);
           case SimpleThenCompounded:
-            if (t<=1.0/Real(freq_))
+            if (t<=1.0/freqReal_)
                 return 1.0 + r_*t;
             else
-                return std::pow(1.0+r_/freq_, freq_*t);
+                return pow(1.0+r_/freqReal_, freqReal_*t);
           default:
             QL_FAIL("unknown compounding convention");
         }
@@ -83,16 +84,16 @@ namespace QuantLib {
                 r = (compound - 1.0)/t;
                 break;
               case Compounded:
-                r = (std::pow(compound, 1.0/(Real(freq)*t))-1.0)*Real(freq);
+                r = (pow(compound, 1.0/(Real(freq)*t))-1.0)*Real(freq);
                 break;
               case Continuous:
-                r = std::log(compound)/t;
+                r = log(compound)/t;
                 break;
               case SimpleThenCompounded:
                 if (t<=1.0/Real(freq))
                     r = (compound - 1.0)/t;
                 else
-                    r = (std::pow(compound, 1.0/(Real(freq)*t))-1.0)*Real(freq);
+                    r = (pow(compound, 1.0/(Real(freq)*t))-1.0)*Real(freq);
                 break;
               default:
                 QL_FAIL("unknown compounding convention ("

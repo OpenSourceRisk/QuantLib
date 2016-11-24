@@ -63,7 +63,7 @@ namespace QuantLib {
                                               arguments_.exercise->lastDate(),
                                               payoff->strike());
 
-        BlackCalculator black(payoff, forwardPrice, std::sqrt(variance),
+        BlackCalculator black(payoff, forwardPrice, sqrt(variance),
                               riskFreeDiscount);
 
         results_.value = black.value();
@@ -82,7 +82,7 @@ namespace QuantLib {
             Date d = arguments_.cashFlow[i]->date();
             if (d >= settlementDate) {
                 delta_theta -= arguments_.cashFlow[i]->amount() *
-                  process_->riskFreeRate()->zeroRate(d,rfdc,Continuous,Annual)*
+                    process_->riskFreeRate()->zeroRate(d,rfdc,Continuous,Annual).rate() *
                   process_->riskFreeRate()->discount(d);
                 Time t = process_->time(d);
                 delta_rho += arguments_.cashFlow[i]->amount() * t *

@@ -94,10 +94,10 @@ namespace QuantLib {
         Real strike, y, dy, strikep, strikem;
         Real w, wp, wm, dwdy, d2wdy2;
         strike = underlyingLevel;
-        y = std::log(strike/forwardValue);
-        dy = ((std::fabs(y) > 0.001) ? y*0.0001 : 0.000001);
-        strikep=strike*std::exp(dy);
-        strikem=strike/std::exp(dy);
+        y = log(strike/forwardValue);
+        dy = ((abs(y) > 0.001) ? y*0.0001 : 0.000001);
+        strikep=strike*exp(dy);
+        strikem=strike/exp(dy);
         w  = blackTS_->blackVariance(t, strike,  true);
         wp = blackTS_->blackVariance(t, strikep, true);
         wm = blackTS_->blackVariance(t, strikem, true);
@@ -118,7 +118,7 @@ namespace QuantLib {
                       << " between time " << t << " and time " << t+dt);
             dwdt = (wpt-w)/dt;
         } else {
-            dt = std::min<Time>(0.0001, t/2.0);
+            dt = min<Time>(0.0001, t/2.0);
             DiscountFactor drpt = riskFreeTS_->discount(t+dt, true);
             DiscountFactor drmt = riskFreeTS_->discount(t-dt, true);
             DiscountFactor dqpt = dividendTS_->discount(t+dt, true);
@@ -141,7 +141,7 @@ namespace QuantLib {
         }
 
         if (dwdy==0.0 && d2wdy2==0.0) { // avoid /w where w might be 0.0
-            return std::sqrt(dwdt);
+            return sqrt(dwdt);
         } else {
             Real den1 = 1.0 - y/w*dwdy;
             Real den2 = 0.25*(-0.25 - 1.0/w + y*y/w/w)*dwdy*dwdy;
@@ -154,7 +154,7 @@ namespace QuantLib {
                       << " and time " << t
                       << "; the black vol surface is not smooth enough");
 
-            return std::sqrt(result);
+            return sqrt(result);
         }
     }
 

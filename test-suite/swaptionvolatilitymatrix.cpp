@@ -156,7 +156,7 @@ namespace {
 
                     actVol = vol->volatility(atm.tenors.options[i],
                                              atm.tenors.swaps[j], 0.05, true);
-                    error = std::abs(expVol-actVol);
+                    error = abs(expVol-actVol);
                     if (error>tolerance)
                         BOOST_FAIL(
                               "recovery of atm vols failed for " <<
@@ -172,7 +172,7 @@ namespace {
                         vol->optionDateFromTenor(atm.tenors.options[i]);
                     actVol = vol->volatility(optionDate,
                                              atm.tenors.swaps[j], 0.05, true);
-                    error = std::abs(expVol-actVol);
+                    error = abs(expVol-actVol);
                     if (error>tolerance)
                         BOOST_FAIL(
                              "recovery of atm vols failed for " <<
@@ -188,7 +188,7 @@ namespace {
                     Time optionTime = vol->timeFromReference(optionDate);
                     actVol = vol->volatility(optionTime, swapLength,
                                              0.05, true);
-                    error = std::abs(expVol-actVol);
+                    error = abs(expVol-actVol);
                     if (error>tolerance)
                         BOOST_FAIL(
                              "recovery of atm vols failed for " <<
@@ -235,7 +235,7 @@ namespace {
                     actVol = swaption.impliedVolatility(npv, termStructure,
                                                         expVol*0.98, 1e-6,
                                                         100, 10.0e-7, 4.0, 0.0);
-                    error = std::abs(expVol-actVol);
+                    error = abs(expVol-actVol);
                     Real tolerance2 = 0.000001;
                     if (error>tolerance2)
                         BOOST_FAIL(

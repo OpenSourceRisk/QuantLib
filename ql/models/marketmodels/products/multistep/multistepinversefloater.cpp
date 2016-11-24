@@ -60,7 +60,7 @@ namespace QuantLib {
         genCashFlows)
     {
          Rate liborRate = currentState.forwardRate(currentIndex_);
-         Real inverseFloatingCoupon = std::max((fixedStrikes_[currentIndex_] - fixedMultipliers_[currentIndex_]*liborRate),0.0)*fixedAccruals_[currentIndex_] ;
+         Real inverseFloatingCoupon = max((fixedStrikes_[currentIndex_] - fixedMultipliers_[currentIndex_]*liborRate),Real(0.0))*fixedAccruals_[currentIndex_] ;
          Real floatingCoupon = (liborRate+floatingSpreads_[currentIndex_])*floatingAccruals_[currentIndex_];
 
         genCashFlows[0][0].timeIndex = currentIndex_;

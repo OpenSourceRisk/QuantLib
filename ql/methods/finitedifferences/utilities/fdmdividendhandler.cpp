@@ -51,7 +51,7 @@ namespace QuantLib {
          Array tmp = mesher_->locations(equityDirection);
          Size spacing = mesher_->layout()->spacing()[equityDirection];
          for (Size i = 0; i < x_.size(); ++i) {
-             x_[i] = std::exp(tmp[i*spacing]);
+             x_[i] = exp(tmp[i*spacing]);
          }
     }
 
@@ -79,7 +79,7 @@ namespace QuantLib {
             if (mesher_->layout()->dim().size() == 1) {
                 LinearInterpolation interp(x_.begin(), x_.end(), aCopy.begin());
                 for (Size k=0; k<x_.size(); ++k) {
-                    a[k] = interp(std::max(x_[0], x_[k]-dividend), true);
+                    a[k] = interp(max(x_[0], x_[k]-dividend), true);
                 }
             }
             else {
@@ -99,7 +99,7 @@ namespace QuantLib {
                             for (Size k=0; k<x_.size(); ++k) {
                                 Size index = j*ySpacing + k*xSpacing;
                                 a[index] = interp(
-                                        std::max(x_[0], x_[k]-dividend), true);
+                                        max(x_[0], x_[k]-dividend), true);
                             }
                         }
                     }

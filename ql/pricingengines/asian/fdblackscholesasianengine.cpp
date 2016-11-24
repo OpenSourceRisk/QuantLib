@@ -69,11 +69,11 @@ namespace QuantLib {
         const Real normInvEps = InverseCumulativeNormal()(1-0.0001);
         const Real sigmaSqrtT 
             = process_->blackVolatility()->blackVol(maturity, payoff->strike())
-                                                        *std::sqrt(maturity);
+                                                        *sqrt(maturity);
         const Real r = sigmaSqrtT*normInvEps;
 
-        Real xMin = std::min(std::log(avg)  - 0.25*r, std::log(spot) - 1.5*r);
-        Real xMax = std::max(std::log(avg)  + 0.25*r, std::log(spot) + 1.5*r);
+        Real xMin = min(log(avg)  - 0.25*r, log(spot) - 1.5*r);
+        Real xMax = max(log(avg)  + 0.25*r, log(spot) + 1.5*r);
 
         const boost::shared_ptr<Fdm1dMesher> averageMesher(
             new FdmBlackScholesMesher(aGrid_, process_, maturity,

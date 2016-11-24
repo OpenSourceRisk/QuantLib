@@ -279,7 +279,7 @@ namespace QuantLib {
                                                          Real strike) const {
         Time nonZeroMaturity = (t==0.0 ? 0.00001 : t);
         Real var = blackVarianceImpl(nonZeroMaturity, strike);
-        return std::sqrt(var/nonZeroMaturity);
+        return sqrt(var/nonZeroMaturity);
     }
 
     inline void BlackVarianceTermStructure::accept(AcyclicVisitor& v) {

@@ -73,8 +73,8 @@ namespace QuantLib {
             const std::vector<Real>& recoveries);
 
         void update() {
-            sqrt1minuscorrel_ = std::sqrt(1.-correl_->value());
-            beta_ = std::sqrt(correl_->value());
+            sqrt1minuscorrel_ = sqrt(1.-correl_->value());
+            beta_ = sqrt(correl_->value());
             biphi_ = BivariateCumulativeNormalDistribution(
                 -beta_);
             // tell basket to notify instruments, etc, we are invalid
@@ -100,9 +100,9 @@ namespace QuantLib {
             Real remainingDetachAmount = basket_->remainingDetachmentAmount();
 
 
-            //const Real attach = std::min(remainingAttachAmount 
+            //const Real attach = min(remainingAttachAmount 
             //    / remainingfullNot, 1.);
-            //const Real detach = std::min(remainingDetachAmount 
+            //const Real detach = min(remainingDetachAmount 
             //    / remainingfullNot, 1.);
             const Real attach = remainingAttachAmount / remainingfullNot;
             const Real detach = remainingDetachAmount / remainingfullNot;
@@ -140,12 +140,11 @@ namespace QuantLib {
             Real remainingAttachAmount = basket_->remainingAttachmentAmount();
             Real remainingDetachAmount = basket_->remainingDetachmentAmount();
             const Real attach = 
-                std::min(remainingAttachAmount / remainingNot, 1.);
+                min(remainingAttachAmount / remainingNot, Real(1.));
             const Real detach = 
-                std::min(remainingDetachAmount / remainingNot, 1.);
-            return remainingNot * 
-                std::min(std::max(percentilePortfolioLossFraction(d, perctl) 
-                    - attach, 0.), detach - attach);
+                min(remainingDetachAmount / remainingNot, Real(1.));
+            return remainingNot *
+                   min(max(percentilePortfolioLossFraction(d, perctl) - attach, Real(0.)), detach - attach);
         }
 
         Probability averageProb(const Date& d) const {// not an overload of Deflossmodel ???<<<<<???
@@ -154,8 +153,8 @@ namespace QuantLib {
                 basket_->remainingProbabilities(d);//use remaining basket
             const std::vector<Real> remainingNots = 
                 basket_->remainingNotionals(d);
-            return std::inner_product(probs.begin(), probs.end(), 
-                remainingNots.begin(), 0.) / basket_->remainingNotional(d);
+            return std::inner_product(probs.begin(), probs.end(), remainingNots.begin(), Real(0.)) /
+                   basket_->remainingNotional(d);
         }
 
         /* One could define the average recovery without the probability
@@ -176,14 +175,14 @@ namespace QuantLib {
                 recoveries.push_back(rrQuotes_[i]->value());
             std::vector<Real> notionals = basket_->remainingNotionals(d);
             Real denominator = std::inner_product(notionals.begin(), 
-                notionals.end(), probs.begin(), 0.);
+                                                  notionals.end(), probs.begin(), Real(0.));
             if(denominator == 0.) return 0.;
 
             std::transform(notionals.begin(), notionals.end(), probs.begin(),
                 notionals.begin(), std::multiplies<Real>());
 
             return std::inner_product(recoveries.begin(), recoveries.end(), 
-                notionals.begin(), 0.) / denominator;
+                                      notionals.begin(), Real(0.)) / denominator;
         }
 
     private:

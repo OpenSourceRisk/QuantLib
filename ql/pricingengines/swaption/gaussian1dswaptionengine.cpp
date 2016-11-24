@@ -76,8 +76,8 @@ namespace QuantLib {
             else
                 expiry0 = arguments_.exercise->dates()[idx];
 
-            expiry0Time = std::max(
-                model_->termStructure()->timeFromReference(expiry0), 0.0);
+            expiry0Time = max(
+                model_->termStructure()->timeFromReference(expiry0), Real(0.0));
 
             Size j1 =
                 std::upper_bound(fixedSchedule.dates().begin(),
@@ -310,7 +310,7 @@ namespace QuantLib {
                     }
                     // end probability computation
 
-                    npv0[k] = std::max(npv0[k], exerciseValue);
+                    npv0[k] = max(npv0[k], exerciseValue);
                 }
             }
 

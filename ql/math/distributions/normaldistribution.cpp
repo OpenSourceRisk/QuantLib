@@ -55,9 +55,9 @@ namespace QuantLib {
                 a = g*(x-y);
                 sum -= a;
                 g *= y;
-                ++i;
-                a = std::fabs(a);
-            } while (lasta>a && a>=std::fabs(sum*QL_EPSILON));
+                i+=1.0;
+                a = abs(a);
+            } while (lasta>a && a>=abs(sum*QL_EPSILON));
             result = -gaussian_(z)/z*sum;
         }
         return result;
@@ -102,7 +102,7 @@ namespace QuantLib {
             // try to recover if due to numerical error
             if (close_enough(x, 1.0)) {
                 return QL_MAX_REAL; // largest value available
-            } else if (std::fabs(x) < QL_EPSILON) {
+            } else if (abs(x) < QL_EPSILON) {
                 return QL_MIN_REAL; // largest negative value available
             } else {
                 QL_FAIL("InverseCumulativeNormal(" << x
@@ -113,12 +113,12 @@ namespace QuantLib {
         Real z;
         if (x < x_low_) {
             // Rational approximation for the lower region 0<x<u_low
-            z = std::sqrt(-2.0*std::log(x));
+            z = sqrt(-2.0*log(x));
             z = (((((c1_*z+c2_)*z+c3_)*z+c4_)*z+c5_)*z+c6_) /
                 ((((d1_*z+d2_)*z+d3_)*z+d4_)*z+1.0);
         } else {
             // Rational approximation for the upper region u_high<x<1
-            z = std::sqrt(-2.0*std::log(1.0-x));
+            z = sqrt(-2.0*log(1.0-x));
             z = -(((((c1_*z+c2_)*z+c3_)*z+c4_)*z+c5_)*z+c6_) /
                 ((((d1_*z+d2_)*z+d3_)*z+d4_)*z+1.0);
         }
@@ -154,7 +154,7 @@ namespace QuantLib {
         Real result;
         Real temp=x-0.5;
 
-        if (std::fabs(temp) < 0.42) {
+        if (abs(temp) < 0.42) {
             // Beasley and Springer, 1977
             result=temp*temp;
             result=temp*
@@ -166,7 +166,7 @@ namespace QuantLib {
                 result = x;
             else
                 result=1.0-x;
-            result = std::log(-std::log(result));
+            result = log(-log(result));
             result = c0_+result*(c1_+result*(c2_+result*(c3_+result*
                                    (c4_+result*(c5_+result*(c6_+result*
                                                        (c7_+result*c8_)))))));
@@ -183,7 +183,7 @@ namespace QuantLib {
 
     Real MaddockInverseCumulativeNormal::operator()(Real x) const {
         return boost::math::quantile(
-            boost::math::normal_distribution<Real>(average_, sigma_), x);
+            boost::math::normal_distribution<double>(VALUE(average_), VALUE(sigma_)), VALUE(x));
     }
 
     MaddockCumulativeNormal::MaddockCumulativeNormal(
@@ -192,6 +192,6 @@ namespace QuantLib {
 
     Real MaddockCumulativeNormal::operator()(Real x) const {
         return boost::math::cdf(
-            boost::math::normal_distribution<Real>(average_, sigma_), x);
+            boost::math::normal_distribution<double>(VALUE(average_), VALUE(sigma_)), VALUE(x));
     }
 }

@@ -95,7 +95,7 @@ namespace QuantLib {
     }
 
     inline Date DriftTermStructure::maxDate() const {
-        return std::min(std::min(dividendTS_->maxDate(),
+        return min(min(dividendTS_->maxDate(),
                                  riskFreeTS_->maxDate()),
                         blackVolTS_->maxDate());
     }

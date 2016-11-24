@@ -99,7 +99,7 @@ void DigitalOptionTest::testCashOrNothingEuropeanValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 10.0));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -119,7 +119,7 @@ void DigitalOptionTest::testCashOrNothingEuropeanValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, exercise, values[i].s, values[i].q,
                            values[i].r, today, values[i].v, values[i].result,
@@ -154,7 +154,7 @@ void DigitalOptionTest::testAssetOrNothingEuropeanValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -174,7 +174,7 @@ void DigitalOptionTest::testAssetOrNothingEuropeanValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, exercise, values[i].s, values[i].q,
                            values[i].r, today, values[i].v, values[i].result,
@@ -209,7 +209,7 @@ void DigitalOptionTest::testGapEuropeanValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new GapPayoff(
             values[i].type, values[i].strike, 57.00));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -229,7 +229,7 @@ void DigitalOptionTest::testGapEuropeanValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, exercise, values[i].s, values[i].q,
                            values[i].r, today, values[i].v, values[i].result,
@@ -276,7 +276,7 @@ void DigitalOptionTest::testCashAtHitOrNothingAmericanValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 15.00));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate));
 
@@ -297,7 +297,7 @@ void DigitalOptionTest::testCashAtHitOrNothingAmericanValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, amExercise, values[i].s,
                            values[i].q, values[i].r, today, values[i].v,
@@ -342,7 +342,7 @@ void DigitalOptionTest::testAssetAtHitOrNothingAmericanValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate));
 
@@ -363,7 +363,7 @@ void DigitalOptionTest::testAssetAtHitOrNothingAmericanValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, amExercise, values[i].s,
                            values[i].q, values[i].r, today, values[i].v,
@@ -385,8 +385,8 @@ void DigitalOptionTest::testCashAtExpiryOrNothingAmericanValues() {
         { Option::Put,  100.00, 105.00, 0.00, 0.10, 0.5, 0.20,  4.9081, 1e-4, false },
         { Option::Call, 100.00,  95.00, 0.00, 0.10, 0.5, 0.20,  3.0461, 1e-4, false },
         // in the money options (guaranteed discounted payoff)
-        { Option::Call, 100.00, 105.00, 0.00, 0.10, 0.5, 0.20, 15.0000*std::exp(-0.05), 1e-12, true },
-        { Option::Put,  100.00,  95.00, 0.00, 0.10, 0.5, 0.20, 15.0000*std::exp(-0.05), 1e-12, true },
+        { Option::Call, 100.00, 105.00, 0.00, 0.10, 0.5, 0.20, 15.0000*exp(-0.05), 1e-12, true },
+        { Option::Put,  100.00,  95.00, 0.00, 0.10, 0.5, 0.20, 15.0000*exp(-0.05), 1e-12, true },
         // out of bonds case
         { Option::Call,   2.37,   2.33, 0.07, 0.43,0.19,0.005,  0.0000, 1e-4, false },
     };
@@ -407,7 +407,7 @@ void DigitalOptionTest::testCashAtExpiryOrNothingAmericanValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 15.0));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate,
                                                                     true));
@@ -432,7 +432,7 @@ void DigitalOptionTest::testCashAtExpiryOrNothingAmericanValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, amExercise, values[i].s,
                            values[i].q, values[i].r, today, values[i].v,
@@ -460,8 +460,8 @@ void DigitalOptionTest::testAssetAtExpiryOrNothingAmericanValues() {
         //                                                    = spot * dividendDiscount)
         { Option::Call, 100.00, 105.00, 0.00, 0.10, 0.5, 0.20,105.0000, 1e-12, true },
         { Option::Put,  100.00,  95.00, 0.00, 0.10, 0.5, 0.20, 95.0000, 1e-12, true },
-        { Option::Call, 100.00, 105.00, 0.01, 0.10, 0.5, 0.20,105.0000*std::exp(-0.005), 1e-12, true },
-        { Option::Put,  100.00,  95.00, 0.01, 0.10, 0.5, 0.20, 95.0000*std::exp(-0.005), 1e-12, true }
+        { Option::Call, 100.00, 105.00, 0.01, 0.10, 0.5, 0.20,105.0000*exp(-0.005), 1e-12, true },
+        { Option::Put,  100.00,  95.00, 0.01, 0.10, 0.5, 0.20, 95.0000*exp(-0.005), 1e-12, true }
     };
 
     DayCounter dc = Actual360();
@@ -480,7 +480,7 @@ void DigitalOptionTest::testAssetAtExpiryOrNothingAmericanValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new AssetOrNothingPayoff(
             values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> amExercise(new AmericanExercise(today,
                                                                     exDate,
                                                                     true));
@@ -505,7 +505,7 @@ void DigitalOptionTest::testAssetAtExpiryOrNothingAmericanValues() {
         opt.setPricingEngine(engine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, amExercise, values[i].s,
                            values[i].q, values[i].r, today, values[i].v,
@@ -717,7 +717,7 @@ void DigitalOptionTest::testMCCashAtHit() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new CashOrNothingPayoff(
             values[i].type, values[i].strike, 15.0));
         //FLOATING_POINT_EXCEPTION
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> amExercise(
                                          new AmericanExercise(today, exDate));
 
@@ -732,7 +732,7 @@ void DigitalOptionTest::testMCCashAtHit() {
                                       Handle<YieldTermStructure>(rTS),
                                       Handle<BlackVolTermStructure>(volTS)));
 
-        Size requiredSamples = Size(std::pow(2.0, 14)-1);
+        Size requiredSamples = Size(pow(2.0, 14)-1);
         boost::shared_ptr<PricingEngine> mcldEngine =
             MakeMCDigitalEngine<LowDiscrepancy>(stochProcess)
             .withStepsPerYear(timeStepsPerYear)
@@ -745,7 +745,7 @@ void DigitalOptionTest::testMCCashAtHit() {
         opt.setPricingEngine(mcldEngine);
 
         Real calculated = opt.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error > values[i].tol) {
             REPORT_FAILURE("value", payoff, amExercise, values[i].s,
                            values[i].q, values[i].r, today, values[i].v,

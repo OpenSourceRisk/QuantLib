@@ -63,7 +63,7 @@ namespace QuantLib {
 
             // the "stepsize before last"
             dxold = xMax_-xMin_;
-            // it was dxold=std::fabs(xMax_-xMin_); in Numerical Recipes
+            // it was dxold=abs(xMax_-xMin_); in Numerical Recipes
             // here (xMax_-xMin_ > 0) is verified in the constructor
 
             // and the last step
@@ -79,7 +79,7 @@ namespace QuantLib {
                 // Bisect if (out of range || not decreasing fast enough)
                 if ((((root_-xh)*dfroot-froot)*
                      ((root_-xl)*dfroot-froot) > 0.0)
-                    || (std::fabs(2.0*froot) > std::fabs(dxold*dfroot))) {
+                    || (abs(2.0*froot) > abs(dxold*dfroot))) {
 
                     dxold = dx;
                     dx = (xh-xl)/2.0;
@@ -90,7 +90,7 @@ namespace QuantLib {
                     root_ -= dx;
                 }
                 // Convergence criterion
-                if (std::fabs(dx) < xAccuracy) {
+                if (abs(dx) < xAccuracy) {
                     f(root_);
                     ++evaluationNumber_;
                     return root_;

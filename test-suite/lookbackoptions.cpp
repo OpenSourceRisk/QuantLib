@@ -132,7 +132,7 @@ void LookbackOptionTest::testAnalyticContinuousFloatingLookback() {
     boost::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -160,7 +160,7 @@ void LookbackOptionTest::testAnalyticContinuousFloatingLookback() {
 
         Real calculated = option.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FAILURE_FLOATING("value", values[i].minmax, payoff,
                                     exercise, values[i].s, values[i].q,
@@ -232,7 +232,7 @@ void LookbackOptionTest::testAnalyticContinuousFixedLookback() {
     boost::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -260,7 +260,7 @@ void LookbackOptionTest::testAnalyticContinuousFixedLookback() {
 
         Real calculated = option.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FAILURE_FIXED("value", values[i].minmax, payoff, exercise,
                                  values[i].s, values[i].q, values[i].r, today,
@@ -342,7 +342,7 @@ void LookbackOptionTest::testAnalyticContinuousPartialFloatingLookback() {
     boost::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -363,7 +363,7 @@ void LookbackOptionTest::testAnalyticContinuousPartialFloatingLookback() {
         boost::shared_ptr<PricingEngine> engine(
                   new AnalyticContinuousPartialFloatingLookbackEngine(stochProcess));
 
-        Date lookbackEnd = today + Integer(values[i].t1*360+0.5);
+        Date lookbackEnd = today + Integer(VALUE(values[i].t1*360+0.5));
         ContinuousPartialFloatingLookbackOption option(values[i].minmax,
                                                 values[i].l,
                                                 lookbackEnd,
@@ -373,7 +373,7 @@ void LookbackOptionTest::testAnalyticContinuousPartialFloatingLookback() {
 
         Real calculated = option.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FAILURE_FLOATING("value", values[i].minmax, payoff,
                                     exercise, values[i].s, values[i].q,
@@ -453,7 +453,7 @@ void LookbackOptionTest::testAnalyticContinuousPartialFixedLookback() {
     boost::shared_ptr<BlackVolTermStructure> volTS = flatVol(today, vol, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -474,7 +474,7 @@ void LookbackOptionTest::testAnalyticContinuousPartialFixedLookback() {
         boost::shared_ptr<PricingEngine> engine(
                      new AnalyticContinuousPartialFixedLookbackEngine(stochProcess));
 
-        Date lookbackStart = today + Integer(values[i].t1*360+0.5);
+        Date lookbackStart = today + Integer(VALUE(values[i].t1*360+0.5));
         ContinuousPartialFixedLookbackOption option(lookbackStart,
                                              payoff,
                                              exercise);
@@ -482,7 +482,7 @@ void LookbackOptionTest::testAnalyticContinuousPartialFixedLookback() {
 
         Real calculated = option.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol) {
             REPORT_FAILURE_FIXED("value", values[i].minmax, payoff, exercise,
                                  values[i].s, values[i].q, values[i].r, today,

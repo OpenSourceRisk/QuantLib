@@ -52,7 +52,7 @@ namespace QuantLib {
         baseCPI_(baseCPI), fixedRate_(fixedRate), spread_(spread),
         observationInterpolation_(observationInterpolation) {
 
-            QL_REQUIRE(std::fabs(baseCPI_) > 1e-16,
+            QL_REQUIRE(abs(baseCPI_) > 1e-16,
                        "|baseCPI_| < 1e-16, future divide-by-zero problem");
         }
 

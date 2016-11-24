@@ -50,7 +50,7 @@ namespace QuantLib {
 
     Real FdmSimple2dBSSolver::valueAt(Real s, Real a) const {
         calculate();
-        return solver_->interpolateAt(std::log(s), std::log(a));
+        return solver_->interpolateAt(log(s), log(a));
     }
 
     Real FdmSimple2dBSSolver::deltaAt(Real s, Real a, Real eps) const {
@@ -63,6 +63,6 @@ namespace QuantLib {
 
     Real FdmSimple2dBSSolver::thetaAt(Real s, Real a) const {
         calculate();
-        return solver_->thetaAt(std::log(s), std::log(a));
+        return solver_->thetaAt(log(s), log(a));
     }
 }

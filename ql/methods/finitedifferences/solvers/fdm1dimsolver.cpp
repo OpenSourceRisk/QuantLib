@@ -36,7 +36,7 @@ namespace QuantLib {
       schemeDesc_(schemeDesc),
       op_(op),
       thetaCondition_(new FdmSnapshotCondition(
-        0.99*std::min(1.0/365.0,
+                          0.99*min(Real(1.0/365.0),
            solverDesc.condition->stoppingTimes().empty()
                     ? solverDesc.maturity
                     : solverDesc.condition->stoppingTimes().front()))),

@@ -48,7 +48,7 @@ namespace QuantLib {
 
         // Calculate correlation matrix
         Size nbRows = rateTimes.size()-1;
-        Matrix correlations(nbRows, nbRows, 0.0);
+        Matrix correlations(nbRows, nbRows, Real(0.0));
         for (Size i=0; i<nbRows; ++i) {
             // correlation is defined only between
             // (alive) stochastic rates...
@@ -58,9 +58,9 @@ namespace QuantLib {
                     if (time<=rateTimes[j]) {
                         correlations[i][j] = correlations[j][i] =
                             longTermCorr + (1.0-longTermCorr) *
-                            std::exp(-beta*std::fabs(
-                                std::pow(rateTimes[i]-time, gamma) -
-                                std::pow(rateTimes[j]-time, gamma)
+                            exp(-beta*abs(
+                                pow(rateTimes[i]-time, gamma) -
+                                pow(rateTimes[j]-time, gamma)
                                 )
                             );
                     }
@@ -101,7 +101,7 @@ namespace QuantLib {
                        << " must be equal to (all) rate times (but the last) "
                        << io::sequence(temp));
             Matrix c = exponentialCorrelations(
-                rateTimes_, longTermCorr_, beta_, 1.0, 0.0);
+                rateTimes_, longTermCorr_, beta_, 1.0, Real(0.0));
             correlations_ =
                 TimeHomogeneousForwardCorrelation::evolvedMatrices(c);
         } else {

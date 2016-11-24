@@ -315,7 +315,7 @@ void CmsTest::testFairRate()  {
         coupon.setPricer(vars.analyticPricers[j]);
         Rate rate1 = coupon.rate();
 
-        Spread difference =  std::fabs(rate1-rate0);
+        Spread difference =  abs(rate1-rate0);
         Spread tol = 2.0e-4;
         bool linearTsr = j==vars.yieldCurveModels.size()-1;
 
@@ -380,7 +380,7 @@ void CmsTest::testCmsSwap() {
             setCouponPricer(cms[sl]->leg(0), vars.analyticPricers[j]);
             Real priceAn = cms[sl]->NPV();
 
-            Real difference =  std::fabs(priceNum-priceAn);
+            Real difference =  abs(priceNum-priceAn);
             Real tol = 2.0e-4;
             bool linearTsr = j==vars.yieldCurveModels.size()-1;
             if (difference > tol)
@@ -466,7 +466,7 @@ void CmsTest::testParity() {
                                   nominal * swaplet.accrualPeriod() * strike * discount;
                     Real capletPrice = caplet.price(vars.termStructure);
                     Real floorletPrice = floorlet.price(vars.termStructure);
-                    Real difference = std::fabs(capletPrice + floorletPrice -
+                    Real difference = abs(capletPrice + floorletPrice -
                                                 swapletPrice);
                     Real tol = 2.0e-5;
                     bool linearTsr = k==0 && j==vars.yieldCurveModels.size()-1;

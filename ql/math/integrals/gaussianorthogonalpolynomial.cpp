@@ -23,6 +23,7 @@
 
 #include <ql/math/integrals/gaussianorthogonalpolynomial.hpp>
 #include <ql/math/distributions/gammadistribution.hpp>
+#include <ql/math/comparison.hpp>
 #include <ql/errors.hpp>
 #include <cmath>
 
@@ -41,7 +42,7 @@ namespace QuantLib {
     }
 
     Real GaussianOrthogonalPolynomial::weightedValue(Size n, Real x) const {
-        return std::sqrt(w(x))*value(n, x);
+        return sqrt(w(x))*value(n, x);
     }
 
 
@@ -51,7 +52,7 @@ namespace QuantLib {
     }
 
     Real GaussLaguerrePolynomial::mu_0() const {
-        return std::exp(GammaFunction().logValue(s_+1));
+        return exp(GammaFunction().logValue(s_+1));
     }
 
     Real GaussLaguerrePolynomial::alpha(Size i) const {
@@ -63,7 +64,7 @@ namespace QuantLib {
     }
 
     Real GaussLaguerrePolynomial::w(Real x) const {
-        return std::pow(x, s_)*std::exp(-x);
+        return pow(x, s_)*exp(-x);
     }
 
 
@@ -73,7 +74,7 @@ namespace QuantLib {
     }
 
     Real GaussHermitePolynomial::mu_0() const {
-        return std::exp(GammaFunction().logValue(mu_+0.5));
+        return exp(GammaFunction().logValue(mu_+0.5));
     }
 
     Real GaussHermitePolynomial::alpha(Size) const {
@@ -85,7 +86,7 @@ namespace QuantLib {
     }
 
     Real GaussHermitePolynomial::w(Real x) const {
-        return std::pow(std::fabs(x), 2*mu_)*std::exp(-x*x);
+        return pow(abs(x), 2*mu_)*exp(-x*x);
     }
 
     GaussJacobiPolynomial::GaussJacobiPolynomial(Real alpha, Real beta)
@@ -96,8 +97,8 @@ namespace QuantLib {
     }
 
     Real GaussJacobiPolynomial::mu_0() const {
-        return std::pow(2.0, alpha_+beta_+1)
-            * std::exp( GammaFunction().logValue(alpha_+1)
+        return pow(2.0, alpha_+beta_+1)
+            * exp( GammaFunction().logValue(alpha_+1)
                         +GammaFunction().logValue(beta_ +1)
                         -GammaFunction().logValue(alpha_+beta_+2));
     }
@@ -106,7 +107,7 @@ namespace QuantLib {
         Real num = beta_*beta_ - alpha_*alpha_;
         Real denom = (2.0*i+alpha_+beta_)*(2.0*i+alpha_+beta_+2);
 
-        if (!denom) {
+        if (!close_enough(denom,0.0)) {
             if (num != 0.0) {
                 QL_FAIL("can't compute a_k for jacobi integration\n");
             }
@@ -115,7 +116,7 @@ namespace QuantLib {
                 num  = 2*beta_;
                 denom= 2*(2.0*i+alpha_+beta_+1);
 
-                QL_ASSERT(denom, "can't compute a_k for jacobi integration\n");
+                QL_ASSERT(denom != 0.0, "can't compute a_k for jacobi integration\n");
             }
         }
 
@@ -127,7 +128,7 @@ namespace QuantLib {
         Real denom = (2.0*i+alpha_+beta_)*(2.0*i+alpha_+beta_)
                    * ((2.0*i+alpha_+beta_)*(2.0*i+alpha_+beta_)-1);
 
-        if (!denom) {
+        if (!close_enough(denom,0.0)) {
             if (num != 0.0) {
                 QL_FAIL("can't compute b_k for jacobi integration\n");
             } else {
@@ -135,14 +136,14 @@ namespace QuantLib {
                 num  = 4.0*i*(i+beta_)* (2.0*i+2*alpha_+beta_);
                 denom= 2.0*(2.0*i+alpha_+beta_);
                 denom*=denom-1;
-                QL_ASSERT(denom, "can't compute b_k for jacobi integration\n");
+                QL_ASSERT(denom != 0.0, "can't compute b_k for jacobi integration\n");
             }
         }
         return num / denom;
     }
 
     Real GaussJacobiPolynomial::w(Real x) const {
-        return std::pow(1-x, alpha_)*std::pow(1+x, beta_);
+        return pow(1-x, alpha_)*pow(1+x, beta_);
     }
 
 
@@ -175,7 +176,7 @@ namespace QuantLib {
     }
 
     Real GaussHyperbolicPolynomial::w(Real x) const {
-        return 1/std::cosh(x);
+        return 1/cosh(x);
     }
 
 }

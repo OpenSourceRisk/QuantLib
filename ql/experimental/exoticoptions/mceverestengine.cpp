@@ -38,7 +38,7 @@ namespace QuantLib {
         Real minYield = multiPath[0].back() / multiPath[0].front() - 1.0;
         for (Size j=1; j<numAssets; ++j) {
             Rate yield = multiPath[j].back() / multiPath[j].front() - 1.0;
-            minYield = std::min(minYield, yield);
+            minYield = min(minYield, yield);
         }
         return (1.0 + minYield + guarantee_) * notional_ * discount_;
     }

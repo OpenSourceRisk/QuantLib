@@ -54,7 +54,7 @@ namespace QuantLib {
     Real FdmHestonHullWhiteSolver::valueAt(Real s, Real v, Rate r) const {
         calculate();
 
-        const Real x = std::log(s);
+        const Real x = log(s);
         return solver_->interpolateAt(x, v, r);
     }
 
@@ -72,7 +72,7 @@ namespace QuantLib {
     Real FdmHestonHullWhiteSolver::thetaAt(Real s, Real v, Rate r) const {
         calculate();
 
-        const Real x = std::log(s);
+        const Real x = log(s);
         return solver_->thetaAt(x, v, r);
     }
 }

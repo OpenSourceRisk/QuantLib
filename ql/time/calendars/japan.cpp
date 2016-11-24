@@ -44,11 +44,11 @@ namespace QuantLib {
         const Time moving_amount = (y-2000)*diff_per_year;
         Integer number_of_leap_years = (y-2000)/4+(y-2000)/100-(y-2000)/400;
         Day ve =    // vernal equinox day
-            Day(exact_vernal_equinox_time
-                + moving_amount - number_of_leap_years);
+            Day(VALUE(exact_vernal_equinox_time
+                      + moving_amount - number_of_leap_years));
         Day ae =    // autumnal equinox day
-            Day(exact_autumnal_equinox_time
-                + moving_amount - number_of_leap_years);
+            Day(VALUE(exact_autumnal_equinox_time
+                      + moving_amount - number_of_leap_years));
         // checks
         if (isWeekend(w)
             // New Year's Day

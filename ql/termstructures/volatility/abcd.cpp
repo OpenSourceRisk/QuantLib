@@ -32,7 +32,7 @@ namespace QuantLib {
         if (tMax==tMin)
             return instantaneousVolatility(tMax, T);
         QL_REQUIRE(tMax>tMin, "tMax must be > tMin");
-        return std::sqrt(variance(tMin, tMax, T)/(tMax-tMin));
+        return sqrt(variance(tMin, tMax, T)/(tMax-tMin));
     }
 
     Real AbcdFunction::variance(Time tMin, Time tMax, Time T) const {
@@ -47,18 +47,18 @@ namespace QuantLib {
         QL_REQUIRE(t1<=t2,
                    "integrations bounds (" << t1 <<
                    "," << t2 << ") are in reverse order");
-        Time cutOff = std::min(S,T);
+        Time cutOff = min(S,T);
         if (t1>=cutOff) {
             return 0.0;
         } else {
-            cutOff = std::min(t2, cutOff);
+            cutOff = min(t2, cutOff);
             return primitive(cutOff, T, S) - primitive(t1, T, S);
         }
     }
 
     // INSTANTANEOUS
     Real AbcdFunction::instantaneousVolatility(Time u, Time T) const {
-        return std::sqrt(instantaneousVariance(u, T));
+        return sqrt(instantaneousVariance(u, T));
     }
 
     Real AbcdFunction::instantaneousVariance(Time u, Time T) const {
@@ -77,7 +77,7 @@ namespace QuantLib {
             return t*(v*v+v*b_*S+v*b_*T-v*b_*t+b_*b_*S*T-0.5*b_*b_*t*(S+T)+b_*b_*t*t/3.0);
         }
 
-        Real k1=std::exp(c_*t), k2=std::exp(c_*S), k3=std::exp(c_*T);
+        Real k1=exp(c_*t), k2=exp(c_*S), k3=exp(c_*T);
 
         return (b_*b_*(-1 - 2*c_*c_*S*T - c_*(S + T)
                      + k1*k1*(1 + c_*(S + T - 2*t) + 2*c_*c_*(S - t)*(T - t)))

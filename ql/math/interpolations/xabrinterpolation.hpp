@@ -142,7 +142,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
             this->weights_.clear();
             Real weightsSum = 0.0;
             for (; x != this->xEnd_; ++x, ++y) {
-                Real stdDev = std::sqrt((*y) * (*y) * this->t_);
+                Real stdDev = sqrt((*y) * (*y) * this->t_);
                 this->weights_.push_back(Model().weight(*x, forward_, stdDev,
                                                         this->addParams_));
                 weightsSum += this->weights_.back();
@@ -261,7 +261,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
         std::vector<Real>::const_iterator y = this->yBegin_;
         std::vector<Real>::const_iterator w = this->weights_.begin();
         for (; x != this->xEnd_; ++x, ++r, ++w, ++y) {
-            *r = (value(*x) - *y) * std::sqrt(*w);
+            *r = (value(*x) - *y) * sqrt(*w);
         }
         return results;
     }
@@ -269,7 +269,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
     Real interpolationError() const {
         Size n = this->xEnd_ - this->xBegin_;
         Real squaredError = interpolationSquaredError();
-        return std::sqrt(n * squaredError / (n==1 ? 1 : (n - 1)));
+        return sqrt(n * squaredError / (n==1 ? 1 : (n - 1)));
     }
 
     Real interpolationMaxError() const {
@@ -277,8 +277,8 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
         I1 i = this->xBegin_;
         I2 j = this->yBegin_;
         for (; i != this->xEnd_; ++i, ++j) {
-            error = std::fabs(value(*i) - *j);
-            maxError = std::max(maxError, error);
+            error = abs(value(*i) - *j);
+            maxError = max(maxError, error);
         }
         return maxError;
     }

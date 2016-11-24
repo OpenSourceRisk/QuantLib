@@ -86,7 +86,7 @@ namespace QuantLib {
         private:
 
             Real kernelAbs(Real x1, Real x2)const{
-                return kernel_(std::fabs(x1-x2));
+                return kernel_(abs(x1-x2));
             }
 
             Real gammaFunc(Real x)const{

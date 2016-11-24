@@ -88,8 +88,8 @@ namespace QuantLib {
 
     ExchangeRateManager::Key ExchangeRateManager::hash(
                                const Currency& c1, const Currency& c2) const {
-        return Key(std::min(c1.numericCode(),c2.numericCode()))*1000
-             + Key(std::max(c1.numericCode(),c2.numericCode()));
+        return Key(std::min(c1.numericCode(), c2.numericCode())) * 1000 +
+               Key(std::max(c1.numericCode(), c2.numericCode()));
     }
 
     bool ExchangeRateManager::hashes(ExchangeRateManager::Key k,

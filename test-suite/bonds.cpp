@@ -51,7 +51,7 @@ using namespace boost::unit_test_framework;
 using boost::shared_ptr;
 
 #define ASSERT_CLOSE(name, settlement, calculated, expected, tolerance)  \
-    if (std::fabs(calculated-expected) > tolerance) { \
+    if (abs(calculated-expected) > tolerance) { \
     BOOST_FAIL("Failed to reproduce " << name << " at " << settlement \
                << "\n    calculated: " << std::setprecision(8) << calculated \
                << "\n    expected:   " << std::setprecision(8) << expected); \
@@ -136,13 +136,13 @@ void BondTest::testYield() {
                                              Date(),
                                              tolerance, maxEvaluations);
 
-                if (std::fabs(yields[m]-calculated) > tolerance) {
+                if (abs(yields[m]-calculated) > tolerance) {
                   // the difference might not matter
                   Real price2 = BondFunctions::cleanPrice(bond, calculated,
                                                     bondDayCount,
                                                     compounding[n],
                                                     frequencies[l]);
-                  if (std::fabs(price-price2)/price > tolerance) {
+                  if (abs(price-price2)/price > tolerance) {
                       BOOST_FAIL("\nyield recalculation failed:"
                           "\n    issue:     " << issue <<
                           "\n    maturity:  " << maturity <<
@@ -212,7 +212,7 @@ void BondTest::testAtmRate() {
                                                      bond.settlementDate(),
                                                      price);
 
-            if (std::fabs(coupons[k]-calculated) > tolerance) {
+            if (abs(coupons[k]-calculated) > tolerance) {
                   BOOST_FAIL("\natm rate recalculation failed:"
                       "\n today:           " << vars.today <<
                       "\n settlement date: " << bond.settlementDate() <<
@@ -293,14 +293,14 @@ void BondTest::testZspread() {
                                                            tolerance,
                                                            maxEvaluations);
 
-                if (std::fabs(spreads[m]-calculated) > tolerance) {
+                if (abs(spreads[m]-calculated) > tolerance) {
                   // the difference might not matter
                   Real price2 = BondFunctions::cleanPrice(bond, *discountCurve,
                                                       calculated,
                                                       bondDayCount,
                                                       compounding[n],
                                                       frequencies[l]);
-                  if (std::fabs(price-price2)/price > tolerance) {
+                  if (abs(price-price2)/price > tolerance) {
                       BOOST_FAIL("\nZ-spread recalculation failed:"
                           "\n    issue:     " << issue <<
                           "\n    maturity:  " << maturity <<
@@ -381,7 +381,7 @@ void BondTest::testTheoretical() {
                                                  frequencies[l]);
                 Real calculatedPrice = bond.cleanPrice();
 
-                if (std::fabs(price-calculatedPrice) > tolerance) {
+                if (abs(price-calculatedPrice) > tolerance) {
                     BOOST_FAIL("price calculation failed:" <<
                         "\n    issue:     " << issue <<
                         "\n    maturity:  " << maturity <<
@@ -398,7 +398,7 @@ void BondTest::testTheoretical() {
                     bondDayCount, Continuous, frequencies[l],
                     bond.settlementDate(),
                     tolerance, maxEvaluations);
-                if (std::fabs(yields[m]-calculatedYield) > tolerance) {
+                if (abs(yields[m]-calculatedYield) > tolerance) {
                     BOOST_FAIL("yield calculation failed:" <<
                         "\n    issue:     " << issue <<
                         "\n    maturity:  " << maturity <<
@@ -481,7 +481,7 @@ void BondTest::testCached() {
 
     price = BondFunctions::cleanPrice(bond1, marketYield1,
                              bondDayCount, Compounded, freq);
-    if (std::fabs(price-cachedPrice1a) > tolerance) {
+    if (abs(price-cachedPrice1a) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:"
                    << QL_FIXED
                    << "\n    calculated: " << price
@@ -491,7 +491,7 @@ void BondTest::testCached() {
     }
 
     price = bond1.cleanPrice();
-    if (std::fabs(price-cachedPrice1b) > tolerance) {
+    if (abs(price-cachedPrice1b) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:"
                    << QL_FIXED
                    << "\n    calculated: " << price
@@ -501,7 +501,7 @@ void BondTest::testCached() {
     }
 
     yield = BondFunctions::yield(bond1, marketPrice1, bondDayCount, Compounded, freq);
-    if (std::fabs(yield-cachedYield1a) > tolerance) {
+    if (abs(yield-cachedYield1a) > tolerance) {
         BOOST_FAIL("\nfailed to reproduce cached compounded yield:" <<
                    std::setprecision(4) <<
                    "\n    calculated: " << io::rate(yield) <<
@@ -511,7 +511,7 @@ void BondTest::testCached() {
     }
 
     yield = BondFunctions::yield(bond1, marketPrice1, bondDayCount, Continuous, freq);
-    if (std::fabs(yield-cachedYield1b) > tolerance) {
+    if (abs(yield-cachedYield1b) > tolerance) {
         BOOST_FAIL("failed to reproduce cached continuous yield:"
                    << std::setprecision(4)
                    << "\n    calculated: " << io::rate(yield)
@@ -521,7 +521,7 @@ void BondTest::testCached() {
     }
 
     yield = BondFunctions::yield(bond1, bond1.cleanPrice(), bondDayCount, Continuous, freq, bond1.settlementDate());
-    if (std::fabs(yield-cachedYield1c) > tolerance) {
+    if (abs(yield-cachedYield1c) > tolerance) {
         BOOST_FAIL("failed to reproduce cached continuous yield:"
                    << std::setprecision(4)
                    << "\n    calculated: " << io::rate(yield)
@@ -532,7 +532,7 @@ void BondTest::testCached() {
 
 
     price = BondFunctions::cleanPrice(bond2, marketYield2, bondDayCount, Compounded, freq);
-    if (std::fabs(price-cachedPrice2a) > tolerance) {
+    if (abs(price-cachedPrice2a) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:"
                    << QL_FIXED
                    << "\n    calculated: " << price
@@ -542,7 +542,7 @@ void BondTest::testCached() {
     }
 
     price = bond2.cleanPrice();
-    if (std::fabs(price-cachedPrice2b) > tolerance) {
+    if (abs(price-cachedPrice2b) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:"
                    << QL_FIXED
                    << "\n    calculated: " << price
@@ -552,7 +552,7 @@ void BondTest::testCached() {
     }
 
     yield = BondFunctions::yield(bond2, marketPrice2, bondDayCount, Compounded, freq);
-    if (std::fabs(yield-cachedYield2a) > tolerance) {
+    if (abs(yield-cachedYield2a) > tolerance) {
         BOOST_FAIL("failed to reproduce cached compounded yield:"
                    << std::setprecision(4)
                    << "\n    calculated: " << io::rate(yield)
@@ -562,7 +562,7 @@ void BondTest::testCached() {
     }
 
     yield = BondFunctions::yield(bond2, marketPrice2, bondDayCount, Continuous, freq);
-    if (std::fabs(yield-cachedYield2b) > tolerance) {
+    if (abs(yield-cachedYield2b) > tolerance) {
         BOOST_FAIL("failed to reproduce cached continuous yield:"
                    << std::setprecision(4)
                    << "\n    calculated: " << io::rate(yield)
@@ -572,7 +572,7 @@ void BondTest::testCached() {
     }
 
     yield = BondFunctions::yield(bond2, bond2.cleanPrice(), bondDayCount, Continuous, freq, bond2.settlementDate());
-    if (std::fabs(yield-cachedYield2c) > tolerance) {
+    if (abs(yield-cachedYield2c) > tolerance) {
         BOOST_FAIL("failed to reproduce cached continuous yield:"
                    << std::setprecision(4)
                    << "\n    calculated: " << io::rate(yield)
@@ -603,7 +603,7 @@ void BondTest::testCached() {
 
     price = BondFunctions::cleanPrice(bond3, marketYield3,
                              bondDayCount, Compounded, freq, settlementDate);
-    if (std::fabs(price-cachedPrice3) > tolerance) {
+    if (abs(price-cachedPrice3) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:"
                    << QL_FIXED
                    << "\n    calculated: " << price << ""
@@ -617,7 +617,7 @@ void BondTest::testCached() {
     Settings::instance().evaluationDate() = Date(22,November,2004);
 
     price = BondFunctions::cleanPrice(bond3, marketYield3, bondDayCount, Compounded, freq);
-    if (std::fabs(price-cachedPrice3) > tolerance) {
+    if (abs(price-cachedPrice3) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:"
                    << QL_FIXED
                    << "\n    calculated: " << price << ""
@@ -659,7 +659,7 @@ void BondTest::testCachedZero() {
     Real cachedPrice1 = 88.551726;
 
     Real price = bond1.cleanPrice();
-    if (std::fabs(price-cachedPrice1) > tolerance) {
+    if (abs(price-cachedPrice1) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -679,7 +679,7 @@ void BondTest::testCachedZero() {
     Real cachedPrice2 = 91.278949;
 
     price = bond2.cleanPrice();
-    if (std::fabs(price-cachedPrice2) > tolerance) {
+    if (abs(price-cachedPrice2) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -699,7 +699,7 @@ void BondTest::testCachedZero() {
     Real cachedPrice3 = 94.098006;
 
     price = bond3.cleanPrice();
-    if (std::fabs(price-cachedPrice3) > tolerance) {
+    if (abs(price-cachedPrice3) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -744,7 +744,7 @@ void BondTest::testCachedFixed() {
     Real cachedPrice1 = 99.298100;
 
     Real price = bond1.cleanPrice();
-    if (std::fabs(price-cachedPrice1) > tolerance) {
+    if (abs(price-cachedPrice1) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -771,7 +771,7 @@ void BondTest::testCachedFixed() {
     Real cachedPrice2 = 100.334149;
 
     price = bond2.cleanPrice();
-    if (std::fabs(price-cachedPrice2) > tolerance) {
+    if (abs(price-cachedPrice2) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -797,7 +797,7 @@ void BondTest::testCachedFixed() {
     Real cachedPrice3 = 100.382794;
 
     price = bond3.cleanPrice();
-    if (std::fabs(price-cachedPrice3) > tolerance) {
+    if (abs(price-cachedPrice3) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -860,7 +860,7 @@ void BondTest::testCachedFloating() {
 
 
     Real price = bond1.cleanPrice();
-    if (std::fabs(price-cachedPrice1) > tolerance) {
+    if (abs(price-cachedPrice1) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -891,7 +891,7 @@ void BondTest::testCachedFloating() {
     #endif
 
     price = bond2.cleanPrice();
-    if (std::fabs(price-cachedPrice2) > tolerance) {
+    if (abs(price-cachedPrice2) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -926,7 +926,7 @@ void BondTest::testCachedFloating() {
     #endif
 
     price = bond3.cleanPrice();
-    if (std::fabs(price-cachedPrice3) > tolerance) {
+    if (abs(price-cachedPrice3) > tolerance) {
         BOOST_FAIL("failed to reproduce cached price:\n"
                    << QL_FIXED
                    << "    calculated: " << price << "\n"
@@ -1010,7 +1010,7 @@ void BondTest::testBrazilianCached() {
                                  yield.compounding(), yield.frequency(),
                                  today) + bond.accruedAmount(today)) / 100.0;
 
-        if (std::fabs(price-cachedPrice) > tolerance) {
+        if (abs(price-cachedPrice) > tolerance) {
             BOOST_ERROR("failed to reproduce Andima cached price:\n"
                         << QL_FIXED
                         << "    calculated: " << price << "\n"
@@ -1370,7 +1370,7 @@ void BondTest::testBondFromScheduleWithDateVector()
     Real calculatedPrice = BondFunctions::dirtyPrice(bond, yield, settlementDate);
     Real expectedPrice = 95.75706;
     Real tolerance = 1e-5;
-    if (std::fabs(calculatedPrice - expectedPrice) > tolerance) {
+    if (abs(calculatedPrice - expectedPrice) > tolerance) {
         BOOST_FAIL("failed to reproduce R2048 dirty price"
             << QL_FIXED << std::setprecision(5)
             << "\n  expected:   " << expectedPrice

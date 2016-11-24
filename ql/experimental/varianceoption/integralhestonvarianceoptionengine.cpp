@@ -123,7 +123,7 @@ namespace QuantLib {
          **************************************************************
          */
         dstep=256.0;
-        nris=std::sqrt(pi2)/dstep;
+        nris=sqrt(pi2)/dstep;
         mm=(int)(pi2/(nris*nris));
 
         /*
@@ -145,31 +145,31 @@ namespace QuantLib {
             caux1=caux1*ui;
             caux2=caux1+caux;
 
-            zita=0.5*std::sqrt(caux2);
+            zita=Real(0.5)*sqrt(caux2);
 
-            caux1=std::exp(-2.0*tau*zita);
+            caux1=exp(-2.0*tau*zita);
 
             beta=0.5*chi+zita;
             beta=beta+caux1*(zita-0.5*chi);
-            gamma=1.0-caux1;
+            gamma=Real(1.0)-caux1;
 
             caux=-ss*tau;
             caux2=caux*(zita-0.5*chi);
-            caux=ss*std::log(2.0*(zita/beta));
-            caux3=-v0*ui*xi*(gamma/beta);
+            caux=VALUE(ss)*log(2.0*(VALUE(zita)/VALUE(beta)));
+            caux3 = -VALUE(v0 * ui * xi) * (VALUE(gamma) / VALUE(beta));
             caux=caux+caux3;
             caux=caux+caux2;
 
-            ff[j+1]=std::exp(caux);
-            if(std::sqrt(std::imag(xi)*std::imag(xi)+std::real(xi)*std::real(xi))>1.e-06)
+            ff[j+1]=exp(caux);
+            if(sqrt(std::imag(xi)*std::imag(xi)+std::real(xi)*std::real(xi))>1.e-06)
             {
                 contrib=-eprice/(ui*xi);
                 caux=ui*xi;
                 caux=caux*eprice;
-                caux=std::exp(caux);
-                caux=caux-1.0;
+                caux=exp(caux);
+                caux=caux-Real(1.0);
                 caux2=ui*xi*ui*xi;
-                contrib=contrib+caux/caux2;
+                contrib=VALUE(contrib)+VALUE(caux)/VALUE(caux2);
             }
             else
             {
@@ -180,15 +180,15 @@ namespace QuantLib {
         csum=0.0;
         for (j=0;j<=mm-1;j++)
         {
-            caux=std::pow(-1.0,j);
+            caux=pow(-1.0,j);
             caux2=-2.0*pi*(double)mm*(double)j*0.5/(double)mm;
             caux3=ui*caux2;
-            csum=csum+ff[j+1]*caux*std::exp(caux3);
+            csum=csum+ff[j+1]*caux*exp(caux3);
         }
-        csum=csum*std::sqrt(std::pow(-1.0,mm))*nris/pi2;
-        vero=i0-eprice+theta*tau+(1.0-std::exp(-chi*tau))*(v0-theta)/chi;
+        csum=csum*sqrt(pow(Real(-1.0),mm))*Real(nris/pi2);
+        vero=i0-eprice+theta*tau+(1.0-exp(-chi*tau))*(v0-theta)/chi;
         csum=csum+vero;
-        option=std::exp(-rtax*tau)*std::real(csum);
+        option=exp(-rtax*tau)*std::real(csum);
         impart=std::imag(csum);
         QL_ENSURE(impart <= 1e-12,
                   "imaginary part option (must be zero) = " << impart);
@@ -273,7 +273,7 @@ namespace QuantLib {
          **************************************************************
          */
         dstep=64.0;
-        nris=std::sqrt(pi2)/dstep;
+        nris=sqrt(pi2)/dstep;
         mm=(int)(pi2/(nris*nris));
 
         /*
@@ -298,21 +298,21 @@ namespace QuantLib {
             caux1=caux1*ui;
             caux2=caux1+caux;
 
-            zita=0.5*std::sqrt(caux2);
-            caux1=std::exp(-2.0*tau*zita);
+            zita=Real(0.5)*sqrt(caux2);
+            caux1=exp(-2.0*tau*zita);
 
             beta=0.5*chi+zita;
             beta=beta+caux1*(zita-0.5*chi);
 
-            gamma=1.0-caux1;
+            gamma=Real(1.0)-caux1;
 
             caux=-ss*tau;
             caux2=caux*(zita-0.5*chi);
-            caux=ss*std::log(2.0*(zita/beta));
+            caux=ss*log(Real(2.0)*(zita/beta));
             caux3=-v0*ui*xi*(gamma/beta);
             caux=caux+caux3;
             caux=caux+caux2;
-            ff[j+1]=std::exp(caux);
+            ff[j+1]=exp(caux);
         }
 
         sumr=0.0;
@@ -322,15 +322,15 @@ namespace QuantLib {
             ip=i0-ivet[k+1];
             payoffval=payoff(ip);
 
-            dxi=2.0*pi*(double)k/(double)mm*ui;
+            dxi=2.0*pi*(Real)k/(Real)mm*ui;
             csum=0.0;
             for (j=0;j<=mm-1;j++)
             {
-                z=-(double)j*dxi;
-                caux=std::pow(-1.0,j);
-                csum=csum+ff[j+1]*caux*std::exp(z);
+                z=-(Real)j*dxi;
+                caux=pow(-1.0,j);
+                csum=csum+ff[j+1]*caux*exp(z);
             }
-            csum=csum*std::pow(-1.0,k)*nris/pi2;
+            csum=csum*pow(Real(-1.0),k)*Real(nris/pi2);
 
             sumr=sumr+payoffval*std::real(csum);
             //sumi=sumi+payoffval*std::imag(csum);
@@ -338,7 +338,7 @@ namespace QuantLib {
         sumr=sumr*nris;
         //sumi=sumi*nris;
 
-        option=std::exp(-rtax*tau)*sumr;
+        option=exp(-rtax*tau)*sumr;
         //impart=sumi;
         //QL_ENSURE(impart <= 1e-3,
         //          "imaginary part option (must be close to zero) = " << impart);

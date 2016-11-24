@@ -52,8 +52,8 @@ namespace QuantLib {
 
         Real L = arguments_.barrier_lo;
         Real H = arguments_.barrier_hi;
-        Real K_up = std::min(H, K);
-        Real K_down = std::max(L, K);
+        Real K_up = min(H, K);
+        Real K_down = max(L, K);
         Time T = residualTime();
         Real rd = riskFreeRate();
         Real dd = riskFreeDiscount();
@@ -76,47 +76,47 @@ namespace QuantLib {
         Real barrierOut = 0;
         Real rebateIn = 0;
         for(int n = -series_; n < series_; n++){
-            Real d1 = D(S/H*std::pow(L/H, 2.0*n), vol*vol+mu, vol, T);
-            Real d2 = d1 - vol*std::sqrt(T);
-            Real g1 = D(H/S*std::pow(L/H, 2.0*n - 1.0), vol*vol+mu, vol, T);
-            Real g2 = g1 - vol*std::sqrt(T);
-            Real h1 = D(S/H*std::pow(L/H, 2.0*n - 1.0), vol*vol+mu, vol, T);
-            Real h2 = h1 - vol*std::sqrt(T);
-            Real k1 = D(L/S*std::pow(L/H, 2.0*n - 1.0), vol*vol+mu, vol, T);
-            Real k2 = k1 - vol*std::sqrt(T);
-            Real d1_down = D(S/K_down*std::pow(L/H, 2.0*n), vol*vol+mu, vol, T);
-            Real d2_down = d1_down - vol*std::sqrt(T);
-            Real d1_up = D(S/K_up*std::pow(L/H, 2.0*n), vol*vol+mu, vol, T);
-            Real d2_up = d1_up - vol*std::sqrt(T);
-            Real k1_down = D((H*H)/(K_down*S)*std::pow(L/H, 2.0*n), vol*vol+mu, vol, T);
-            Real k2_down = k1_down - vol*std::sqrt(T);
-            Real k1_up = D((H*H)/(K_up*S)*std::pow(L/H, 2.0*n), vol*vol+mu, vol, T);
-            Real k2_up = k1_up - vol*std::sqrt(T);
+            Real d1 = D(S/H*pow(L/H, 2.0*n), vol*vol+mu, vol, T);
+            Real d2 = d1 - vol*sqrt(T);
+            Real g1 = D(H/S*pow(L/H, 2.0*n - 1.0), vol*vol+mu, vol, T);
+            Real g2 = g1 - vol*sqrt(T);
+            Real h1 = D(S/H*pow(L/H, 2.0*n - 1.0), vol*vol+mu, vol, T);
+            Real h2 = h1 - vol*sqrt(T);
+            Real k1 = D(L/S*pow(L/H, 2.0*n - 1.0), vol*vol+mu, vol, T);
+            Real k2 = k1 - vol*sqrt(T);
+            Real d1_down = D(S/K_down*pow(L/H, 2.0*n), vol*vol+mu, vol, T);
+            Real d2_down = d1_down - vol*sqrt(T);
+            Real d1_up = D(S/K_up*pow(L/H, 2.0*n), vol*vol+mu, vol, T);
+            Real d2_up = d1_up - vol*sqrt(T);
+            Real k1_down = D((H*H)/(K_down*S)*pow(L/H, 2.0*n), vol*vol+mu, vol, T);
+            Real k2_down = k1_down - vol*sqrt(T);
+            Real k1_up = D((H*H)/(K_up*S)*pow(L/H, 2.0*n), vol*vol+mu, vol, T);
+            Real k2_up = k1_up - vol*sqrt(T);
 
             if( payoff->optionType() == Option::Call) {
-                barrierOut += std::pow(L/H, 2.0 * n * mu/(vol*vol))*
-                            (df*S*std::pow(L/H, 2.0*n)*(f_(d1_down)-f_(d1))
+                barrierOut += pow(L/H, 2.0 * n * mu/(vol*vol))*
+                            (df*S*pow(L/H, 2.0*n)*(f_(d1_down)-f_(d1))
                             -dd*K*(f_(d2_down)-f_(d2))
-                            -df*std::pow(L/H, 2.0*n)*H*H/S*std::pow(H/S, 2.0*mu/(vol*vol))*(f_(k1_down)-f_(k1))
-                            +dd*K*std::pow(H/S,2.0*mu/(vol*vol))*(f_(k2_down)-f_(k2)));
+                            -df*pow(L/H, 2.0*n)*H*H/S*pow(H/S, 2.0*mu/(vol*vol))*(f_(k1_down)-f_(k1))
+                            +dd*K*pow(H/S,2.0*mu/(vol*vol))*(f_(k2_down)-f_(k2)));
             }
             else if(payoff->optionType() == Option::Put){
-                barrierOut += std::pow(L/H, 2.0 * n * mu/(vol*vol))*
+                barrierOut += pow(L/H, 2.0 * n * mu/(vol*vol))*
                             (dd*K*(f_(h2)-f_(d2_up))
-                            -df*S*std::pow(L/H, 2.0*n)*(f_(h1)-f_(d1_up))
-                            -dd*K*std::pow(H/S,2.0*mu/(vol*vol))*(f_(g2)-f_(k2_up))
-                            +df*std::pow(L/H, 2.0*n)*H*H/S*std::pow(H/S, 2.0*mu/(vol*vol))*(f_(g1)-f_(k1_up)));
+                            -df*S*pow(L/H, 2.0*n)*(f_(h1)-f_(d1_up))
+                            -dd*K*pow(H/S,2.0*mu/(vol*vol))*(f_(g2)-f_(k2_up))
+                            +df*pow(L/H, 2.0*n)*H*H/S*pow(H/S, 2.0*mu/(vol*vol))*(f_(g1)-f_(k1_up)));
             }
             else {
                 QL_FAIL("option type not recognized");
             }
 
-            Real v1 = D(H/S*std::pow(H/L, 2.0*n), -mu, vol, T);
-            Real v2 = D(H/S*std::pow(H/L, 2.0*n), mu, vol, T);
-            Real v3 = D(S/L*std::pow(H/L, 2.0*n), -mu, vol, T);
-            Real v4 = D(S/L*std::pow(H/L, 2.0*n), mu, vol, T);
-            rebateIn +=  dd * R_H * sgn * (std::pow(L/H, 2.0*n*mu/(vol*vol)) * f_(sgn * v1) - std::pow(H/S, 2.0*mu/(vol*vol)) * f_(-sgn * v2))
-                       + dd * R_L * sgn * (std::pow(L/S, 2.0*mu/(vol*vol)) * f_(-sgn * v3) - std::pow(H/L, 2.0*n*mu/(vol*vol)) * f_(sgn * v4));
+            Real v1 = D(H/S*pow(H/L, 2.0*n), -mu, vol, T);
+            Real v2 = D(H/S*pow(H/L, 2.0*n), mu, vol, T);
+            Real v3 = D(S/L*pow(H/L, 2.0*n), -mu, vol, T);
+            Real v4 = D(S/L*pow(H/L, 2.0*n), mu, vol, T);
+            rebateIn +=  dd * R_H * sgn * (pow(L/H, 2.0*n*mu/(vol*vol)) * f_(sgn * v1) - pow(H/S, 2.0*mu/(vol*vol)) * f_(-sgn * v2))
+                       + dd * R_L * sgn * (pow(L/S, 2.0*mu/(vol*vol)) * f_(-sgn * v3) - pow(H/L, 2.0*n*mu/(vol*vol)) * f_(sgn * v4));
         }
 
         //rebate paid at maturity
@@ -150,7 +150,7 @@ namespace QuantLib {
     }
 
     Real WulinYongDoubleBarrierEngine::stdDeviation() const {
-        return volatility() * std::sqrt(residualTime());
+        return volatility() * sqrt(residualTime());
     }
 
     Rate WulinYongDoubleBarrierEngine::riskFreeRate() const {
@@ -172,7 +172,7 @@ namespace QuantLib {
     }
 
     Real WulinYongDoubleBarrierEngine::D(Real X, Real lambda, Real sigma, Real T) const {
-        return (std::log(X) + lambda * T)/(sigma * std::sqrt(T));
+        return (log(X) + lambda * T)/(sigma * sqrt(T));
     }
 
 }

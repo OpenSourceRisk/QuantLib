@@ -86,7 +86,7 @@ namespace QuantLib {
 
            virtual void calculate() const {
 
-               using std::sqrt;
+               // using sqrt;
 
                const Real sigmaShift_vega = 0.001;
                const Real sigmaShift_volga = 0.0001;
@@ -221,20 +221,20 @@ namespace QuantLib {
 
                         //Analytical Black Scholes formula
                        NormalDistribution norm;
-                       Real d1atm = (std::log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/atmStrike) 
-                                 + 0.5*std::pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
+                       Real d1atm = (log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/atmStrike) 
+                                 + 0.5*pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
                        Real vegaAtm_Analytical = x0Quote->value() * norm(d1atm) * sqrt(T_) * foreignTS_->discount(T_);
                        Real vannaAtm_Analytical = vegaAtm_Analytical/x0Quote->value() *(1.0 - d1atm/(atmVolQuote->value()*sqrt(T_)));
                        Real volgaAtm_Analytical = vegaAtm_Analytical * d1atm * (d1atm - atmVolQuote->value() * sqrt(T_))/atmVolQuote->value();
 
-                       Real d125call = (std::log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/call25Strike) 
-                                 + 0.5*std::pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
+                       Real d125call = (log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/call25Strike) 
+                                 + 0.5*pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
                        Real vega25Call_Analytical = x0Quote->value() * norm(d125call) * sqrt(T_) * foreignTS_->discount(T_);
                        Real vanna25Call_Analytical = vega25Call_Analytical/x0Quote->value() *(1.0 - d125call/(atmVolQuote->value()*sqrt(T_)));
                        Real volga25Call_Analytical = vega25Call_Analytical * d125call * (d125call - atmVolQuote->value() * sqrt(T_))/atmVolQuote->value();
 
-                       Real d125Put = (std::log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/put25Strike) 
-                                 + 0.5*std::pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
+                       Real d125Put = (log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/put25Strike) 
+                                 + 0.5*pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
                        Real vega25Put_Analytical = x0Quote->value() * norm(d125Put) * sqrt(T_) * foreignTS_->discount(T_);
                        Real vanna25Put_Analytical = vega25Put_Analytical/x0Quote->value() *(1.0 - d125Put/(atmVolQuote->value()*sqrt(T_)));
                        Real volga25Put_Analytical = vega25Put_Analytical * d125Put * (d125Put - atmVolQuote->value() * sqrt(T_))/atmVolQuote->value();
@@ -316,16 +316,16 @@ namespace QuantLib {
 
                        Real H = arguments_.barrier_hi;
                        Real L = arguments_.barrier_lo;
-                       Real theta_tilt_minus = ((domesticTS_->zeroRate(T_, Continuous) - foreignTS_->zeroRate(T_, Continuous))/atmVol_->value() - atmVol_->value()/2.0)*std::sqrt(T_);
-                       Real h = 1.0/atmVol_->value() * std::log(H/x0Quote->value())/std::sqrt(T_);
-                       Real l = 1.0/atmVol_->value() * std::log(L/x0Quote->value())/std::sqrt(T_);
+                       Real theta_tilt_minus = ((domesticTS_->zeroRate(T_, Continuous).rate() - foreignTS_->zeroRate(T_, Continuous).rate())/atmVol_->value() - atmVol_->value()/2.0)*sqrt(T_);
+                       Real h = 1.0/atmVol_->value() * log(H/x0Quote->value())/sqrt(T_);
+                       Real l = 1.0/atmVol_->value() * log(L/x0Quote->value())/sqrt(T_);
                        CumulativeNormalDistribution cnd;
 
                        Real doubleNoTouch = 0.0;
                        for(int j = -series_; j< series_;j++ ){
                            Real e_minus = 2*j*(h-l) - theta_tilt_minus;
-                           doubleNoTouch += std::exp(-2.0*j*theta_tilt_minus*(h-l))*(cnd(h+e_minus) - cnd(l+e_minus))
-                                            - std::exp(-2.0*j*theta_tilt_minus*(h-l)+2.0*theta_tilt_minus*h)*(cnd(h-2.0*h+e_minus) - cnd(l-2.0*h+e_minus));
+                           doubleNoTouch += exp(-2.0*j*theta_tilt_minus*(h-l))*(cnd(h+e_minus) - cnd(l+e_minus))
+                                            - exp(-2.0*j*theta_tilt_minus*(h-l)+2.0*theta_tilt_minus*h)*(cnd(h-2.0*h+e_minus) - cnd(l-2.0*h+e_minus));
                        }
 
                        Real p_survival = doubleNoTouch;
@@ -341,12 +341,12 @@ namespace QuantLib {
                        if(adaptVanDelta_ == true){
                            outPrice += lambda*(bsPriceWithSmile_ - vanillaOption);
                            //capfloored by (0, vanilla)
-                           outPrice = std::max(0.0, std::min(bsPriceWithSmile_, outPrice));
+                           outPrice = max(Real(0.0), min(bsPriceWithSmile_, outPrice));
                            inPrice = bsPriceWithSmile_ - outPrice;
                        }
                        else{
                            //capfloored by (0, vanilla)
-                           outPrice = std::max(0.0, std::min(vanillaOption , outPrice));
+                           outPrice = max(Real(0.0), min(vanillaOption , outPrice));
                            inPrice = vanillaOption - outPrice;
                        }
 

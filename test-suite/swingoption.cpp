@@ -83,7 +83,7 @@ void SwingOptionTest::testExtendedOrnsteinUhlenbeckProcess() {
     boost::function<Real (Real)> f[] 
         = { constant<Real, Real>(level),
             std::bind1st(std::plus<Real>(), 1.0),
-            std::ptr_fun<Real, Real>(std::sin) }; 
+            [](const Real x) { return sin(x); }}; 
 
     for (Size n=0; n < LENGTH(f); ++n) {
         ExtendedOrnsteinUhlenbeckProcess refProcess(
@@ -109,7 +109,7 @@ void SwingOptionTest::testExtendedOrnsteinUhlenbeckProcess() {
                 q=eouProcess.evolve(t,q,dt,dw);
                 p=refProcess.evolve(t,p,dt,dw);
 
-                if (std::fabs(q-p) > 1e-6) {
+                if (abs(q-p) > 1e-6) {
                     BOOST_FAIL("invalid process evaluation " 
                                 << n << " " << i << " " << j << " " << q-p);
                 }
@@ -165,8 +165,8 @@ void SwingOptionTest::testFdmExponentialJump1dMesher() {
         std::vector<Real>::iterator iter
             = std::lower_bound(path.begin(), path.end(), x);
         const Real q = std::distance(path.begin(), iter)/Real(n);
-        QL_REQUIRE(std::fabs(q - v) < relTol1
-                   || ((v < threshold) && std::fabs(q-v) < relTol2),
+        QL_REQUIRE(abs(q - v) < relTol1
+                   || ((v < threshold) && abs(q-v) < relTol2),
                     "can not reproduce jump distribution");
     }
 }
@@ -217,14 +217,14 @@ void SwingOptionTest::testExtOUJumpVanillaEngine() {
         const Real x = path.value[0].back();
         const Real y = path.value[1].back();
 
-        const Real cashflow = (*payoff)(std::exp(x+y));
+        const Real cashflow = (*payoff)(exp(x+y));
         npv.add(cashflow*rTS->discount(maturity));
     }
 
     const Real mcNPV = npv.mean();
     const Real mcError = npv.errorEstimate();
 
-    if ( std::fabs(fdNPV - mcNPV) > 3.0*mcError) {
+    if ( abs(fdNPV - mcNPV) > 3.0*mcError) {
         BOOST_ERROR("Failed to reproduce FD and MC prices"
                     << "\n    FD NPV: " << fdNPV
                     << "\n    MC NPV: " << mcNPV
@@ -429,7 +429,7 @@ void SwingOptionTest::testExtOUJumpSwingOption() {
             for (Size k=0; k < exerciseTimes.size(); ++k) {
                 const Real x = path.value[0][exerciseIndex[k]];
                 const Real y = path.value[1][exerciseIndex[k]];
-                const Real s = std::exp(x+y);
+                const Real s = exp(x+y);
 
                 exerciseValues[k] =(*payoff)(s)*rTS->discount(exerciseDates[k]);
             }

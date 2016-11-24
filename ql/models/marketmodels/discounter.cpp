@@ -50,7 +50,7 @@ namespace QuantLib {
         if (beforeWeight_==0.0)
             return postDF;
 
-        return std::pow(preDF,beforeWeight_)*std::pow(postDF,1.-beforeWeight_);
+        return pow(preDF,beforeWeight_)*pow(postDF,1.-beforeWeight_);
     }
 
 }

@@ -781,17 +781,17 @@ namespace QuantLib {
                 // flows of the opposite sign have been specified (otherwise
                 // IRR is nonsensical.)
 
-                Integer lastSign = sign(-npv_),
-                        signChanges = 0;
+                Real lastSign = sign(-npv_),
+                        signChanges = 0.0;
                 for (Size i = 0; i < leg_.size(); ++i) {
                     if (!leg_[i]->hasOccurred(settlementDate_,
                                               includeSettlementDateFlows_) &&
                         !leg_[i]->tradingExCoupon(settlementDate_)) {
-                        Integer thisSign = sign(leg_[i]->amount());
-                        if (lastSign * thisSign < 0) // sign change
-                            signChanges++;
+                        Real thisSign = sign(leg_[i]->amount());
+                        if (lastSign * thisSign < 0.0) // sign change
+                            signChanges += 1.0;
 
-                        if (thisSign != 0)
+                        if (!close_enough(thisSign, 0.0))
                             lastSign = thisSign;
                     }
                 }

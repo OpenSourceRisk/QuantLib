@@ -79,7 +79,7 @@ namespace QuantLib {
                                         resetDates[i-1],resetDates[i],
                                         underlying * moneyness->strike());
 
-            BlackCalculator black(payoff, forward, std::sqrt(variance), rDiscount);
+            BlackCalculator black(payoff, forward, sqrt(variance), rDiscount);
 
             DayCounter rfdc  = process_->riskFreeRate()->dayCounter();
             DayCounter divdc = process_->dividendYield()->dayCounter();
@@ -89,7 +89,7 @@ namespace QuantLib {
             results_.delta += 0.0;
             results_.gamma += 0.0;
             results_.theta += process_->riskFreeRate()->forwardRate(
-                resetDates[i-1], resetDates[i], rfdc, Continuous, NoFrequency) *
+                resetDates[i-1], resetDates[i], rfdc, Continuous, NoFrequency).rate() *
                 discount * moneyness->strike() * black.value();
 
             Time dt = rfdc.yearFraction(resetDates[i-1],resetDates[i]);

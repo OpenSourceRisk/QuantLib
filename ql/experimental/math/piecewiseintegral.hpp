@@ -85,7 +85,7 @@ inline Real PiecewiseIntegral::integrate(const boost::function<Real(Real)> &f,
     Real res = 0.0;
 
     if (!close_enough(a, *a0)) {
-        res += integrate_h(f, a, std::min(*a0 / eps_, b));
+        res += integrate_h(f, a, min(*a0 / eps_, b));
     }
 
     if (b0 == criticalPoints_.end()) {
@@ -96,7 +96,7 @@ inline Real PiecewiseIntegral::integrate(const boost::function<Real(Real)> &f,
     }
 
     for (std::vector<Real>::const_iterator x = a0; x < b0; ++x) {
-        res += integrate_h(f, (*x) * eps_, std::min(*(x + 1) / eps_, b));
+        res += integrate_h(f, (*x) * eps_, min(*(x + 1) / eps_, b));
     }
 
     return res;

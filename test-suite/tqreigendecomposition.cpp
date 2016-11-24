@@ -48,7 +48,7 @@ void TqrEigenDecompositionTest::testEigenValueDecomposition() {
     for (Size i=0; i < diag.size(); ++i) {
         const Real expected(ev[i]);
         const Real calculated(tqre.eigenvalues()[i]);
-        if (std::fabs(expected-calculated) > tolerance) {
+        if (abs(expected-calculated) > tolerance) {
             BOOST_FAIL(std::string("wrong eigenvalue \n")
                        << "calculated: "
                        << calculated
@@ -74,7 +74,7 @@ void TqrEigenDecompositionTest::testZeroOffDiagEigenValues() {
     for (Size i=0; i < diag.size(); ++i) {
         const Real expected(tqre2.eigenvalues()[i]);
         const Real calculated(tqre1.eigenvalues()[i]);
-        if (std::fabs(expected-calculated) > tolerance) {
+        if (abs(expected-calculated) > tolerance) {
             BOOST_FAIL(std::string("wrong eigenvalue \n")
                        << "calculated: "
                        << calculated
@@ -92,7 +92,7 @@ void TqrEigenDecompositionTest::testEigenVectorDecomposition() {
 
     TqrEigenDecomposition tqre(diag, sub);
 
-    if (std::fabs(0.25 + tqre.eigenvectors()[0][0]
+    if (abs(0.25 + tqre.eigenvectors()[0][0]
                        * tqre.eigenvectors()[0][1]
                        * tqre.eigenvectors()[1][0]
                        * tqre.eigenvectors()[1][1]) > tolerance) {

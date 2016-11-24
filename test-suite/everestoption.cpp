@@ -108,7 +108,7 @@ void EverestOptionTest::testCached() {
     Real storedValue = 0.75784944;
     Real tolerance = 1.0e-8;
 
-    if (std::fabs(value-storedValue) > tolerance)
+    if (abs(value-storedValue) > tolerance)
         BOOST_FAIL(std::setprecision(10)
                    << "    calculated value: " << value << "\n"
                    << "    expected:         " << storedValue);

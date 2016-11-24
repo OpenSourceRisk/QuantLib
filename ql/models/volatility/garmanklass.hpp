@@ -53,7 +53,7 @@ namespace QuantLib {
             start = quoteSeries.begin();
             for (cur = start; cur != quoteSeries.end(); ++cur) {
                 retval[cur->first] =
-                    std::sqrt(std::fabs(calculatePoint(cur->second))/
+                    sqrt(abs(calculatePoint(cur->second))/
                               yearFraction_);
             }
             return retval;
@@ -67,7 +67,7 @@ namespace QuantLib {
             GarmanKlassAbstract(y) {};
     protected:
         Real calculatePoint(const IntervalPrice &p) {
-            Real c = std::log(p.close()/p.open());
+            Real c = log(p.close()/p.open());
             return c*c;
         }
     };
@@ -92,14 +92,14 @@ namespace QuantLib {
             ++start;
             for (cur = start; cur != quoteSeries.end(); ++cur) {
                 prev = cur; --prev;
-                Real c0 = std::log(prev->second.close());
-                Real o1 = std::log(cur->second.open());
+                Real c0 = log(prev->second.close());
+                Real o1 = log(cur->second.open());
                 Real sigma2 =
                     a_ * (o1 - c0) * (o1 - c0) / f_ +
                     (1-a_) * T::calculatePoint(cur->second) /
                     (1-f_);
 
-                retval[cur->first] = std::sqrt(sigma2/T::yearFraction_);
+                retval[cur->first] = sqrt(sigma2/T::yearFraction_);
             }
             return retval;
         }
@@ -123,9 +123,9 @@ namespace QuantLib {
             GarmanKlassAbstract(y) {};
     protected:
         Real calculatePoint(const IntervalPrice &p) {
-            Real u = std::log(p.high()/p.open());
-            Real d = std::log(p.low()/p.open());
-            return (u - d)*(u-d) / 4.0 / std::log(2.0);
+            Real u = log(p.high()/p.open());
+            Real d = log(p.low()/p.open());
+            return (u - d)*(u-d) / 4.0 / log(2.0);
         }
     };
 
@@ -148,9 +148,9 @@ namespace QuantLib {
             GarmanKlassAbstract(y) {};
     protected:
         Real calculatePoint(const IntervalPrice &p) {
-            Real u = std::log(p.high()/p.open());
-            Real d = std::log(p.low()/p.open());
-            Real c = std::log(p.close()/p.open());
+            Real u = log(p.high()/p.open());
+            Real d = log(p.low()/p.open());
+            Real c = log(p.close()/p.open());
             return 0.511 * (u-d)*(u-d) -
                 0.019 * (c*(u+d)-2*u*d) -
                 0.383 * c * c;
@@ -164,11 +164,11 @@ namespace QuantLib {
             GarmanKlassAbstract(y) {};
     protected:
         Real calculatePoint(const IntervalPrice &p) {
-            Real u = std::log(p.high()/p.open());
-            Real d = std::log(p.low()/p.open());
-            Real c = std::log(p.close()/p.open());
+            Real u = log(p.high()/p.open());
+            Real d = log(p.low()/p.open());
+            Real c = log(p.close()/p.open());
             return  0.5 * (u-d)*(u-d) -
-                (2.0*std::log(2.0)-1.0) * c * c;
+                (2.0*log(2.0)-1.0) * c * c;
         }
     };
 

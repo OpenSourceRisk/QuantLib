@@ -25,7 +25,7 @@ namespace QuantLib {
 
     namespace {
         Integer round(Real r) {
-            return (r > 0.0) ? Integer(std::floor(r + 0.5)) : Integer(std::ceil(r - 0.5));
+            return (r > 0.0) ? Integer(std::floor(VALUE(r + 0.5))) : Integer(std::ceil(VALUE(r - 0.5)));
         }
     }
 
@@ -79,7 +79,7 @@ namespace QuantLib {
         return boost::make_shared<EventSetSimulation>(events_, eventsStart_, eventsEnd_, start, end);
     }
 
-    BetaRiskSimulation::BetaRiskSimulation(Date start, Date end, Real maxLoss, Real lambda, Real alpha, Real beta) 
+    BetaRiskSimulation::BetaRiskSimulation(Date start, Date end, Real maxLoss, double lambda, double alpha, double beta) 
               : CatSimulation(start, end), 
                 maxLoss_(maxLoss), 
                 exponential_(rng_, boost::exponential_distribution<>(lambda)),
@@ -117,7 +117,7 @@ namespace QuantLib {
     }
 
     BetaRisk::BetaRisk(Real maxLoss, 
-                 Real years, 
+                 double years, 
                  Real mean, 
                  Real stdDev) 
     : maxLoss_(maxLoss), lambda_(1.0/years) {
@@ -126,8 +126,8 @@ namespace QuantLib {
         Real normalizedVar = stdDev*stdDev/(maxLoss*maxLoss);
         QL_REQUIRE(normalizedVar<normalizedMean*(1.0-normalizedMean), "Standard deviation of "<<stdDev<<" is impossible to achieve in gamma distribution with mean "<<mean);
         Real nu = normalizedMean*(1.0-normalizedMean)/normalizedVar - 1.0;
-        alpha_=normalizedMean*nu;
-        beta_=(1.0-normalizedMean)*nu;
+        alpha_=VALUE(normalizedMean*nu);
+        beta_=VALUE((1.0-normalizedMean)*nu);
     }
 
     boost::shared_ptr<CatSimulation> BetaRisk::newSimulation(const Date& start, const Date& end) const {

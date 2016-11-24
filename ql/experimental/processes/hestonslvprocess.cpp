@@ -49,12 +49,12 @@ namespace QuantLib {
     Disposable<Array> HestonSLVProcess::drift(Time t, const Array& x) const {
         Array tmp(2);
 
-        const Real s = std::exp(x[0]);
+        const Real s = exp(x[0]);
         const Volatility vol
-            = std::sqrt(x[1])*leverageFct_->localVol(t, s, true);
+            = sqrt(x[1])*leverageFct_->localVol(t, s, true);
 
-        tmp[0] = riskFreeRate()->forwardRate(t, t, Continuous)
-               - dividendYield()->forwardRate(t, t, Continuous)
+        tmp[0] = riskFreeRate()->forwardRate(t, t, Continuous).rate()
+            - dividendYield()->forwardRate(t, t, Continuous).rate()
                - 0.5*vol*vol;
 
         tmp[1] = kappa_*(theta_ - x[1]);
@@ -65,12 +65,12 @@ namespace QuantLib {
     Disposable<Matrix> HestonSLVProcess::diffusion(Time t, const Array& x)
     const {
 
-        const Real s = std::exp(x[0]);
+        const Real s = exp(x[0]);
         const Real vol =
-            std::min(1e-8, std::sqrt(x[1]*leverageFct_->localVol(t, s, true)));
+            min(Real(1e-8), sqrt(x[1]*leverageFct_->localVol(t, s, true)));
 
         const Real sigma2 = sigma_ * vol;
-        const Real sqrhov = std::sqrt(1.0 - rho_*rho_);
+        const Real sqrhov = sqrt(1.0 - rho_*rho_);
 
         Matrix tmp(2,2);
         tmp[0][0] = vol;          tmp[0][1] = 0.0;
@@ -83,7 +83,7 @@ namespace QuantLib {
         Time t0, const Array& x0, Time dt, const Array& dw) const {
         Array retVal(2);
 
-        const Real ex = std::exp(-kappa_*dt);
+        const Real ex = exp(-kappa_*dt);
 
         const Real m  =  theta_+(x0[1]-theta_)*ex;
         const Real s2 =  x0[1]*sigma_*sigma_*ex/kappa_*(1-ex)
@@ -91,8 +91,8 @@ namespace QuantLib {
         const Real psi = s2/(m*m);
 
         if (psi < 1.5) {
-            const Real b2 = 2/psi-1+std::sqrt(2/psi*(2/psi-1));
-            const Real b  = std::sqrt(b2);
+            const Real b2 = 2/psi-1+sqrt(2/psi*(2/psi-1));
+            const Real b  = sqrt(b2);
             const Real a  = m/(1+b2);
 
             retVal[1] = a*(b+dw[1])*(b+dw[1]);
@@ -102,22 +102,22 @@ namespace QuantLib {
             const Real beta = (1-p)/m;
             const Real u = CumulativeNormalDistribution()(dw[1]);
 
-            retVal[1] = ((u <= p) ? 0.0 : std::log((1-p)/(1-u))/beta);
+            retVal[1] = ((u <= p) ? 0.0 : log((1-p)/(1-u))/beta);
         }
 
-        const Real mu = riskFreeRate()->forwardRate(t0, t0+dt, Continuous)
-             - dividendYield()->forwardRate(t0, t0+dt, Continuous);
+        const Real mu = riskFreeRate()->forwardRate(t0, t0+dt, Continuous).rate()
+            - dividendYield()->forwardRate(t0, t0+dt, Continuous).rate();
 
-        const Real rho1 = std::sqrt(1-rho_*rho_);
+        const Real rho1 = sqrt(1-rho_*rho_);
 
         const Volatility l_0 = leverageFct_->localVol(t0, x0[0], true);
         const Real v_0 = 0.5*(x0[1]+retVal[1])*l_0*l_0;
 
-        retVal[0] = x0[0]*std::exp(mu*dt - 0.5*v_0*dt
+        retVal[0] = x0[0]*exp(mu*dt - 0.5*v_0*dt
             + rho_/sigma_*l_0 * (
                   retVal[1] - kappa_*theta_*dt
                   + 0.5*(x0[1]+retVal[1])*kappa_*dt - x0[1])
-            + rho1*std::sqrt(v_0*dt)*dw[0]);
+            + rho1*sqrt(v_0*dt)*dw[0]);
 
         return retVal;
     }

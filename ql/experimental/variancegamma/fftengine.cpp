@@ -118,8 +118,8 @@ namespace QuantLib {
                 if (payoff->strike() > maxStrike)
                     maxStrike = payoff->strike();
             }
-            Real nR = 2.0 * (std::log(maxStrike) + lambda_) / lambda_;
-      Size log2_n = (static_cast<Size>((std::log(nR) / std::log(2.0))) + 1);
+            Real nR = 2.0 * (log(maxStrike) + lambda_) / lambda_;
+            Size log2_n = (static_cast<Size>((log(VALUE(nR)) / log(2.0))) + 1);
             Size n = static_cast<std::size_t>(1) << log2_n;
 
             // Strike range (equation 19,20)
@@ -145,9 +145,9 @@ namespace QuantLib {
                 Real sw = eta * (3.0 + ((i % 2) == 0 ? -1.0 : 1.0) - ((i == 0) ? 1.0 : 0.0)) / 3.0; 
 
                 std::complex<Real> psi = df * complexFourierTransform(v_j - (alpha + 1)* i1);
-                psi = psi / (alpha*alpha + alpha - v_j*v_j + i1 * (2 * alpha + 1.0) * v_j);
+                psi = VALUE(psi) / VALUE(alpha*alpha + alpha - v_j*v_j + i1 * (2 * alpha + 1.0) * v_j);
 
-                fti[i] = std::exp(i1 * b * v_j)  * sw * psi;
+                fti[i] = exp(i1 * b * v_j)  * sw * psi;
             }
 
             // Perform fft
@@ -162,8 +162,8 @@ namespace QuantLib {
             for (Size i=0; i<n; i++)
             {
                 Real k_u = -b + lambda_ * i;
-                prices[i] = (std::exp(-alpha * k_u) / M_PI) * results[i].real();
-                strikes[i] = std::exp(k_u);
+                prices[i] = (exp(-alpha * k_u) / M_PI) * results[i].real();
+                strikes[i] = exp(k_u);
             }
 
             for (PayoffList::const_iterator it = payIt->second.begin();

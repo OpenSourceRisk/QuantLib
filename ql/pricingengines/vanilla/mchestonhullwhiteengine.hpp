@@ -132,7 +132,7 @@ namespace QuantLib {
         if (this->controlVariate_) {
             // control variate might lead to small negative
             // option values for deep OTM options
-            this->results_.value = std::max(0.0, this->results_.value);
+            this->results_.value = max(Real(0.0), this->results_.value);
         }
     }
                   

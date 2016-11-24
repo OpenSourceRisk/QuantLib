@@ -47,10 +47,10 @@ void SviSmileSection::init() {
 
 Real SviSmileSection::volatilityImpl(Rate strike) const {
 
-    Real k = std::log(std::max(strike, 1E-6) / forward_);
+    Real k = log(max(strike, Real(1E-6)) / forward_);
     Real totalVariance = detail::sviTotalVariance(params_[0], params_[1], params_[2],
                                                   params_[3], params_[4],k);
-    return std::sqrt(std::max(0.0, totalVariance / exerciseTime()));
+    return sqrt(max(Real(0.0), totalVariance / exerciseTime()));
 
 }
 } // namespace QuantLib

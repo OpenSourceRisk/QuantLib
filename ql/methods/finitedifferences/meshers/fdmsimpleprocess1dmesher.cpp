@@ -37,10 +37,10 @@ namespace QuantLib {
             const Real mp = (mandatoryPoint != Null<Real>()) ? mandatoryPoint
                                                              : process->x0();
 
-            const Real qMin = std::min(std::min(mp, process->x0()),
+            const Real qMin = min(min(mp, process->x0()),
                 process->evolve(0, process->x0(), t, 
                                 InverseCumulativeNormal()(eps)));
-            const Real qMax = std::max(std::max(mp, process->x0()),
+            const Real qMax = max(max(mp, process->x0()),
                 process->evolve(0, process->x0(), t,
                                 InverseCumulativeNormal()(1-eps)));
             

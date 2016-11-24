@@ -131,7 +131,7 @@ namespace QuantLib {
         // to be fixed: user-defined daycounter should be used
         InterestRate zeroRate =
             originalCurve_->zeroRate(t, comp_, freq_, true);
-        InterestRate spreadedRate(zeroRate + spread_->value(),
+        InterestRate spreadedRate(zeroRate.rate() + spread_->value(),
                                   zeroRate.dayCounter(),
                                   zeroRate.compounding(),
                                   zeroRate.frequency());
@@ -139,7 +139,7 @@ namespace QuantLib {
     }
 
     inline Rate ZeroSpreadedTermStructure::forwardImpl(Time t) const {
-        return originalCurve_->forwardRate(t, t, comp_, freq_, true)
+        return originalCurve_->forwardRate(t, t, comp_, freq_, true).rate()
             + spread_->value();
     }
 

@@ -65,7 +65,7 @@ namespace QuantLib {
         QL_REQUIRE(spot > 0.0, "negative or null underlying given");
         Real forwardPrice = spot * dividendDiscount / riskFreeDiscount;
         BlackCalculator black(payoff, forwardPrice,
-                              std::sqrt(variance), riskFreeDiscount);
+                              sqrt(variance), riskFreeDiscount);
 
         if (dividendDiscount>=1.0 && payoff->optionType()==Option::Call) {
             // early exercise never optimal
@@ -107,8 +107,8 @@ namespace QuantLib {
 
             Real forwardSk = Sk * dividendDiscount / riskFreeDiscount;
 
-            Real alpha = -2.0*std::log(riskFreeDiscount)/(variance);
-            Real beta = 2.0*std::log(dividendDiscount/riskFreeDiscount)/
+            Real alpha = -2.0*log(riskFreeDiscount)/(variance);
+            Real beta = 2.0*log(dividendDiscount/riskFreeDiscount)/
                                                 (variance);
             Real h = 1 - riskFreeDiscount;
             Real phi;
@@ -124,53 +124,53 @@ namespace QuantLib {
             }
             //it can throw: to be fixed
             // FLOATING_POINT_EXCEPTION
-            Real temp_root = std::sqrt ((beta-1)*(beta-1) + (4*alpha)/h);
+            Real temp_root = sqrt ((beta-1)*(beta-1) + (4*alpha)/h);
             Real lambda = (-(beta-1) + phi * temp_root) / 2;
             Real lambda_prime = - phi * alpha / (h*h * temp_root);
 
             Real black_Sk = blackFormula(payoff->optionType(), payoff->strike(),
-                                         forwardSk, std::sqrt(variance)) * riskFreeDiscount;
+                                         forwardSk, sqrt(variance)) * riskFreeDiscount;
             Real hA = phi * (Sk - payoff->strike()) - black_Sk;
 
-            Real d1_Sk = (std::log(forwardSk/payoff->strike()) + 0.5*variance)
-                /std::sqrt(variance);
-            Real d2_Sk = d1_Sk - std::sqrt(variance);
+            Real d1_Sk = (log(forwardSk/payoff->strike()) + 0.5*variance)
+                /sqrt(variance);
+            Real d2_Sk = d1_Sk - sqrt(variance);
             Real part1 = forwardSk * normalDist(d1_Sk) /
-                                        (alpha * std::sqrt(variance));
+                                        (alpha * sqrt(variance));
             Real part2 = - phi * forwardSk * cumNormalDist(phi * d1_Sk) *
-                      std::log(dividendDiscount) / std::log(riskFreeDiscount);
+                      log(dividendDiscount) / log(riskFreeDiscount);
             Real part3 = + phi * payoff->strike() * cumNormalDist(phi * d2_Sk);
             Real V_E_h = part1 + part2 + part3;
 
             Real b = (1-h) * alpha * lambda_prime / (2*(2*lambda + beta - 1));
             Real c = - ((1 - h) * alpha / (2 * lambda + beta - 1)) *
                 (V_E_h / (hA) + 1 / h + lambda_prime / (2*lambda + beta - 1));
-            Real temp_spot_ratio = std::log(spot / Sk);
+            Real temp_spot_ratio = log(spot / Sk);
             Real chi = temp_spot_ratio * (b * temp_spot_ratio + c);
 
             if (phi*(Sk-spot) > 0) {
                 results_.value = black.value() +
-                    hA * std::pow((spot/Sk), lambda) / (1 - chi);
-                Real temp_chi_prime = (2 * b / spot) * std::log(spot/Sk);
+                    hA * pow((spot/Sk), lambda) / (1 - chi);
+                Real temp_chi_prime = (2 * b / spot) * log(spot/Sk);
                 Real chi_prime = temp_chi_prime + c / spot;
                 Real chi_double_prime = 2*b/(spot*spot)
                     - temp_chi_prime / spot - c / (spot*spot);
-                Real d1_S = (std::log(forwardPrice/payoff->strike()) + 0.5*variance)
-                    / std::sqrt(variance);
+                Real d1_S = (log(forwardPrice/payoff->strike()) + 0.5*variance)
+                    / sqrt(variance);
                 //There is a typo in the original paper from Ju-Zhong
                 //the first term is the Black-Scholes delta/gamma.    
                 results_.delta = phi * dividendDiscount * cumNormalDist (phi * d1_S)
                     + (lambda / (spot * (1 - chi)) + chi_prime / ((1 - chi)*(1 - chi))) *
-                    (phi * (Sk - payoff->strike()) - black_Sk) * std::pow((spot/Sk), lambda);
+                    (phi * (Sk - payoff->strike()) - black_Sk) * pow((spot/Sk), lambda);
 
                 results_.gamma = dividendDiscount * normalDist (phi*d1_S) 
-                    / (spot * std::sqrt(variance))
+                    / (spot * sqrt(variance))
                     + (2 * lambda * chi_prime / (spot * (1 - chi) * (1 - chi))
                         + 2 * chi_prime * chi_prime / ((1 - chi) * (1 - chi) * (1 - chi))
                         + chi_double_prime / ((1 - chi) * (1 - chi))
                         + lambda * (lambda - 1) / (spot * spot * (1 - chi)))
                     * (phi * (Sk - payoff->strike()) - black_Sk)
-                    * std::pow((spot/Sk), lambda);
+                    * pow((spot/Sk), lambda);
             } else {
                 results_.value = phi * (spot - payoff->strike());
                 results_.delta = phi;

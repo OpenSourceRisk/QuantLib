@@ -104,7 +104,7 @@ void PagodaOptionTest::testCached() {
     Real storedValue = 0.01221094;
     Real tolerance = 1.0e-8;
 
-    if (std::fabs(value-storedValue) > tolerance)
+    if (abs(value-storedValue) > tolerance)
         BOOST_FAIL(std::setprecision(9)
                    << "    calculated value: " << value << "\n"
                    << "    expected:         " << storedValue);

@@ -73,7 +73,7 @@ namespace QuantLib {
                                          Real correlation)
     : TreeLattice<Impl>(tree1->timeGrid(), T::branches*T::branches),
       tree1_(tree1), tree2_(tree2), m_(T::branches,T::branches),
-      rho_(std::fabs(correlation)) {
+      rho_(abs(correlation)) {
 
         // what happens here?
         if (correlation < 0.0 && T::branches == 3) {

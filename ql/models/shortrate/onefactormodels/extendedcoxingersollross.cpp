@@ -51,9 +51,9 @@ namespace QuantLib {
     Real ExtendedCoxIngersollRoss::A(Time t, Time s) const {
         Real pt = termStructure()->discount(t);
         Real ps = termStructure()->discount(s);
-        Real value = CoxIngersollRoss::A(t,s)*std::exp(B(t,s)*phi_(t))*
-            (ps*CoxIngersollRoss::A(0.0,t)*std::exp(-B(0.0,t)*x0()))/
-            (pt*CoxIngersollRoss::A(0.0,s)*std::exp(-B(0.0,s)*x0()));
+        Real value = CoxIngersollRoss::A(t,s)*exp(B(t,s)*phi_(t))*
+            (ps*CoxIngersollRoss::A(0.0,t)*exp(-B(0.0,t)*x0()))/
+            (pt*CoxIngersollRoss::A(0.0,s)*exp(-B(0.0,s)*x0()));
         return value;
     }
 
@@ -68,30 +68,30 @@ namespace QuantLib {
         if (t < QL_EPSILON) {
             switch(type) {
               case Option::Call:
-                return std::max<Real>(discountS - strike, 0.0);
+                return max<Real>(discountS - strike, 0.0);
               case Option::Put:
-                return std::max<Real>(strike - discountS, 0.0);
+                return max<Real>(strike - discountS, 0.0);
               default: QL_FAIL("unsupported option type");
             }
         }
 
         Real sigma2 = sigma()*sigma();
-        Real h = std::sqrt(k()*k() + 2.0*sigma2);
+        Real h = sqrt(k()*k() + 2.0*sigma2);
         Real r0 = termStructure()->forwardRate(0.0, 0.0,
                                                Continuous, NoFrequency);
         Real b = B(t,s);
 
-        Real rho = 2.0*h/(sigma2*(std::exp(h*t) - 1.0));
+        Real rho = 2.0*h/(sigma2*(exp(h*t) - 1.0));
         Real psi = (k() + h)/sigma2;
 
         Real df = 4.0*k()*theta()/sigma2;
-        Real ncps = 2.0*rho*rho*(r0-phi_(0.0))*std::exp(h*t)/(rho+psi+b);
-        Real ncpt = 2.0*rho*rho*(r0-phi_(0.0))*std::exp(h*t)/(rho+psi);
+        Real ncps = 2.0*rho*rho*(r0-phi_(0.0))*exp(h*t)/(rho+psi+b);
+        Real ncpt = 2.0*rho*rho*(r0-phi_(0.0))*exp(h*t)/(rho+psi);
 
         NonCentralChiSquareDistribution chis(df, ncps);
         NonCentralChiSquareDistribution chit(df, ncpt);
 
-        Real z = std::log(CoxIngersollRoss::A(t,s)/strike)/b;
+        Real z = log(CoxIngersollRoss::A(t,s)/strike)/b;
         Real call = discountS*chis(2.0*z*(rho+psi+b)) -
             strike*discountT*chit(2.0*z*(rho+psi));
         if (type == Option::Call)

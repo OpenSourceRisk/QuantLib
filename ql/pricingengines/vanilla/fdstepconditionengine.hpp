@@ -119,7 +119,7 @@ namespace QuantLib {
         Real forwardPrice = spot * dividendDiscount / riskFreeDiscount;
 
         BlackCalculator black(striked_payoff, forwardPrice,
-                              std::sqrt(variance), riskFreeDiscount);
+                              sqrt(variance), riskFreeDiscount);
 
         results->value = prices_.valueAtCenter()
             - controlPrices_.valueAtCenter()

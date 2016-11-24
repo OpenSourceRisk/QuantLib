@@ -68,14 +68,14 @@ namespace QuantLib {
             cFunction(Real a, Real b) : a_(a), b_(b), exponential_(true) {}
             Real operator()(Real k) {
                 if (exponential_)
-                    return std::exp(-a_ * k + b_);
+                    return exp(-a_ * k + b_);
                 if (s_ < QL_EPSILON)
-                    return std::max(f_ - k, 0.0) + a_ * k + b_;
+                    return max(f_ - k, Real(0.0)) + a_ * k + b_;
                 boost::math::normal normal;
-                Real d1 = std::log(f_ / k) / s_ + s_ / 2.0;
+                Real d1 = log(f_ / k) / s_ + s_ / 2.0;
                 Real d2 = d1 - s_;
-                return f_ * boost::math::cdf(normal, d1) -
-                       k * boost::math::cdf(normal, d2) + a_ * k + b_;
+                return f_ * boost::math::cdf(normal, VALUE(d1)) -
+                    k * boost::math::cdf(normal, VALUE(d2)) + a_ * k + b_;
             }
             Real f_, s_, a_, b_;
             const bool exponential_;
@@ -86,12 +86,12 @@ namespace QuantLib {
                 : k0_(k0), k1_(k1), c0_(c0), c1_(c1), c0p_(c0p), c1p_(c1p) {}
             Real operator()(Real a) const {
                 boost::math::normal normal;
-                Real d20 = boost::math::quantile(normal, -c0p_ + a);
-                Real d21 = boost::math::quantile(normal, -c1p_ + a);
-                Real alpha = (d20 - d21) / (std::log(k0_) - std::log(k1_));
-                Real beta = d20 - alpha * std::log(k0_);
+                Real d20 = boost::math::quantile(normal, VALUE(-c0p_ + a));
+                Real d21 = boost::math::quantile(normal, VALUE(-c1p_ + a));
+                Real alpha = (d20 - d21) / (log(k0_) - log(k1_));
+                Real beta = d20 - alpha * log(k0_);
                 s_ = -1.0 / alpha;
-                f_ = std::exp(s_ * (beta + s_ / 2.0));
+                f_ = exp(s_ * (beta + s_ / 2.0));
                 QL_REQUIRE(f_ < QL_KAHALE_FMAX, "dummy"); // this is caught
                 cFunction cTmp(f_, s_, a, 0.0);
                 b_ = c0_ - cTmp(k0_);
@@ -105,10 +105,10 @@ namespace QuantLib {
         struct sHelper {
             sHelper(Real k0, Real c0, Real c0p) : k0_(k0), c0_(c0), c0p_(c0p) {}
             Real operator()(Real s) const {
-                s = std::max(s, 0.0);
+                s = max(s, Real(0.0));
                 boost::math::normal normal;
-                Real d20 = boost::math::quantile(normal, -c0p_);
-                f_ = k0_ * std::exp(s * d20 + s * s / 2.0);
+                Real d20 = boost::math::quantile(normal, VALUE(-c0p_));
+                f_ = k0_ * exp(s * d20 + s * s / 2.0);
                 QL_REQUIRE(f_ < QL_KAHALE_FMAX, "dummy"); // this is caught
                 cFunction c(f_, s, 0.0, 0.0);
                 return c(k0_) - c0_;
@@ -121,10 +121,10 @@ namespace QuantLib {
             sHelper1(Real k1, Real c0, Real c1, Real c1p)
                 : k1_(k1), c0_(c0), c1_(c1), c1p_(c1p) {}
             Real operator()(Real s) const {
-                s = std::max(s, 0.0);
+                s = max(s, Real(0.0));
                 boost::math::normal normal;
-                Real d21 = boost::math::quantile(normal, -c1p_);
-                f_ = k1_ * std::exp(s * d21 + s * s / 2.0);
+                Real d21 = boost::math::quantile(normal, VALUE(-c1p_));
+                f_ = k1_ * exp(s * d21 + s * s / 2.0);
                 QL_REQUIRE(f_ < QL_KAHALE_FMAX, "dummy"); // this is caught
                 b_ = c0_ - f_;
                 cFunction c(f_, s, 0.0, b_);

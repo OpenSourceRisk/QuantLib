@@ -140,7 +140,7 @@ void DividendOptionTest::testEuropeanValues() {
 
                     Real calculated = option.NPV();
                     Real expected = ref_option.NPV();
-                    Real error = std::fabs(calculated-expected);
+                    Real error = abs(calculated-expected);
                     if (error > tolerance) {
                         REPORT_FAILURE("value start limit",
                                        payoff, exercise,
@@ -215,7 +215,7 @@ void DividendOptionTest::testEuropeanKnownValue() {
     vol->setValue(v);
 
     Real calculated = option.NPV();
-    Real error = std::fabs(calculated-expected);
+    Real error = abs(calculated-expected);
     if (error > tolerance) {
         REPORT_FAILURE("value start limit",
                        payoff, exercise,
@@ -303,7 +303,7 @@ void DividendOptionTest::testEuropeanStartLimit() {
                     Real calculated = option.NPV();
                     spot->setValue(u-dividendValue);
                     Real expected = ref_option.NPV();
-                    Real error = std::fabs(calculated-expected);
+                    Real error = abs(calculated-expected);
                     if (error > tolerance) {
                         REPORT_FAILURE("value", payoff, exercise,
                                        u, q, r, today, v,
@@ -401,7 +401,7 @@ void DividendOptionTest::testEuropeanEndLimit() {
 
                     Real calculated = option.NPV();
                     Real expected = ref_option.NPV();
-                    Real error = std::fabs(calculated-expected);
+                    Real error = abs(calculated-expected);
                     if (error > tolerance) {
                         REPORT_FAILURE("value", payoff, exercise,
                                        u, q, r, today, v,
@@ -653,7 +653,7 @@ void DividendOptionTest::testFdEuropeanValues() {
                     Real calculated = option.NPV();
                     if (calculated > spot->value()*1.0e-5) {
                         Real expected = ref_option.NPV();
-                        Real error = std::fabs(calculated-expected);
+                        Real error = abs(calculated-expected);
                         if (error > tolerance) {
                             REPORT_FAILURE("value", payoff, exercise,
                                            u, q, r, today, v,
@@ -878,7 +878,7 @@ namespace {
             option.setPricingEngine(engine);
             Real value = option.NPV();
 
-            if (std::fabs(refValue-value) > tolerance)
+            if (abs(refValue-value) > tolerance)
                 BOOST_FAIL("NPV changed by null dividend :\n"
                            << "    previous value: " << value << "\n"
                            << "    current value:  " << refValue << "\n"

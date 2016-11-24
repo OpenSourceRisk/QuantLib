@@ -46,7 +46,7 @@ namespace QuantLib {
                            new DiscountingSwapEngine(discountCurve_, false)));
 
         Spread correction = swap.spread() *
-            std::fabs(swap.floatingLegBPS()/swap.fixedLegBPS());
+            abs(swap.floatingLegBPS()/swap.fixedLegBPS());
         Rate fixedRate = swap.fixedRate() - correction;
         Rate fairRate = swap.fairRate() - correction;
 
@@ -69,7 +69,7 @@ namespace QuantLib {
         Volatility vol = volatility->volatility(exercise, swapLength,
                                                 fairRate, true);
         results_.value = (swap.fixedLegBPS()/basisPoint) *
-            blackFormula(w, fixedRate, fairRate, vol*std::sqrt(exercise));
+            blackFormula(w, fixedRate, fairRate, vol*sqrt(exercise));
     }
 
 }

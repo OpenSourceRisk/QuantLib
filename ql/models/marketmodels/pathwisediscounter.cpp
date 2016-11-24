@@ -72,7 +72,7 @@ void MarketModelPathwiseDiscounter::getFactors(
         return;
     }
 
-    Real df = preDF * std::pow(postDF/preDF, postWeight_);
+    Real df = preDF * pow(postDF/preDF, postWeight_);
 
     factors[0] = df;
 

@@ -42,9 +42,9 @@ namespace QuantLib {
         if (zeroFirstDerivative>=0.0) {
             // ... is a minimum
             // must be abcd(zeroFirstDerivative)>=0
-            QL_REQUIRE(b>=-(d*c)/std::exp(c*a/b-1.0),
+            QL_REQUIRE(b>=-(d*c)/exp(c*a/b-1.0),
                        "b (" << b << ") less than " <<
-                       -(d*c)/std::exp(c*a/b-1.0) << ": negative function"
+                       -(d*c)/exp(c*a/b-1.0) << ": negative function"
                        " value at stationary point " << zeroFirstDerivative);
         }
 
@@ -109,7 +109,7 @@ namespace QuantLib {
     AbcdMathFunction::definiteIntegralCoefficients(Time t,
                                                    Time t2) const {
         Time dt = t2 - t;
-        Real expcdt = std::exp(-c_*dt);
+        Real expcdt = exp(-c_*dt);
         std::vector<Real> result(4);
         result[0] = diacplusbcc_ - (diacplusbcc_ + dibc_*dt)*expcdt;
         result[1] = dibc_ * (1.0 - expcdt);
@@ -122,7 +122,7 @@ namespace QuantLib {
     AbcdMathFunction::definiteDerivativeCoefficients(Time t,
                                                      Time t2) const {
         Time dt = t2 - t;
-        Real expcdt = std::exp(-c_*dt);
+        Real expcdt = exp(-c_*dt);
         std::vector<Real> result(4);
         result[1] = b_*c_/(1.0-expcdt);
         result[0] = a_*c_ - b_ + result[1]*dt*expcdt;

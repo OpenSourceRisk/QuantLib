@@ -54,7 +54,7 @@ namespace QuantLib {
             remainingAssets[removeAsset] = false;
             averagePrice += bestPrice;
         }
-        averagePrice /= std::min(fixings, numAssets);
+        averagePrice /= min<Real>(fixings, numAssets);
 
         Real payoff = (*payoff_)(averagePrice);
         return payoff * discount_;

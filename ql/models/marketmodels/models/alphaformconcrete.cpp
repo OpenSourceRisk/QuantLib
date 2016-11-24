@@ -43,10 +43,10 @@ namespace QuantLib {
 
     Real AlphaFormLinearHyperbolic::operator()(Integer i) const {
         Real at = alpha_*times_[i];
-        Real res = std::atan(at)-0.5*M_PI;
+        Real res = atan(at)-0.5*M_PI;
         res *= at;
         res += 1.0;
-        res =std::sqrt(res);
+        res =sqrt(res);
         return res;
     }
 

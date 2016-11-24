@@ -301,12 +301,12 @@ namespace QuantLib {
                     QL_REQUIRE(this->yBegin_[i]>0.0,
                                "invalid value (" << this->yBegin_[i]
                                << ") at index " << i);
-                    logY_[i] = std::log(this->yBegin_[i]);
+                    logY_[i] = log(this->yBegin_[i]);
                 }
                 interpolation_.update();
             }
             Real value(Real x) const {
-                return std::exp(interpolation_(x, true));
+                return exp(interpolation_(x, true));
             }
             Real primitive(Real) const {
                 QL_FAIL("LogInterpolation primitive not implemented");

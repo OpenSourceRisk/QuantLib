@@ -417,7 +417,7 @@ namespace QuantLib {
                           "   rho = " <<  rhos[j][k]  << "\n"
                           );
 
-                QL_ENSURE(useMaxError_ ? maxError : rmsError < maxErrorTolerance_,
+                QL_ENSURE(VALUE(useMaxError_ ? maxError : rmsError) < VALUE(maxErrorTolerance_),
                       "global swaptions calibration failed: "
                       "option tenor " << optionDates[j] <<
                       ", swap tenor " << swapTenors[k] <<
@@ -529,7 +529,7 @@ namespace QuantLib {
                           ", error " <<  calibrationResult[5]
                           );
 
-            QL_ENSURE(useMaxError_ ? calibrationResult[6] : calibrationResult[5] < maxErrorTolerance_,
+            QL_ENSURE(VALUE(useMaxError_ ? calibrationResult[6] : calibrationResult[5]) < VALUE(maxErrorTolerance_),
                       "section calibration failed: "
                       "option tenor " << optionDates[j] <<
                       ", swap tenor " << swapTenors[k] <<
@@ -747,7 +747,7 @@ namespace QuantLib {
         }
 
         for (Size k=0; k<nStrikes_; k++){
-            const Real strike = std::max(atmForward + strikeSpreads_[k],cutoffStrike_-shift);
+            const Real strike = max(atmForward + strikeSpreads_[k],cutoffStrike_-shift);
             const Real moneyness = (atmForward+shift)/(strike+shift);
 
             Matrix strikes(2,2,0.);

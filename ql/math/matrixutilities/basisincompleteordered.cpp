@@ -38,16 +38,16 @@ namespace QuantLib {
 
         for (Size j=0; j<currentBasis_.size(); ++j) {
             Real innerProd = std::inner_product(newVector_.begin(),
-                newVector_.end(),
-                currentBasis_[j].begin(), 0.0);
+                                                newVector_.end(),
+                                                currentBasis_[j].begin(), Real(0.0));
 
             for (Size k=0; k<euclideanDimension_; ++k)
                 newVector_[k] -=innerProd*currentBasis_[j][k];
         }
 
-        Real norm = std::sqrt(std::inner_product(newVector_.begin(),
-            newVector_.end(),
-            newVector_.begin(), 0.0));
+        Real norm = sqrt(std::inner_product(newVector_.begin(),
+                                            newVector_.end(),
+                                            newVector_.begin(), Real(0.0)));
 
         if (norm<1e-12) // maybe this should be a tolerance
             return false;
@@ -92,7 +92,7 @@ namespace QuantLib {
 
         Real norm(const Matrix& v, Size row)
         {
-            return std::sqrt(normSquared( v,  row));
+            return sqrt(normSquared( v,  row));
         }
 
         Real innerProduct(const Matrix& v, Size row1, const Matrix& w, Size row2)
@@ -182,7 +182,7 @@ namespace QuantLib {
                Real projectionOnOriginalDirection = innerProduct(originalVectors_,j,orthoNormalizedVectors_,j);
                Real sizeMultiplier = prevNormSquared/projectionOnOriginalDirection;
 
-               if (std::fabs(sizeMultiplier) < multiplierCutoff_)
+               if (abs(sizeMultiplier) < multiplierCutoff_)
                {
                     for (Size t=0; t < dimension_; ++t)
                         currentVector[t] = orthoNormalizedVectors_[j][t]*sizeMultiplier;

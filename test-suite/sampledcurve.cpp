@@ -39,26 +39,26 @@ void SampledCurveTest::testConstruction() {
     FSquared f2;
     curve.sample(f2);
     Real expected = 100.0;
-    if (std::fabs(curve.value(0) - expected) > 1e-5) {
+    if (abs(curve.value(0) - expected) > 1e-5) {
         BOOST_ERROR("function sampling failed");
     }
 
     curve.value(0) = 2.0;
-    if (std::fabs(curve.value(0) - 2.0) > 1e-5) {
+    if (abs(curve.value(0) - 2.0) > 1e-5) {
         BOOST_ERROR("curve value setting failed");
     }
 
     Array& value = curve.values();
     value[1] = 3.0;
-    if (std::fabs(curve.value(1) - 3.0) > 1e-5) {
+    if (abs(curve.value(1) - 3.0) > 1e-5) {
         BOOST_ERROR("curve value grid failed");
     }
 
     curve.shiftGrid(10.0);
-    if (std::fabs(curve.gridValue(0) - 0.0) > 1e-5) {
+    if (abs(curve.gridValue(0) - 0.0) > 1e-5) {
         BOOST_ERROR("sample curve shift grid failed");
     }
-    if (std::fabs(curve.value(0) - 2.0) > 1e-5) {
+    if (abs(curve.value(0) - 2.0) > 1e-5) {
         BOOST_ERROR("sample curve shift grid - value failed");
     }
 
@@ -69,7 +69,7 @@ void SampledCurveTest::testConstruction() {
         Real grid = curve.gridValue(i);
         Real value = curve.value(i);
         Real expected = f2(grid);
-        if (std::fabs(value - expected) > tolerance) {
+        if (abs(value - expected) > tolerance) {
             BOOST_ERROR("sample curve regriding failed" <<
                         "\n    at " << io::ordinal(i+1) << " point " << "(x = " << grid << ")" <<
                         "\n    grid value: " << value <<

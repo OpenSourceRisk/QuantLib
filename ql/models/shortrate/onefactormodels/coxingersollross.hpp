@@ -113,10 +113,10 @@ namespace QuantLib {
                  Real sigma,
                  Real x0)
         : ShortRateDynamics(boost::shared_ptr<StochasticProcess1D>(
-                        new HelperProcess(theta, k, sigma, std::sqrt(x0)))) {}
+                        new HelperProcess(theta, k, sigma, sqrt(x0)))) {}
 
         virtual Real variable(Time, Rate r) const {
-            return std::sqrt(r);
+            return sqrt(r);
         }
         virtual Real shortRate(Time, Real y) const {
             return y*y;

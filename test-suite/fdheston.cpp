@@ -173,7 +173,7 @@ void FdHestonTest::testFdmHestonBarrierVsBlackScholes() {
                                         new AnalyticBarrierEngine(bsProcess));
     
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = todaysDate + Integer(values[i].t*365+0.5);
+        Date exDate = todaysDate + Integer(VALUE(values[i].t*365+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         boost::dynamic_pointer_cast<SimpleQuote>(spot .currentLink())
@@ -202,7 +202,7 @@ void FdHestonTest::testFdmHestonBarrierVsBlackScholes() {
         const Real expected = barrierOption.NPV();
     
         const Real tol = 0.002;
-        if (std::fabs(calculatedHE - expected)/expected > tol) {
+        if (abs(calculatedHE - expected)/expected > tol) {
             BOOST_ERROR("Failed to reproduce expected Heston npv"
                         << "\n    calculated: " << calculatedHE
                         << "\n    expected:   " << expected
@@ -245,19 +245,19 @@ void FdHestonTest::testFdmHestonBarrier() {
     const Real deltaExpected =  0.5218;
     const Real gammaExpected = -0.0354;
 
-    if (std::fabs(barrierOption.NPV() - npvExpected) > tol) {
+    if (abs(barrierOption.NPV() - npvExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected npv"
                     << "\n    calculated: " << barrierOption.NPV()
                     << "\n    expected:   " << npvExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(barrierOption.delta() - deltaExpected) > tol) {
+    if (abs(barrierOption.delta() - deltaExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected delta"
                     << "\n    calculated: " << barrierOption.delta()
                     << "\n    expected:   " << deltaExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(barrierOption.gamma() - gammaExpected) > tol) {
+    if (abs(barrierOption.gamma() - gammaExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected gamma"
                     << "\n    calculated: " << barrierOption.gamma()
                     << "\n    expected:   " << gammaExpected
@@ -298,19 +298,19 @@ void FdHestonTest::testFdmHestonAmerican() {
     const Real deltaExpected = -0.30065;
     const Real gammaExpected =  0.02202;
     
-    if (std::fabs(option.NPV() - npvExpected) > tol) {
+    if (abs(option.NPV() - npvExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected npv"
                     << "\n    calculated: " << option.NPV()
                     << "\n    expected:   " << npvExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(option.delta() - deltaExpected) > tol) {
+    if (abs(option.delta() - deltaExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected delta"
                     << "\n    calculated: " << option.delta()
                     << "\n    expected:   " << deltaExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(option.gamma() - gammaExpected) > tol) {
+    if (abs(option.gamma() - gammaExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected gamma"
                     << "\n    calculated: " << option.gamma()
                     << "\n    expected:   " << gammaExpected
@@ -358,7 +358,7 @@ void FdHestonTest::testFdmHestonIkonenToivanen() {
         option.setPricingEngine(engine);
         
         Real calculated = option.NPV();
-        if (std::fabs(calculated - expected[i]) > tol) {
+        if (abs(calculated - expected[i]) > tol) {
             BOOST_ERROR("Failed to reproduce expected npv"
                         << "\n    strike:     " << strikes[i]
                         << "\n    calculated: " << calculated
@@ -414,7 +414,7 @@ void FdHestonTest::testFdmHestonBlackScholes() {
                                        100, 400)));
         
         Real calculated = option.NPV();
-        if (std::fabs(calculated - expected) > tol) {
+        if (abs(calculated - expected) > tol) {
             BOOST_ERROR("Failed to reproduce expected npv"
                         << "\n    strike:     " << strikes[i]
                         << "\n    calculated: " << calculated
@@ -430,7 +430,7 @@ void FdHestonTest::testFdmHestonBlackScholes() {
                                        FdmSchemeDesc::ExplicitEuler())));
         
         calculated = option.NPV();
-        if (std::fabs(calculated - expected) > tol) {
+        if (abs(calculated - expected) > tol) {
             BOOST_ERROR("Failed to reproduce expected npv"
                         << "\n    strike:     " << strikes[i]
                         << "\n    calculated: " << calculated
@@ -480,19 +480,19 @@ void FdHestonTest::testFdmHestonEuropeanWithDividends() {
     const Real deltaExpected = -0.396678;
     const Real gammaExpected =  0.027681;
         
-    if (std::fabs(option.NPV() - npvExpected) > tol) {
+    if (abs(option.NPV() - npvExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected npv"
                     << "\n    calculated: " << option.NPV()
                     << "\n    expected:   " << npvExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(option.delta() - deltaExpected) > tol) {
+    if (abs(option.delta() - deltaExpected) > tol) {
         BOOST_ERROR("Failed to reproduce expected delta"
                     << "\n    calculated: " << option.delta()
                     << "\n    expected:   " << deltaExpected
                     << "\n    tolerance:  " << tol); 
     }
-    if (std::fabs(option.gamma() - gammaExpected) > gammaTol) {
+    if (abs(option.gamma() - gammaExpected) > gammaTol) {
         BOOST_ERROR("Failed to reproduce expected gamma"
                     << "\n    calculated: " << option.gamma()
                     << "\n    expected:   " << gammaExpected
@@ -562,7 +562,7 @@ void FdHestonTest::testFdmHestonConvergence() {
                                           values[i].rho));
                 
                     Date exerciseDate = todaysDate 
-                        + Period(static_cast<Integer>(values[i].T*365), Days);
+                        + Period(static_cast<Integer>(VALUE(values[i].T*365)), Days);
                     boost::shared_ptr<Exercise> exercise(
                                           new EuropeanExercise(exerciseDate));
                 
@@ -587,8 +587,8 @@ void FdHestonTest::testFdmHestonConvergence() {
                     
                     option.setPricingEngine(analyticEngine);
                     const Real expected = option.NPV();
-                    if (   std::fabs(expected - calculated)/expected > 0.02
-                        && std::fabs(expected - calculated) > 0.002) {
+                    if (   abs(expected - calculated)/expected > 0.02
+                        && abs(expected - calculated) > 0.002) {
                         BOOST_ERROR("Failed to reproduce expected npv"
                                     << "\n    calculated: " << calculated
                                     << "\n    expected:   " << expected
@@ -654,7 +654,7 @@ void FdHestonTest::testFdmHestonIntradayPricing() {
             new FlatForward(now, dividendYield, dayCounter)));
 
         const Real gammaCalculated = option.gamma();
-        if (std::fabs(gammaCalculated - gammaExpected[i]) > 1e-5) {
+        if (abs(gammaCalculated - gammaExpected[i]) > 1e-5) {
             BOOST_FAIL("unable to reproduce intraday gamma values at time "
                     << "\n   timestamp : " << io::iso_datetime(now)
                     << "\n   expiry    : " << io::iso_datetime(maturity)

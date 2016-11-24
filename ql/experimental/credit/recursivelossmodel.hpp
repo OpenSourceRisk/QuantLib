@@ -149,7 +149,7 @@ namespace QuantLib {
 
         while(distIt != dist.end()) {
             Real loss = distIt->first * lossUnit_;
-            loss = std::max(std::min(loss, detachAmount_)-attachAmount_, 0.);
+            loss = max(min(loss, detachAmount_)-attachAmount_, 0.);
             // MIN MAX BUGS ....??
             expLoss += loss * distIt->second;
             distIt++;
@@ -232,7 +232,7 @@ namespace QuantLib {
         lgdsTmp = lgds;
         ///////////////std::remove(lgds.begin(), lgds.end(), 0.);
         lgds.erase(std::remove(lgds.begin(), lgds.end(), 0.), lgds.end());
-        lossUnit_ = *(std::min_element(lgds.begin(), lgds.end()))
+        lossUnit_ = *(min_element(lgds.begin(), lgds.end()))
             / nBuckets_;
         for(Size i=0; i<remainingBsktSize_; i++)
             wk_.push_back(std::floor(lgdsTmp[i]/lossUnit_ + .5));
@@ -282,7 +282,7 @@ namespace QuantLib {
         Real portfLoss =  xPlus-(xPlus-xMin)*(valPlus-percentile)
             /(valPlus-valMin);
         return //remainingNotional_ * 
-            std::min(std::max(portfLoss - attachAmount_, 0.), 
+            min(max(portfLoss - attachAmount_, 0.), 
                 detachAmount_ - attachAmount_);/////(detach_ - attach_);
     }
 
@@ -302,9 +302,9 @@ namespace QuantLib {
         // One could linearly triangulate the exact point and get extra 
         // precission on the first(broken) period.
         if(itNxt != distrib.end()) { 
-            Real lossNxt = std::min(std::max(itNxt->first - attachAmount_, 
+            Real lossNxt = min(max(itNxt->first - attachAmount_, 
                 0.), detachAmount_ - attachAmount_);
-            Real lossHere = std::min(std::max(itDist->first - attachAmount_,
+            Real lossHere = min(max(itDist->first - attachAmount_,
                 0.), detachAmount_ - attachAmount_);
 
             Real val =  lossNxt - (itNxt->second - perctl) * 
@@ -312,9 +312,9 @@ namespace QuantLib {
             Real suma = (itNxt->second - perctl) * (lossNxt + val) * .5;
             itDist++;itNxt++;
             do{
-                lossNxt = std::min(std::max(itNxt->first - attachAmount_, 
+                lossNxt = min(max(itNxt->first - attachAmount_, 
                     0.), detachAmount_ - attachAmount_);
-                lossHere = std::min(std::max(itDist->first - attachAmount_, 
+                lossHere = min(max(itDist->first - attachAmount_, 
                     0.), detachAmount_ - attachAmount_);
                 suma += .5 * (lossHere + lossNxt) * (itNxt->second - 
                     itDist->second);
@@ -457,8 +457,8 @@ namespace QuantLib {
 
         while(distIt != pIndepDistrib.end()) {
             Real loss = distIt->first * lossUnit_;
-     //       loss = std::max(std::min(loss, detachAmount_)-attachAmount_, 0.);
-            loss = std::min(std::max(loss - attachAmount_, 0.), 
+     //       loss = max(min(loss, detachAmount_)-attachAmount_, 0.);
+            loss = min(max(loss - attachAmount_, 0.), 
                 detachAmount_ - attachAmount_);
             // MIN MAX BUGS ....??
             expLoss += loss * distIt->second;
@@ -490,8 +490,8 @@ namespace QuantLib {
 
         while(distIt != pIndepDistrib.end()) {
             Real loss = distIt->first * lossUnit_;
-   //         loss = std::max(std::min(loss, detachAmount_)-attachAmount_, 0.);
-            loss = std::min(std::max(loss - attachAmount_, 0.), 
+   //         loss = max(min(loss, detachAmount_)-attachAmount_, 0.);
+            loss = min(max(loss - attachAmount_, 0.), 
                 detachAmount_ - attachAmount_);
             // MIN MAX BUGS ....???
             expLoss += loss * distIt->second;
@@ -514,7 +514,7 @@ namespace QuantLib {
         while(distIt != pIndepDistrib.end()) {
             //Real loss = distIt->first * loss_unit_
             //                    ;
-            //loss = std::max(std::min(loss,
+            //loss = max(min(loss,
             //    results_.xMax)-results_.xMin, 0.);
             //expLoss += loss * distIt->second;
 

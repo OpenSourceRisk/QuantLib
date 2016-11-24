@@ -35,7 +35,7 @@ namespace QuantLib {
         Real qam = a-1.0;
         Real c = 1.0;
         Real d = 1.0-qab*x/qap;
-        if (std::fabs(d) < QL_EPSILON)
+        if (abs(d) < QL_EPSILON)
             d = QL_EPSILON;
         d = 1.0/d;
         Real result = d;
@@ -45,20 +45,20 @@ namespace QuantLib {
             m2=2*m;
             aa=m*(b-m)*x/((qam+m2)*(a+m2));
             d=1.0+aa*d;
-            if (std::fabs(d) < QL_EPSILON) d=QL_EPSILON;
+            if (abs(d) < QL_EPSILON) d=QL_EPSILON;
             c=1.0+aa/c;
-            if (std::fabs(c) < QL_EPSILON) c=QL_EPSILON;
+            if (abs(c) < QL_EPSILON) c=QL_EPSILON;
             d=1.0/d;
             result *= d*c;
             aa = -(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
             d=1.0+aa*d;
-            if (std::fabs(d) < QL_EPSILON) d=QL_EPSILON;
+            if (abs(d) < QL_EPSILON) d=QL_EPSILON;
             c=1.0+aa/c;
-            if (std::fabs(c) < QL_EPSILON) c=QL_EPSILON;
+            if (abs(c) < QL_EPSILON) c=QL_EPSILON;
             d=1.0/d;
             del=d*c;
             result *= del;
-            if (std::fabs(del-1.0) < accuracy)
+            if (abs(del-1.0) < accuracy)
                 return result;
         }
         QL_FAIL("a or b too big, or maxIteration too small in betacf");
@@ -79,9 +79,9 @@ namespace QuantLib {
     else
         QL_REQUIRE(x>0.0 && x<1.0, "x must be in [0,1]");
 
-    Real result = std::exp(GammaFunction().logValue(a+b) -
+    Real result = exp(GammaFunction().logValue(a+b) -
         GammaFunction().logValue(a) - GammaFunction().logValue(b) +
-        a*std::log(x) + b*std::log(1.0-x));
+        a*log(x) + b*log(1.0-x));
 
     if (x < (a+1.0)/(a+b+2.0))
         return result *

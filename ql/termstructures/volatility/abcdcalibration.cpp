@@ -35,18 +35,18 @@ namespace QuantLib {
     // to constrained <- from unconstrained
     Array AbcdCalibration::AbcdParametersTransformation::direct(const Array& x) const {
         y_[1] = x[1];
-        y_[2] = std::exp(x[2]);
-        y_[3] = std::exp(x[3]);
-        y_[0] = std::exp(x[0]) - y_[3];
+        y_[2] = exp(x[2]);
+        y_[3] = exp(x[3]);
+        y_[0] = exp(x[0]) - y_[3];
         return y_;
     }
 
     // to unconstrained <- from constrained
     Array AbcdCalibration::AbcdParametersTransformation::inverse(const Array& x) const {
         y_[1] = x[1];
-        y_[2] = std::log(x[2]);
-        y_[3] = std::log(x[3]);
-        y_[0] = std::log(x[0] + x[3]);
+        y_[2] = log(x[2]);
+        y_[3] = log(x[3]);
+        y_[0] = log(x[0] + x[3]);
         return y_;
     }
 
@@ -99,7 +99,7 @@ namespace QuantLib {
         if (vegaWeighted_) {
             Real weightsSum = 0.0;
             for (Size i=0; i<times_.size() ; i++) {
-                Real stdDev = std::sqrt(blackVols_[i]* blackVols_[i]* times_[i]);
+                Real stdDev = sqrt(blackVols_[i]* blackVols_[i]* times_[i]);
                 // when strike==forward, the blackFormulaStdDevDerivative becomes
                 weights_[i] = CumulativeNormalDistribution().derivative(.5*stdDev);
                 weightsSum += weights_[i];
@@ -181,14 +181,14 @@ namespace QuantLib {
             error = (value(times_[i]) - blackVols_[i]);
             squaredError += error * error * weights_[i];
         }
-        return std::sqrt(n*squaredError/(n-1));
+        return sqrt(n*squaredError/(n-1));
     }
 
     Real AbcdCalibration::maxError() const {
         Real error, maxError = QL_MIN_REAL;
         for (Size i=0; i<times_.size() ; i++) {
-            error = std::fabs(value(times_[i]) - blackVols_[i]);
-            maxError = std::max(maxError, error);
+            error = abs(value(times_[i]) - blackVols_[i]);
+            maxError = max(maxError, error);
         }
         return maxError;
     }
@@ -197,7 +197,7 @@ namespace QuantLib {
     Disposable<Array> AbcdCalibration::errors() const {
         Array results(times_.size());
         for (Size i=0; i<times_.size() ; i++) {
-            results[i] = (value(times_[i]) - blackVols_[i])* std::sqrt(weights_[i]);
+            results[i] = (value(times_[i]) - blackVols_[i])* sqrt(weights_[i]);
         }
         return results;
     }

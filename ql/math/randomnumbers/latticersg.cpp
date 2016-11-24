@@ -47,7 +47,7 @@ namespace QuantLib
         for (Size j=0; j < dimensionality_; ++j)
         {
             Real theta = i_*z_[j]/N_;
-            sequence_.value[j]= std::fmod(theta,1.0);
+            sequence_.value[j]= std::fmod(VALUE(theta),1.0);
         }
         ++i_;
 

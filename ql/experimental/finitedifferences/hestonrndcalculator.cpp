@@ -59,8 +59,8 @@ namespace {
 
         std::complex<Real> omega(const HestonParams& p, Real p_x) {
            const std::complex<Real> g = gamma(p, p_x);
-           return std::sqrt(g*g
-                  + p.sigma*p.sigma*std::complex<Real>(p_x*p_x, -p_x));
+           return sqrt(g*g
+                       + p.sigma*p.sigma*std::complex<Real>(p_x*p_x, -p_x));
         }
 
         class CpxPv_Helper
@@ -68,8 +68,8 @@ namespace {
           public:
             CpxPv_Helper(const HestonParams& p, Real x, Time t)
               : p_(p), t_(t), x_(x),
-                c_inf_(std::min(10.0, std::max(0.0001,
-                      std::sqrt(1.0-square<Real>()(p_.rho))/p_.sigma))
+                c_inf_(min(Real(10.0), max(Real(0.0001),
+                      sqrt(1.0-square<Real>()(p_.rho))/p_.sigma))
                       *(p_.v0 + p_.kappa*p_.theta*t))  {}
 
             Real operator()(Real x) const {
@@ -81,9 +81,8 @@ namespace {
                     return 0.0;
                 }
 
-                const Real u_x = std::max(QL_EPSILON, -std::log(p_x)/c_inf_);
-                return std::real(phi(u_x)
-                        /((p_x*c_inf_)*std::complex<Real>(0.0, u_x)));
+                const Real u_x = max(QL_EPSILON, -log(p_x)/c_inf_);
+                return std::real(phi(VALUE(u_x)) / VALUE(((p_x * c_inf_) * std::complex<Real>(Real(0.0), u_x))));
             }
 
           private:
@@ -92,22 +91,24 @@ namespace {
                     return std::complex<Real>(0.0, 0.0);
                 }
 
-                const Real u_x = -std::log(x)/c_inf_;
-                return phi(u_x)/(x*c_inf_);
+                const Real u_x = -log(x)/c_inf_;
+                return phi(VALUE(u_x))/VALUE(x*c_inf_);
             }
 
-            std::complex<Real> phi(Real p_x) const {
-                const Real sigma2 = p_.sigma*p_.sigma;
-                const std::complex<Real> g = gamma(p_, p_x);
-                const std::complex<Real> o = omega(p_, p_x);
-                const std::complex<Real> gamma = (g-o)/(g+o);
+            std::complex<double> phi(double p_x) const {
+                const double sigma2 = VALUE(p_.sigma*p_.sigma);
+                const std::complex<double> g = VALUE(gamma(p_, p_x));
+                const std::complex<double> o = VALUE(omega(p_, p_x));
+                const std::complex<double> gamma = (g-o)/(g+o);
 
-                return 2.0*std::exp(std::complex<Real>(0.0, p_x*x_)
-                        - p_.v0*std::complex<Real>(p_x*p_x, -p_x)
-                          /(g+o*(1.0+std::exp(-o*t_))/(1.0-std::exp(-o*t_)))
-                         +p_.kappa*p_.theta/sigma2*(
-                           (g-o)*t_ - 2.0*std::log((1.0-gamma*std::exp(-o*t_))
-                                                               /(1.0-gamma))));
+                return double(2.0) *
+                       exp(std::complex<double>(0.0, VALUE(p_x * x_)) -
+                           VALUE(p_.v0) * std::complex<double>(p_x * p_x, -p_x) /
+                               (g + o * (double(1.0) + exp(-o * VALUE(t_))) / (double(1.0) - exp(-o * VALUE(t_)))) +
+                           VALUE(p_.kappa * p_.theta) / sigma2 *
+                               ((g - o) * VALUE(t_) -
+                                double(2.0) *
+                                    log((double(1.0) - gamma * exp(-o * VALUE(t_))) / (double(1.0) - gamma))));
             }
 
             const HestonParams& p_;
@@ -121,7 +122,7 @@ namespace {
         const boost::shared_ptr<HestonProcess>& hestonProcess,
         Real integrationEps, Size maxIntegrationIterations)
     : hestonProcess_(hestonProcess),
-      x0_(std::log(hestonProcess_->s0()->value())),
+      x0_(log(hestonProcess_->s0()->value())),
       integrationEps_(integrationEps),
       maxIntegrationIterations_(maxIntegrationIterations) { }
 
@@ -129,7 +130,7 @@ namespace {
         const DiscountFactor dr = hestonProcess_->riskFreeRate()->discount(t);
         const DiscountFactor dq = hestonProcess_->dividendYield()->discount(t);
 
-        return x - x0_ + std::log(dr/dq);
+        return x - x0_ + log(dr/dq);
     }
 
     Real HestonRNDCalculator::pdf(Real x, Time t) const {
@@ -153,7 +154,7 @@ namespace {
         const Real theta = hestonProcess_->theta();
 
         const Volatility expVol
-            = std::sqrt(theta + (v0-theta)*(1-std::exp(-kappa*t))/(t*kappa));
+            = sqrt(theta + (v0-theta)*(1-exp(-kappa*t))/(t*kappa));
 
         const boost::shared_ptr<BlackScholesMertonProcess> bsmProcess(
             new BlackScholesMertonProcess(

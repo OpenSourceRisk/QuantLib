@@ -159,7 +159,7 @@ void DayCounterTest::testActualActual() {
             rd2 = testCases[i].refEnd;
         Time calculated = dayCounter.yearFraction(d1,d2,rd1,rd2);
 
-        if (std::fabs(calculated-testCases[i].result) > 1.0e-10) {
+        if (abs(calculated-testCases[i].result) > 1.0e-10) {
             std::ostringstream period, refPeriod;
             period << "period: " << d1 << " to " << d2;
             if (testCases[i].convention == ActualActual::ISMA)
@@ -190,7 +190,7 @@ void DayCounterTest::testSimple() {
         for (Size i=0; i<n; i++) {
             Date end = start + p[i];
             Time calculated = dayCounter.yearFraction(start,end);
-            if (std::fabs(calculated-expected[i]) > 1.0e-12) {
+            if (abs(calculated-expected[i]) > 1.0e-12) {
                 BOOST_FAIL("from " << start << " to " << end << ":\n"
                            << std::setprecision(12)
                            << "    calculated: " << calculated << "\n"
@@ -216,7 +216,7 @@ void DayCounterTest::testOne() {
         for (Size i=0; i<n; i++) {
             Date end = start + p[i];
             Time calculated = dayCounter.yearFraction(start,end);
-            if (std::fabs(calculated-expected[i]) > 1.0e-12) {
+            if (abs(calculated-expected[i]) > 1.0e-12) {
                 BOOST_FAIL("from " << start << " to " << end << ":\n"
                            << std::setprecision(12)
                            << "    calculated: " << calculated << "\n"
@@ -270,7 +270,7 @@ void DayCounterTest::testBusiness252() {
 
     for (Size i=1; i<testDates.size(); i++) {
         calculated = dayCounter1.yearFraction(testDates[i-1],testDates[i]);
-        if (std::fabs(calculated-expected[i-1]) > 1.0e-12) {
+        if (abs(calculated-expected[i-1]) > 1.0e-12) {
                 BOOST_ERROR("from " << testDates[i-1]
                             << " to " << testDates[i] << ":\n"
                             << std::setprecision(14)
@@ -283,7 +283,7 @@ void DayCounterTest::testBusiness252() {
 
     for (Size i=1; i<testDates.size(); i++) {
         calculated = dayCounter2.yearFraction(testDates[i-1],testDates[i]);
-        if (std::fabs(calculated-expected[i-1]) > 1.0e-12) {
+        if (abs(calculated-expected[i-1]) > 1.0e-12) {
                 BOOST_ERROR("from " << testDates[i-1]
                             << " to " << testDates[i] << ":\n"
                             << std::setprecision(14)
@@ -447,11 +447,11 @@ void DayCounterTest::testIntraday() {
                              + dc.yearFraction(d1, d1+2);
 
         BOOST_CHECK_MESSAGE(
-            std::fabs(dc.yearFraction(d1, d2) - expected) < tol,
+            abs(dc.yearFraction(d1, d2) - expected) < tol,
             "can not reproduce result for day counter " << dc.name());
 
         BOOST_CHECK_MESSAGE(
-            std::fabs(dc.yearFraction(d2, d1) + expected) < tol,
+            abs(dc.yearFraction(d2, d1) + expected) < tol,
             "can not reproduce result for day counter " << dc.name());
     }
 #endif

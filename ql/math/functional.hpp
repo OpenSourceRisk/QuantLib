@@ -82,7 +82,7 @@ namespace QuantLib {
       public:
         equal_within(const T& eps) : eps_(eps) {}
         bool operator()(const T a, const T b) const {
-            return std::fabs(a-b) <= eps_;
+            return abs(a-b) <= eps_;
         }
       private:
         const T eps_;

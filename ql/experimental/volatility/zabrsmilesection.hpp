@@ -31,7 +31,7 @@
 #include <ql/termstructures/volatility/smilesectionutils.hpp>
 #include <vector>
 
-using std::exp;
+// using exp;
 
 namespace QuantLib {
 
@@ -242,7 +242,7 @@ void ZabrSmileSection<Evaluation>::init3(ZabrLocalVolatility) {
     Real c0p = (callPriceFct_->operator()(strikes_.back() - eps) - c0) / eps;
 
     a_ = c0p / c0;
-    b_ = std::log(c0) + a_ * strikes_.back();
+    b_ = log(c0) + a_ * strikes_.back();
 }
 
 template <typename Evaluation>
@@ -264,7 +264,7 @@ Real ZabrSmileSection<Evaluation>::optionPrice(Real strike, Option::Type type,
                                                ZabrShortMaturityNormal) const {
     return bachelierBlackFormula(
         type, strike, forward_,
-        model_->normalVolatility(strike) * std::sqrt(exerciseTime()), discount);
+        model_->normalVolatility(strike) * sqrt(exerciseTime()), discount);
 }
 
 template <typename Evaluation>
@@ -290,7 +290,7 @@ template <typename Evaluation>
 Real
 ZabrSmileSection<Evaluation>::volatilityImpl(Rate strike,
                                              ZabrShortMaturityLognormal) const {
-    strike = std::max(1E-6, strike);
+    strike = max(Real(1E-6), strike);
     return model_->lognormalVolatility(strike);
 }
 
@@ -308,7 +308,7 @@ ZabrSmileSection<Evaluation>::volatilityImpl(Rate strike,
         impliedVol =
             blackFormulaImpliedStdDev(type, strike, model_->forward(),
                                       optionPrice(strike, type, 1.0), 1.0) /
-            std::sqrt(exerciseTime());
+            sqrt(exerciseTime());
     } catch (...) {
     }
     return impliedVol;

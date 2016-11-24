@@ -84,7 +84,7 @@ namespace QuantLib {
         QL_REQUIRE(forwards.size()==numberOfRates_,
                    "mismatch between forwards and rateTimes");
         for (Size i=0; i<numberOfRates_; ++i)
-            initialLogForwards_[i] = std::log(forwards[i] +
+            initialLogForwards_[i] = log(forwards[i] +
                                               displacements_[i]);
         calculators_[initialStep_].compute(forwards, initialDrifts_);
     }
@@ -117,9 +117,9 @@ namespace QuantLib {
         {
             logForwards_[i] += fixedDrift[i];
             logForwards_[i] += std::inner_product( A.row_begin(i), A.row_end(i),
-                                                   brownians_.begin(), 0.0 );
-            forwards_[i] = std::exp(logForwards_[i]) - displacements_[i];
-            blFwd = std::sqrt( marketModel_->initialRates()[i]*forwards_[i] );
+                                                   brownians_.begin(), Real(0.0) );
+            forwards_[i] = exp(logForwards_[i]) - displacements_[i];
+            blFwd = sqrt( marketModel_->initialRates()[i]*forwards_[i] );
             g_[i] = rateTaus_[i]*( blFwd+displacements_[i] )/
                     ( 1.0+rateTaus_[i]*blFwd );
         }
@@ -132,10 +132,10 @@ namespace QuantLib {
                 drifts2 -= g_[j]*C[i][j];
             logForwards_[i] += drifts2 + fixedDrift[i];
             logForwards_[i] += std::inner_product( A.row_begin(i), A.row_end(i),
-                                                   brownians_.begin(), 0.0);
-            forwards_[i] = std::exp(logForwards_[i]) - displacements_[i];
+                                                   brownians_.begin(), Real(0.0));
+            forwards_[i] = exp(logForwards_[i]) - displacements_[i];
 
-            blFwd = std::sqrt( marketModel_->initialRates()[i]*forwards_[i] );
+            blFwd = sqrt( marketModel_->initialRates()[i]*forwards_[i] );
             g_[i] = rateTaus_[i]*( blFwd+displacements_[i] )/
                     ( 1.0+rateTaus_[i]*blFwd );
         }

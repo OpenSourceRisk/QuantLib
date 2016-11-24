@@ -82,8 +82,8 @@ namespace {
         */
         Real absDiff = found - expected;
         Real relDiff = absDiff / expected;
-        BOOST_CHECK_MESSAGE (fabs(relDiff) < relativeTolerance ||
-                             fabs(absDiff) < bpTolerance,
+        BOOST_CHECK_MESSAGE (abs(relDiff) < relativeTolerance ||
+                             abs(absDiff) < bpTolerance,
                              "case " << i << " " << j << " ("<< desc << "): "
                              << found << " vs. " << expected);
     }

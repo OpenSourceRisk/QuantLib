@@ -115,7 +115,7 @@ namespace QuantLib {
     : slope_(slope), K_(K), frequency_(anIndex->frequency()),
       indexIsInterpolated_(anIndex->interpolated()),
       capfloor_(MakeYoYInflationCapFloor(type,
-            (Size)std::floor(0.5+surf->timeFromReference(surf->minMaturity())),
+                                         (Size)std::floor(VALUE(0.5+surf->timeFromReference(surf->minMaturity()))),
                                          surf->calendar(), anIndex, lag, K)
                 .withNominal(10000.0) ),
       priceToMatch_(priceToMatch), surf_(surf), p_(p) {
@@ -126,7 +126,7 @@ namespace QuantLib {
         lag_ = surf_->observationLag();
         capfloor_ =
             MakeYoYInflationCapFloor(type,
-                (Size)std::floor(0.5+surf->timeFromReference(surf->minMaturity())),
+                                     (Size)std::floor(VALUE(0.5+surf->timeFromReference(surf->minMaturity()))),
                                      surf->calendar(), anIndex, lag, K)
             .withNominal(10000.0) ;
 
@@ -139,7 +139,7 @@ namespace QuantLib {
         tvec_[1] = surf_->dayCounter().yearFraction(surf_->referenceDate(),
                                                     dvec_[1]);
 
-        Size n = (Size)std::floor(0.5 + surf->timeFromReference(surf_->minMaturity()));
+        Size n = (Size)std::floor(VALUE(0.5 + surf->timeFromReference(surf_->minMaturity())));
         QL_REQUIRE( n > 0,
                     "first maturity in price surface not > 0: "
                     << n);
@@ -244,7 +244,7 @@ namespace QuantLib {
                                                new SimpleQuote( nextPrice )));
                 // helper should be an integer number of periods away,
                 // this is enforced by rounding
-                Size nT = (Size)floor(s->timeFromReference(s->yoyOptionDateFromTenor(Tp))+0.5);
+                Size nT = (Size)floor(VALUE(s->timeFromReference(s->yoyOptionDateFromTenor(Tp))+0.5));
                 helpers.push_back(boost::shared_ptr<YoYOptionletHelper>(
                           new YoYOptionletHelper(quote1, notional, useType,
                                                  lag_,
@@ -270,7 +270,7 @@ namespace QuantLib {
             // this is the artificial vol at zero so that first section works
             Real Tmin = s->timeFromReference(s->yoyOptionDateFromTenor(TPmin));
             Volatility baseYoYVolatility = found - slope * Tmin * found;
-            Rate eps = std::max(K, 0.02) / 1000.0;
+            Rate eps = max(K, Real(0.02)) / 1000.0;
             Rate minStrike = K-eps;
             Rate maxStrike = K+eps;
             boost::shared_ptr<

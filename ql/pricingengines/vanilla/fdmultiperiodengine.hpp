@@ -121,7 +121,7 @@ namespace QuantLib {
                     firstNonZeroDate = getDividendTime(1);
             }
 
-            if (std::fabs(getDividendTime(lastIndex) - getResidualTime())
+            if (abs(getDividendTime(lastIndex) - getResidualTime())
                 < dateTolerance) {
                 lastDateIsResTime = true;
                 lastIndex = Integer(dateNumber) - 2;

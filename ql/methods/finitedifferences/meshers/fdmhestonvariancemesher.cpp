@@ -44,14 +44,14 @@ namespace QuantLib {
             
             for (Size l=1; l<=tAvgSteps; ++l) {
                 const Real t = (maturity*l)/tAvgSteps;
-                const Real ncp = 4*process->kappa()*std::exp(-process->kappa()*t)
+                const Real ncp = 4*process->kappa()*exp(-process->kappa()*t)
                     /(square<Real>()(process->sigma())
-                    *(1-std::exp(-process->kappa()*t)))*process->v0();
+                    *(1-exp(-process->kappa()*t)))*process->v0();
                 const Real k = square<Real>()(process->sigma())
-                    *(1-std::exp(-process->kappa()*t))/(4*process->kappa());
+                    *(1-exp(-process->kappa()*t))/(4*process->kappa());
 
                 const Real qMin = 0.0; // v_min = 0.0;
-                const Real qMax = std::max(process->v0(),
+                const Real qMax = max(process->v0(),
                     k*InverseNonCentralChiSquareDistribution(
                                             df, ncp, 1000,  1e-8)(1-epsilon));
 
@@ -67,7 +67,7 @@ namespace QuantLib {
                     const Real tmp = k*InverseNonCentralChiSquareDistribution(
                         df, ncp, 1000, 1e-8)(p);
 
-                    const Real vx = std::max(vTmp+minVStep, tmp);
+                    const Real vx = max(vTmp+minVStep, tmp);
                     p = NonCentralChiSquareDistribution(df, ncp)(vx/k);
                     vTmp=vx;
                     grid.insert(std::pair<Real, Real>(vx, p));
@@ -90,12 +90,12 @@ namespace QuantLib {
         catch (const Error&) {
             // use default mesh
             const Real vol = process->sigma()*
-                std::sqrt(process->theta()/(2*process->kappa()));
+                sqrt(process->theta()/(2*process->kappa()));
 
             const Real mean = process->theta();
-            const Real upperBound = std::max(process->v0()+4*vol, mean+4*vol);
+            const Real upperBound = max(process->v0()+4*vol, mean+4*vol);
             const Real lowerBound
-                = std::max(0.0, std::min(process->v0()-4*vol, mean-4*vol));
+                = max(Real(0.0), min(process->v0()-4*vol, mean-4*vol));
 
             for (Size i=0; i < size; ++i) {
                 pGrid[i] = i/(size-1.0);
@@ -104,20 +104,21 @@ namespace QuantLib {
         }
 
         Real skewHint = ((process->kappa() != 0.0) 
-                ? std::max(1.0, process->sigma()/process->kappa()) : 1.0);
+                         ? max(Real(1.0), process->sigma()/process->kappa()) : 1.0);
 
         std::sort(pGrid.begin(), pGrid.end());
         volaEstimate_ = GaussLobattoIntegral(100000, 1e-4)(
-            boost::function1<Real, Real>(
-                compose(std::ptr_fun<Real, Real>(std::sqrt),
-                        LinearInterpolation(pGrid.begin(), pGrid.end(),
-                        vGrid.begin()))),
-            pGrid.front(), pGrid.back())*std::pow(skewHint, 1.5);
-        
+                            [&pGrid, &vGrid](const Real x) {
+                                LinearInterpolation l(pGrid.begin(), pGrid.end(), vGrid.begin());
+                                return sqrt(l(x));
+                            },
+                            pGrid.front(), pGrid.back()) *
+                        pow(skewHint, 1.5);
+
         const Real v0 = process->v0();
         for (Size i=1; i<vGrid.size(); ++i) {
             if (vGrid[i-1] <= v0 && vGrid[i] >= v0) {
-                if (std::fabs(vGrid[i-1] - v0) < std::fabs(vGrid[i] - v0))
+                if (abs(vGrid[i-1] - v0) < abs(vGrid[i] - v0))
                     vGrid[i-1] = v0;
                 else
                     vGrid[i] = v0;

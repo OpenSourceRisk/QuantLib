@@ -247,7 +247,7 @@ namespace QuantLib {
             for(Size iEvt=0; iEvt < events.size(); iEvt++)
                 // duck type on the members:
                 if(val > events[iEvt].dayFromRef) simCount++;
-                if(simCount >= n) counts++;
+                if(simCount >= n) counts+=1.0;
         }
         return counts/nSims_;
         // \todo Provide confidence interval
@@ -286,7 +286,7 @@ namespace QuantLib {
                 // locate nth default in time:
                 std::advance(itdefs, n-1);
                 // update statistic:
-                hitsByDate[itdefs->second]++;
+                hitsByDate[itdefs->second]+=1.0;
             }
         }
         std::transform(hitsByDate.begin(), hitsByDate.end(),
@@ -331,7 +331,7 @@ namespace QuantLib {
         expectedDefj = expectedDefj / nSims_;
 
         return (expectedDefiDefj - expectedDefi*expectedDefj) /
-            std::sqrt((expectedDefi*expectedDefj*(1.-expectedDefi)
+            sqrt((expectedDefi*expectedDefj*(1.-expectedDefi)
                 *(1.-expectedDefj)));
         // \todo Provide confidence interval
     }
@@ -374,7 +374,7 @@ namespace QuantLib {
                }
             }
             lossStats.add(// d  ates? current losses? realized defaults, not yet
-                std::min(std::max(portfSimLoss - attachAmount, 0.),
+                min(max(portfSimLoss - attachAmount, Real(0.)),
                     detachAmount - attachAmount) );
         }
         return std::make_pair(lossStats.mean(), lossStats.errorEstimate() *
@@ -431,7 +431,7 @@ namespace QuantLib {
                                         (1.-getEventRecovery(events[iEvt]));
                 }
             }
-            data.push_back(std::min(std::max(portfSimLoss - attachAmount, 0.),
+            data.push_back(min(max(portfSimLoss - attachAmount, Real(0.)),
                 detachAmount - attachAmount));
             keys.insert(data.back());
         }
@@ -473,15 +473,15 @@ namespace QuantLib {
                                         (1.-getEventRecovery(events[iEvt]));
                 }
             }
-            portfSimLoss = std::min(std::max(portfSimLoss - attachAmount, 0.),
+            portfSimLoss = min(max(portfSimLoss - attachAmount, Real(0.)),
                 detachAmount - attachAmount);
             losses.push_back(portfSimLoss);
         }
 
         std::sort(losses.begin(), losses.end());
-        Real posit = std::ceil(percent * nSims_);
+        Real posit = std::ceil(VALUE(percent * nSims_));
         posit = posit >= 0. ? posit : 0.;
-        Size position = static_cast<Size>(posit);
+        Size position = static_cast<Size>(VALUE(posit));
         Real perctlInf = losses[position];//q_{\alpha}
 
         // the prob of values strictly larger than the quantile value.
@@ -563,14 +563,14 @@ namespace QuantLib {
                                         (1.-getEventRecovery(events[iEvt]));
                 }
             }
-            portfSimLoss = std::min(std::max(portfSimLoss - attachAmount, 0.),
+            portfSimLoss = min(max(portfSimLoss - attachAmount, Real(0.)),
                 detachAmount - attachAmount);
             // update dataset for rank stat:
             rankLosses.push_back(portfSimLoss);
         }
 
         std::sort(rankLosses.begin(), rankLosses.end());
-        Size quantilePosition = static_cast<Size>(floor(nSims_*percentile));
+        Size quantilePosition = static_cast<Size>(VALUE(floor(VALUE(nSims_*percentile))));
         Real quantileValue = rankLosses[quantilePosition];
 
         // compute confidence interval:
@@ -671,7 +671,7 @@ namespace QuantLib {
                         splitEventsBuffer.push_back(events[iEvt]);
                 }
             }
-            portfSimLoss = std::min(std::max(portfSimLoss - attachAmount, 0.),
+            portfSimLoss = min(max(portfSimLoss - attachAmount, Real(0.)),
                 detachAmount - attachAmount);
 
             /* second pass; split is conditional to total losses within target
@@ -695,18 +695,18 @@ namespace QuantLib {
                                 (1.-getEventRecovery(splitEventsBuffer[i]));
 
                     Real tranchedLossBefore =
-                        std::min(std::max(ptflCumulLoss - attachAmount, 0.),
+                        min(max(ptflCumulLoss - attachAmount, Real(0.)),
                         detachAmount - attachAmount);
                     ptflCumulLoss += lossName;
                     Real tranchedLossAfter =
-                        std::min(std::max(ptflCumulLoss - attachAmount, 0.),
+                        min(max(ptflCumulLoss - attachAmount, Real(0.)),
                         detachAmount - attachAmount);
                     // assign new losses:
                     split[iName] += tranchedLossAfter - tranchedLossBefore;
                 }
                 for(Size iName=0; iName<numLiveNames; iName++) {
                     splitStats[iName].add(split[iName] /
-                        std::min(std::max(ptflCumulLoss - attachAmount, 0.),
+                                          min(max(ptflCumulLoss - attachAmount, Real(0.)),
                             detachAmount - attachAmount) );
                 }
             }
@@ -766,7 +766,7 @@ namespace QuantLib {
                 read only)
                 */
                 return dts_->defaultProbability(curveRef_ +
-                    Period(static_cast<Integer>(t), Days), true) - pd_;
+                                                Period(static_cast<Integer>(VALUE(t)), Days), true) - pd_;
             }
           private:
             const Handle<DefaultProbabilityTermStructure> dts_;
@@ -943,9 +943,9 @@ namespace QuantLib {
                 // compute and store default time with respect to the
                 //  curve ref date:
                 Size dateSTride =
-                    static_cast<Size>(Brent().solve(// casted from Real:
+                    static_cast<Size>(VALUE(Brent().solve(// casted from Real:
                         detail::Root(dfts, simDefaultProb),
-                            accuracy_,0.,1.));
+                        accuracy_,Real(0.),Real(1.))));
                    /*
                    // value if one approximates to a flat HR;
                    //   faster (>x2) but it introduces an error:..
@@ -953,8 +953,8 @@ namespace QuantLib {
                    // While not the case in pricing in risk metrics/real
                    //   probabilities the curves are often flat
                     static_cast<Size>(ceil(maxHorizon_ *
-                                        std::log(1.-simDefaultProb)
-                    /std::log(1.-data_.horizonDefaultPs_[iName])));
+                                        log(1.-simDefaultProb)
+                    /log(1.-data_.horizonDefaultPs_[iName])));
                    */
                 this->simsBuffer_.back().push_back(defaultSimEvent(iName,
                     dateSTride));

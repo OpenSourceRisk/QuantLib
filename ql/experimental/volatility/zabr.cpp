@@ -37,7 +37,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-using std::pow;
+// using pow;
 
 namespace QuantLib {
 
@@ -45,7 +45,7 @@ ZabrModel::ZabrModel(const Real expiryTime, const Real forward,
                      const Real alpha, const Real beta, const Real nu,
                      const Real rho, const Real gamma)
     : expiryTime_(expiryTime), forward_(forward), alpha_(alpha), beta_(beta),
-      nu_(nu * std::pow(alpha_, 1.0 - gamma)), rho_(rho), gamma_(gamma) {
+      nu_(nu * pow(alpha_, 1.0 - gamma)), rho_(rho), gamma_(gamma) {
 
     validateSabrParameters(alpha, beta, nu, rho);
     QL_REQUIRE(gamma >= 0.0 /*&& gamma<=1.0*/,
@@ -59,9 +59,9 @@ ZabrModel::ZabrModel(const Real expiryTime, const Real forward,
 Real ZabrModel::lognormalVolatilityHelper(const Real strike,
                                           const Real x) const {
     if (close(strike, forward_))
-        return std::pow(forward_, beta_ - 1.0) * alpha_;
+        return pow(forward_, beta_ - 1.0) * alpha_;
     else
-        return std::log(forward_ / strike) / x;
+        return log(forward_ / strike) / x;
 }
 
 Real ZabrModel::lognormalVolatility(const Real strike) const {
@@ -80,7 +80,7 @@ ZabrModel::lognormalVolatility(const std::vector<Real> &strikes) const {
 
 Real ZabrModel::normalVolatilityHelper(const Real strike, const Real x) const {
     if (close(strike, forward_))
-        return std::pow(forward_, beta_) * alpha_;
+        return pow(forward_, beta_) * alpha_;
     else
         return (forward_ - strike) / x;
 }
@@ -100,8 +100,8 @@ ZabrModel::normalVolatility(const std::vector<Real> &strikes) const {
 }
 
 Real ZabrModel::localVolatilityHelper(const Real f, const Real x) const {
-    return alpha_ * std::pow(std::fabs(f), beta_) /
-           F(y(f), std::pow(alpha_, gamma_ - 1.0) *
+    return alpha_ * pow(abs(f), beta_) /
+           F(y(f), pow(alpha_, gamma_ - 1.0) *
                        x); // TODO optimize this, y is comoputed together
                            // with x already
 }
@@ -130,13 +130,13 @@ ZabrModel::fdPrice(const std::vector<Real> &strikes) const {
     // TODO check strikes to be increasing
     // TODO put these parameters somewhere
     const Real start =
-        std::min(0.00001, strikes.front() * 0.5); // lowest strike for grid
+        min(Real(0.00001), strikes.front() * 0.5); // lowest strike for grid
     const Real end =
-        std::max(0.10, strikes.back() * 1.5); // highest strike for grid
+        max(Real(0.10), strikes.back() * 1.5); // highest strike for grid
     const Size size = 500;                    // grid points
     const Real density = 0.1; // density for concentrating mesher
     const Size steps =
-        (Size)std::ceil(expiryTime_ * 24); // number of steps in dimension t
+        (Size)std::ceil(VALUE(expiryTime_ * 24)); // number of steps in dimension t
     const Size dampingSteps = 5;           // thereof damping steps
 
     // Layout
@@ -166,7 +166,7 @@ ZabrModel::fdPrice(const std::vector<Real> &strikes) const {
     for (FdmLinearOpIterator iter = layout->begin(); iter != layout->end();
          ++iter) {
         Real k = mesher->location(iter, 0);
-        rhs[iter.index()] = std::max(forward_ - k, 0.0);
+        rhs[iter.index()] = max(forward_ - k, Real(0.0));
     }
 
     // local vols (TODO how can we avoid these Array / vector copying?)
@@ -203,23 +203,23 @@ Real ZabrModel::fullFdPrice(const Real strike) const {
     Real eps = 0.01;
     Real scaleFactor = 1.5;
     Real normInvEps = InverseCumulativeNormal()(1.0 - eps);
-    Real alphaI = alpha_ * std::pow(forward_, beta_ - 1.0);
+    Real alphaI = alpha_ * pow(forward_, beta_ - 1.0);
     // nu is already standardized within this class ...
-    Real v0 = alpha_ * std::exp(-scaleFactor * normInvEps *
-                                std::sqrt(expiryTime_) * nu_);
+    Real v0 = alpha_ * exp(-scaleFactor * normInvEps *
+                                sqrt(expiryTime_) * nu_);
     Real v1 = alpha_ *
-              std::exp(scaleFactor * normInvEps * std::sqrt(expiryTime_) * nu_);
-    Real f0 = forward_ * std::exp(-scaleFactor * normInvEps *
-                                  std::sqrt(expiryTime_) * alphaI);
-    Real f1 = forward_ * std::exp(scaleFactor * normInvEps *
-                                  std::sqrt(expiryTime_) * alphaI);
-    v1 = std::min(v1, 2.0);
-    f0 = std::min(strike / 2.0, f0);
-    f1 = std::max(strike * 1.5, std::min(f1, std::max(2.0, strike * 1.5)));
+              exp(scaleFactor * normInvEps * sqrt(expiryTime_) * nu_);
+    Real f0 = forward_ * exp(-scaleFactor * normInvEps *
+                                  sqrt(expiryTime_) * alphaI);
+    Real f1 = forward_ * exp(scaleFactor * normInvEps *
+                                  sqrt(expiryTime_) * alphaI);
+    v1 = min(v1, Real(2.0));
+    f0 = min(strike / 2.0, f0);
+    f1 = max(strike * 1.5, min(f1, max(Real(2.0), strike * 1.5)));
 
     const Size sizef = 100;
     const Size sizev = 100;
-    const Size steps = Size(24 * expiryTime_ + 1);
+    const Size steps = Size(VALUE(24 * expiryTime_ + 1));
     const Size dampingSteps = 5;
     const Real densityf = 0.1;
     const Real densityv = 0.1;
@@ -237,10 +237,10 @@ Real ZabrModel::fullFdPrice(const Real strike) const {
 
     // Mesher
     // two concentrating mesher around f and k to get the mesher for f
-    const Real x0 = std::min(forward_, strike);
-    const Real x1 = std::max(forward_, strike);
+    const Real x0 = min(forward_, strike);
+    const Real x1 = max(forward_, strike);
     const Size sizefa = std::max<Size>(
-        4, (Size)std::ceil(((x0 + x1) / 2.0 - f0) / (f1 - f0) * (Real)sizef));
+        4, (Size)std::ceil(VALUE(((x0 + x1) / 2.0 - f0) / (f1 - f0) * (Real)sizef)));
     const Size sizefb = sizef - sizefa + 1; // common point, so we can spend
     // one more here
     const boost::shared_ptr<Fdm1dMesher> mfa(
@@ -279,7 +279,7 @@ Real ZabrModel::fullFdPrice(const Real strike) const {
          ++iter) {
         Real f = mesher->location(iter, 0);
         // Real v = mesher->location(iter, 0);
-        rhs[iter.index()] = std::max(f - strike, 0.0);
+        rhs[iter.index()] = max(f - strike, Real(0.0));
         if (!iter.coordinates()[1])
             f_.push_back(mesher->location(iter, 0));
         if (!iter.coordinates()[0])
@@ -334,10 +334,10 @@ ZabrModel::x(const std::vector<Real> &strikes) const {
 
     if (close(gamma_, 1.0)) {
         for (Size m = 0; m < y.size(); m++) {
-            Real J = std::sqrt(1.0 + nu_ * nu_ * y[m] * y[m] -
+            Real J = sqrt(1.0 + nu_ * nu_ * y[m] * y[m] -
                                2.0 * rho_ * nu_ * y[m]);
             result[y.size() - 1 - m] =
-                std::log((J + nu_ * y[m] - rho_) / (1.0 - rho_)) / nu_;
+                log((J + nu_ * y[m] - rho_) / (1.0 - rho_)) / nu_;
         }
     } else {
         Size ynz = std::upper_bound(y.begin(), y.end(), 0.0) - y.begin();
@@ -366,14 +366,14 @@ ZabrModel::x(const std::vector<Real> &strikes) const {
 Real ZabrModel::y(const Real strike) const {
 
     if (close(beta_, 1.0)) {
-        return std::log(forward_ / strike) * std::pow(alpha_, gamma_ - 2.0);
+        return log(forward_ / strike) * pow(alpha_, gamma_ - 2.0);
     } else {
         return (strike < 0.0
-                    ? std::pow(forward_, 1.0 - beta_) +
-                          std::pow(-strike, 1.0 - beta_)
-                    : std::pow(forward_, 1.0 - beta_) -
-                          std::pow(strike, 1.0 - beta_)) *
-               std::pow(alpha_, gamma_ - 2.0) / (1.0 - beta_);
+                    ? pow(forward_, 1.0 - beta_) +
+                          pow(-strike, 1.0 - beta_)
+                    : pow(forward_, 1.0 - beta_) -
+                          pow(strike, 1.0 - beta_)) *
+               pow(alpha_, gamma_ - 2.0) / (1.0 - beta_);
     }
 }
 
@@ -383,7 +383,7 @@ Real ZabrModel::F(const Real y, const Real u) const {
     Real B = 2.0 * rho_ * (1.0 - gamma_) * nu_ +
              2.0 * (1.0 - gamma_) * (gamma_ - 2.0) * nu_ * nu_ * y;
     Real C = (1.0 - gamma_) * (1.0 - gamma_) * nu_ * nu_;
-    return (-B * u + std::sqrt(B * B * u * u - 4.0 * A * (C * u * u - 1.0))) /
+    return (-B * u + sqrt(B * B * u * u - 4.0 * A * (C * u * u - 1.0))) /
            (2.0 * A);
 }
 }

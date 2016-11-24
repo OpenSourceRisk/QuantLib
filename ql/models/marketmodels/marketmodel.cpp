@@ -65,7 +65,7 @@ namespace QuantLib {
         for (Size j=0; j<numberOfSteps(); ++j) {
             Time tau = evolutionTime[j]-lastTime;
             Real thisVariance = covariance(j)[i][i];
-            Real thisVol = std::sqrt(thisVariance/tau);
+            Real thisVol = sqrt(thisVariance/tau);
             result[j] = thisVol;
             lastTime =  evolutionTime[j];
         }

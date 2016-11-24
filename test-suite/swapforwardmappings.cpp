@@ -47,8 +47,8 @@ FOR A PARTICULAR PURPOSE.  See the license for more details.
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-using std::fabs;
-using std::sqrt;
+// using std::fabs;
+// using sqrt;
 
 #define BEGIN(x) (x+0)
 #define END(x) (x+LENGTH(x))
@@ -224,7 +224,7 @@ void SwapForwardMappingsTest::testForwardSwapJacobians()
 
             for (Size i=0; i < nbRates; ++i)
                 for (Size j=0; j < nbRates; ++j)
-                    if( fabs(modelJacobian[i][j]-coinitialJacobian[i][j]) > errorTolerance)
+                    if( abs(modelJacobian[i][j]-coinitialJacobian[i][j]) > errorTolerance)
                     {
                         BOOST_TEST_MESSAGE(
                             "rate " << i
@@ -279,7 +279,7 @@ void SwapForwardMappingsTest::testForwardSwapJacobians()
 
                 for (Size i=0; i < nbRates; ++i)
                     for (Size j=0; j < nbRates; ++j)
-                        if( fabs(modelJacobian[i][j]-cmsJacobian[i][j]) > errorTolerance)
+                        if( abs(modelJacobian[i][j]-cmsJacobian[i][j]) > errorTolerance)
                         {
                             BOOST_TEST_MESSAGE(
                                 "rate " << i
@@ -359,15 +359,15 @@ void SwapForwardMappingsTest::testForwardCoterminalMappings() {
         //const std::vector<Time>&  taus = lmmCurveState.rateTaus();
         Real expectedSwaption = BlackCalculator(payoff,
             todaysCoterminalSwapRates[i]+displacement,
-            std::sqrt(cotSwapsCovariance[i][i]),
+            sqrt(cotSwapsCovariance[i][i]),
             lmmCurveState.coterminalSwapAnnuity(i,i) *
             todaysDiscounts[i]).value();
-        if (fabs(expectedSwaption-results[i]) > 0.0001)
+        if (abs(expectedSwaption-results[i]) > 0.0001)
             BOOST_ERROR(
             "expected\t" << expectedSwaption <<
             "\tLMM\t" << results[i]
         << "\tstdev:\t" << errors[i] <<
-            "\t" <<std::fabs(results[i]- expectedSwaption)/errors[i]);
+            "\t" <<abs(results[i]- expectedSwaption)/errors[i]);
     }
 }
 
@@ -442,7 +442,7 @@ void SwapForwardMappingsTest::testSwaptionImpliedVolatility()
 
         Real error = expectedSwaption - results[0];
         Real errorInSds = error/errors[0];
-        if (fabs(errorInSds) > 3.5 )
+        if (abs(errorInSds) > 3.5 )
             BOOST_ERROR(
             "expected\t" << expectedSwaption <<
             "\tLMM\t" << results[0]

@@ -66,7 +66,7 @@ namespace QuantLib {
             for (Size k=0; k<numberOfRates_; ++k) {
                 Real variance =
                     std::inner_product(A.row_begin(k), A.row_end(k),
-                                       A.row_begin(k), 0.0);
+                                       A.row_begin(k), Real(0.0));
                 fixed[k] = -0.5*variance;
             }
             fixedDrifts_.push_back(fixed);
@@ -84,7 +84,7 @@ namespace QuantLib {
         QL_REQUIRE(swapRates.size()==numberOfRates_,
                    "mismatch between swapRates and rateTimes");
         for (Size i=0; i<numberOfRates_; ++i)
-            initialLogSwapRates_[i] = std::log(swapRates[i] +
+            initialLogSwapRates_[i] = log(swapRates[i] +
                                                displacements_[i]);
         curveState_.setOnCoterminalSwapRates(swapRates);
         calculators_[initialStep_].compute(curveState_, initialDrifts_);
@@ -125,8 +125,8 @@ namespace QuantLib {
             logSwapRates_[i] += drifts1_[i] + fixedDrift[i];
             logSwapRates_[i] +=
                 std::inner_product(A.row_begin(i), A.row_end(i),
-                                   brownians_.begin(), 0.0);
-            swapRates_[i] = std::exp(logSwapRates_[i]) - displacements_[i];
+                                   brownians_.begin(), Real(0.0));
+            swapRates_[i] = exp(logSwapRates_[i]) - displacements_[i];
         }
 
         // intermediate curve state update
@@ -138,7 +138,7 @@ namespace QuantLib {
         //d) correct forwards using both drifts
         for (i=alive; i<numberOfRates_; ++i) {
             logSwapRates_[i] += (drifts2_[i]-drifts1_[i])/2.0;
-            swapRates_[i] = std::exp(logSwapRates_[i]) - displacements_[i];
+            swapRates_[i] = exp(logSwapRates_[i]) - displacements_[i];
         }
 
         //e) update curve state

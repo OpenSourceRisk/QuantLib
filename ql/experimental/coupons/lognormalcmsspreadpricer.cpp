@@ -26,7 +26,7 @@
 #include <ql/termstructures/volatility/swaption/swaptionvolcube.hpp>
 #include <boost/make_shared.hpp>
 
-using std::sqrt;
+//using sqrt;
 
 namespace QuantLib {
 
@@ -75,26 +75,26 @@ namespace QuantLib {
 
         Real v = M_SQRT2 * x;
         Real h =
-            k_ - b_ * s2_ * std::exp((m2_ - 0.5 * v2_ * v2_) * fixingTime_ +
-                                     v2_ * std::sqrt(fixingTime_) * v);
+            k_ - b_ * s2_ * exp((m2_ - 0.5 * v2_ * v2_) * fixingTime_ +
+                                     v2_ * sqrt(fixingTime_) * v);
         Real phi1, phi2;
         phi1 = cnd_->operator()(
-            phi_ * (std::log(a_ * s1_ / h) +
+            phi_ * (log(a_ * s1_ / h) +
                     (m1_ + (0.5 - rho_ * rho_) * v1_ * v1_) * fixingTime_ +
-                    rho_ * v1_ * std::sqrt(fixingTime_) * v) /
-            (v1_ * std::sqrt(fixingTime_ * (1.0 - rho_ * rho_))));
+                    rho_ * v1_ * sqrt(fixingTime_) * v) /
+            (v1_ * sqrt(fixingTime_ * (1.0 - rho_ * rho_))));
         phi2 =
-            cnd_->operator()(phi_ * (std::log(a_ * s1_ / h) +
+            cnd_->operator()(phi_ * (log(a_ * s1_ / h) +
                                      (m1_ - 0.5 * v1_ * v1_) * fixingTime_ +
-                                     rho_ * v1_ * std::sqrt(fixingTime_) * v) /
-                             (v1_ * std::sqrt(fixingTime_ * (1.0 - rho_ * rho_))));
+                                     rho_ * v1_ * sqrt(fixingTime_) * v) /
+                             (v1_ * sqrt(fixingTime_ * (1.0 - rho_ * rho_))));
         Real f = a_ * phi_ * s1_ *
-                     std::exp(m1_ * fixingTime_ -
+                     exp(m1_ * fixingTime_ -
                               0.5 * rho_ * rho_ * v1_ * v1_ * fixingTime_ +
-                              rho_ * v1_ * std::sqrt(fixingTime_) * v) *
+                              rho_ * v1_ * sqrt(fixingTime_) * v) *
                      phi1 -
                  phi_ * h * phi2;
-        return std::exp(-x * x) * f;
+        return exp(-x * x) * f;
     }
 
     Real LognormalCmsSpreadPricer::integrand_normal(const Real x) const {
@@ -106,15 +106,15 @@ namespace QuantLib {
         Real beta =
             phi_ *
             (gearing1_ * adjustedRate1_ + gearing2_ * adjustedRate2_ - k_ +
-             std::sqrt(fixingTime_) *
+             sqrt(fixingTime_) *
                  (rho_ * gearing1_ * vol1_ + gearing2_ * vol2_) * s);
         Real f =
             close_enough(alpha_, 0.0)
-                ? std::max(beta, 0.0)
+            ? max(beta, Real(0.0))
                 : psi_ * alpha_ / (M_SQRTPI * M_SQRT2) *
-                          std::exp(-beta * beta / (2.0 * alpha_ * alpha_)) +
+                          exp(-beta * beta / (2.0 * alpha_ * alpha_)) +
                       beta * (1.0 - cnd_->operator()(-psi_ * beta / alpha_));
-        return std::exp(-x * x) * f;
+        return exp(-x * x) * f;
     }
 
     void LognormalCmsSpreadPricer::flushCache() { cache_.clear(); }
@@ -230,16 +230,16 @@ namespace QuantLib {
             }
 
             if(volType_ == ShiftedLognormal) {
-                mu1_ = 1.0 / fixingTime_ * std::log((adjustedRate1_ + shift1_) /
+                mu1_ = 1.0 / fixingTime_ * log((adjustedRate1_ + shift1_) /
                                                     (swapRate1_ + shift1_));
-                mu2_ = 1.0 / fixingTime_ * std::log((adjustedRate2_ + shift2_) /
+                mu2_ = 1.0 / fixingTime_ * log((adjustedRate2_ + shift2_) /
                                                     (swapRate2_ + shift2_));
             }
             // for the normal volatility case we do not need the drifts
             // but rather use adjusted rates directly in the integrand
 
-            rho_ = std::max(std::min(correlation()->value(), 0.9999),
-                            -0.9999); // avoid division by zero in integrand
+            rho_ = max(min(correlation()->value(), Real(0.9999)),
+                       Real(-0.9999)); // avoid division by zero in integrand
         }
     }
 
@@ -280,7 +280,7 @@ namespace QuantLib {
             // normal volatility
             k_ = strike;
             alpha_ = phi_ * gearing1_ * vol1_ *
-                     std::sqrt(fixingTime_ * (1.0 - rho_ * rho_));
+                     sqrt(fixingTime_ * (1.0 - rho_ * rho_));
             psi_ = alpha_ >= 0.0 ? 1.0 : -1.0;
             res +=
                 1.0 / M_SQRTPI *
@@ -301,8 +301,8 @@ namespace QuantLib {
         // caplet is equivalent to call option on fixing
         if (fixingDate_ <= today_) {
             // the fixing is determined
-            const Rate Rs = std::max(
-                coupon_->index()->fixing(fixingDate_) - effectiveCap, 0.);
+            const Rate Rs = max(
+                coupon_->index()->fixing(fixingDate_) - effectiveCap, Real(0.));
             Rate price = (gearing_ * Rs) *
                          (coupon_->accrualPeriod() *
                           couponDiscountCurve_->discount(paymentDate_));
@@ -323,8 +323,8 @@ namespace QuantLib {
         // floorlet is equivalent to put option on fixing
         if (fixingDate_ <= today_) {
             // the fixing is determined
-            const Rate Rs = std::max(
-                effectiveFloor - coupon_->index()->fixing(fixingDate_), 0.);
+            const Rate Rs = max(
+                effectiveFloor - coupon_->index()->fixing(fixingDate_), Real(0.));
             Rate price = (gearing_ * Rs) *
                          (coupon_->accrualPeriod() *
                           couponDiscountCurve_->discount(paymentDate_));

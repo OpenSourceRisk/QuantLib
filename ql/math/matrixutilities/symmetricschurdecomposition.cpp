@@ -46,7 +46,7 @@ namespace QuantLib {
             Real sum = 0;
             for (Size a=0; a<size-1; a++) {
                 for (Size b=a+1; b<size; b++) {
-                    sum += std::fabs(ss[a][b]);
+                    sum += abs(ss[a][b]);
                 }
             }
 
@@ -63,23 +63,23 @@ namespace QuantLib {
                 for (j=0; j<size-1; j++) {
                     for (k=j+1; k<size; k++) {
                         Real sine, rho, cosin, heig, tang, beta;
-                        Real smll = std::fabs(ss[j][k]);
+                        Real smll = abs(ss[j][k]);
                         if(ite> 5 &&
-                           smll<epsPrec*std::fabs(diagonal_[j]) &&
-                           smll<epsPrec*std::fabs(diagonal_[k])) {
+                           smll<epsPrec*abs(diagonal_[j]) &&
+                           smll<epsPrec*abs(diagonal_[k])) {
                                 ss[j][k] = 0;
-                        } else if (std::fabs(ss[j][k])>threshold) {
+                        } else if (abs(ss[j][k])>threshold) {
                             heig = diagonal_[k]-diagonal_[j];
-                            if (smll<epsPrec*std::fabs(heig)) {
+                            if (smll<epsPrec*abs(heig)) {
                                 tang = ss[j][k]/heig;
                             } else {
                                 beta = 0.5*heig/ss[j][k];
-                                tang = 1.0/(std::fabs(beta)+
-                                    std::sqrt(1+beta*beta));
+                                tang = 1.0/(abs(beta)+
+                                    sqrt(1+beta*beta));
                                 if (beta<0)
                                     tang = -tang;
                             }
-                            cosin = 1/std::sqrt(1+tang*tang);
+                            cosin = 1/sqrt(1+tang*tang);
                             sine = tang*cosin;
                             rho = sine/(1+cosin);
                             heig = tang*ss[j][k];
@@ -127,7 +127,7 @@ namespace QuantLib {
         for (col=0; col<size; col++) {
             // check for round-off errors
             diagonal_[col] =
-                (std::fabs(temp[col].first/maxEv)<1e-16 ? 0.0 :
+                (abs(temp[col].first/maxEv)<1e-16 ? 0.0 :
                                                           temp[col].first);
             Real sign = 1.0;
             if (temp[col].second[0]<0.0)

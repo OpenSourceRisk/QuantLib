@@ -115,21 +115,21 @@ namespace QuantLib {
         QL_REQUIRE(t <= timeGrid_->back(),
                 "given time exceeds local vol time grid");
 
-        const Time tMin = std::min(timeGrid_->at(1), 1.0/365);
+        const Time tMin = min(timeGrid_->at(1), Real(1.0/365));
 
         if (t <= tMin) {
             const Volatility vol = localVol_->localVol(0.0, spot_->value());
-            const Volatility stdDev = vol * std::sqrt(t);
+            const Volatility stdDev = vol * sqrt(t);
             const Real xm = - 0.5 * stdDev * stdDev +
-                std::log(spot_->value() * qTS_->discount(t)/rTS_->discount(t));
+                log(spot_->value() * qTS_->discount(t)/rTS_->discount(t));
 
             return GaussianDistribution(xm, stdDev)(x);
         }
         else if (t <= timeGrid_->at(1)) {
             const Volatility vol = localVol_->localVol(0.0, spot_->value());
-            const Volatility stdDev = vol * std::sqrt(tMin);
+            const Volatility stdDev = vol * sqrt(tMin);
             const Real xm = - 0.5 * stdDev * stdDev +
-                std::log(spot_->value() * qTS_->discount(tMin)/rTS_->discount(tMin));
+                log(spot_->value() * qTS_->discount(tMin)/rTS_->discount(tMin));
 
             const GaussianDistribution gaussianPDF(xm, stdDev);
 
@@ -156,7 +156,7 @@ namespace QuantLib {
         // get the left side of the integral
         const Time tc = timeGrid_->closestTime(t);
         const Size idx = (tc > t) ? timeGrid_->index(tc)-1
-            : std::min(xm_.size()-1, timeGrid_->index(tc));
+            : std::min(xm_.size()-1,timeGrid_->index(tc));
 
         Real xl = xm_[idx]->locations().front();
         Real xr = xm_[idx]->locations().back();
@@ -186,7 +186,7 @@ namespace QuantLib {
         const Time closeGridTime(timeGrid_->closestTime(t));
         if (closeGridTime == 0.0) {
             return RiskNeutralDensityCalculator::InvCDFHelper(
-                this, std::log(spot_->value()), 0.1*localVolProbEps_, maxIter_)
+                this, log(spot_->value()), 0.1*localVolProbEps_, maxIter_)
                 .inverseCDF(p, t);
         }
         else {
@@ -216,7 +216,7 @@ namespace QuantLib {
         }
         else {
             return boost::make_shared<Predefined1dMesher>(
-                std::vector<Real>(xGrid_, std::log(spot_->value())));
+                std::vector<Real>(xGrid_, log(spot_->value())));
         }
     }
 
@@ -228,15 +228,15 @@ namespace QuantLib {
         rescaleTimeSteps_.clear();
 
         const Time sT = timeGrid_->at(1);
-        Time t = std::min(sT, (gaussianStepSize_ > 0.0) ? gaussianStepSize_
+        Time t = min(sT, (gaussianStepSize_ > 0.0) ? gaussianStepSize_
                                                         : 0.5*sT);
         const Volatility vol = localVol_->localVol(0.0, spot_->value());
 
-        const Volatility stdDev = vol * std::sqrt(t);
+        const Volatility stdDev = vol * sqrt(t);
         Real xm = - 0.5 * stdDev * stdDev +
-            std::log(spot_->value() * qTS_->discount(t)/rTS_->discount(t));
+            log(spot_->value() * qTS_->discount(t)/rTS_->discount(t));
 
-        const Volatility stdDevOfFirstStep = vol * std::sqrt(sT);
+        const Volatility stdDevOfFirstStep = vol * sqrt(sT);
         const Real normInvEps = InverseCumulativeNormal()(1 - localVolProbEps_);
         Real sLowerBound = xm - normInvEps * stdDevOfFirstStep;
         Real sUpperBound = xm + normInvEps * stdDevOfFirstStep;
@@ -248,7 +248,7 @@ namespace QuantLib {
         Array p(mesher->size());
         Array x(mesher->locations().begin(), mesher->locations().end());
 
-        const GaussianDistribution gaussianPDF(xm, vol * std::sqrt(t));
+        const GaussianDistribution gaussianPDF(xm, vol * sqrt(t));
 
         for (Size idx=0; idx < p.size(); ++idx) {
             p[idx] = gaussianPDF(x[idx]);
@@ -273,13 +273,13 @@ namespace QuantLib {
 
             // leaking probability mass?
             const Real maxLeftValue =
-                std::max(std::fabs(*std::min_element(p.begin(), p.begin()+b)),
-                         std::fabs(*std::max_element(p.begin(), p.begin()+b)));
+                max(abs(*std::min_element(p.begin(), p.begin()+b)),
+                    abs(*std::max_element(p.begin(), p.begin()+b)));
             const Real maxRightValue =
-                std::max(std::fabs(*std::min_element(p.end()-b, p.end())),
-                         std::fabs(*std::max_element(p.end()-b, p.end())));
+                max(abs(*std::min_element(p.end()-b, p.end())),
+                    abs(*std::max_element(p.end()-b, p.end())));
 
-            if (std::max(maxLeftValue, maxRightValue) > localVolProbEps_) {
+            if (max(maxLeftValue, maxRightValue) > localVolProbEps_) {
                 rescaleTimeSteps_.push_back(i);
 
                 const Real oldLowerBound = sLowerBound;
@@ -288,7 +288,7 @@ namespace QuantLib {
                 xm = DiscreteSimpsonIntegral()(x, x*p);
                 Array vols(x.size());
                 for (Size j=0; j < vols.size(); ++j) {
-                    vols[j] = localVol_->localVol(t + dt, std::exp(x[j]));
+                    vols[j] = localVol_->localVol(t + dt, exp(x[j]));
                 }
 
                 const Real vm = DiscreteSimpsonIntegral()(x, vols)
@@ -298,8 +298,8 @@ namespace QuantLib {
                     = std::max(3, Integer(0.01*timeGrid_->size()));
 
                 const Real scalingFactor
-                    = std::sqrt(timeGrid_->at(
-                        std::min(timeGrid_->size()-1, i+scalingSteps)))
+                    = sqrt(timeGrid_->at(
+                               std::min(timeGrid_->size()-1, i+scalingSteps)))
                      * vm;
 
                 if (maxLeftValue > localVolProbEps_)

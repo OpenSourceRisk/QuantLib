@@ -104,13 +104,13 @@ void GsrTest::testGsrProcess() {
                     hwVal = hwProcess->expectation(w, xw, t - w);
                     gsrVal = gsrProcess->expectation(w, xw, t - w);
                     gsr2Val = gsrProcess2->expectation(w, xw, t - w);
-                    if (fabs(hwVal - gsrVal) > tol)
+                    if (abs(hwVal - gsrVal) > tol)
                         BOOST_ERROR(
                             "Expectation E^{T="
                             << T << "}(x(" << t << ") | x(" << w << ") = " << xw
                             << " is different in HullWhiteProcess(" << hwVal
                             << ") and GsrProcess (" << gsrVal << ")");
-                    if (fabs(hwVal - gsr2Val) > tol)
+                    if (abs(hwVal - gsr2Val) > tol)
                         BOOST_ERROR(
                             "Expectation E^{T="
                             << T << "}(x(" << t << ") | x(" << w << ") = " << xw
@@ -120,13 +120,13 @@ void GsrTest::testGsrProcess() {
                     hwVal = hwProcess->variance(w, xw, t - w);
                     gsrVal = gsrProcess->variance(w, xw, t - w);
                     gsr2Val = gsrProcess2->variance(w, xw, t - w);
-                    if (fabs(hwVal - gsrVal) > tol)
+                    if (abs(hwVal - gsrVal) > tol)
                         BOOST_ERROR("Variance V((x("
                                     << t << ") | x(" << w << ") = " << xw
                                     << " is different in HullWhiteProcess("
                                     << hwVal << ") and GsrProcess (" << gsrVal
                                     << ")");
-                    if (fabs(hwVal - gsr2Val) > tol)
+                    if (abs(hwVal - gsr2Val) > tol)
                         BOOST_ERROR("Variance V((x("
                                     << t << ") | x(" << w << ") = " << xw
                                     << " is different in HullWhiteProcess("
@@ -212,12 +212,12 @@ void GsrTest::testGsrModel() {
                 Real gsrVal = model->zerobond(t, w, yw);
                 Real gsr2Val = model2->zerobond(t, w, yw);
                 Real hwVal = hw->discountBond(w, t, rw);
-                if (fabs(gsrVal - hwVal) > tol0)
+                if (abs(gsrVal - hwVal) > tol0)
                     BOOST_ERROR("Zerobond P("
                                 << w << "," << t << " | x=" << xw << " / y="
                                 << yw << ") is different in HullWhite ("
                                 << hwVal << ") and Gsr (" << gsrVal << ")");
-                if (fabs(gsr2Val - hwVal) > tol0)
+                if (abs(gsr2Val - hwVal) > tol0)
                     BOOST_ERROR("Zerobond P("
                                 << w << "," << t << " | x=" << xw << " / y="
                                 << yw << ") is different in HullWhite ("
@@ -267,18 +267,18 @@ void GsrTest::testGsrModel() {
         new Gaussian1dJamshidianSwaptionEngine(model)));
     Real GsrJamNpv = stdswaption->NPV();
 
-    if (fabs(HwJamNpv - GsrNonStdNpv) > 0.00005)
+    if (abs(HwJamNpv - GsrNonStdNpv) > 0.00005)
         BOOST_ERROR(
             "Jamshidian HW NPV ("
             << HwJamNpv
             << ") deviates from Gaussian1dNonstandardSwaptionEngine NPV ("
             << GsrNonStdNpv << ")");
-    if (fabs(HwJamNpv - GsrStdNpv) > 0.00005)
+    if (abs(HwJamNpv - GsrStdNpv) > 0.00005)
         BOOST_ERROR("Jamshidian HW NPV ("
                     << HwJamNpv
                     << ") deviates from Gaussian1dSwaptionEngine NPV ("
                     << GsrStdNpv << ")");
-    if (fabs(HwJamNpv - GsrJamNpv) > 0.00005)
+    if (abs(HwJamNpv - GsrJamNpv) > 0.00005)
         BOOST_ERROR("Jamshidian HW NPV ("
                     << HwJamNpv
                     << ") deviates from Gaussian1dJamshidianEngine NPV ("

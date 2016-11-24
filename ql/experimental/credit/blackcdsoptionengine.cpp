@@ -55,12 +55,12 @@ namespace QuantLib {
         // The sense of the underlying/option has to be sent this way
         // to the Black formula, no sign.
         Real riskyAnnuity =
-            std::fabs(arguments_.swap->couponLegNPV() / swapSpread);
+            abs(arguments_.swap->couponLegNPV() / swapSpread);
         results_.riskyAnnuity = riskyAnnuity;
 
         Time T = tSDc.yearFraction(settlement, exerciseDate);
 
-        Real stdDev = volatility_->value()  * std::sqrt(T);
+        Real stdDev = volatility_->value()  * sqrt(T);
         Option::Type callPut = (arguments_.side == Protection::Buyer) ?
                                                    Option::Call : Option::Put;
 

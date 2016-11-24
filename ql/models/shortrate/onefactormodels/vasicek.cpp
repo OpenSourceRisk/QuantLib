@@ -35,12 +35,12 @@ namespace QuantLib {
 
     Real Vasicek::A(Time t, Time T) const {
         Real _a = a();
-        if (_a < std::sqrt(QL_EPSILON)) {
+        if (_a < sqrt(QL_EPSILON)) {
             return 0.0;
         } else {
             Real sigma2 = sigma()*sigma();
             Real bt = B(t, T);
-            return std::exp((b() + lambda()*sigma()/_a
+            return exp((b() + lambda()*sigma()/_a
                              - 0.5*sigma2/(_a*_a))*(bt - (T - t))
                              - 0.25*sigma2*bt*bt/_a);
         }
@@ -48,10 +48,10 @@ namespace QuantLib {
 
     Real Vasicek::B(Time t, Time T) const {
         Real _a = a();
-        if (_a < std::sqrt(QL_EPSILON))
+        if (_a < sqrt(QL_EPSILON))
             return (T - t);
         else
-            return (1.0 - std::exp(-_a*(T - t)))/_a;
+            return (1.0 - exp(-_a*(T - t)))/_a;
     }
 
     Real Vasicek::discountBondOption(Option::Type type,
@@ -60,13 +60,13 @@ namespace QuantLib {
 
         Real v;
         Real _a = a();
-        if (std::fabs(maturity) < QL_EPSILON) {
+        if (abs(maturity) < QL_EPSILON) {
             v = 0.0;
-        } else if (_a < std::sqrt(QL_EPSILON)) {
-            v = sigma()*B(maturity, bondMaturity)* std::sqrt(maturity);
+        } else if (_a < sqrt(QL_EPSILON)) {
+            v = sigma()*B(maturity, bondMaturity)* sqrt(maturity);
         } else {
             v = sigma()*B(maturity, bondMaturity)*
-                std::sqrt(0.5*(1.0 - std::exp(-2.0*_a*maturity))/_a);
+                sqrt(0.5*(1.0 - exp(-2.0*_a*maturity))/_a);
         }
         Real f = discountBond(0.0, bondMaturity, r0_);
         Real k = discountBond(0.0, maturity, r0_)*strike;

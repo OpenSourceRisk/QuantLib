@@ -223,9 +223,9 @@ namespace QuantLib {
         else if (i == 0) {
             if (transform_ == Log) {
                 return 2*v_[0] - v_[1];
-//              log(std::max(0.5*exp(v_[0]), exp(v_[0] - 0.01 * (v_[1] - v_[0]))));
+//              log(max(0.5*exp(v_[0]), exp(v_[0] - 0.01 * (v_[1] - v_[0]))));
             } else {
-                return std::max(0.5*v_[0], v_[0] - 0.01 * (v_[1] - v_[0]));
+                return max(0.5*v_[0], v_[0] - 0.01 * (v_[1] - v_[0]));
             }
         }
         else if (i == v_.size()+1) {

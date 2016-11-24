@@ -147,7 +147,7 @@ namespace QuantLib {
                                                  bool extrapolate) const {
         if (d1==d2) {
             checkRange(d1, extrapolate);
-            Time t1 = std::max(timeFromReference(d1) - dt/2.0, 0.0);
+            Time t1 = max(timeFromReference(d1) - dt/2.0, Real(0.0));
             Time t2 = t1 + dt;
             Real compound =
                 discount(t1, true)/discount(t2, true);
@@ -172,7 +172,7 @@ namespace QuantLib {
         Real compound;
         if (t2==t1) {
             checkRange(t1, extrapolate);
-            t1 = std::max(t1 - dt/2.0, 0.0);
+            t1 = max(t1 - dt/2.0, Real(0.0));
             t2 = t1 + dt;
             compound = discount(t1, true)/discount(t2, true);
         } else {

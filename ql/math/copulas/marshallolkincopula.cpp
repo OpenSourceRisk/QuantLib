@@ -37,7 +37,7 @@ namespace QuantLib {
                    "1st argument (" << x << ") must be in [0,1]");
         QL_REQUIRE(y >= 0.0 && y <=1.0 ,
                    "2nd argument (" << y << ") must be in [0,1]");
-        return std::min(  y*std::pow(x, a1_)  ,  x*std::pow(y, a2_)  );
+        return min(  y*pow(x, a1_)  ,  x*pow(y, a2_)  );
     }
 
 }

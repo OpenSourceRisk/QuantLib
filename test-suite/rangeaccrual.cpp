@@ -1522,7 +1522,7 @@ void RangeAccrualTest::testInfiniteRange()  {
                 const Rate indexfixing = vars.iborIndex->fixing(fixingDate);
                 const Rate difference =  rate-indexfixing;
 
-                if (std::fabs(difference) > vars.rateTolerance) {
+                if (abs(difference) > vars.rateTolerance) {
                     BOOST_ERROR("\n" <<
                                 "i:\t" << i << "\n"
                                 "fixingDate:\t" << fixingDate << "\n"

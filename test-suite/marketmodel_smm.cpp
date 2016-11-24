@@ -375,7 +375,7 @@ namespace {
                 * (todaysSwaps[i]-fixedRate) * todaysDiscounts[i];
             expectedNPVs[i] = expectedNPV;
             discrepancies[i] = (results[i]-expectedNPVs[i])/errors[i];
-            maxError = std::max(std::fabs(discrepancies[i]), maxError);
+            maxError = std::max(abs(discrepancies[i]), maxError);
         }
         if (maxError > errorThreshold) {
             BOOST_TEST_MESSAGE(config);
@@ -400,12 +400,12 @@ namespace {
             Real expectedSwaption =
                 BlackCalculator(displacedPayoff[i],
                                 todaysSwaps[i]+displacement,
-                                volatilities[i]*std::sqrt(rateTimes[i]),
+                                volatilities[i]*sqrt(rateTimes[i]),
                                 curveState_lmm.coterminalSwapAnnuity(i,i) *
                                 todaysDiscounts[i]).value();
             expectedSwaptions[i] = expectedSwaption;
             discrepancies[i] = (results[N+i]-expectedSwaptions[i])/errors[N+i];
-            maxError = std::max(std::fabs(discrepancies[i]), maxError);
+            maxError = std::max(abs(discrepancies[i]), maxError);
         }
         errorThreshold = 2.0;
 

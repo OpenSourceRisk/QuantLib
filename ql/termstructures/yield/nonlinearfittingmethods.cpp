@@ -48,18 +48,18 @@ namespace QuantLib {
 
         if (!constrainAtZero_) {
             for (Size i=0; i<N-1; ++i) {
-                d += x[i]* std::exp(-kappa * (i+1) * t);
+                d += x[i]* exp(-kappa * (i+1) * t);
             }
         } else {
             //  notation:
             //  d(t) = coeff* exp(-kappa*1*t) + x[0]* exp(-kappa*2*t) +
             //  x[1]* exp(-kappa*3*t) + ..+ x[7]* exp(-kappa*9*t)
             for (Size i=0; i<N-1; i++) {
-                d += x[i]* std::exp(-kappa * (i+2) * t);
+                d += x[i]* exp(-kappa * (i+2) * t);
                 coeff += x[i];
             }
             coeff = 1.0- coeff;
-            d += coeff * std::exp(-kappa * t);
+            d += coeff * exp(-kappa * t);
         }
         return d;
     }
@@ -84,10 +84,10 @@ namespace QuantLib {
                                                          Time t) const {
         Real kappa = x[size()-1];
         Real zeroRate = x[0] + (x[1] + x[2])*
-                        (1.0 - std::exp(-kappa*t))/
+                        (1.0 - exp(-kappa*t))/
                         ((kappa+QL_EPSILON)*(t+QL_EPSILON)) -
-                        (x[2])*std::exp(-kappa*t);
-        DiscountFactor d = std::exp(-zeroRate * t) ;
+                        (x[2])*exp(-kappa*t);
+        DiscountFactor d = exp(-zeroRate * t) ;
         return d;
     }
 
@@ -112,11 +112,11 @@ namespace QuantLib {
         Real kappa_1 = x[size()-1];
 
         Real zeroRate = x[0] + (x[1] + x[2])*
-                        (1.0 - std::exp(-kappa*t))/
+                        (1.0 - exp(-kappa*t))/
                         ((kappa+QL_EPSILON)*(t+QL_EPSILON)) -
-                        (x[2])*std::exp(-kappa*t) +
-                        x[3]* (((1.0 - std::exp(-kappa_1*t))/((kappa_1+QL_EPSILON)*(t+QL_EPSILON)))- std::exp(-kappa_1*t));
-        DiscountFactor d = std::exp(-zeroRate * t) ;
+                        (x[2])*exp(-kappa*t) +
+                        x[3]* (((1.0 - exp(-kappa_1*t))/((kappa_1+QL_EPSILON)*(t+QL_EPSILON)))- exp(-kappa_1*t));
+        DiscountFactor d = exp(-zeroRate * t) ;
         return d;
     }
 
@@ -140,7 +140,7 @@ namespace QuantLib {
             // lead to an ill conditioned problem
             N_ = 1;
 
-            QL_REQUIRE(std::abs(splines_(N_, 0.0)) > QL_EPSILON,
+            QL_REQUIRE(abs(splines_(N_, 0.0)) > QL_EPSILON,
                        "N_th cubic B-spline must be nonzero at t=0");
         } else {
             size_ = basisFunctions;

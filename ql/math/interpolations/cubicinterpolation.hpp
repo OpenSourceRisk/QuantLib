@@ -556,8 +556,8 @@ namespace QuantLib {
                             case CubicInterpolation::FritschButland:
                                 // intermediate points
                                 for (Size i=1; i<n_-1; ++i) {
-                                    Real Smin = std::min(S_[i-1], S_[i]);
-                                    Real Smax = std::max(S_[i-1], S_[i]);
+                                    Real Smin = min(S_[i-1], S_[i]);
+                                    Real Smax = max(S_[i-1], S_[i]);
                                     tmp_[i] = 3.0*Smin*Smax/(Smax+2.0*Smin);
                                 }
                                 // end points
@@ -565,8 +565,8 @@ namespace QuantLib {
                                 tmp_[n_-1] = ((2.0*dx_[n_-2]+dx_[n_-3])*S_[n_-2] - dx_[n_-2]*S_[n_-3]) / (dx_[n_-2]+dx_[n_-3]);
                                 break;
                             case CubicInterpolation::Akima:
-                                tmp_[0] = (std::abs(S_[1]-S_[0])*2*S_[0]*S_[1]+std::abs(2*S_[0]*S_[1]-4*S_[0]*S_[0]*S_[1])*S_[0])/(std::abs(S_[1]-S_[0])+std::abs(2*S_[0]*S_[1]-4*S_[0]*S_[0]*S_[1]));
-                                tmp_[1] = (std::abs(S_[2]-S_[1])*S_[0]+std::abs(S_[0]-2*S_[0]*S_[1])*S_[1])/(std::abs(S_[2]-S_[1])+std::abs(S_[0]-2*S_[0]*S_[1]));
+                                tmp_[0] = (abs(S_[1]-S_[0])*2*S_[0]*S_[1]+abs(2*S_[0]*S_[1]-4*S_[0]*S_[0]*S_[1])*S_[0])/(abs(S_[1]-S_[0])+abs(2*S_[0]*S_[1]-4*S_[0]*S_[0]*S_[1]));
+                                tmp_[1] = (abs(S_[2]-S_[1])*S_[0]+abs(S_[0]-2*S_[0]*S_[1])*S_[1])/(abs(S_[2]-S_[1])+abs(S_[0]-2*S_[0]*S_[1]));
                                 for (Size i=2; i<n_-2; ++i) {
                                     if ((S_[i-2]==S_[i-1]) && (S_[i]!=S_[i+1]))
                                         tmp_[i] = S_[i-1];
@@ -577,10 +577,10 @@ namespace QuantLib {
                                     else if ((S_[i-2]==S_[i-1]) && (S_[i-1]!=S_[i]) && (S_[i]==S_[i+1]))
                                         tmp_[i] = (S_[i-1]+S_[i])/2.0;
                                     else
-                                        tmp_[i] = (std::abs(S_[i+1]-S_[i])*S_[i-1]+std::abs(S_[i-1]-S_[i-2])*S_[i])/(std::abs(S_[i+1]-S_[i])+std::abs(S_[i-1]-S_[i-2]));
+                                        tmp_[i] = (abs(S_[i+1]-S_[i])*S_[i-1]+abs(S_[i-1]-S_[i-2])*S_[i])/(abs(S_[i+1]-S_[i])+abs(S_[i-1]-S_[i-2]));
                                  }
-                                 tmp_[n_-2] = (std::abs(2*S_[n_-2]*S_[n_-3]-S_[n_-2])*S_[n_-3]+std::abs(S_[n_-3]-S_[n_-4])*S_[n_-2])/(std::abs(2*S_[n_-2]*S_[n_-3]-S_[n_-2])+std::abs(S_[n_-3]-S_[n_-4]));
-                                 tmp_[n_-1] = (std::abs(4*S_[n_-2]*S_[n_-2]*S_[n_-3]-2*S_[n_-2]*S_[n_-3])*S_[n_-2]+std::abs(S_[n_-2]-S_[n_-3])*2*S_[n_-2]*S_[n_-3])/(std::abs(4*S_[n_-2]*S_[n_-2]*S_[n_-3]-2*S_[n_-2]*S_[n_-3])+std::abs(S_[n_-2]-S_[n_-3]));
+                                 tmp_[n_-2] = (abs(2*S_[n_-2]*S_[n_-3]-S_[n_-2])*S_[n_-3]+abs(S_[n_-3]-S_[n_-4])*S_[n_-2])/(abs(2*S_[n_-2]*S_[n_-3]-S_[n_-2])+abs(S_[n_-3]-S_[n_-4]));
+                                 tmp_[n_-1] = (abs(4*S_[n_-2]*S_[n_-2]*S_[n_-3]-2*S_[n_-2]*S_[n_-3])*S_[n_-2]+abs(S_[n_-2]-S_[n_-3])*2*S_[n_-2]*S_[n_-3])/(abs(4*S_[n_-2]*S_[n_-2]*S_[n_-3]-2*S_[n_-2]*S_[n_-3])+abs(S_[n_-2]-S_[n_-3]));
                                  break;
                             case CubicInterpolation::Kruger:
                                 // intermediate points
@@ -613,9 +613,9 @@ namespace QuantLib {
                     for (Size i=0; i<n_; ++i) {
                         if (i==0) {
                             if (tmp_[i]*S_[0]>0.0) {
-                                correction = tmp_[i]/std::fabs(tmp_[i]) *
-                                    std::min<Real>(std::fabs(tmp_[i]),
-                                                   std::fabs(3.0*S_[0]));
+                                correction = tmp_[i]/abs(tmp_[i]) *
+                                    min<Real>(abs(tmp_[i]),
+                                                   abs(3.0*S_[0]));
                             } else {
                                 correction = 0.0;
                             }
@@ -625,9 +625,9 @@ namespace QuantLib {
                             }
                         } else if (i==n_-1) {
                             if (tmp_[i]*S_[n_-2]>0.0) {
-                                correction = tmp_[i]/std::fabs(tmp_[i]) *
-                                    std::min<Real>(std::fabs(tmp_[i]),
-                                                   std::fabs(3.0*S_[n_-2]));
+                                correction = tmp_[i]/abs(tmp_[i]) *
+                                    min<Real>(abs(tmp_[i]),
+                                                   abs(3.0*S_[n_-2]));
                             } else {
                                 correction = 0.0;
                             }
@@ -638,17 +638,17 @@ namespace QuantLib {
                         } else {
                             pm=(S_[i-1]*dx_[i]+S_[i]*dx_[i-1])/
                                 (dx_[i-1]+dx_[i]);
-                            M = 3.0 * std::min(std::min(std::fabs(S_[i-1]),
-                                                        std::fabs(S_[i])),
-                                               std::fabs(pm));
+                            M = 3.0 * min(min(abs(S_[i-1]),
+                                                        abs(S_[i])),
+                                               abs(pm));
                             if (i>1) {
                                 if ((S_[i-1]-S_[i-2])*(S_[i]-S_[i-1])>0.0) {
                                     pd=(S_[i-1]*(2.0*dx_[i-1]+dx_[i-2])
                                         -S_[i-2]*dx_[i-1])/
                                         (dx_[i-2]+dx_[i-1]);
                                     if (pm*pd>0.0 && pm*(S_[i-1]-S_[i-2])>0.0) {
-                                        M = std::max<Real>(M, 1.5*std::min(
-                                                std::fabs(pm),std::fabs(pd)));
+                                        M = max<Real>(M, 1.5*min(
+                                                abs(pm),abs(pd)));
                                     }
                                 }
                             }
@@ -657,14 +657,14 @@ namespace QuantLib {
                                     pu=(S_[i]*(2.0*dx_[i]+dx_[i+1])-S_[i+1]*dx_[i])/
                                         (dx_[i]+dx_[i+1]);
                                     if (pm*pu>0.0 && -pm*(S_[i]-S_[i-1])>0.0) {
-                                        M = std::max<Real>(M, 1.5*std::min(
-                                                std::fabs(pm),std::fabs(pu)));
+                                        M = max<Real>(M, 1.5*min(
+                                                abs(pm),abs(pu)));
                                     }
                                 }
                             }
                             if (tmp_[i]*pm>0.0) {
-                                correction = tmp_[i]/std::fabs(tmp_[i]) *
-                                    std::min(std::fabs(tmp_[i]), M);
+                                correction = tmp_[i]/abs(tmp_[i]) *
+                                    min(abs(tmp_[i]), M);
                             } else {
                                 correction = 0.0;
                             }

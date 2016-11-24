@@ -52,7 +52,7 @@ namespace QuantLib {
             Volatility blackVolImpl(Time t, Real strike) const {
                 Time nonZeroMaturity = (t==0.0 ? 0.00001 : t);
                 Real var = blackVarianceImpl(nonZeroMaturity, strike);
-                return std::sqrt(var/nonZeroMaturity);
+                return sqrt(var/nonZeroMaturity);
             }
           private:
             const Real varianceOffset_;
@@ -92,10 +92,10 @@ namespace QuantLib {
                                                   payoff->strike());
 
         Real varianceOffset;
-        if (a*t > std::pow(QL_EPSILON, 0.25)) {
+        if (a*t > pow(QL_EPSILON, 0.25)) {
             const Real v = sigma*sigma/(a*a)
-                *(t + 2/a*std::exp(-a*t) - 1/(2*a)*std::exp(-2*a*t) - 3/(2*a));
-            const Real mu = 2*rho_*sigma*eta/a*(t-1/a*(1-std::exp(-a*t)));
+                *(t + 2/a*exp(-a*t) - 1/(2*a)*exp(-2*a*t) - 3/(2*a));
+            const Real mu = 2*rho_*sigma*eta/a*(t-1/a*(1-exp(-a*t)));
 
             varianceOffset = v + mu;
         }

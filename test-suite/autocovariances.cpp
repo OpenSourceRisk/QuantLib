@@ -45,7 +45,7 @@ void AutocovariancesTest::testAutoCovariances() {
     Array acovf(6);
     Real mean = autocovariances(x.begin(), x.end(), acovf.begin(), 5, false);
     Real expected[] = { 8.25, 6.416667, 4.25, 1.75, -1.08333, -4.25 };
-    if (std::fabs(mean-5.5) > 1.0e-6) {
+    if (abs(mean-5.5) > 1.0e-6) {
         BOOST_ERROR("Mean: \n"
                     << "    calculated:   " << mean << "\n"
                     << "    expected:     " << 5.5);
@@ -65,7 +65,7 @@ void AutocovariancesTest::testAutoCorrelations() {
     Real mean = autocorrelations(x.begin(), x.end(), acorf.begin(), 5, true);
     Real expected[] = { 9.166667, 0.77777778, 0.51515152,
                         0.21212121, -0.13131313, -0.51515152 };
-    if (std::fabs(mean-5.5) > 1.0e-6) {
+    if (abs(mean-5.5) > 1.0e-6) {
         BOOST_ERROR("Mean: \n"
                     << "    calculated:   " << mean << "\n"
                     << "    expected:     " << 5.5);

@@ -40,13 +40,13 @@ namespace QuantLib {
         QL_REQUIRE(variance_>=0.0,
                    "negative variance not allowed");
 
-        stdDev_ = std::sqrt(variance_);
+        stdDev_ = sqrt(variance_);
 
         Option::Type type   = payoff->optionType();
         strike_ = payoff->strike();
 
 
-        log_H_S_ = std::log(strike_/spot_);
+        log_H_S_ = log(strike_/spot_);
 
         Real n_d1, n_d2;
         if (variance_>=QL_EPSILON) {
@@ -56,8 +56,8 @@ namespace QuantLib {
             } else if (discount_==0.0) {
                 QL_FAIL("null discount not handled yet");
             } else {
-                mu_ = std::log(dividendDiscount_/discount_)/variance_ - 0.5;
-                lambda_ = std::sqrt(mu_*mu_-2.0*std::log(discount_)/variance_);
+                mu_ = log(dividendDiscount_/discount_)/variance_ - 0.5;
+                lambda_ = sqrt(mu_*mu_-2.0*log(discount_)/variance_);
             }
             D1_ = log_H_S_/stdDev_ + lambda_*stdDev_;
             D2_ = D1_ - 2.0*lambda_*stdDev_;
@@ -68,8 +68,8 @@ namespace QuantLib {
             n_d2 = f.derivative(D2_);
         } else {
             // not tested yet
-            mu_ = std::log(dividendDiscount_/discount_)/variance_ - 0.5;
-            lambda_ = std::sqrt(mu_*mu_-2.0*std::log(discount_)/variance_);
+            mu_ = log(dividendDiscount_/discount_)/variance_ - 0.5;
+            lambda_ = sqrt(mu_*mu_-2.0*log(discount_)/variance_);
             if (log_H_S_>0) {
                 cum_d1_= 1.0;
                 cum_d2_= 1.0;
@@ -128,8 +128,8 @@ namespace QuantLib {
             X_         = 1.0;
             DXDstrike_ = 0.0;
         } else {
-            forward_   = std::pow(strike_/spot_, muPlusLambda_);
-            X_         = std::pow(strike_/spot_, muMinusLambda_);
+            forward_   = pow(strike_/spot_, muPlusLambda_);
+            X_         = pow(strike_/spot_, muMinusLambda_);
 //            DXDstrike_ = ......;
         }
 

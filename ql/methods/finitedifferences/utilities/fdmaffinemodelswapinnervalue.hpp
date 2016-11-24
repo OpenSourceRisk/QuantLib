@@ -144,7 +144,7 @@ namespace QuantLib {
         if (swap_->type() == VanillaSwap::Receiver)
             npv *= -1.0;
 
-        return std::max(0.0, npv);
+        return max(Real(0.0), npv);
     }
 
     template <class ModelType> inline

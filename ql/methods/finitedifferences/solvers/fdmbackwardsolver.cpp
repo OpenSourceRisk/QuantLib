@@ -52,12 +52,12 @@ namespace QuantLib {
     
     FdmSchemeDesc FdmSchemeDesc::Hundsdorfer() {
         return FdmSchemeDesc(FdmSchemeDesc::HundsdorferType, 
-                             0.5+std::sqrt(3.0)/6, 0.5);
+                             0.5+sqrt(3.0)/6, 0.5);
     }
     
     FdmSchemeDesc FdmSchemeDesc::ModifiedHundsdorfer() {
         return FdmSchemeDesc(FdmSchemeDesc::HundsdorferType, 
-                             1.0-std::sqrt(2.0)/2, 0.5);
+                             1.0-sqrt(2.0)/2, 0.5);
     }
     
     FdmSchemeDesc FdmSchemeDesc::ExplicitEuler() {

@@ -341,7 +341,7 @@ namespace {
             Euribor index(depositData[i].n*depositData[i].units,curveHandle);
             Rate expectedRate  = depositData[i].rate/100,
                  estimatedRate = index.fixing(vars.today);
-            if (std::fabs(expectedRate-estimatedRate) > tolerance) {
+            if (abs(expectedRate-estimatedRate) > tolerance) {
                 BOOST_ERROR(
                     depositData[i].n << " "
                     << (depositData[i].units == Weeks ? "week(s)" : "month(s)")
@@ -366,7 +366,7 @@ namespace {
 
             Rate expectedRate = swapData[i].rate/100,
                  estimatedRate = swap.fairRate();
-            Spread error = std::fabs(expectedRate-estimatedRate);
+            Spread error = abs(expectedRate-estimatedRate);
             if (error > tolerance) {
                 BOOST_ERROR(
                     swapData[i].n << " year(s) swap:\n"
@@ -405,7 +405,7 @@ namespace {
 
             Real expectedPrice = bondData[i].price,
                  estimatedPrice = bond.cleanPrice();
-            Real error = std::fabs(expectedPrice-estimatedPrice);
+            Real error = abs(expectedPrice-estimatedPrice);
             if (error > tolerance) {
                 BOOST_ERROR(io::ordinal(i+1) << " bond failure:" <<
                             std::setprecision(8) <<
@@ -439,7 +439,7 @@ namespace {
                                      euribor3m, curveHandle);
             Rate expectedRate = fraData[i].rate/100,
                  estimatedRate = fra.forwardRate();
-            if (std::fabs(expectedRate-estimatedRate) > tolerance) {
+            if (abs(expectedRate-estimatedRate) > tolerance) {
                 BOOST_ERROR(io::ordinal(i+1) << " FRA failure:" <<
                             std::setprecision(8) <<
                             "\n  estimated rate: " << io::rate(estimatedRate) <<
@@ -471,7 +471,7 @@ namespace {
                 euribor3m, curveHandle);
             Rate expectedRate = immFutData[i].rate / 100,
                 estimatedRate = immFut.forwardRate();
-            if (std::fabs(expectedRate - estimatedRate) > tolerance) {
+            if (abs(expectedRate - estimatedRate) > tolerance) {
                 BOOST_ERROR(io::ordinal(i + 1) << " IMM futures failure:" <<
                     std::setprecision(8) <<
                     "\n  estimated rate: " << io::rate(estimatedRate) <<
@@ -503,7 +503,7 @@ namespace {
                 euribor3m, curveHandle);
             Rate expectedRate = asxFutData[i].rate / 100,
                 estimatedRate = asxFut.forwardRate();
-            if (std::fabs(expectedRate - estimatedRate) > tolerance) {
+            if (abs(expectedRate - estimatedRate) > tolerance) {
                 BOOST_ERROR(io::ordinal(i + 1) << " ASX futures failure:" <<
                     std::setprecision(8) <<
                     "\n  estimated rate: " << io::rate(estimatedRate) <<
@@ -597,7 +597,7 @@ namespace {
 
             Real expectedFraction = bmaData[i].rate/100,
                  estimatedFraction = swap.fairLiborFraction();
-            Real error = std::fabs(expectedFraction-estimatedFraction);
+            Real error = abs(expectedFraction-estimatedFraction);
             if (error > tolerance) {
                 BOOST_ERROR(bmaData[i].n << " year(s) BMA swap:\n"
                             << std::setprecision(8)
@@ -843,7 +843,7 @@ void PiecewiseYieldCurveTest::testLiborFixing() {
         Rate expectedRate = swapData[i].rate/100,
              estimatedRate = swap.fairRate();
         Real tolerance = 1.0e-9;
-        if (std::fabs(expectedRate-estimatedRate) > tolerance) {
+        if (abs(expectedRate-estimatedRate) > tolerance) {
             BOOST_ERROR("before LIBOR fixing:\n"
                         << swapData[i].n << " year(s) swap:\n"
                         << std::setprecision(8)
@@ -876,7 +876,7 @@ void PiecewiseYieldCurveTest::testLiborFixing() {
         Rate expectedRate = swapData[i].rate/100,
              estimatedRate = swap.fairRate();
         Real tolerance = 1.0e-9;
-        if (std::fabs(expectedRate-estimatedRate) > tolerance) {
+        if (abs(expectedRate-estimatedRate) > tolerance) {
             BOOST_ERROR("after LIBOR fixing:\n"
                         << swapData[i].n << " year(s) swap:\n"
                         << std::setprecision(8)
@@ -946,7 +946,7 @@ void PiecewiseYieldCurveTest::testJpyLibor() {
 
         Rate expectedRate = swapData[i].rate/100,
              estimatedRate = swap.fairRate();
-        Spread error = std::fabs(expectedRate-estimatedRate);
+        Spread error = abs(expectedRate-estimatedRate);
         Real tolerance = 1.0e-9;
 
         if (error > tolerance) {

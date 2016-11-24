@@ -93,9 +93,9 @@ namespace QuantLib {
         BetaRiskSimulation(Date start, 
                            Date end, 
                            Real maxLoss, 
-                           Real lambda, 
-                           Real alpha, 
-                           Real beta) ;    
+                           double lambda, 
+                           double alpha, 
+                           double beta) ;    
 
         virtual bool nextPath(std::vector<std::pair<Date, Real> > &path);
         Real generateBeta();
@@ -115,7 +115,7 @@ namespace QuantLib {
     class BetaRisk : public CatRisk {
       public:
         BetaRisk(Real maxLoss, 
-                 Real years, 
+                 double years, 
                  Real mean, 
                  Real stdDev);
 
@@ -123,9 +123,9 @@ namespace QuantLib {
 
       private:
         Real maxLoss_;
-        Real lambda_;
-        Real alpha_;
-        Real beta_;
+        double lambda_;
+        double alpha_;
+        double beta_;
     };
 
 }

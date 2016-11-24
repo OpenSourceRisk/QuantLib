@@ -93,8 +93,8 @@ namespace QuantLib {
                 // Now compute accuracy and check end criteria
                 // Numerical Recipes exit strategy on fx (see NR in C++, p.423)
                 fnew = P.functionValue();
-                fdiff = 2.0*std::fabs(fnew-fold) /
-                        (std::fabs(fnew) + std::fabs(fold) + QL_EPSILON);
+                fdiff = 2.0*abs(fnew-fold) /
+                        (abs(fnew) + abs(fold) + QL_EPSILON);
                 if (fdiff < ftol ||
                     endCriteria.checkMaxIterations(iterationNumber_, ecType)) {
                     endCriteria.checkStationaryFunctionValue(0.0, 0.0,

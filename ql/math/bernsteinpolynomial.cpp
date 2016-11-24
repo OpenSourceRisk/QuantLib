@@ -30,7 +30,7 @@ namespace QuantLib {
         Real coeff = Factorial::get(n) /
             (Factorial::get(n-i) * Factorial::get(i));
 
-        return coeff * std::pow(x,int(i)) * std::pow(1.0-x, int(n-i));
+        return coeff * pow(x,int(i)) * pow(1.0-x, int(n-i));
     }
 
 }

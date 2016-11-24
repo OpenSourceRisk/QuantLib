@@ -239,7 +239,7 @@ namespace QuantLib {
 
     inline void DiscretizedOption::applyExerciseCondition() {
         for (Size i=0; i<values_.size(); i++)
-            values_[i] = std::max(underlying_->values()[i], values_[i]);
+            values_[i] = max(underlying_->values()[i], values_[i]);
     }
 
 

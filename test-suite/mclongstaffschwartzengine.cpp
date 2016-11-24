@@ -210,7 +210,7 @@ void MCLongstaffSchwartzEngineTest::testAmericanOption() {
             const Real expected = americanOption.NPV();
 
             // Check price
-            if (std::fabs(calculated - expected) > 2.34*errorEstimate) {
+            if (abs(calculated - expected) > 2.34*errorEstimate) {
                 BOOST_ERROR("Failed to reproduce american option prices"
                             << "\n    expected: " << expected
                             << "\n    calculated:   " << calculated
@@ -218,7 +218,7 @@ void MCLongstaffSchwartzEngineTest::testAmericanOption() {
             }
 
             // Check exercise probability (tolerance 1.5%)
-            if (std::fabs(exerciseProbability - expectedExProb[i][j]) > 0.015) {
+            if (abs(exerciseProbability - expectedExProb[i][j]) > 0.015) {
                 BOOST_ERROR("Failed to reproduce american option "
                             << "exercise probability"
                             << "\n    expected: " << expectedExProb[i][j]
@@ -306,7 +306,7 @@ void MCLongstaffSchwartzEngineTest::testAmericanMaxOption() {
 
         const Real calculated  = americanMaxOption.NPV();
         const Real errorEstimate = americanMaxOption.errorEstimate();
-        if (std::fabs(calculated - expected[i]) > 2.34*errorEstimate) {
+        if (abs(calculated - expected[i]) > 2.34*errorEstimate) {
                 BOOST_ERROR("Failed to reproduce american option prices"
                             << "\n    expected: " << expected[i]
                             << "\n    calculated:   " << calculated

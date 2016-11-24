@@ -58,13 +58,13 @@ namespace QuantLib {
                     // [  e_[k]  d_[k] ]
                     // which is closer to d_[k+1].
                     // FLOATING_POINT_EXCEPTION
-                    const Real t1 = std::sqrt(
+                    const Real t1 = sqrt(
                                           0.25*(d_[k]*d_[k] + d_[k-1]*d_[k-1])
                                           - 0.5*d_[k-1]*d_[k] + e[k]*e[k]);
                     const Real t2 = 0.5*(d_[k]+d_[k-1]);
 
                     const Real lambda =
-                        (std::fabs(t2+t1 - d_[k]) < std::fabs(t2-t1 - d_[k]))?
+                        (abs(t2+t1 - d_[k]) < abs(t2-t1 - d_[k]))?
                         t2+t1 : t2-t1;
 
                     if (strategy == CloseEigenValue) {
@@ -84,7 +84,7 @@ namespace QuantLib {
                     const Real h = cosine*e[i];
                     const Real p = sine*e[i];
 
-                    e[i-1] = std::sqrt(p*p+q*q);
+                    e[i-1] = sqrt(p*p+q*q);
                     if (e[i-1] != 0.0) {
                         sine = p/e[i-1];
                         cosine = q/e[i-1];
@@ -144,8 +144,8 @@ namespace QuantLib {
     // see NR for abort assumption as it is
     // not part of the original Wilkinson algorithm
     bool TqrEigenDecomposition::offDiagIsZero(Size k, Array& e) {
-        return std::fabs(d_[k-1])+std::fabs(d_[k])
-            == std::fabs(d_[k-1])+std::fabs(d_[k])+std::fabs(e[k]);
+        return abs(d_[k-1])+abs(d_[k])
+            == abs(d_[k-1])+abs(d_[k])+abs(e[k]);
     }
 
 }

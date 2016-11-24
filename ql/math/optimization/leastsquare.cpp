@@ -102,8 +102,8 @@ namespace QuantLib {
 
         // minimize
         EndCriteria ec(maxIterations_,
-            std::min(static_cast<Size>(maxIterations_/2), static_cast<Size>(100)),
-            eps, eps, eps);
+                       std::min(static_cast<Size>(maxIterations_/2), static_cast<Size>(100)),
+                       eps, eps, eps);
         exitFlag_ = om_->minimize(P, ec);
 
         // summarize results of minimization

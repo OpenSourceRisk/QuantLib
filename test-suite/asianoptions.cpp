@@ -65,7 +65,7 @@ using namespace boost::unit_test_framework;
         << "    volatility:       " << io::volatility(v) << "\n\n" \
         << "    expected   " << greekName << ": " << expected << "\n" \
         << "    calculated " << greekName << ": " << calculated << "\n"\
-        << "    error:            " << std::fabs(expected-calculated) \
+        << "    error:            " << abs(expected-calculated) \
         << "\n" \
         << "    tolerance:        " << tolerance);
 
@@ -130,7 +130,7 @@ void AsianOptionTest::testAnalyticContinuousGeometricAveragePrice() {
     Real calculated = option.NPV();
     Real expected = 4.6922;
     Real tolerance = 1.0e-4;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         REPORT_FAILURE("value", averageType, runningAccumulator, pastFixings,
                        std::vector<Date>(), payoff, exercise, spot->value(),
                        qRate->value(), rRate->value(), today,
@@ -155,7 +155,7 @@ void AsianOptionTest::testAnalyticContinuousGeometricAveragePrice() {
 
     calculated = option2.NPV();
     tolerance = 3.0e-3;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         REPORT_FAILURE("value", averageType, runningAccumulator, pastFixings,
                        fixingDates, payoff, exercise, spot->value(),
                        qRate->value(), rRate->value(), today,
@@ -376,7 +376,7 @@ void AsianOptionTest::testAnalyticDiscreteGeometricAveragePrice() {
     Real calculated = option.NPV();
     Real expected = 5.3425606635;
     Real tolerance = 1e-10;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         REPORT_FAILURE("value", averageType, runningAccumulator, pastFixings,
                        fixingDates, payoff, exercise, spot->value(),
                        qRate->value(), rRate->value(), today,
@@ -435,7 +435,7 @@ void AsianOptionTest::testAnalyticDiscreteGeometricAverageStrike() {
     Real calculated = option.NPV();
     Real expected = 4.97109;
     Real tolerance = 1e-5;
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         REPORT_FAILURE("value", averageType, runningAccumulator, pastFixings,
                        fixingDates, payoff, exercise, spot->value(),
                        qRate->value(), rRate->value(), today,
@@ -505,7 +505,7 @@ void AsianOptionTest::testMCDiscreteGeometricAveragePrice() {
     option.setPricingEngine(engine2);
     Real expected = option.NPV();
 
-    if (std::fabs(calculated-expected) > tolerance) {
+    if (abs(calculated-expected) > tolerance) {
         REPORT_FAILURE("value", averageType, runningAccumulator, pastFixings,
                        fixingDates, payoff, exercise, spot->value(),
                        qRate->value(), rRate->value(), today,
@@ -631,10 +631,10 @@ void AsianOptionTest::testMCDiscreteArithmeticAveragePrice() {
         std::vector<Time> timeIncrements(cases4[l].fixings);
         std::vector<Date> fixingDates(cases4[l].fixings);
         timeIncrements[0] = cases4[l].first;
-        fixingDates[0] = today + Integer(timeIncrements[0]*360+0.5);
+        fixingDates[0] = today + Integer(VALUE(timeIncrements[0]*360+0.5));
         for (Size i=1; i<cases4[l].fixings; i++) {
             timeIncrements[i] = i*dt + cases4[l].first;
-            fixingDates[i] = today + Integer(timeIncrements[i]*360+0.5);
+            fixingDates[i] = today + Integer(VALUE(timeIncrements[i]*360+0.5));
         }
         boost::shared_ptr<Exercise> exercise(new
             EuropeanExercise(fixingDates[cases4[l].fixings-1]));
@@ -664,7 +664,7 @@ void AsianOptionTest::testMCDiscreteArithmeticAveragePrice() {
         Real calculated = option.NPV();
         Real expected = cases4[l].result;
         Real tolerance = 2.0e-2;
-        if (std::fabs(calculated-expected) > tolerance) {
+        if (abs(calculated-expected) > tolerance) {
             REPORT_FAILURE("value", averageType, runningSum, pastFixings,
                         fixingDates, payoff, exercise, spot->value(),
                         qRate->value(), rRate->value(), today,
@@ -676,7 +676,7 @@ void AsianOptionTest::testMCDiscreteArithmeticAveragePrice() {
                     new FdBlackScholesAsianEngine(stochProcess, 100, 100, 100));
             option.setPricingEngine(engine);
             calculated = option.NPV();
-            if (std::fabs(calculated-expected) > tolerance) {
+            if (abs(calculated-expected) > tolerance) {
                 REPORT_FAILURE("value", averageType, runningSum, pastFixings,
                             fixingDates, payoff, exercise, spot->value(),
                             qRate->value(), rRate->value(), today,
@@ -784,10 +784,10 @@ void AsianOptionTest::testMCDiscreteArithmeticAverageStrike() {
         std::vector<Time> timeIncrements(cases5[l].fixings);
         std::vector<Date> fixingDates(cases5[l].fixings);
         timeIncrements[0] = cases5[l].first;
-        fixingDates[0] = today + Integer(timeIncrements[0]*360+0.5);
+        fixingDates[0] = today + Integer(VALUE(timeIncrements[0]*360+0.5));
         for (Size i=1; i<cases5[l].fixings; i++) {
             timeIncrements[i] = i*dt + cases5[l].first;
-            fixingDates[i] = today + Integer(timeIncrements[i]*360+0.5);
+            fixingDates[i] = today + Integer(VALUE(timeIncrements[i]*360+0.5));
         }
         boost::shared_ptr<Exercise> exercise(new
             EuropeanExercise(fixingDates[cases5[l].fixings-1]));
@@ -816,7 +816,7 @@ void AsianOptionTest::testMCDiscreteArithmeticAverageStrike() {
         Real calculated = option.NPV();
         Real expected = cases5[l].result;
         Real tolerance = 2.0e-2;
-        if (std::fabs(calculated-expected) > tolerance) {
+        if (abs(calculated-expected) > tolerance) {
             REPORT_FAILURE("value", averageType, runningSum, pastFixings,
                            fixingDates, payoff, exercise, spot->value(),
                            qRate->value(), rRate->value(), today,
@@ -1215,7 +1215,7 @@ void AsianOptionTest::testLevyEngine() {
         Real calculated = option.NPV();
         Real expected = cases[l].result;
         Real tolerance = 1.0e-4;
-        Real error = std::fabs(expected-calculated);
+        Real error = abs(expected-calculated);
         if (error > tolerance) {
             BOOST_ERROR("Asian option with Levy engine:"
                         << "\n    spot:            " << cases[l].spot
@@ -1295,7 +1295,7 @@ void AsianOptionTest::testVecerEngine() {
                 process,average,today,timeSteps,assetSteps,-1.0,1.0));
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated - cases[i].result);
+        Real error = abs(calculated - cases[i].result);
         if (error > cases[i].tolerance)
             BOOST_ERROR("Failed to reproduce expected NPV"
                         << "\n    calculated: " << calculated

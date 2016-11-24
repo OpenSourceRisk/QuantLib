@@ -73,13 +73,13 @@ struct SABRSpecs {
         if (params[0] == Null<Real>())
             // adapt alpha to beta level
             params[0] = 0.2 * (params[1] < 0.9999
-                                   ? std::pow(forward + (addParams.size() == 0
+                                   ? pow(forward + (addParams.size() == 0
                                                              ? 0.0
                                                              : addParams[0]),
                                               1.0 - params[1])
                                    : 1.0);
         if (params[2] == Null<Real>())
-            params[2] = std::sqrt(0.4);
+            params[2] = sqrt(0.4);
         if (params[3] == Null<Real>())
             params[3] = 0.0;
     }
@@ -93,7 +93,7 @@ struct SABRSpecs {
             values[0] = (1.0 - 2E-6) * r[j++] + 1E-6; // lognormal vol guess
             // adapt this to beta level
             if (values[1] < 0.999)
-                values[0] *= std::pow(
+                values[0] *= pow(
                     forward + (addParams.size() == 0 ? 0.0 : addParams[0]),
                     1.0 - values[1]);
         }
@@ -108,28 +108,28 @@ struct SABRSpecs {
     Array inverse(const Array &y, const std::vector<bool> &,
                   const std::vector<Real> &, const Real) {
         Array x(4);
-        x[0] = y[0] < 25.0 + eps1() ? std::sqrt(y[0] - eps1())
+        x[0] = y[0] < 25.0 + eps1() ? sqrt(y[0] - eps1())
                                     : (y[0] - eps1() + 25.0) / 10.0;
-        // y_[1] = std::tan(M_PI*(x[1] - 0.5))/dilationFactor();
-        x[1] = std::sqrt(-std::log(y[1]));
-        x[2] = y[2] < 25.0 + eps1() ? std::sqrt(y[2] - eps1())
+        // y_[1] = tan(M_PI*(x[1] - 0.5))/dilationFactor();
+        x[1] = sqrt(-log(y[1]));
+        x[2] = y[2] < 25.0 + eps1() ? sqrt(y[2] - eps1())
                                     : (y[2] - eps1() + 25.0) / 10.0;
-        x[3] = std::asin(y[3] / eps2());
+        x[3] = asin(y[3] / eps2());
         return x;
     }
     Array direct(const Array &x, const std::vector<bool> &,
                  const std::vector<Real> &, const Real) {
         Array y(4);
-        y[0] = std::fabs(x[0]) < 5.0 ? x[0] * x[0] + eps1()
-                                     : (10.0 * std::fabs(x[0]) - 25.0) + eps1();
-        // y_[1] = std::atan(dilationFactor_*x[1])/M_PI + 0.5;
-        y[1] = std::fabs(x[1]) < std::sqrt(-std::log(eps1()))
-                   ? std::exp(-(x[1] * x[1]))
+        y[0] = abs(x[0]) < 5.0 ? x[0] * x[0] + eps1()
+                                     : (10.0 * abs(x[0]) - 25.0) + eps1();
+        // y_[1] = atan(dilationFactor_*x[1])/M_PI + 0.5;
+        y[1] = abs(x[1]) < sqrt(-log(eps1()))
+                   ? exp(-(x[1] * x[1]))
                    : eps1();
-        y[2] = std::fabs(x[2]) < 5.0 ? x[2] * x[2] + eps1()
-                                     : (10.0 * std::fabs(x[2]) - 25.0) + eps1();
-        y[3] = std::fabs(x[3]) < 2.5 * M_PI
-                   ? eps2() * std::sin(x[3])
+        y[2] = abs(x[2]) < 5.0 ? x[2] * x[2] + eps1()
+                                     : (10.0 * abs(x[2]) - 25.0) + eps1();
+        y[3] = abs(x[3]) < 2.5 * M_PI
+                   ? eps2() * sin(x[3])
                    : eps2() * (x[3] > 0.0 ? 1.0 : (-1.0));
         return y;
     }

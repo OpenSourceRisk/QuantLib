@@ -54,12 +54,12 @@ namespace QuantLib {
             intrinsicValues_ = SampledCurve(newGridPoints);
         }
 
-        Real volSqrtTime = std::sqrt(process_->blackVolatility()
+        Real volSqrtTime = sqrt(process_->blackVolatility()
                                      ->blackVariance(t, center_));
 
         // the prefactor fine tunes performance at small volatilities
         Real prefactor = 1.0 + 0.02/volSqrtTime;
-        Real minMaxFactor = std::exp(4.0 * prefactor * volSqrtTime);
+        Real minMaxFactor = exp(4.0 * prefactor * volSqrtTime);
         sMin_ = center_/minMaxFactor;  // underlying grid min value
         sMax_ = center_*minMaxFactor;  // underlying grid max value
     }
@@ -119,9 +119,9 @@ namespace QuantLib {
         static const Size minGridPointsPerYear = 2;
         return std::max(gridPoints,
                         residualTime > 1.0 ?
-                            static_cast<Size>((minGridPoints +
+                   static_cast<Size>(VALUE((minGridPoints +
                                                (residualTime-1.0) *
-                                                minGridPointsPerYear))
+                                            minGridPointsPerYear)))
                             : minGridPoints);
     }
 

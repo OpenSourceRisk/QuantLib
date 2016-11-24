@@ -52,7 +52,7 @@ namespace {
 
         sample_type sample = generator.next();
         Real calculated = sample.value.back();
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         Real tolerance = 2.0e-8;
         if (error > tolerance) {
             BOOST_ERROR("using " << tag << " process "
@@ -67,7 +67,7 @@ namespace {
 
         sample = generator.antithetic();
         calculated = sample.value.back();
-        error = std::fabs(calculated-antithetic);
+        error = abs(calculated-antithetic);
         tolerance = 2.0e-7;
         if (error > tolerance) {
             BOOST_ERROR("using " << tag << " process "
@@ -108,7 +108,7 @@ namespace {
         for (j=0; j<assets; j++)
             calculated[j] = sample.value[j].back();
         for (j=0; j<assets; j++) {
-            error = std::fabs(calculated[j]-expected[j]);
+            error = abs(calculated[j]-expected[j]);
             if (error > tolerance) {
                 BOOST_ERROR("using " << tag << " process "
                             << "(" << io::ordinal(j+1) << " asset:)\n"
@@ -124,7 +124,7 @@ namespace {
         for (j=0; j<assets; j++)
             calculated[j] = sample.value[j].back();
         for (j=0; j<assets; j++) {
-            error = std::fabs(calculated[j]-antithetic[j]);
+            error = abs(calculated[j]-antithetic[j]);
             if (error > tolerance) {
                 BOOST_ERROR("using " << tag << " process "
                             << "(" << io::ordinal(j+1) << " asset:)\n"

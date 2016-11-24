@@ -171,7 +171,7 @@ namespace QuantLib {
         }
         Probability P = 1.0 - integral;
         // QL_ENSURE(P >= 0.0, "negative survival probability");
-        return std::max<Real>(P, 0.0);
+        return max<Real>(P, 0.0);
     }
 
     template <class T>

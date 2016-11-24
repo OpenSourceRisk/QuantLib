@@ -131,7 +131,7 @@ void TwoAssetBarrierOptionTest::testHaugValues() {
 
         Real calculated = barrierOption.NPV();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         Real tolerance = 4.0e-3;
         if (error > tolerance) {
             BOOST_ERROR("failed to reproduce expected price"

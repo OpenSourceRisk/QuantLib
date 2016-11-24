@@ -56,8 +56,8 @@ namespace QuantLib {
         // we could be more anticipatory if we know the right dt
         // for which the drift will be used
         Time t1 = t + 0.0001;
-        return riskFreeRate_->forwardRate(t,t1,Continuous,NoFrequency,true)
-             - dividendYield_->forwardRate(t,t1,Continuous,NoFrequency,true)
+        return riskFreeRate_->forwardRate(t,t1,Continuous,NoFrequency,true).rate()
+            - dividendYield_->forwardRate(t,t1,Continuous,NoFrequency,true).rate()
              - 0.5 * sigma * sigma;
     }
 
@@ -66,7 +66,7 @@ namespace QuantLib {
     }
 
     Real GeneralizedBlackScholesProcess::apply(Real x0, Real dx) const {
-        return x0 * std::exp(dx);
+        return x0 * exp(dx);
     }
 
     Real GeneralizedBlackScholesProcess::expectation(Time t0,
@@ -77,9 +77,9 @@ namespace QuantLib {
             // exact value for curves
             return x0 *
                    exp(dt * (riskFreeRate_->forwardRate(t0, t0 + dt, Continuous,
-                                                        NoFrequency, true) -
+                                                        NoFrequency, true).rate() -
                              dividendYield_->forwardRate(
-                                 t0, t0 + dt, Continuous, NoFrequency, true)));
+                                 t0, t0 + dt, Continuous, NoFrequency, true).rate()));
         } else {
             QL_FAIL("not implemented");
         }
@@ -89,7 +89,7 @@ namespace QuantLib {
         localVolatility(); // trigger update
         if(isStrikeIndependent_) {
             // exact value for curves
-            return std::sqrt(variance(t0,x0,dt));
+            return sqrt(variance(t0,x0,dt));
         }
         else{
             return discretization_->diffusion(*this,t0,x0,dt);
@@ -115,12 +115,12 @@ namespace QuantLib {
             // exact value for curves
             Real var = variance(t0, x0, dt);
             Real drift = (riskFreeRate_->forwardRate(t0, t0 + dt, Continuous,
-                                                     NoFrequency, true) -
+                                                     NoFrequency, true).rate() -
                           dividendYield_->forwardRate(t0, t0 + dt, Continuous,
-                                                      NoFrequency, true)) *
+                                                      NoFrequency, true).rate()) *
                              dt -
                          0.5 * var;
-            return apply(x0, std::sqrt(var) * dw + drift);
+            return apply(x0, sqrt(var) * dw + drift);
         } else
             return apply(x0, discretization_->drift(*this, t0, x0, dt) +
                                  stdDeviation(t0, x0, dt) * dw);

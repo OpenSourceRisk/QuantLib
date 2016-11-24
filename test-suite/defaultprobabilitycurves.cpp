@@ -69,7 +69,7 @@ void DefaultProbabilityCurveTest::testDefaultProbability() {
 
         Probability pBetween = pEnd - pStart;
 
-        if (std::fabs(pBetween - pBetweenComputed) > tolerance)
+        if (abs(pBetween - pBetweenComputed) > tolerance)
             BOOST_ERROR(
                 "Failed to reproduce probability(d1, d2) "
                 << "for default probability structure\n"
@@ -82,7 +82,7 @@ void DefaultProbabilityCurveTest::testDefaultProbability() {
         Probability dateProbability =
             flatHazardRate.defaultProbability(endDate);
 
-        if (std::fabs(timeProbability - dateProbability) > tolerance)
+        if (abs(timeProbability - dateProbability) > tolerance)
             BOOST_ERROR(
                 "single-time probability and single-date probability do not match\n"
                 << std::setprecision(10)
@@ -93,7 +93,7 @@ void DefaultProbabilityCurveTest::testDefaultProbability() {
         timeProbability = flatHazardRate.defaultProbability(t1, t2);
         dateProbability = flatHazardRate.defaultProbability(startDate, endDate);
 
-        if (std::fabs(timeProbability - dateProbability) > tolerance)
+        if (abs(timeProbability - dateProbability) > tolerance)
             BOOST_ERROR(
                 "double-time probability and double-date probability do not match\n"
                 << std::setprecision(10)
@@ -124,10 +124,10 @@ void DefaultProbabilityCurveTest::testFlatHazardRate() {
     for(Size i=0; i<n; i++){
         endDate = calendar.advance(endDate, 1, Years);
         Time t = dayCounter.yearFraction(startDate, endDate);
-        Probability probability = 1.0 - std::exp(-hazardRate * t);
+        Probability probability = 1.0 - exp(-hazardRate * t);
         Probability computedProbability = flatHazardRate.defaultProbability(t);
 
-        if (std::fabs(probability - computedProbability) > tolerance)
+        if (abs(probability - computedProbability) > tolerance)
             BOOST_ERROR(
                 "Failed to reproduce probability for flat hazard rate\n"
                 << std::setprecision(10)
@@ -212,7 +212,7 @@ namespace {
             // test
             Rate inputRate = quote[i];
             Rate computedRate = cds.fairSpread();
-            if (std::fabs(inputRate - computedRate) > tolerance)
+            if (abs(inputRate - computedRate) > tolerance)
                 BOOST_ERROR(
                     "\nFailed to reproduce fair spread for " << n[i] <<
                     "Y credit-default swaps\n"
@@ -299,7 +299,7 @@ namespace {
             // test
             Rate inputUpfront = quote[i];
             Rate computedUpfront = cds.fairUpfront();
-            if (std::fabs(inputUpfront - computedUpfront) > tolerance)
+            if (abs(inputUpfront - computedUpfront) > tolerance)
                 BOOST_ERROR(
                     "\nFailed to reproduce fair upfront for " << n[i] <<
                     "Y credit-default swaps\n"

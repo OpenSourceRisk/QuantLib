@@ -55,7 +55,7 @@ namespace QuantLib {
                 Real diff = instruments_[i]->calibrationError();
                 value += diff*diff*weights_[i];
             }
-            return std::sqrt(value);
+            return sqrt(value);
         }
 
         virtual Disposable<Array> values(const Array& params) const {
@@ -63,7 +63,7 @@ namespace QuantLib {
             Array values(instruments_.size());
             for (Size i=0; i<instruments_.size(); i++) {
                 values[i] = instruments_[i]->calibrationError()
-                           *std::sqrt(weights_[i]);
+                           *sqrt(weights_[i]);
             }
             return values;
         }

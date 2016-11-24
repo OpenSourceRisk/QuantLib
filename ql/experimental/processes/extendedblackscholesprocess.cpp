@@ -36,8 +36,8 @@ namespace QuantLib {
         // we could be more anticipatory if we know the right dt
         // for which the drift will be used
         Time t1 = t + 0.0001;
-        return riskFreeRate()->forwardRate(t,t1,Continuous,NoFrequency,true)
-             - dividendYield()->forwardRate(t,t1,Continuous,NoFrequency,true)
+        return riskFreeRate()->forwardRate(t,t1,Continuous,NoFrequency,true).rate()
+            - dividendYield()->forwardRate(t,t1,Continuous,NoFrequency,true).rate()
              - 0.5 * sigma * sigma;
     }
 
@@ -55,8 +55,8 @@ namespace QuantLib {
           case Milstein:
             // Milstein scheme
             return apply(x0, drift(t0, x0)*dt
-                           + 0.5*std::pow(diffusion(t0, x0),2)*(dw*dw-1)*dt
-                           + diffusion(t0,x0)*std::sqrt(dt)*dw);
+                           + 0.5*pow(diffusion(t0, x0),2)*(dw*dw-1)*dt
+                           + diffusion(t0,x0)*sqrt(dt)*dw);
             break;
           case Euler:
             // Usual Euler scheme
@@ -70,19 +70,19 @@ namespace QuantLib {
             sigma0 = diffusion(t0,x0);
             sigma1 = diffusion(t0+dt,predictor);
             rate0 =
-                riskFreeRate()->forwardRate(t0,t1,Continuous,NoFrequency,true)
-              - dividendYield()->forwardRate(t0,t1,Continuous,NoFrequency,true)
-              - 0.5*std::pow(sigma0,2);
+                riskFreeRate()->forwardRate(t0,t1,Continuous,NoFrequency,true).rate()
+                - dividendYield()->forwardRate(t0,t1,Continuous,NoFrequency,true).rate()
+              - 0.5*pow(sigma0,2);
             rate1 =
                 riskFreeRate()->forwardRate(t0+dt,t1+dt,Continuous,
-                                            NoFrequency,true)
+                                            NoFrequency,true).rate()
               - dividendYield()->forwardRate(t0+dt,t1+dt,
-                                             Continuous,NoFrequency,true)
-              - 0.5*std::pow(sigma1,2);
+                                             Continuous,NoFrequency,true).rate()
+              - 0.5*pow(sigma1,2);
             driftterm = 0.5*rate1+0.5*rate0;
             diffusionterm = 0.5*(sigma1+sigma0);
             corrector =
-                apply(x0,driftterm*dt+diffusionterm*std::sqrt(dt)*dw);
+                apply(x0,driftterm*dt+diffusionterm*sqrt(dt)*dw);
             return corrector;
             break;
           default:

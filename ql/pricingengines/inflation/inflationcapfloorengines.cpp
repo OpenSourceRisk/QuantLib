@@ -83,14 +83,14 @@ namespace QuantLib {
                 Date fixingDate = arguments_.fixingDates[i];
                 Time sqrtTime = 0.0;
                 if (fixingDate > volatility_->baseDate()){
-                    sqrtTime = std::sqrt(
+                    sqrtTime = sqrt(
                         volatility_->timeFromBase(fixingDate));
                 }
 
                 if (type == YoYInflationCapFloor::Cap || type == YoYInflationCapFloor::Collar) {
                     Rate strike = arguments_.capRates[i];
                     if (sqrtTime>0.0) {
-                        stdDevs[i] = std::sqrt(
+                        stdDevs[i] = sqrt(
                             volatility_->totalVariance(fixingDate, strike, Period(0,Days)));
 
                     }
@@ -102,7 +102,7 @@ namespace QuantLib {
                 if (type == YoYInflationCapFloor::Floor || type == YoYInflationCapFloor::Collar) {
                     Rate strike = arguments_.floorRates[i];
                     if (sqrtTime>0.0) {
-                        stdDevs[i] = std::sqrt(
+                        stdDevs[i] = sqrt(
                             volatility_->totalVariance(fixingDate, strike, Period(0,Days)));
                     }
                     Real floorlet = optionletImpl(Option::Put, strike,

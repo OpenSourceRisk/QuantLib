@@ -139,7 +139,7 @@ namespace QuantLib {
         Time tMax = this->times_.back();
         Probability sMax = this->data_.back();
         Rate hazardMax = - this->interpolation_.derivative(tMax) / sMax;
-        return sMax * std::exp(- hazardMax * (t-tMax));
+        return sMax * exp(- hazardMax * (t-tMax));
     }
 
     template <class T>
@@ -152,7 +152,7 @@ namespace QuantLib {
         Time tMax = this->times_.back();
         Probability sMax = this->data_.back();
         Rate hazardMax = - this->interpolation_.derivative(tMax) / sMax;
-        return sMax * hazardMax * std::exp(- hazardMax * (t-tMax));
+        return sMax * hazardMax * exp(- hazardMax * (t-tMax));
     }
 
     template <class T>

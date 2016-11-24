@@ -158,7 +158,7 @@ namespace
         Real tolerance = 4.0;
 
         for (Size i=0; i < maxDim; ++i)
-            if (fabs(errorInSds[i] ) > tolerance)
+            if (abs(errorInSds[i] ) > tolerance)
                 BOOST_ERROR("Lattice generator" << nameString <<" returns  a mean of " <<
                 means[i] << " with error equal to  " << errorInSds[i]
             << " standard deviations in dimension " << i);
@@ -206,14 +206,14 @@ void LowDiscrepancyTest::testSobol() {
     std::vector<Real> mean;
     Size k = 0;
     for (Integer j=1; j<5; j++) { // five cycle
-        points = Size(std::pow(2.0, j))-1; // base 2
+        points = Size(pow(2.0, j))-1; // base 2
         for (; k<points; k++) {
             point = rsg.nextSequence().value;
             stat.add(point);
         }
         mean = stat.mean();
         for (i=0; i<dimensionality; i++) {
-            Real error = std::fabs(mean[i]-0.5);
+            Real error = abs(mean[i]-0.5);
             if (error > tolerance) {
                 BOOST_ERROR(io::ordinal(i+1) << " dimension: "
                             << QL_FIXED
@@ -243,10 +243,10 @@ void LowDiscrepancyTest::testSobol() {
 
     dimensionality = 1;
     rsg = SobolRsg(dimensionality);
-    points = Size(std::pow(2.0, 5))-1; // five cycles
+    points = Size(pow(2.0, 5))-1; // five cycles
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
-        Real error = std::fabs(point[0]-vanderCorputSequenceModuloTwo[i]);
+        Real error = abs(point[0]-vanderCorputSequenceModuloTwo[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw ("
                         << QL_FIXED << point[0]
@@ -296,10 +296,10 @@ void LowDiscrepancyTest::testFaure() {
     };
     dimensionality = 1;
     rsg = FaureRsg(dimensionality);
-    points = Size(std::pow(2.0, 5))-1; // five cycles
+    points = Size(pow(2.0, 5))-1; // five cycles
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
-        Real error = std::fabs(point[0]-vanderCorputSequenceModuloTwo[i]);
+        Real error = abs(point[0]-vanderCorputSequenceModuloTwo[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw, dimension 1 ("
                         << QL_FIXED << point[0]
@@ -329,10 +329,10 @@ void LowDiscrepancyTest::testFaure() {
     };
     dimensionality = 2;
     rsg = FaureRsg(dimensionality);
-    points = Size(std::pow(2.0, 5))-1; // five cycles
+    points = Size(pow(2.0, 5))-1; // five cycles
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
-        Real error = std::fabs(point[0]-vanderCorputSequenceModuloTwo[i]);
+        Real error = abs(point[0]-vanderCorputSequenceModuloTwo[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw, dimension 1 ("
                         << QL_FIXED << point[0]
@@ -341,7 +341,7 @@ void LowDiscrepancyTest::testFaure() {
                         << QL_SCIENTIFIC
                         << " (error = " << error << ")");
         }
-        error = std::fabs(point[1]-FaureDimensionTwoOfTwo[i]);
+        error = abs(point[1]-FaureDimensionTwoOfTwo[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw, dimension 2 ("
                         << QL_FIXED << point[1]
@@ -376,10 +376,10 @@ void LowDiscrepancyTest::testFaure() {
 
     dimensionality = 3;
     rsg = FaureRsg(dimensionality);
-    points = Size(std::pow(3.0, 2))-1; // three cycles
+    points = Size(pow(3.0, 2))-1; // three cycles
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
-        Real error = std::fabs(point[0]-FaureDimensionOneOfThree[i]);
+        Real error = abs(point[0]-FaureDimensionOneOfThree[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw, dimension 1 ("
                         << QL_FIXED << point[0]
@@ -388,7 +388,7 @@ void LowDiscrepancyTest::testFaure() {
                         << QL_SCIENTIFIC
                         << " (error = " << error << ")");
         }
-        error = std::fabs(point[1]-FaureDimensionTwoOfThree[i]);
+        error = abs(point[1]-FaureDimensionTwoOfThree[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw, dimension 2 ("
                         << QL_FIXED << point[1]
@@ -397,7 +397,7 @@ void LowDiscrepancyTest::testFaure() {
                         << QL_SCIENTIFIC
                         << " (error = " << error << ")");
         }
-        error = std::fabs(point[2]-FaureDimensionThreeOfThree[i]);
+        error = abs(point[2]-FaureDimensionThreeOfThree[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw, dimension 3 ("
                         << QL_FIXED << point[2]
@@ -446,10 +446,10 @@ void LowDiscrepancyTest::testHalton() {
 
     dimensionality = 1;
     rsg = HaltonRsg(dimensionality, 0, false, false);
-    points = Size(std::pow(2.0, 5))-1;  // five cycles
+    points = Size(pow(2.0, 5))-1;  // five cycles
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
-        Real error = std::fabs(point[0]-vanderCorputSequenceModuloTwo[i]);
+        Real error = abs(point[0]-vanderCorputSequenceModuloTwo[i]);
         if (error > tolerance) {
             BOOST_ERROR(io::ordinal(i+1) << " draw ("
                         << QL_FIXED << point[0]
@@ -475,10 +475,10 @@ void LowDiscrepancyTest::testHalton() {
 
     dimensionality = 2;
     rsg = HaltonRsg(dimensionality, 0, false, false);
-    points = Size(std::pow(3.0, 3))-1;  // three cycles of the higher dimension
+    points = Size(pow(3.0, 3))-1;  // three cycles of the higher dimension
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
-        Real error = std::fabs(point[0]-vanderCorputSequenceModuloTwo[i]);
+        Real error = abs(point[0]-vanderCorputSequenceModuloTwo[i]);
         if (error > tolerance) {
             BOOST_ERROR("First component of " << io::ordinal(i+1)
                         << " draw (" << QL_FIXED << point[0]
@@ -489,7 +489,7 @@ void LowDiscrepancyTest::testHalton() {
                         << QL_SCIENTIFIC
                         << " (error = " << error << ")");
         }
-        error = std::fabs(point[1]-vanderCorputSequenceModuloThree[i]);
+        error = abs(point[1]-vanderCorputSequenceModuloThree[i]);
         if (error > tolerance) {
             BOOST_ERROR("Second component of " << io::ordinal(i+1)
                         << " draw (" << QL_FIXED << point[1]
@@ -510,13 +510,13 @@ void LowDiscrepancyTest::testHalton() {
     k = 0;
     Integer j;
     for (j=1; j<5; j++) { // five cycle
-        points = Size(std::pow(2.0, j))-1; // base 2
+        points = Size(pow(2.0, j))-1; // base 2
         for (; k<points; k++) {
             point = rsg.nextSequence().value;
             stat.add(point);
         }
         mean = stat.mean();
-        Real error = std::fabs(mean[0] - 0.5);
+        Real error = abs(mean[0] - 0.5);
         if (error > tolerance) {
             BOOST_ERROR("First dimension mean (" << QL_FIXED << mean[0]
                         << ") at the end of the " << io::ordinal(j+1)
@@ -531,13 +531,13 @@ void LowDiscrepancyTest::testHalton() {
     stat.reset(dimensionality);
     k = 0;
     for (j=1; j<3; j++) { // three cycle
-        points = Size(std::pow(3.0, j))-1; // base 3
+        points = Size(pow(3.0, j))-1; // base 3
         for (; k<points; k++) {
             point = rsg.nextSequence().value;
             stat.add(point);
         }
         mean = stat.mean();
-        Real error = std::fabs(mean[1] - 0.5);
+        Real error = abs(mean[1] - 0.5);
         if (error > tolerance) {
             BOOST_ERROR("Second dimension mean (" << QL_FIXED << mean[1]
                         << ") at the end of the " << io::ordinal(j+1)
@@ -867,7 +867,7 @@ namespace {
                       << arrayName << "[] = {" ;
             #endif
             for (j=jMin; j<jMin+sampleLoops; j++) {
-                Size points = Size(std::pow(2.0, Integer(j)))-1;
+                Size points = Size(pow(2.0, Integer(j)))-1;
                 for (; k<points; k++) {
                     point = rsg.nextSequence().value;
                     stat.add(point);
@@ -880,7 +880,7 @@ namespace {
                     outStream << ", ";
                 outStream << QL_FIXED << std::setprecision(2) << discr;
                 #else
-                if (std::fabs(discr-discrepancy[i][j-jMin])>tolerance*discr) {
+                if (abs(discr-discrepancy[i][j-jMin])>tolerance*discr) {
                     BOOST_ERROR(generatorFactory.name()
                                 << "discrepancy dimension " << dimensionality[i]
                                 << " at " << points << " samples is "

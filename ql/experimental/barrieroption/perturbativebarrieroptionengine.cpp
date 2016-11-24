@@ -28,11 +28,11 @@
 #include <cmath>
 #include <algorithm>
 
-using namespace std;
+//using namespace std;
 
-#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
-#define ABS(x) (((x) < 0) ? -(x) : (x))
-#define POW(x,y) pow( (Real) (x), (Real) (y))
+#define SIGN(a,b) (VALUE((b) >= 0.0 ? fabs(a) : -fabs(a)))
+#define ABS(x) (abs(x))
+#define POW(x,y) pow( Real(x), Real(y) )
 #define PI 3.14159265358979324
 
 namespace QuantLib {
@@ -827,7 +827,7 @@ namespace QuantLib {
         static Real  ONE=1.0, ZRO=0.0, EPS,  TVT;
         static Real PT, R12, R13;
         static double ppi= 3.14159265358979324;
-        EPS = max( 1.e-14, epsi );
+        EPS = max<Real>( Real(1.e-14), Real(epsi) );
         PT=ppi/2.0;
 
         NUC = NU;
@@ -1444,7 +1444,7 @@ namespace QuantLib {
                     boost::shared_ptr<GeneralizedBlackScholesProcess> process)
             : r(*(process->riskFreeRate())) {}
             Real operator()(Real t1,Real t2) const {
-                return r->forwardRate(t1,t2,Continuous) * (t2-t1);
+                return r->forwardRate(t1,t2,Continuous).rate() * (t2-t1);
             }
         };
 
@@ -1456,8 +1456,8 @@ namespace QuantLib {
             : r(*(process->riskFreeRate())),
               q(*(process->dividendYield())) {}
             Real operator()(Real t1,Real t2) const {
-                Real alpha = r->forwardRate(t1,t2,Continuous)
-                           - q->forwardRate(t1,t2,Continuous);
+                Real alpha = r->forwardRate(t1,t2,Continuous).rate()
+                    - q->forwardRate(t1,t2,Continuous).rate();
                 return alpha * (t2-t1);
             }
         };
@@ -1470,8 +1470,8 @@ namespace QuantLib {
             : r(*(process->riskFreeRate())),
               q(*(process->dividendYield())) {}
             Real operator()(Real t) const {
-                return r->forwardRate(t,t,Continuous)
-                     - q->forwardRate(t,t,Continuous);
+                return r->forwardRate(t,t,Continuous).rate()
+                    - q->forwardRate(t,t,Continuous).rate();
             }
         };
 

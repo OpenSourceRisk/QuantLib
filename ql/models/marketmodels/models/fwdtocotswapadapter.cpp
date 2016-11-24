@@ -74,7 +74,7 @@ namespace QuantLib {
             for (Size i=0; i<alive[k]; ++i)
                 std::fill(pseudoRoots_[k].row_begin(i),
                           pseudoRoots_[k].row_end(i),
-                          0.0);
+                          Real(0.0));
         }
     }
 

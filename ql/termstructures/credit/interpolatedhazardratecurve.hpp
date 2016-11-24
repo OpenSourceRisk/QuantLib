@@ -169,7 +169,7 @@ namespace QuantLib {
             integral = this->interpolation_.primitive(this->times_.back(), true)
                      + this->data_.back()*(t - this->times_.back());
         }
-        return std::exp(-integral);
+        return exp(-integral);
     }
 
     template <class T>

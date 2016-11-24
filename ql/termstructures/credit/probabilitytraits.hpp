@@ -87,7 +87,7 @@ namespace QuantLib {
                 return c->data().back()/2.0;
             }
             Time dt = c->times()[i] - c->times()[i-1];
-            return c->data()[i-1] * std::exp(- detail::maxHazardRate * dt);
+            return c->data()[i-1] * exp(- detail::maxHazardRate * dt);
         }
         template <class C>
         static Real maxValueAfter(Size i,
@@ -156,7 +156,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::min_element(c->data().begin(), c->data().end()));
+                Real r = *(min_element(c->data().begin(), c->data().end()));
                 return r/2.0;
             }
             return QL_EPSILON;
@@ -168,7 +168,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::max_element(c->data().begin(), c->data().end()));
+                Real r = *(max_element(c->data().begin(), c->data().end()));
                 return r*2.0;
             }
             // no constraints.
@@ -232,7 +232,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::min_element(c->data().begin(), c->data().end()));
+                Real r = *(min_element(c->data().begin(), c->data().end()));
                 return r/2.0;
             }
             return QL_EPSILON;
@@ -244,7 +244,7 @@ namespace QuantLib {
                                   Size) // firstAliveHelper
         {
             if (validData) {
-                Real r = *(std::max_element(c->data().begin(), c->data().end()));
+                Real r = *(max_element(c->data().begin(), c->data().end()));
                 return r*2.0;
             }
             // no constraints.

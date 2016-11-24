@@ -134,7 +134,7 @@ namespace QuantLib {
             for (Size j=0; j<numberOfRates; ++j)
                 for (Size k=0; k < CovarianceSwapPseudos[i].columns();  ++k)
                     CovarianceSwapPseudos[i][j][k] *=
-                            std::sqrt(swapTimeInhomogeneousVariances[i][j]);
+                            sqrt(swapTimeInhomogeneousVariances[i][j]);
 
             CovarianceSwapMarginalCovs[i] = CovarianceSwapPseudos[i] *
                                     transpose(CovarianceSwapPseudos[i]);
@@ -162,7 +162,7 @@ namespace QuantLib {
                 for (Size k=0; k<numberOfFactors; ++k)
                     correlation += thisPseudo[i-1][k]*thisPseudo[i][k];
                 almostTotCovariance[i] += correlation *
-                    std::sqrt(swapTimeInhomogeneousVariances[j][i] *
+                    sqrt(swapTimeInhomogeneousVariances[j][i] *
                     swapTimeInhomogeneousVariances[j][i-1]);
             }
             if (i>0) {
@@ -171,7 +171,7 @@ namespace QuantLib {
                 for (Size k=0; k<numberOfFactors; ++k)
                     correlation += thisPseudo[i-1][k]*thisPseudo[i][k];
                 leftCovariance[i] = correlation *
-                    std::sqrt(swapTimeInhomogeneousVariances[j][i] *
+                    sqrt(swapTimeInhomogeneousVariances[j][i] *
                     swapTimeInhomogeneousVariances[j][i-1]);
             }
         }
@@ -260,13 +260,13 @@ namespace QuantLib {
                 // pick up the minimum vol for the caplet
                 root = minimum;
             } else if (lowestRoot) {
-                root = (-linearPart-std::sqrt(disc))/(2.0*quadraticPart);
+                root = (-linearPart-sqrt(disc))/(2.0*quadraticPart);
             } else {
                 if (minimum>1.0)
-                    root = (-linearPart-std::sqrt(disc))/(2.0*quadraticPart);
+                    root = (-linearPart-sqrt(disc))/(2.0*quadraticPart);
                 else {
                     rightUsed = true;
-                    root = (-linearPart+std::sqrt(disc))/(2.0*quadraticPart);
+                    root = (-linearPart+sqrt(disc))/(2.0*quadraticPart);
                 }
             }
 
@@ -274,7 +274,7 @@ namespace QuantLib {
             Real varianceToFind = totVariance[i]-varianceFound;
             Real mult = varianceToFind/swapTimeInhomogeneousVariances[i][i];
             if (mult<=0.0 && rightUsed) {
-                root = (-linearPart-std::sqrt(disc))/(2.0*quadraticPart);
+                root = (-linearPart-sqrt(disc))/(2.0*quadraticPart);
                 varianceFound = root*root*almostTotVariance[i];
                 varianceToFind = totVariance[i]-varianceFound;
                 mult = varianceToFind/swapTimeInhomogeneousVariances[i][i];
@@ -289,7 +289,7 @@ namespace QuantLib {
             else
             {
                 a[i]=root;
-                b[i]=std::sqrt(mult);
+                b[i]=sqrt(mult);
             }
 
             QL_ENSURE(root>=0.0,
@@ -310,7 +310,7 @@ namespace QuantLib {
         for (Size k=0; k<numberOfSteps; ++k) {
             swapCovariancePseudoRoots[k] = corrPseudo[k];
             for (Size j=0; j<numberOfRates; ++j) {
-                Real coeff = std::sqrt(swapTimeInhomogeneousVariances[k][j]);
+                Real coeff = sqrt(swapTimeInhomogeneousVariances[k][j]);
                  for (Size i=0; i<numberOfFactors; ++i)
                     swapCovariancePseudoRoots[k][j][i]*=coeff;
             }

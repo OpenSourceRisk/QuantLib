@@ -223,8 +223,8 @@ namespace QuantLib {
             else
                 isLeg2Fixing = false;
 
-            event0Time = std::max(
-                model_->termStructure()->timeFromReference(event0), 0.0);
+            event0Time = max(
+                model_->termStructure()->timeFromReference(event0), Real(0.0));
 
             // todo add openmp support later on (as in gaussian1dswaptionengine)
 
@@ -236,7 +236,7 @@ namespace QuantLib {
                 if (event1Time != Null<Real>()) {
                     Real zSpreadDf = oas_.empty()
                                          ? 1.0
-                                         : std::exp(-oas_->value() *
+                                         : exp(-oas_->value() *
                                                     (event1Time - event0Time));
                     Array yg =
                         model_->yGrid(stddevs_, integrationPoints_, event1Time,
@@ -351,7 +351,7 @@ namespace QuantLib {
                             Real zSpreadDf =
                                 oas_.empty()
                                     ? 1.0
-                                    : std::exp(-oas_->value() *
+                                    : exp(-oas_->value() *
                                                (event1Time - event0Time));
                             Array yg = model_->yGrid(
                                 stddevs_, integrationPoints_, event1Time,
@@ -450,7 +450,7 @@ namespace QuantLib {
                         Real zSpreadDf =
                             oas_.empty()
                                 ? 1.0
-                                : std::exp(
+                                : exp(
                                       -oas_->value() *
                                       (model_->termStructure()
                                            ->dayCounter()
@@ -495,11 +495,11 @@ namespace QuantLib {
                                     arguments_.leg1Gearings[j] * estFixing;
                                 if (arguments_.leg1CappedRates[j] !=
                                     Null<Real>())
-                                    rate = std::min(
+                                    rate = min(
                                         arguments_.leg1CappedRates[j], rate);
                                 if (arguments_.leg1FlooredRates[j] !=
                                     Null<Real>())
-                                    rate = std::max(
+                                    rate = max(
                                         arguments_.leg1FlooredRates[j], rate);
                                 amount = rate * arguments_.nominal1[j] *
                                          arguments_.leg1AccrualTimes[j];
@@ -534,7 +534,7 @@ namespace QuantLib {
                         Real zSpreadDf =
                             oas_.empty()
                                 ? 1.0
-                                : std::exp(
+                                : exp(
                                       -oas_->value() *
                                       (model_->termStructure()
                                            ->dayCounter()
@@ -573,11 +573,11 @@ namespace QuantLib {
                                     arguments_.leg2Gearings[j] * estFixing;
                                 if (arguments_.leg2CappedRates[j] !=
                                     Null<Real>())
-                                    rate = std::min(
+                                    rate = min(
                                         arguments_.leg2CappedRates[j], rate);
                                 if (arguments_.leg2FlooredRates[j] !=
                                     Null<Real>())
-                                    rate = std::max(
+                                    rate = max(
                                         arguments_.leg2FlooredRates[j], rate);
                                 amount = rate * arguments_.nominal2[j] *
                                          arguments_.leg2AccrualTimes[j];
@@ -614,7 +614,7 @@ namespace QuantLib {
                             zSpreadDf =
                                 oas_.empty()
                                     ? 1.0
-                                    : std::exp(-oas_->value() *
+                                    : exp(-oas_->value() *
                                                (model_->termStructure()
                                                     ->dayCounter()
                                                     .yearFraction(event0,
@@ -657,7 +657,7 @@ namespace QuantLib {
                         }
                         // end probability computation
 
-                        npv0[k] = std::max(npv0[k], exerciseValue);
+                        npv0[k] = max(npv0[k], exerciseValue);
                     }
                 }
             }

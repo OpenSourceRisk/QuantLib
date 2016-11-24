@@ -49,7 +49,7 @@ namespace QuantLib {
             : mesher_(mesher) { }
 
             Real innerValue(const FdmLinearOpIterator& iter, Time) {
-                const Real s = std::exp(mesher_->location(iter, 0));
+                const Real s = exp(mesher_->location(iter, 0));
                 const Real v = mesher_->location(iter, 1);
                 return s*v;
             }
@@ -105,7 +105,7 @@ namespace QuantLib {
             //elevator mesher
             std::vector<Real> storageValues(1, arguments_.capacity);
             storageValues.reserve(
-                Size(arguments_.capacity/arguments_.changeRate)+1);
+                Size(VALUE(arguments_.capacity/arguments_.changeRate)+1));
 
             for (Real level=0; level <= arguments_.capacity;
                     level+=arguments_.changeRate) {

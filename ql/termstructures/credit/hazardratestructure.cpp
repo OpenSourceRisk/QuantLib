@@ -88,7 +88,7 @@ namespace QuantLib {
             &HazardRateStructure::hazardRateImpl;
         // the Gauss-Chebyshev quadratures integrate over [-1,1],
         // hence the remapping (and the Jacobian term t/2)
-        return std::exp(-integral(remap(bind(f,this,_1), t)) * t/2.0);
+        return exp(-integral(remap(bind(f,this,_1), t)) * t/2.0);
     }
 
 }

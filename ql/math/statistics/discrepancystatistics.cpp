@@ -42,13 +42,13 @@ namespace QuantLib {
                 for (Size k=0; k<dimension_; k++) {
                     r_jk = stats_[k].sampleData()[j].first;
                     r_ik = stats_[k].sampleData()[i].first;
-                    temp *= (1.0 - std::max(r_ik, r_jk));
+                    temp *= (1.0 - max(r_ik, r_jk));
                 }
                 adiscr += temp;
             }
         }
         */
-        return std::sqrt(adiscr_/(N*N)-bdiscr_/N*cdiscr_+ddiscr_);
+        return sqrt(adiscr_/(N*N)-bdiscr_/N*cdiscr_+ddiscr_);
     }
 
 }

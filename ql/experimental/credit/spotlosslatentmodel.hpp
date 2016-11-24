@@ -243,13 +243,13 @@ namespace QuantLib {
               fctrs_[iName + numNames_].end(),
               fctrs_[iName + numNames_].begin(), 
               0.);
-        return this->cumulativeZ((sumMs + std::sqrt(1.-crossIdiosyncFctrs_[iName])
-                 * std::sqrt(1.+modelA_*modelA_) * 
+        return this->cumulativeZ((sumMs + sqrt(1.-crossIdiosyncFctrs_[iName])
+                 * sqrt(1.+modelA_*modelA_) * 
                    invUncondRR
-            - std::sqrt(crossIdiosyncFctrs_[iName]) * 
+            - sqrt(crossIdiosyncFctrs_[iName]) * 
                 invUncondDefP
                 )
-            / std::sqrt(1.- sumBetaLoss + modelA_*modelA_ * 
+            / sqrt(1.- sumBetaLoss + modelA_*modelA_ * 
                 (1.-crossIdiosyncFctrs_[iName])) );
     }
 
@@ -269,12 +269,12 @@ namespace QuantLib {
 
         Size iRecovery = iName + numNames_;// should be live pool
         return cumulativeY(
-            (latentVarSample - std::sqrt(crossIdiosyncFctrs_[iName]) 
+            (latentVarSample - sqrt(crossIdiosyncFctrs_[iName]) 
                 * inverseCumulativeY(pdef, iName)) / 
-                (modelA_ * std::sqrt(1.-crossIdiosyncFctrs_[iName]))
+                (modelA_ * sqrt(1.-crossIdiosyncFctrs_[iName]))
             // cache the sqrts
             // cache this factor.
-            +std::sqrt(1.+ 1./(modelA_*modelA_)) * 
+            +sqrt(1.+ 1./(modelA_*modelA_)) * 
                 inverseCumulativeY(recoveries_[iName], iRecovery) 
             , iRecovery);
     }

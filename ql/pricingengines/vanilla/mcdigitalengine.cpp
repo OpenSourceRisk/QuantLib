@@ -36,27 +36,27 @@ namespace QuantLib {
         Size n = path.length();
         QL_REQUIRE(n>1, "the path cannot be empty");
 
-        Real log_asset_price = std::log(path.front());
+        Real log_asset_price = log(path.front());
         Real x, y;
         Volatility vol;
         TimeGrid timeGrid = path.timeGrid();
         Time dt;
         std::vector<Real> u = sequenceGen_.nextSequence().value;
-        Real log_strike = std::log(payoff_->strike());
+        Real log_strike = log(payoff_->strike());
 
         Size i;
         switch (payoff_->optionType()) {
           case Option::Call:
             for (i=0; i<n-1; i++) {
-                x = std::log(path[i+1]/path[i]);
+                x = log(path[i+1]/path[i]);
                 // terminal or initial vol?
                 vol = diffProcess_->diffusion(timeGrid[i+1],
-                                              std::exp(log_asset_price));
+                                              exp(log_asset_price));
                 // vol = diffProcess_->diffusion(timeGrid[i+2],
-                //                               std::exp(log_asset_price+x));
+                //                               exp(log_asset_price+x));
                 dt = timeGrid.dt(i);
                 y = log_asset_price +
-                    0.5*(x + std::sqrt(x*x-2*vol*vol*dt*std::log((1-u[i]))));
+                    0.5*(x + sqrt(x*x-2*vol*vol*dt*log((1-u[i]))));
                 // cross the strike
                 if (y >= log_strike) {
                     if (exercise_->payoffAtExpiry()) {
@@ -75,16 +75,16 @@ namespace QuantLib {
             break;
           case Option::Put:
             for (i=0; i<n-1; i++) {
-                x = std::log(path[i+1]/path[i]);
+                x = log(path[i+1]/path[i]);
                 // terminal or initial vol?
                 // initial (timeGrid[i+1]) for the time being
                 vol = diffProcess_->diffusion(timeGrid[i+1],
-                                              std::exp(log_asset_price));
+                                              exp(log_asset_price));
                 // vol = diffProcess_->diffusion(timeGrid[i+2],
-                //                               std::exp(log_asset_price+x));
+                //                               exp(log_asset_price+x));
                 dt = timeGrid.dt(i);
                 y = log_asset_price +
-                    0.5*(x - std::sqrt(x*x - 2*vol*vol*dt*std::log(u[i])));
+                    0.5*(x - sqrt(x*x - 2*vol*vol*dt*log(u[i])));
                 if (y <= log_strike) {
                     if (exercise_->payoffAtExpiry()) {
                         return payoff_->cashPayoff() *

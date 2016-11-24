@@ -65,20 +65,20 @@ namespace QuantLib {
 
             for (Size i=0; i <= 10; ++i) {
                 const Time t = t0 + i/10.0*(t1-t0);
-                lowerBound = std::min(
+                lowerBound = min(
                     lowerBound, rnd.invcdf(params.vLowerEps, t));
-                upperBound = std::max(
+                upperBound = max(
                     upperBound, rnd.invcdf(1.0-params.vUpperEps, t));
             }
 
-            lowerBound = std::max(lowerBound, params.vMin);
+            lowerBound = max(lowerBound, params.vMin);
             switch (params.trafoType) {
                 case FdmSquareRootFwdOp::Log:
                   {
-                    lowerBound = std::log(lowerBound);
-                    upperBound = std::log(upperBound);
+                    lowerBound = log(lowerBound);
+                    upperBound = log(upperBound);
 
-                    const Real v0Center = std::log(v0);
+                    const Real v0Center = log(v0);
 
                     cPoints +=
                         boost::make_tuple(lowerBound, lowerBoundDensity, false),
@@ -137,7 +137,7 @@ namespace QuantLib {
                     const Size idx = iter.index();
                     const Real nu = mesher->location(iter, 1);
 
-                    tp[idx] = p[idx]*std::pow(nu, alpha-1);
+                    tp[idx] = p[idx]*pow(nu, alpha-1);
                 }
 
                 return FdmMesherIntegral(
@@ -338,12 +338,12 @@ namespace QuantLib {
 
         Time tIdx=0.0;
         std::vector<Time> times(1, tIdx);
-        times.reserve(Size(T*params_.tMinStepsPerYear));
+        times.reserve(Size(VALUE(T*params_.tMinStepsPerYear)));
         while (tIdx < T) {
-            const Real decayFactor = std::exp(-params_.tStepNumberDecay*tIdx);
+            const Real decayFactor = exp(-params_.tStepNumberDecay*tIdx);
             const Time dt = maxDt*decayFactor + minDt*(1.0-decayFactor);
 
-            times.push_back(std::min(T, tIdx+=dt));
+            times.push_back(min(T, tIdx+=dt));
         }
 
         for (Size i=0; i < mandatoryDates_.size(); ++i) {
@@ -402,7 +402,7 @@ namespace QuantLib {
                 xMesher.at(1), vMesher.at(1));
 
         const Volatility lv0
-            = localVol_->localVol(0.0, spot->value())/std::sqrt(v0);
+            = localVol_->localVol(0.0, spot->value())/sqrt(v0);
 
         boost::shared_ptr<Matrix> L(new Matrix(xGrid, timeGrid->size()));
 
@@ -419,7 +419,7 @@ namespace QuantLib {
             std::transform(xMesher[i]->locations().begin(),
                            xMesher[i]->locations().end(),
                            vStrikes[i]->begin(),
-                           std::ptr_fun<Real, Real>(std::exp));
+                           [](const Real x) { return exp(x); });
         }
 
         const boost::shared_ptr<FixedLocalVolSurface> leverageFct(
@@ -494,18 +494,18 @@ namespace QuantLib {
                     const Volatility localVol = localVol_->localVol(t, x[j]);
 
                     const Real l = (scale >= 0.0)
-                      ? localVol*std::sqrt(scale) : 1.0;
+                      ? localVol*sqrt(scale) : 1.0;
 
-                    (*L)[j][i] = std::min(50.0, std::max(0.001, l));
+                    (*L)[j][i] = min(Real(50.0), max(Real(0.001), l));
 
                     leverageFct->setInterpolation(Linear());
                 }
 
-                const Real sLowerBound = std::max(x.front(),
-                    std::exp(localVolRND.invcdf(
+                const Real sLowerBound = max(x.front(),
+                    exp(localVolRND.invcdf(
                         params_.leverageFctPropEps, t)));
-                const Real sUpperBound = std::min(x.back(),
-                    std::exp(localVolRND.invcdf(
+                const Real sUpperBound = min(x.back(),
+                    exp(localVolRND.invcdf(
                         1.0-params_.leverageFctPropEps, t)));
 
                 const Real lowerL = leverageFct->localVol(t, sLowerBound);
@@ -514,12 +514,12 @@ namespace QuantLib {
                 for (Size j=0; j < x.size(); ++j) {
                     if (x[j] < sLowerBound)
                         std::fill(L->row_begin(j)+i,
-                          std::min(L->row_begin(j)+i+1, L->row_end(j)),
-                          lowerL);
+                                  std::min(L->row_begin(j)+i+1, L->row_end(j)),
+                                  lowerL);
                     else if (x[j] > sUpperBound)
                         std::fill(L->row_begin(j)+i,
-                          std::min(L->row_begin(j)+i+1, L->row_end(j)),
-                          upperL);
+                                  std::min(L->row_begin(j)+i+1, L->row_end(j)),
+                                  upperL);
                     else if ((*L)[j][i] == Null<Real>())
                         QL_FAIL("internal error");
                 }

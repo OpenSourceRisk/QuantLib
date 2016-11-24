@@ -42,7 +42,7 @@ namespace
 
             x = 0.5*(low+high);
             y = (theObject.*Value)(x);
-        } while ((std::fabs(high-low) > tolerance));
+        } while ((abs(high-low) > tolerance));
 
         return x;
     }
@@ -63,7 +63,7 @@ namespace
 
             x = 0.5*(low+high);
             ok = (theObject.*Value)(x);
-        } while ((std::fabs(high-low) > tolerance));
+        } while ((abs(high-low) > tolerance));
 
         return x;
     }
@@ -84,7 +84,7 @@ namespace
 
             x = 0.5*(low+high);
             ok = (theObject.*Value)(x);
-        } while ( (std::fabs(high-low) > tolerance) );
+        } while ( (abs(high-low) > tolerance) );
 
         return x;
     }
@@ -101,7 +101,7 @@ namespace
 
         Real leftValue = (theObject.*Value)(low);
         Real rightValue = (theObject.*Value)(high);
-        Real W = 0.5*(3.0-std::sqrt(5.0));
+        Real W = 0.5*(3.0-sqrt(5.0));
         Real x=W*low+(1-W)*high;
         Real midValue =  (theObject.*Value)(x);
 
@@ -254,7 +254,7 @@ namespace
             Real VarToFind = totalVar_-varSoFar;
             if (VarToFind < 0)
                 return false;
-            Real requiredSd = std::sqrt(VarToFind);
+            Real requiredSd = sqrt(VarToFind);
             b = requiredSd / (ratetwohomogeneousvols[stepindex+1] *
                                             (*parametricform_)(stepindex));
             ratetwovols[stepindex+1] = requiredSd;

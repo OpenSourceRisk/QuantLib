@@ -54,22 +54,22 @@ namespace QuantLib {
     }
 
     Real GemanRoncoroniProcess::drift(Time t, Real x) const {
-        const Real mu = alpha_ + beta_*t + gamma_*std::cos(eps_+2*M_PI*t)
-                                         + delta_*std::cos(zeta_+4*M_PI*t);
-        const Real muPrime = beta_ - gamma_*2*M_PI*std::sin(eps_+2*M_PI*t)
-                                   - delta_*4*M_PI*std::sin(zeta_+4*M_PI*t);
+        const Real mu = alpha_ + beta_*t + gamma_*cos(eps_+2*M_PI*t)
+                                         + delta_*cos(zeta_+4*M_PI*t);
+        const Real muPrime = beta_ - gamma_*2*M_PI*sin(eps_+2*M_PI*t)
+                                   - delta_*4*M_PI*sin(zeta_+4*M_PI*t);
 
         return muPrime + theta1_*(mu-x);
     }
     
     Real GemanRoncoroniProcess::diffusion(Time t, Real /*x*/) const {
-        return std::sqrt(sig2_ + a_*square<Real>()(std::cos(M_PI*t+b_)));
+        return sqrt(sig2_ + a_*square<Real>()(cos(M_PI*t+b_)));
     }
 
     Real GemanRoncoroniProcess::stdDeviation(Time t0, Real /*x0*/, Time dt) const {
-        const Volatility sig2t = sig2_+a_*square<Real>()(std::cos(M_PI*t0+b_));
+        const Volatility sig2t = sig2_+a_*square<Real>()(cos(M_PI*t0+b_));
         
-        return std::sqrt(sig2t/(2*theta1_)*(1.0-std::exp(-2*theta1_*dt)));
+        return sqrt(sig2t/(2*theta1_)*(1.0-exp(-2*theta1_*dt)));
     }
 
     Real GemanRoncoroniProcess::evolve(Time t0, Real x0, 
@@ -78,7 +78,7 @@ namespace QuantLib {
         if (!urng_) {
             typedef PseudoRandom::urng_type urng_type;
             urng_ = boost::shared_ptr<urng_type>(
-                     new urng_type((unsigned long)(1234ul*dw+56789ul)));
+                new urng_type((unsigned long)(1234ul*VALUE(dw)+56789ul)));
         }
         Array du(3); 
         du[0] = urng_->next().value; 
@@ -91,18 +91,18 @@ namespace QuantLib {
                                        Real dw, const Array& du) const {
         Real retVal;
         const Time t = t0 + 0.5*dt;
-        const Real mu = alpha_ + beta_*t + gamma_*std::cos(eps_ +2*M_PI*t)
-                                         + delta_*std::cos(zeta_+4*M_PI*t);
+        const Real mu = alpha_ + beta_*t + gamma_*cos(eps_ +2*M_PI*t)
+                                         + delta_*cos(zeta_+4*M_PI*t);
         
         const Real j = -1.0/theta3_
-                        *std::log(1.0+du[1]*(std::exp(-theta3_*psi_)-1.0));
+                        *log(1.0+du[1]*(exp(-theta3_*psi_)-1.0));
 
         if (x0 <= mu+d_) {
             retVal = StochasticProcess1D::evolve(t, x0, dt, dw);
             
             const Real jumpIntensity
-                = theta2_*(2.0/(1+std::fabs(std::sin(M_PI*(t-tau_)/k_)))-1);            
-            const Time interarrival = -1.0/jumpIntensity*std::log(du[0]);
+                = theta2_*(2.0/(1+abs(sin(M_PI*(t-tau_)/k_)))-1);            
+            const Time interarrival = -1.0/jumpIntensity*log(du[0]);
 
             if (interarrival < dt) {
                 retVal += j;

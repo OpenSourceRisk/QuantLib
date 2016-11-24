@@ -45,7 +45,7 @@ namespace QuantLib {
         Real muPlusHalfSquareVol = process_->logMeanJump()->value()
             + 0.5*jumpSquareVol;
         // mean jump size
-        Real k = std::exp(muPlusHalfSquareVol) - 1.0;
+        Real k = exp(muPlusHalfSquareVol) - 1.0;
         Real lambda = (k+1.0) * process_->jumpIntensity()->value();
 
         boost::shared_ptr<StrikedTypePayoff> payoff =
@@ -62,7 +62,7 @@ namespace QuantLib {
         Date volRefDate = process_->blackVolatility()->referenceDate();
         Time t = voldc.yearFraction(volRefDate,
                                     arguments_.exercise->lastDate());
-        Rate riskFreeRate = -std::log(process_->riskFreeRate()->discount(
+        Rate riskFreeRate = -log(process_->riskFreeRate()->discount(
                                           arguments_.exercise->lastDate()))/t;
         Date rateRefDate = process_->riskFreeRate()->referenceDate();
 
@@ -107,10 +107,10 @@ namespace QuantLib {
         // Haug arbitrary criterium is:
         //for (i=0; i<11; i++) {
         for (i=0;  (lastContribution>relativeAccuracy_ && i<maxIterations_) 
-                 || i < Size(lambda*t); i++) {
+                 || i < Size(VALUE(lambda*t)); i++) {
 
             // constant vol/rate assumption. It should be relaxed
-            v = std::sqrt((variance + i*jumpSquareVol)/t);
+            v = sqrt((variance + i*jumpSquareVol)/t);
             r = riskFreeRate - process_->jumpIntensity()->value()*k
                 + i*muPlusHalfSquareVol/t;
             riskFreeTS.linkTo(boost::shared_ptr<YieldTermStructure>(new
@@ -125,7 +125,7 @@ namespace QuantLib {
             results_.value       += weight * baseResults->value;
             results_.delta       += weight * baseResults->delta;
             results_.gamma       += weight * baseResults->gamma;
-            results_.vega        += weight * (std::sqrt(variance/t)/v)*
+            results_.vega        += weight * (sqrt(variance/t)/v)*
                                                            baseResults->vega;
             // theta modified
             theta_correction = baseResults->vega*((i*jumpSquareVol)/
@@ -140,32 +140,32 @@ namespace QuantLib {
             results_.rho         += weight * baseResults->rho;
             results_.dividendRho += weight * baseResults->dividendRho;
 
-            lastContribution = std::fabs(baseResults->value /
-                (std::fabs(results_.value)>QL_EPSILON ? results_.value : 1.0));
+            lastContribution = abs(baseResults->value /
+                (abs(results_.value)>QL_EPSILON ? results_.value : 1.0));
 
-            lastContribution = std::max<Real>(lastContribution,
-                std::fabs(baseResults->delta /
-               (std::fabs(results_.delta)>QL_EPSILON ? results_.delta : 1.0)));
+            lastContribution = max<Real>(lastContribution,
+                abs(baseResults->delta /
+               (abs(results_.delta)>QL_EPSILON ? results_.delta : 1.0)));
 
-            lastContribution = std::max<Real>(lastContribution,
-                std::fabs(baseResults->gamma /
-               (std::fabs(results_.gamma)>QL_EPSILON ? results_.gamma : 1.0)));
+            lastContribution = max<Real>(lastContribution,
+                abs(baseResults->gamma /
+               (abs(results_.gamma)>QL_EPSILON ? results_.gamma : 1.0)));
 
-            lastContribution = std::max<Real>(lastContribution,
-                std::fabs(baseResults->theta /
-               (std::fabs(results_.theta)>QL_EPSILON ? results_.theta : 1.0)));
+            lastContribution = max<Real>(lastContribution,
+                abs(baseResults->theta /
+               (abs(results_.theta)>QL_EPSILON ? results_.theta : 1.0)));
 
-            lastContribution = std::max<Real>(lastContribution,
-                std::fabs(baseResults->vega /
-               (std::fabs(results_.vega)>QL_EPSILON ? results_.vega : 1.0)));
+            lastContribution = max<Real>(lastContribution,
+                abs(baseResults->vega /
+               (abs(results_.vega)>QL_EPSILON ? results_.vega : 1.0)));
 
-            lastContribution = std::max<Real>(lastContribution,
-                std::fabs(baseResults->rho /
-               (std::fabs(results_.rho)>QL_EPSILON ? results_.rho : 1.0)));
+            lastContribution = max<Real>(lastContribution,
+                abs(baseResults->rho /
+               (abs(results_.rho)>QL_EPSILON ? results_.rho : 1.0)));
 
-            lastContribution = std::max<Real>(lastContribution,
-                std::fabs(baseResults->dividendRho /
-               (std::fabs(results_.dividendRho)>QL_EPSILON ?
+            lastContribution = max<Real>(lastContribution,
+                abs(baseResults->dividendRho /
+               (abs(results_.dividendRho)>QL_EPSILON ?
                                           results_.dividendRho : 1.0)));
 
             lastContribution *= weight;

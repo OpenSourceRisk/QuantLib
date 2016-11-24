@@ -78,10 +78,10 @@ void BatesModelTest::testAnalyticVsBlack() {
     Handle<Quote> s0(boost::shared_ptr<Quote>(new SimpleQuote(32.0)));
 
     Real yearFraction = dayCounter.yearFraction(settlementDate, exerciseDate);
-    Real forwardPrice = s0->value()*std::exp((0.1-0.04)*yearFraction);
+    Real forwardPrice = s0->value()*exp((0.1-0.04)*yearFraction);
     Real expected = blackFormula(payoff->optionType(), payoff->strike(),
-        forwardPrice, std::sqrt(0.05*yearFraction)) *
-                                            std::exp(-0.1*yearFraction);
+        forwardPrice, sqrt(0.05*yearFraction)) *
+                                            exp(-0.1*yearFraction);
     const Real v0 = 0.05;
     const Real kappa = 5.0;
     const Real theta = 0.05;
@@ -104,7 +104,7 @@ void BatesModelTest::testAnalyticVsBlack() {
     Real calculated = option.NPV();
 
     Real tolerance = 2.0e-7;
-    Real error = std::fabs(calculated - expected);
+    Real error = abs(calculated - expected);
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce Black price with BatesEngine"
                     << QL_FIXED
@@ -121,7 +121,7 @@ void BatesModelTest::testAnalyticVsBlack() {
     option.setPricingEngine(engine);
     calculated = option.NPV();
 
-    error = std::fabs(calculated - expected);
+    error = abs(calculated - expected);
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce Black price with " \
                     "BatesDetJumpEngine"
@@ -139,7 +139,7 @@ void BatesModelTest::testAnalyticVsBlack() {
     option.setPricingEngine(engine);
     calculated = option.NPV();
 
-    error = std::fabs(calculated - expected);
+    error = abs(calculated - expected);
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce Black price with BatesDoubleExpEngine"
                     << QL_FIXED
@@ -157,7 +157,7 @@ void BatesModelTest::testAnalyticVsBlack() {
     option.setPricingEngine(engine);
     calculated = option.NPV();
 
-    error = std::fabs(calculated - expected);
+    error = abs(calculated - expected);
     if (error > tolerance) {
         BOOST_ERROR("failed to reproduce Black price with " \
                     "BatesDoubleExpDetJumpEngine"
@@ -190,7 +190,7 @@ void BatesModelTest::testAnalyticAndMcVsJumpDiffusion() {
 
     Real v0 = 0.0433;
     // FLOATING_POINT_EXCEPTION
-    boost::shared_ptr<SimpleQuote> vol(new SimpleQuote(std::sqrt(v0)));
+    boost::shared_ptr<SimpleQuote> vol(new SimpleQuote(sqrt(v0)));
     boost::shared_ptr<BlackVolTermStructure> volTS =
         flatVol(settlementDate, vol, dayCounter);
 
@@ -246,7 +246,7 @@ void BatesModelTest::testAnalyticAndMcVsJumpDiffusion() {
         Real expected = mertonOption.NPV();
 
         Real tolerance = 2e-8;
-        Real relError = std::fabs(calculated - expected)/expected;
+        Real relError = abs(calculated - expected)/expected;
         if (relError > tolerance) {
             BOOST_FAIL("failed to reproduce Merton76 price with semi "
                        "analytic BatesEngine"
@@ -257,7 +257,7 @@ void BatesModelTest::testAnalyticAndMcVsJumpDiffusion() {
                        << "\n    tolerance:  " << tolerance);
         }
 
-        Real mcError = std::fabs(expected - mcCalculated);
+        Real mcError = abs(expected - mcCalculated);
         if (mcError > 3*mcTol) {
             BOOST_FAIL("failed to reproduce Merton76 price with Monte-Carlo "
                        "BatesEngine"
@@ -356,7 +356,7 @@ void BatesModelTest::testAnalyticVsMCPricing() {
         option.setPricingEngine(fdEngine);
         const Real fdCalculated = option.NPV();
         
-        const Real mcError = std::fabs(calculated - expected);
+        const Real mcError = abs(calculated - expected);
         if (mcError > 3*mcTolerance) {
             BOOST_FAIL("failed to reproduce Monte-Carlo price for BatesEngine"
                        << QL_FIXED << std::setprecision(8)
@@ -366,7 +366,7 @@ void BatesModelTest::testAnalyticVsMCPricing() {
                        << "\n    tolerance:  " << mcTolerance);
         }
         const Real fdTolerance = 0.2;
-        const Real fdError = std::fabs(fdCalculated - expected);
+        const Real fdError = abs(fdCalculated - expected);
         if (fdError > fdTolerance) {
             BOOST_FAIL("failed to reproduce PIDE price for BatesEngine"
                        << QL_FIXED << std::setprecision(8)
@@ -436,7 +436,7 @@ void BatesModelTest::testDAXCalibration() {
 
 
     Real v0 = 0.0433;
-    boost::shared_ptr<SimpleQuote> vol(new SimpleQuote(std::sqrt(v0)));
+    boost::shared_ptr<SimpleQuote> vol(new SimpleQuote(sqrt(v0)));
     boost::shared_ptr<BlackVolTermStructure> volTS =
         flatVol(settlementDate, vol, dayCounter);
 
@@ -485,7 +485,7 @@ void BatesModelTest::testDAXCalibration() {
     Real expected = 36.6;
     Real calculated = getCalibrationError(options);
 
-    if (std::fabs(calculated - expected) > 2.5)
+    if (abs(calculated - expected) > 2.5)
         BOOST_ERROR("failed to calibrate the bates model"
                     << "\n    calculated: " << calculated
                     << "\n    expected:   " << expected);
@@ -525,8 +525,8 @@ void BatesModelTest::testDAXCalibration() {
             options[j]->setPricingEngine(pricingEngines[i]);
         }
 
-        Real calculated = std::fabs(getCalibrationError(options));
-        if (std::fabs(calculated - expectedValues[i]) > tolerance)
+        Real calculated = abs(getCalibrationError(options));
+        if (abs(calculated - expectedValues[i]) > tolerance)
             BOOST_ERROR("failed to calculated prices for derived Bates models"
                         << "\n    calculated: " << calculated
                         << "\n    expected:   " << expectedValues[i]);

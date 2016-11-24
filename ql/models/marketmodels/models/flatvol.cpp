@@ -37,11 +37,11 @@ namespace QuantLib {
         QL_REQUIRE(t1<=t2,
                    "integrations bounds (" << t1 <<
                    "," << t2 << ") are in reverse order");
-        Time cutOff = std::min(S,T);
+        Time cutOff = min(S,T);
         if (t1>=cutOff) {
             return 0.0;
         } else {
-            cutOff = std::min(t2, cutOff);
+            cutOff = min(t2, cutOff);
             return (cutOff - t1)*v1*v2;
         }
     }
@@ -89,7 +89,7 @@ namespace QuantLib {
         Matrix covariance(numberOfRates_, numberOfRates_);
         for (Size k=0, kk=0; k<numberOfSteps_; ++k) {
             // one covariance per evolution step
-            std::fill(covariance.begin(), covariance.end(), 0.0);
+            std::fill(covariance.begin(), covariance.end(), Real(0.0));
 
             // there might be more than one correlation matrix
             // in a single evolution step
@@ -173,7 +173,7 @@ namespace QuantLib {
         for (Size i=0; i<numberOfRates; ++i)
             initialRates[i] = yieldCurve_->forwardRate(rateTimes[i],
                                                        rateTimes[i+1],
-                                                       Simple);
+                                                       Simple).rate();
 
         vector<Volatility> displacedVolatilities(numberOfRates);
         for (Size i=0; i<numberOfRates; ++i) {

@@ -146,7 +146,7 @@ void VarianceSwapTest::testReplicatingVarianceSwap() {
     boost::shared_ptr<YieldTermStructure> rTS = flatRate(today, rRate, dc);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*365+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*365+0.5));
         std::vector<Date> dates(1);
         dates[0] = exDate;
 
@@ -210,7 +210,7 @@ void VarianceSwapTest::testReplicatingVarianceSwap() {
 
         Real calculated = varianceSwap.variance();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol)
             REPORT_FAILURE("value", values[i].type, values[i].varStrike,
                            values[i].nominal, values[i].s, values[i].q,
@@ -252,8 +252,8 @@ void VarianceSwapTest::testMCVarianceSwap() {
     std::vector<Date> dates(2);
 
     for (Size i=0; i<LENGTH(values); i++) {
-        Date exDate = today + Integer(values[i].t*365+0.5);
-        Date intermDate = today + Integer(values[i].t1*365+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*365+0.5));
+        Date intermDate = today + Integer(VALUE(values[i].t1*365+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
         dates[0] = intermDate;
         dates[1] = exDate;
@@ -290,7 +290,7 @@ void VarianceSwapTest::testMCVarianceSwap() {
 
         Real calculated = varianceSwap.variance();
         Real expected = values[i].result;
-        Real error = std::fabs(calculated-expected);
+        Real error = abs(calculated-expected);
         if (error>values[i].tol)
             REPORT_FAILURE("value", values[i].type, values[i].varStrike,
                            values[i].nominal, values[i].s, values[i].q,

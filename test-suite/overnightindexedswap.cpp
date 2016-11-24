@@ -46,7 +46,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-using std::exp;
+// using exp;
 
 using boost::shared_ptr;
 
@@ -229,7 +229,7 @@ void OvernightIndexedSwapTest::testFairRate() {
             shared_ptr<OvernightIndexedSwap> swap =
                 vars.makeSwap(lengths[i],0.0,spreads[j]);
             swap = vars.makeSwap(lengths[i],swap->fairRate(),spreads[j]);
-            if (std::fabs(swap->NPV()) > 1.0e-10) {
+            if (abs(swap->NPV()) > 1.0e-10) {
                 BOOST_ERROR("recalculating with implied rate:\n"
                             << std::setprecision(2)
                             << "    length: " << lengths[i] << " \n"
@@ -260,7 +260,7 @@ void OvernightIndexedSwapTest::testFairSpread() {
             Spread fairSpread = swap->fairSpread();
             swap = vars.makeSwap(lengths[i], rates[j], fairSpread);
 
-            if (std::fabs(swap->NPV()) > 1.0e-10) {
+            if (abs(swap->NPV()) > 1.0e-10) {
                 BOOST_ERROR("\nrecalculating with implied spread:" <<
                             std::setprecision(2) <<
                             "\n     length: " << lengths[i] <<
@@ -288,7 +288,7 @@ void OvernightIndexedSwapTest::testCachedValue() {
     shared_ptr<OvernightIndexedSwap> swap = vars.makeSwap(1*Years, fixedRate, 0.0);
     Real cachedNPV   = 0.001730450147;
     Real tolerance = 1.0e-11;
-    if (std::fabs(swap->NPV()-cachedNPV) > tolerance)
+    if (abs(swap->NPV()-cachedNPV) > tolerance)
         BOOST_ERROR("\nfailed to reproduce cached swap value:" <<
                     QL_FIXED << std::setprecision(12) <<
                     "\ncalculated: " << swap->NPV() <<
@@ -396,7 +396,7 @@ void OvernightIndexedSwapTest::testBootstrap() {
         Period term = eoniaSwapData[i].n * eoniaSwapData[i].unit;
         shared_ptr<OvernightIndexedSwap> swap = vars.makeSwap(term, 0.0, 0.0);
         Rate calculated = 100.0 * swap->fairRate();
-        Rate error = std::fabs(expected-calculated);
+        Rate error = abs(expected-calculated);
 
         if (error>tolerance)
             BOOST_FAIL("curve inconsistency:" << std::setprecision(10) <<

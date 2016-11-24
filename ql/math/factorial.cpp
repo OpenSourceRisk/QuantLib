@@ -51,13 +51,13 @@ namespace QuantLib {
         if (i<=tabulated) {
             return firstFactorials[i];
         } else {
-            return std::exp(GammaFunction().logValue(i+1));
+            return exp(GammaFunction().logValue(i+1));
         }
     }
 
     Real Factorial::ln(Natural i) {
         if (i<=tabulated) {
-            return std::log(firstFactorials[i]);
+            return log(firstFactorials[i]);
         } else {
             return GammaFunction().logValue(i+1);
         }

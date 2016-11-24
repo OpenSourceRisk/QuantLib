@@ -46,13 +46,13 @@ namespace QuantLib {
   }
 
   Real AdaptedPathPayoff::ValuationData::getAssetValue(Size time, Size asset) {
-    maximumTimeRead_ = std::max(maximumTimeRead_, time);
+      maximumTimeRead_ = std::max(maximumTimeRead_, time);
 
     return path_[asset][time];
   }
 
   const Handle<YieldTermStructure> & AdaptedPathPayoff::ValuationData::getYieldTermStructure(Size time) {
-    maximumTimeRead_ = std::max(maximumTimeRead_, time);
+      maximumTimeRead_ = std::max(maximumTimeRead_, time);
 
     return forwardTermStructures_[time];
   }

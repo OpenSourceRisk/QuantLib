@@ -54,7 +54,7 @@ namespace QuantLib {
         
         switch (calibrationErrorType_) {
           case RelativePriceError:
-            error = std::fabs(marketValue() - modelValue())/marketValue();
+            error = abs(marketValue() - modelValue())/marketValue();
             break;
           case PriceError:
             error = marketValue() - modelValue();

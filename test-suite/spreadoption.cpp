@@ -44,7 +44,7 @@ using namespace std;
     << "    maturity:         " << exercise->lastDate() << "\n" \
     << "    expected   " << greekName << ": " << expected << "\n" \
     << "    calculated " << greekName << ": " << calculated << "\n" \
-    << "    error:            " << std::fabs(expected-calculated) \
+    << "    error:            " << abs(expected-calculated) \
     << "\n" \
     << "    tolerance:        " << tolerance);
 
@@ -150,7 +150,7 @@ void SpreadOptionTest::testKirkEngine() {
         Real expected = cases[i].result;
         Real tolerance = 1e-4;
 
-        if (std::fabs(calculated-expected) > tolerance) {
+        if (abs(calculated-expected) > tolerance) {
             REPORT_FAILURE("value",
                            payoff, exercise,
                            expected, calculated, tolerance);

@@ -65,7 +65,7 @@ namespace QuantLib {
     inline Real NumericalDifferentiation::operator()(Real x) const {
         Real s = 0.0;
         for (Size i=0; i < w_.size(); ++i) {
-            if (std::fabs(w_[i]) > QL_EPSILON*QL_EPSILON) {
+            if (abs(w_[i]) > QL_EPSILON*QL_EPSILON) {
                 s += w_[i] * f_(x+offsets_[i]);
             }
         }

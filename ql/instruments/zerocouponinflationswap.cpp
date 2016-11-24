@@ -87,7 +87,7 @@ namespace QuantLib {
         Real T = inflationYearFraction(infIndex_->frequency(), infIndex_->interpolated(),
                                        dayCounter_, baseDate_, obsDate_);
         // N.B. the -1.0 is because swaps only exchange growth, not notionals as well
-        Real fixedAmount = nominal * ( std::pow(1.0 + fixedRate, T) - 1.0 );
+        Real fixedAmount = nominal * ( pow(1.0 + fixedRate, T) - 1.0 );
 
         legs_[0].push_back(boost::shared_ptr<CashFlow>(
             new SimpleCashFlow(fixedAmount, fixedPayDate)));
@@ -148,7 +148,7 @@ namespace QuantLib {
                                        infIndex_->interpolated(),
                                        dayCounter_, baseDate_, obsDate_);
 
-        return std::pow(growth,1.0/T) - 1.0;
+        return pow(growth,1.0/T) - 1.0;
 
         // we cannot use this simple definition because
         // it does not work for already-issued instruments

@@ -35,7 +35,7 @@ namespace {
     void testSingle(const T& I, const std::string& tag,
                     const F& f, Real expected) {
         Real calculated = I(f);
-        if (std::fabs(calculated-expected) > tolerance) {
+        if (abs(calculated-expected) > tolerance) {
             BOOST_ERROR("integrating" << tag << "\n"
                         << "    calculated: " << calculated << "\n"
                         << "    expected:   " << expected);
@@ -45,11 +45,11 @@ namespace {
     // test functions
 
     Real inv_exp(Real x) {
-        return std::exp(-x);
+        return exp(-x);
     }
 
     Real x_inv_exp(Real x) {
-        return x*std::exp(-x);
+        return x*exp(-x);
     }
 
     Real x_normaldistribution(Real x) {
@@ -61,11 +61,11 @@ namespace {
     }
 
     Real inv_cosh(Real x) {
-        return 1/std::cosh(x);
+        return 1/cosh(x);
     }
 
     Real x_inv_cosh(Real x) {
-        return x/std::cosh(x);
+        return x/cosh(x);
     }
 
     template <class T>
@@ -77,10 +77,10 @@ namespace {
         testSingle(I, "f(x) = x^2",
                    square<Real>(),           2/3.);
         testSingle(I, "f(x) = sin(x)",
-                   std::ptr_fun<Real,Real>(std::sin), 0.0);
+                   [](const Real x) { return sin(x); }, 0.0);
         testSingle(I, "f(x) = cos(x)",
-                   std::ptr_fun<Real,Real>(std::cos),
-                   std::sin(1.0)-std::sin(-1.0));
+                   [](const Real x) { return cos(x); },
+                   sin(1.0)-sin(-1.0));
         testSingle(I, "f(x) = Gaussian(x)",
                    NormalDistribution(),
                    CumulativeNormalDistribution()(1.0)
@@ -105,7 +105,7 @@ namespace {
         for (Size i=0; i<LENGTH(order); i++) {
             quad.order(order[i]);
             Real realised = quad(f);
-            if (std::fabs(realised-expected) > tolerance) {
+            if (abs(realised-expected) > tolerance) {
                 BOOST_ERROR(" integrating " << tag << "\n"
                             << "    order " << order[i] << "\n"
                             << "    realised: " << realised << "\n"

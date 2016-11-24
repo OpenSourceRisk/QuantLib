@@ -25,7 +25,7 @@
 #include <ql/math/interpolations/cubicinterpolation.hpp>
 #include <ql/payoff.hpp>
 
-using std::exp;
+// using exp;
 
 namespace QuantLib {
 
@@ -186,8 +186,8 @@ namespace QuantLib {
             else
                 expiry0 = arguments_.exercise->dates()[idx];
 
-            expiry0Time = std::max(
-                model_->termStructure()->timeFromReference(expiry0), 0.0);
+            expiry0Time = max(
+                model_->termStructure()->timeFromReference(expiry0), Real(0.0));
 
             Size j1 =
                 std::upper_bound(arguments_.fixedResetDates.begin(),
@@ -207,7 +207,7 @@ namespace QuantLib {
                 if (expiry1Time != Null<Real>()) {
                     Real zSpreadDf =
                         oas_.empty() ? 1.0
-                                     : std::exp(-oas_->value() *
+                                     : exp(-oas_->value() *
                                                 (expiry1Time - expiry0Time));
                     Array yg = model_->yGrid(stddevs_, integrationPoints_,
                                              expiry1Time, expiry0Time,
@@ -277,7 +277,7 @@ namespace QuantLib {
                             Real zSpreadDf =
                                 oas_.empty()
                                     ? 1.0
-                                    : std::exp(-oas_->value() *
+                                    : exp(-oas_->value() *
                                                (expiry1Time - expiry0Time));
                             Array yg = model_->yGrid(
                                 stddevs_, integrationPoints_, expiry1Time,
@@ -366,7 +366,7 @@ namespace QuantLib {
                         Real zSpreadDf =
                             oas_.empty()
                                 ? 1.0
-                                : std::exp(
+                                : exp(
                                       -oas_->value() *
                                       (model_->termStructure()
                                            ->dayCounter()
@@ -397,7 +397,7 @@ namespace QuantLib {
                         Real zSpreadDf =
                             oas_.empty()
                                 ? 1.0
-                                : std::exp(
+                                : exp(
                                       -oas_->value() *
                                       (model_->termStructure()
                                            ->dayCounter()
@@ -419,7 +419,7 @@ namespace QuantLib {
                         zSpreadDf =
                             oas_.empty()
                                 ? 1.0
-                                : std::exp(
+                                : exp(
                                       -oas_->value() *
                                       (model_->termStructure()
                                            ->dayCounter()
@@ -465,7 +465,7 @@ namespace QuantLib {
                     }
                     // end probability computation
 
-                    npv0[k] = std::max(npv0[k], exerciseValue);
+                    npv0[k] = max(npv0[k], exerciseValue);
                 }
             }
 

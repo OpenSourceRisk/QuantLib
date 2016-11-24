@@ -306,7 +306,7 @@ void InflationCapFloorTest::testConsistency() {
                                   std::vector<Rate>(1,floor_rates[k]));
                     collar.setPricingEngine(vars.makeEngine(vols[l], whichPricer));
 
-                    if (std::fabs((cap->NPV()-floor->NPV())-collar.NPV()) > 1e-6) {
+                    if (abs((cap->NPV()-floor->NPV())-collar.NPV()) > 1e-6) {
                         BOOST_FAIL(
                                    "inconsistency between cap, floor and collar:\n"
                                    << "    length:       " << lengths[i] << " years\n"
@@ -327,7 +327,7 @@ void InflationCapFloorTest::testConsistency() {
                             capletsNPV += caplets[m]->NPV();
                         }
 
-                        if (std::fabs(cap->NPV() - capletsNPV) > 1e-6) {
+                        if (abs(cap->NPV() - capletsNPV) > 1e-6) {
                             BOOST_FAIL(
                                        "sum of caplet NPVs does not equal cap NPV:\n"
                                        << "    length:       " << lengths[i] << " years\n"
@@ -347,7 +347,7 @@ void InflationCapFloorTest::testConsistency() {
                             floorletsNPV += floorlets[m]->NPV();
                         }
 
-                        if (std::fabs(floor->NPV() - floorletsNPV) > 1e-6) {
+                        if (abs(floor->NPV() - floorletsNPV) > 1e-6) {
                             BOOST_FAIL(
                                        "sum of floorlet NPVs does not equal floor NPV:\n"
                                        << "    length:       " << lengths[i] << " years\n"
@@ -367,7 +367,7 @@ void InflationCapFloorTest::testConsistency() {
                             collarletsNPV += collarlets[m]->NPV();
                         }
 
-                        if (std::fabs(collar.NPV() - collarletsNPV) > 1e-6) {
+                        if (abs(collar.NPV() - collarletsNPV) > 1e-6) {
                             BOOST_FAIL(
                                        "sum of collarlet NPVs does not equal floor NPV:\n"
                                        << "    length:       " << lengths[i] << " years\n"
@@ -456,7 +456,7 @@ void InflationCapFloorTest::testParity() {
                     swap.setPricingEngine(sppe);
 
                     // N.B. nominals are 10e6
-                    if (std::fabs((cap->NPV()-floor->NPV()) - swap.NPV()) > 1.0e-6) {
+                    if (abs((cap->NPV()-floor->NPV()) - swap.NPV()) > 1.0e-6) {
                         BOOST_FAIL(
                                "put/call parity violated:\n"
                                << "    length:      " << lengths[i] << " years\n"
@@ -500,12 +500,12 @@ void InflationCapFloorTest::testCachedValue() {
     Real cachedCapNPVblack   = 219.452;
     Real cachedFloorNPVblack =  314.641;
     // N.B. notionals are 10e6.
-    BOOST_CHECK_MESSAGE(fabs(cap->NPV()-cachedCapNPVblack)<0.02,"yoy cap cached NPV wrong "
+    BOOST_CHECK_MESSAGE(abs(cap->NPV()-cachedCapNPVblack)<0.02,"yoy cap cached NPV wrong "
                         <<cap->NPV()<<" should be "<<cachedCapNPVblack<<" Black pricer"
-                        <<" diff was "<<(fabs(cap->NPV()-cachedCapNPVblack)));
-    BOOST_CHECK_MESSAGE(fabs(floor->NPV()-cachedFloorNPVblack)<0.02,"yoy floor cached NPV wrong "
+                        <<" diff was "<<(abs(cap->NPV()-cachedCapNPVblack)));
+    BOOST_CHECK_MESSAGE(abs(floor->NPV()-cachedFloorNPVblack)<0.02,"yoy floor cached NPV wrong "
                         <<floor->NPV()<<" should be "<<cachedFloorNPVblack<<" Black pricer"
-                        <<" diff was "<<(fabs(floor->NPV()-cachedFloorNPVblack)));
+                        <<" diff was "<<(abs(floor->NPV()-cachedFloorNPVblack)));
 
     whichPricer = 1; // dd
 
@@ -519,12 +519,12 @@ void InflationCapFloorTest::testCachedValue() {
     Real cachedCapNPVdd   = 9114.61;
     Real cachedFloorNPVdd =  9209.8;
     // N.B. notionals are 10e6.
-    BOOST_CHECK_MESSAGE(fabs(cap->NPV()-cachedCapNPVdd)<0.22,"yoy cap cached NPV wrong "
+    BOOST_CHECK_MESSAGE(abs(cap->NPV()-cachedCapNPVdd)<0.22,"yoy cap cached NPV wrong "
                         <<cap->NPV()<<" should be "<<cachedCapNPVdd<<" dd Black pricer"
-                        <<" diff was "<<(fabs(cap->NPV()-cachedCapNPVdd)));
-    BOOST_CHECK_MESSAGE(fabs(floor->NPV()-cachedFloorNPVdd)<0.22,"yoy floor cached NPV wrong "
+                        <<" diff was "<<(abs(cap->NPV()-cachedCapNPVdd)));
+    BOOST_CHECK_MESSAGE(abs(floor->NPV()-cachedFloorNPVdd)<0.22,"yoy floor cached NPV wrong "
                         <<floor->NPV()<<" should be "<<cachedFloorNPVdd<<" dd Black pricer"
-                        <<" diff was "<<(fabs(floor->NPV()-cachedFloorNPVdd)));
+                        <<" diff was "<<(abs(floor->NPV()-cachedFloorNPVdd)));
 
     whichPricer = 2; // bachelier
 
@@ -538,12 +538,12 @@ void InflationCapFloorTest::testCachedValue() {
     Real cachedCapNPVbac   = 8852.4;
     Real cachedFloorNPVbac =  8947.59;
     // N.B. notionals are 10e6.
-    BOOST_CHECK_MESSAGE(fabs(cap->NPV()-cachedCapNPVbac)<0.22,"yoy cap cached NPV wrong "
+    BOOST_CHECK_MESSAGE(abs(cap->NPV()-cachedCapNPVbac)<0.22,"yoy cap cached NPV wrong "
                         <<cap->NPV()<<" should be "<<cachedCapNPVbac<<" bac Black pricer"
-                        <<" diff was "<<(fabs(cap->NPV()-cachedCapNPVbac)));
-    BOOST_CHECK_MESSAGE(fabs(floor->NPV()-cachedFloorNPVbac)<0.22,"yoy floor cached NPV wrong "
+                        <<" diff was "<<(abs(cap->NPV()-cachedCapNPVbac)));
+    BOOST_CHECK_MESSAGE(abs(floor->NPV()-cachedFloorNPVbac)<0.22,"yoy floor cached NPV wrong "
                         <<floor->NPV()<<" should be "<<cachedFloorNPVbac<<" bac Black pricer"
-                        <<" diff was "<<(fabs(floor->NPV()-cachedFloorNPVbac)));
+                        <<" diff was "<<(abs(floor->NPV()-cachedFloorNPVbac)));
 
     // remove circular refernce
     vars.hy.linkTo(boost::shared_ptr<YoYInflationTermStructure>());

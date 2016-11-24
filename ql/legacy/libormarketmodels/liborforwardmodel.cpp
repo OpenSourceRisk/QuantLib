@@ -78,9 +78,9 @@ namespace QuantLib {
                                         maturity) - accrualStartTimes.begin();
 
         QL_REQUIRE(   i<process_->size()
-                   && std::fabs(maturity - accrualStartTimes[i])
+                   && abs(maturity - accrualStartTimes[i])
                         < 100*std::numeric_limits<Real>::epsilon()
-                   && std::fabs(bondMaturity - accrualEndTimes[i])
+                   && abs(bondMaturity - accrualEndTimes[i])
                         < 100*std::numeric_limits<Real>::epsilon(),
                    "irregular fixings are not (yet) supported");
 
@@ -94,7 +94,7 @@ namespace QuantLib {
 
         const Real black = blackFormula(
             (type==Option::Put ? Option::Call : Option::Put),
-            capRate, forward, std::sqrt(var));
+            capRate, forward, sqrt(var));
 
         const Real npv = dis * tenor * black;
 
@@ -187,7 +187,7 @@ namespace QuantLib {
                     }
                 }
                 volatilities[k][l-1] =
-                    std::sqrt(sum/t_alpha)/S_0(alpha, beta);
+                    sqrt(sum/t_alpha)/S_0(alpha, beta);
             }
         }
 

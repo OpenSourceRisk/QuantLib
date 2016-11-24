@@ -138,8 +138,8 @@ void GJRGARCHModelTest::testEngines() {
     for (Size k = 0; k < 3; ++k) {
         Real lambda = Lambda[k];
         Real m1 = beta+(alpha+gamma*CumulativeNormalDistribution()(lambda))
-            *(1.0+lambda*lambda)+gamma*lambda*std::exp(-lambda*lambda/2.0)
-            /std::sqrt(2.0*M_PI);
+            *(1.0+lambda*lambda)+gamma*lambda*exp(-lambda*lambda/2.0)
+            /sqrt(2.0*M_PI);
         Real v0 = omega/(1.0-m1);
         Handle<Quote> q(boost::shared_ptr<Quote>(new SimpleQuote(s0)));
         boost::shared_ptr<GJRGARCHProcess> process(new GJRGARCHProcess(
@@ -172,7 +172,7 @@ void GJRGARCHModelTest::testEngines() {
                 Real expected = option.NPV();
                 Real tolerance = 7.5e-2;
 
-                if (std::fabs(expected - analytic[k][i][j]) > 2.0*tolerance) {
+                if (abs(expected - analytic[k][i][j]) > 2.0*tolerance) {
                     BOOST_ERROR("failed to match results from engines"
                                 << "\n    correct value:    "
                                 << analytic[k][i][j]
@@ -180,7 +180,7 @@ void GJRGARCHModelTest::testEngines() {
                                 << expected
                                 << " +/- " << tolerance);
                 }
-                if (std::fabs(calculated-mcValues[k][i][j]) > 2.0*tolerance) {
+                if (abs(calculated-mcValues[k][i][j]) > 2.0*tolerance) {
                     BOOST_ERROR("failed to match results from engines"
                                 << "\n    correct value:    "
                                 << mcValues[k][i][j]
@@ -272,8 +272,8 @@ void GJRGARCHModelTest::testDAXCalibration() {
     const Real lambda = 0.1;
     const Real daysPerYear = 365.0; // number of trading days per year
     const Real m1 = beta+(alpha+gamma*CumulativeNormalDistribution()(lambda))
-            *(1.0+lambda*lambda)+gamma*lambda*std::exp(-lambda*lambda/2.0)
-            /std::sqrt(2.0*M_PI);
+            *(1.0+lambda*lambda)+gamma*lambda*exp(-lambda*lambda/2.0)
+            /sqrt(2.0*M_PI);
     const Real v0 = omega/(1.0-m1);
 
     boost::shared_ptr<GJRGARCHProcess> process(new GJRGARCHProcess(

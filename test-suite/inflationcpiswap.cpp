@@ -348,19 +348,19 @@ void CPISwapTest::consistency() {
         boost::shared_ptr<CPICoupon>
             zicV = boost::dynamic_pointer_cast<CPICoupon>(zisV.cpiLeg()[i]);
         if (zicV) {
-            Real diff = fabs( zicV->rate() - (fixedRate*(zicV->indexFixing()/baseCPI)) );
+            Real diff = abs( zicV->rate() - (fixedRate*(zicV->indexFixing()/baseCPI)) );
             QL_REQUIRE(diff<1e-8,"failed "<<i<<"th coupon reconstruction as "
                        << (fixedRate*(zicV->indexFixing()/baseCPI)) << " vs rate = "
                        <<zicV->rate() << ", with difference: " << diff);
         }
     }
 
-    Real error = fabs(testInfLegNPV - zisV.legNPV(0));
+    Real error = abs(testInfLegNPV - zisV.legNPV(0));
     QL_REQUIRE(error<1e-5,
                "failed manual inf leg NPV calc vs pricing engine: " <<
                testInfLegNPV << " vs " << zisV.legNPV(0));
 
-    Real diff = fabs(1-zisV.NPV()/4191660.0);
+    Real diff = abs(1-zisV.NPV()/4191660.0);
     #ifndef QL_USE_INDEXED_COUPON
     Real max_diff = 1e-5;
     #else
@@ -396,7 +396,7 @@ void CPISwapTest::zciisconsistency() {
     dse(new DiscountingSwapEngine(common.nominalTS));
 
     zciis.setPricingEngine(dse);
-    QL_REQUIRE(fabs(zciis.NPV())<1e-3,"zciis does not reprice to zero");
+    QL_REQUIRE(abs(zciis.NPV())<1e-3,"zciis does not reprice to zero");
 
     std::vector<Date> oneDate;
     oneDate.push_back(endDate);
@@ -404,7 +404,7 @@ void CPISwapTest::zciisconsistency() {
 
     CPISwap::Type stype = CPISwap::Payer;
     Real inflationNominal = nominal;
-    Real floatNominal = inflationNominal * std::pow(1.0+quote,50);
+    Real floatNominal = inflationNominal * pow(1.0+quote,50);
     bool subtractInflationNominal = true;
     Real dummySpread=0.0, dummyFixedRate=0.0;
     Natural fixingDays = 0;
@@ -419,10 +419,10 @@ void CPISwapTest::zciisconsistency() {
                common.ii, CPI::AsIndex, inflationNominal);
 
     cS.setPricingEngine(dse);
-    QL_REQUIRE(fabs(cS.NPV())<1e-3,"CPISwap as ZCIIS does not reprice to zero");
+    QL_REQUIRE(abs(cS.NPV())<1e-3,"CPISwap as ZCIIS does not reprice to zero");
 
     for (Size i=0; i<2; i++) {
-        QL_REQUIRE(fabs(cS.legNPV(i)-zciis.legNPV(i))<1e-3,"zciis leg does not equal CPISwap leg");
+        QL_REQUIRE(abs(cS.legNPV(i)-zciis.legNPV(i))<1e-3,"zciis leg does not equal CPISwap leg");
     }
     // remove circular refernce
     common.hcpi.linkTo(boost::shared_ptr<ZeroInflationTermStructure>());
@@ -515,7 +515,7 @@ void CPISwapTest::cpibondconsistency() {
     dbe(new DiscountingBondEngine(common.nominalTS));
     cpiB.setPricingEngine(dbe);
 
-    QL_REQUIRE(fabs(cpiB.NPV() - zisV.legNPV(0))<1e-5,"cpi bond does not equal equivalent cpi swap leg");
+    QL_REQUIRE(abs(cpiB.NPV() - zisV.legNPV(0))<1e-5,"cpi bond does not equal equivalent cpi swap leg");
     // remove circular refernce
     common.hcpi.linkTo(boost::shared_ptr<ZeroInflationTermStructure>());
 }

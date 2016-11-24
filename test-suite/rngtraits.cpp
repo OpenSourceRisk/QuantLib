@@ -40,7 +40,7 @@ void RngTraitsTest::testGaussian() {
 
     Real stored = 4.09916;
     Real tolerance = 1.0e-5;
-    if (std::fabs(sum - stored) > tolerance)
+    if (abs(sum - stored) > tolerance)
         BOOST_FAIL("the sum of the samples does not match the stored value\n"
                    << "    calculated: " << sum << "\n"
                    << "    expected:   " << stored);

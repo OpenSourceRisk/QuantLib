@@ -57,23 +57,23 @@ namespace QuantLib {
 
     Real FdmBatesSolver::valueAt(Real s, Real v) const {
         calculate();
-        return solver_->interpolateAt(std::log(s), v);
+        return solver_->interpolateAt(log(s), v);
     }
 
     Real FdmBatesSolver::deltaAt(Real s, Real v) const {
         calculate();
-        return solver_->derivativeX(std::log(s), v)/s;
+        return solver_->derivativeX(log(s), v)/s;
     }
 
     Real FdmBatesSolver::gammaAt(Real s, Real v) const {
         calculate();
-        const Real x = std::log(s);
+        const Real x = log(s);
         return (solver_->derivativeXX(x, v)-solver_->derivativeX(x, v))/(s*s);
     }
 
     Real FdmBatesSolver::thetaAt(Real s, Real v) const {
         calculate();
-        return solver_->thetaAt(std::log(s), v);
+        return solver_->thetaAt(log(s), v);
     }
 
 }

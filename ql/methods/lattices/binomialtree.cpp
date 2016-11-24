@@ -54,7 +54,7 @@ namespace QuantLib {
     : EqualProbabilitiesBinomialTree<AdditiveEQPBinomialTree>(process,
                                                               end, steps) {
         up_ = - 0.5 * driftPerStep_ + 0.5 *
-            std::sqrt(4.0*process->variance(0.0, x0_, dt_)-
+            sqrt(4.0*process->variance(0.0, x0_, dt_)-
                       3.0*driftPerStep_*driftPerStep_);
     }
 
@@ -64,7 +64,7 @@ namespace QuantLib {
                         Time end, Size steps, Real)
     : EqualJumpsBinomialTree<Trigeorgis>(process, end, steps) {
 
-        dx_ = std::sqrt(process->variance(0.0, x0_, dt_)+
+        dx_ = sqrt(process->variance(0.0, x0_, dt_)+
                         driftPerStep_*driftPerStep_);
         pu_ = 0.5 + 0.5*driftPerStep_/dx_;;
         pd_ = 1.0 - pu_;
@@ -78,11 +78,11 @@ namespace QuantLib {
                Time end, Size steps, Real)
     : BinomialTree<Tian>(process, end, steps) {
 
-        Real q = std::exp(process->variance(0.0, x0_, dt_));
-        Real r = std::exp(driftPerStep_)*std::sqrt(q);
+        Real q = exp(process->variance(0.0, x0_, dt_));
+        Real r = exp(driftPerStep_)*sqrt(q);
 
-        up_ = 0.5 * r * q * (q + 1 + std::sqrt(q * q + 2 * q - 3));
-        down_ = 0.5 * r * q * (q + 1 - std::sqrt(q * q + 2 * q - 3));
+        up_ = 0.5 * r * q * (q + 1 + sqrt(q * q + 2 * q - 3));
+        down_ = 0.5 * r * q * (q + 1 - sqrt(q * q + 2 * q - 3));
 
         pu_ = (r - down_) / (up_ - down_);
         pd_ = 1.0 - pu_;
@@ -104,12 +104,12 @@ namespace QuantLib {
         QL_REQUIRE(strike>0.0, "strike must be positive");
         Size oddSteps = (steps%2 ? steps : steps+1);
         Real variance = process->variance(0.0, x0_, end);
-        Real ermqdt = std::exp(driftPerStep_ + 0.5*variance/oddSteps);
-        Real d2 = (std::log(x0_/strike) + driftPerStep_*oddSteps ) /
-                                                          std::sqrt(variance);
+        Real ermqdt = exp(driftPerStep_ + 0.5*variance/oddSteps);
+        Real d2 = (log(x0_/strike) + driftPerStep_*oddSteps ) /
+                                                          sqrt(variance);
         pu_ = PeizerPrattMethod2Inversion(d2, oddSteps);
         pd_ = 1.0 - pu_;
-        Real pdash = PeizerPrattMethod2Inversion(d2+std::sqrt(variance),
+        Real pdash = PeizerPrattMethod2Inversion(d2+sqrt(variance),
                                                  oddSteps);
         up_ = ermqdt * pdash / pu_;
         down_ = (ermqdt - pu_ * up_) / (1.0 - pu_);
@@ -117,7 +117,7 @@ namespace QuantLib {
     }
 
     Real Joshi4::computeUpProb(Real k, Real dj) const {
-        Real alpha = dj/(std::sqrt(8.0));
+        Real alpha = dj/(sqrt(8.0));
         Real alpha2 = alpha*alpha;
         Real alpha3 = alpha*alpha2;
         Real alpha5 = alpha3*alpha2;
@@ -128,7 +128,7 @@ namespace QuantLib {
         Real delta = -0.1025 *alpha- 0.9285 *alpha3
             -1.43 *alpha5 -0.5 *alpha7;
         Real p =0.5;
-        Real rootk = std::sqrt(k);
+        Real rootk = sqrt(k);
         p+= alpha/rootk;
         p+= beta /(k*rootk);
         p+= gamma/(k*k*rootk);
@@ -144,12 +144,12 @@ namespace QuantLib {
         QL_REQUIRE(strike>0.0, "strike must be positive");
         Size oddSteps = (steps%2 ? steps : steps+1);
         Real variance = process->variance(0.0, x0_, end);
-        Real ermqdt = std::exp(driftPerStep_ + 0.5*variance/oddSteps);
-        Real d2 = (std::log(x0_/strike) + driftPerStep_*oddSteps ) /
-                                                          std::sqrt(variance);
+        Real ermqdt = exp(driftPerStep_ + 0.5*variance/oddSteps);
+        Real d2 = (log(x0_/strike) + driftPerStep_*oddSteps ) /
+                                                          sqrt(variance);
         pu_ = computeUpProb((oddSteps-1.0)/2.0,d2 );
         pd_ = 1.0 - pu_;
-        Real pdash = computeUpProb((oddSteps-1.0)/2.0,d2+std::sqrt(variance));
+        Real pdash = computeUpProb((oddSteps-1.0)/2.0,d2+sqrt(variance));
         up_ = ermqdt * pdash / pu_;
         down_ = (ermqdt - pu_ * up_) / (1.0 - pu_);
     }

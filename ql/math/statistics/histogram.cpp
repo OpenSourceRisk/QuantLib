@@ -46,12 +46,12 @@ namespace QuantLib {
             // two special cases: close to boundaries
             const Real a = 1. / 3, b = 2*a / (nsample+a);
             if (prob < b)
-                return *std::min_element(samples.begin(), samples.end());
+                return *min_element(samples.begin(), samples.end());
             else if (prob > 1-b)
-                return *std::max_element(samples.begin(), samples.end());
+                return *max_element(samples.begin(), samples.end());
 
             // general situation: middle region and nsample >= 2
-            Size index = static_cast<Size>(std::floor((nsample+a)*prob+a));
+            Size index = static_cast<Size>(std::floor(VALUE((nsample+a)*prob+a)));
             std::vector<Real> sorted(index+1);
             std::partial_sort_copy(samples.begin(), samples.end(),
                                    sorted.begin(), sorted.end());
@@ -99,32 +99,32 @@ namespace QuantLib {
     void Histogram::calculate() {
         QL_REQUIRE(!data_.empty(), "no data given");
 
-        Real min = *std::min_element(data_.begin(), data_.end());
-        Real max = *std::max_element(data_.begin(), data_.end());
+        Real min = *min_element(data_.begin(), data_.end());
+        Real max = *max_element(data_.begin(), data_.end());
 
         // calculate number of bins if necessary
         if (bins_ == Null<Size>()) {
             switch (algorithm_) {
               case Sturges: {
                   bins_ = static_cast<Size>(
-                           std::ceil(std::log(static_cast<Real>(data_.size()))
-                                     /std::log(2.0) + 1));
+                           std::ceil(log(static_cast<double>(data_.size()))
+                                     /log(2.0) + 1));
                   break;
               }
               case FD: {
                   Real r1 = quantile(data_, 0.25);
                   Real r2 = quantile(data_, 0.75);
-                  Real h = 2.0 * (r2-r1) * std::pow(static_cast<Real>(data_.size()), -1.0/3.0);
-                  bins_ = static_cast<Size>(std::ceil((max-min)/h));
+                  Real h = 2.0 * (r2-r1) * pow(static_cast<double>(data_.size()), -1.0/3.0);
+                  bins_ = static_cast<Size>(std::ceil(VALUE((max-min)/h)));
                   break;
               }
               case Scott: {
                   IncrementalStatistics summary;
                   summary.addSequence(data_.begin(), data_.end());
                   Real variance = summary.variance();
-                  Real h = 3.5 * std::sqrt(variance)
-                         * std::pow(static_cast<Real>(data_.size()), -1.0/3.0);
-                  bins_ = static_cast<Size>(std::ceil((max-min)/h));
+                  Real h = 3.5 * sqrt(variance)
+                         * pow(static_cast<double>(data_.size()), -1.0/3.0);
+                  bins_ = static_cast<Size>(std::ceil(VALUE((max-min)/h)));
                   break;
               }
               case None:

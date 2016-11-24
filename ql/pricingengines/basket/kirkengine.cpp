@@ -67,9 +67,9 @@ namespace QuantLib {
 
         const Real f = f1/(f2 + strike);
         const Real v 
-            = std::sqrt(variance1 
+            = sqrt(variance1 
                         + variance2*square<Real>()(f2/(f2+strike))
-                        - 2*rho_*std::sqrt(variance1*variance2)
+                        - 2*rho_*sqrt(variance1*variance2)
                             *(f2/(f2+strike)));
         
         BlackCalculator black(

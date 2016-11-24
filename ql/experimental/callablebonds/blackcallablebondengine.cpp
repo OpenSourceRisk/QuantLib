@@ -161,7 +161,7 @@ namespace QuantLib {
             blackFormula(type,
                          cashStrike,
                          fwdCashPrice,
-                         priceVol*std::sqrt(exerciseTime));
+                         priceVol*sqrt(exerciseTime));
 
         if (type == Option::Call) {
             results_.value = npv - embeddedOptionValue;

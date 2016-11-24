@@ -152,7 +152,7 @@ namespace QuantLib {
         normalIntegralW_ = gaussHermite.weights();
         for (Size i = 0; i < normalIntegralX_.size(); i++) {
             normalIntegralW_[i] *=
-                std::exp(-normalIntegralX_[i] * normalIntegralX_[i]) * M_1_SQRTPI;
+                exp(-normalIntegralX_[i] * normalIntegralX_[i]) * M_1_SQRTPI;
             normalIntegralX_[i] *= M_SQRT2;
         }
 
@@ -205,11 +205,11 @@ namespace QuantLib {
                             makeSwaptionCalibrationPoint(
                                 *j,
                                 Period(
-                                    static_cast<Integer>(rounder(
-                                        (swapIndexBase_->dayCounter()
+                                    static_cast<Size>(VALUE(rounder(
+                                        swapIndexBase_->dayCounter()
                                              .yearFraction(*j, numeraireKnown) -
-                                         0.5 / 365) *
-                                        12.0)),
+                                              0.5 / 365) *
+                                                            12.0)),
                                     Months));
                             done = false;
                             break;
@@ -623,7 +623,7 @@ namespace QuantLib {
                 // implementation optimizes the case t=0.0 then using the
                 // initial yts
                 modelOutputs_.modelZerorate_.push_back(
-                    -std::log(zerobond(times_[i], 1.0E-10)) / times_[i]);
+                    -log(zerobond(times_[i], 1.0E-10)) / times_[i]);
             }
 
             // volatility surface
@@ -715,7 +715,7 @@ namespace QuantLib {
             termStructure()->discount(numeraireTime_, true) /
             termStructure()->discount(t, true);
 
-        Time tz = std::min(t, times_.back());
+        Time tz = min(t, times_.back());
         Size i = std::min<Size>(
             std::upper_bound(times_.begin(), times_.end() - 1, t) -
                 times_.begin(),
@@ -828,7 +828,7 @@ namespace QuantLib {
         Brent b;
         Real solution = b.solve(
             z, modelSettings_.marketRateAccuracy_,
-            std::max(std::min(guess, modelSettings_.upperRateBound_ - 0.00001),
+            max(min(guess, modelSettings_.upperRateBound_ - 0.00001),
                      modelSettings_.lowerRateBound_ - shift + 0.00001),
             modelSettings_.lowerRateBound_ - shift, modelSettings_.upperRateBound_);
         return solution;
@@ -1050,9 +1050,9 @@ namespace QuantLib {
                                           zeroFixingDays, swapIdx);
             Rate atm = swapRateInternal(expiry, tenor, expiry, yg[i], zeroFixingDays,
                                    swapIdx);
-            p[i] = annuity * std::max((type == Option::Call ? 1.0 : -1.0) *
+            p[i] = annuity * max((type == Option::Call ? 1.0 : -1.0) *
                                           (atm - strike),
-                                      0.0) /
+                                 Real(0.0)) /
                    numeraire(fixingTime, yg[i]);
         }
 
@@ -1127,9 +1127,9 @@ namespace QuantLib {
             Real annuity = zerobond(endDate, expiry, yg[i]) * dcf;
             Rate atm =
                 forwardRateInternal(expiry, expiry, yg[i], zeroFixingDays, iborIdx);
-            p[i] = annuity * std::max((type == Option::Call ? 1.0 : -1.0) *
+            p[i] = annuity * max((type == Option::Call ? 1.0 : -1.0) *
                                           (atm - strike),
-                                      0.0) /
+                                 Real(0.0)) /
                    numeraire(fixingTime, yg[i]);
         }
 

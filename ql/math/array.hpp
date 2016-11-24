@@ -472,7 +472,7 @@ namespace QuantLib {
         QL_REQUIRE(v1.size() == v2.size(),
                    "arrays with different sizes (" << v1.size() << ", "
                    << v2.size() << ") cannot be multiplied");
-        return std::inner_product(v1.begin(),v1.end(),v2.begin(),0.0);
+        return std::inner_product(v1.begin(),v1.end(),v2.begin(),Real(0.0));
     }
 
     // overloaded operators
@@ -582,15 +582,15 @@ namespace QuantLib {
 
     inline const Disposable<Array> operator/(const Array& v1, Real a) {
         Array result(v1.size());
-        std::transform(v1.begin(),v1.end(),result.begin(),
-                       std::bind2nd(std::divides<Real>(),a));
+        std::transform(v1.begin(), v1.end(), result.begin(),
+                       [a](const Real& x) { return x / a; });
         return result;
     }
 
     inline const Disposable<Array> operator/(Real a, const Array& v2) {
         Array result(v2.size());
-        std::transform(v2.begin(),v2.end(),result.begin(),
-                       std::bind1st(std::divides<Real>(),a));
+        std::transform(v2.begin(), v2.end(), result.begin(),
+                       [a](const Real& x) { return a / x; });
         return result;
     }
 
@@ -599,35 +599,35 @@ namespace QuantLib {
     inline const Disposable<Array> Abs(const Array& v) {
         Array result(v.size());
         std::transform(v.begin(),v.end(),result.begin(),
-                       std::ptr_fun<Real,Real>(std::fabs));
+                       [](const Real& x) { return abs(x); });
         return result;
     }
 
     inline const Disposable<Array> Sqrt(const Array& v) {
         Array result(v.size());
         std::transform(v.begin(),v.end(),result.begin(),
-                       std::ptr_fun<Real,Real>(std::sqrt));
+                       [](const Real& x) { return sqrt(x); });
         return result;
     }
 
     inline const Disposable<Array> Log(const Array& v) {
         Array result(v.size());
         std::transform(v.begin(),v.end(),result.begin(),
-                       std::ptr_fun<Real,Real>(std::log));
+                       [](const Real& x) { return log(x); });
         return result;
     }
 
     inline const Disposable<Array> Exp(const Array& v) {
         Array result(v.size());
         std::transform(v.begin(),v.end(),result.begin(),
-                       std::ptr_fun<Real,Real>(std::exp));
+                       [](const Real& x) { return exp(x); });
         return result;
     }
 
     inline const Disposable<Array> Pow(const Array& v, Real alpha) {
         Array result(v.size());
         std::transform(v.begin(), v.end(), result.begin(),
-            std::bind2nd(std::ptr_fun<Real, Real, Real>(std::pow), alpha));
+                       [alpha](const Real& x) { return pow(x, alpha); });
 
         return result;
     }

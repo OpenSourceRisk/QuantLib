@@ -26,8 +26,8 @@
 
 namespace QuantLib {
 
-    const Real GaussLobattoIntegral::alpha_ = std::sqrt(2.0/3.0); 
-    const Real GaussLobattoIntegral::beta_  = 1.0/std::sqrt(5.0);
+    const Real GaussLobattoIntegral::alpha_ = sqrt(2.0/3.0); 
+    const Real GaussLobattoIntegral::beta_  = 1.0/sqrt(5.0);
     const Real GaussLobattoIntegral::x1_    = 0.94288241569547971906; 
     const Real GaussLobattoIntegral::x2_    = 0.64185334234578130578;
     const Real GaussLobattoIntegral::x3_    = 0.23638319966214988028;
@@ -57,7 +57,7 @@ namespace QuantLib {
                                      Real a, Real b) const {
         
 
-        Real relTol = std::max(relAccuracy_, QL_EPSILON);
+        Real relTol = max(relAccuracy_, QL_EPSILON);
         
         const Real m = (a+b)/2; 
         const Real h = (b-a)/2;
@@ -97,14 +97,14 @@ namespace QuantLib {
             const Real integral1 = (h/1470)*(77*(y1+y13)+432*(y3+y11)+
                                              625*(y5+y9)+672*y7);
         
-            if (std::fabs(integral2-acc) != 0.0) 
-                r = std::fabs(integral1-acc)/std::fabs(integral2-acc);
+            if (abs(integral2-acc) != 0.0) 
+                r = abs(integral1-acc)/abs(integral2-acc);
             if (r == 0.0 || r > 1.0)
                 r = 1.0;
         }
 
         if (relAccuracy_ != Null<Real>())
-            return std::min(absoluteAccuracy(), acc*relTol)/(r*QL_EPSILON);
+            return min(absoluteAccuracy(), acc*relTol)/(r*QL_EPSILON);
         else {
             return absoluteAccuracy()/(r*QL_EPSILON);
         }
@@ -137,8 +137,8 @@ namespace QuantLib {
                                        +432*(fmll+fmrr)+625*(fml+fmr)+672*fm);
         
         // avoid 80 bit logic on x86 cpu
-        volatile Real dist = acc + (integral1-integral2);
-        if(Real(dist)==acc || mll<=a || b<=mrr) {
+        /*volatile*/ Real dist = acc + (integral1-integral2);
+        if(dist==acc || mll<=a || b<=mrr) {
             QL_REQUIRE(m>a && b>m,"Interval contains no more machine number");
             return integral1;
         }

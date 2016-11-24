@@ -37,16 +37,16 @@ namespace QuantLib {
                                        Real variance1, Real variance2,
                                        Real rho) {
 
-            Real stdDev1 = std::sqrt(variance1);
-            Real stdDev2 = std::sqrt(variance2);
+            Real stdDev1 = sqrt(variance1);
+            Real stdDev2 = sqrt(variance2);
 
             Real variance = variance1 + variance2 - 2*rho*stdDev1*stdDev2;
-            Real stdDev = std::sqrt(variance);
+            Real stdDev = sqrt(variance);
 
             Real modRho1 = (rho * stdDev2 - stdDev1) / stdDev;
             Real modRho2 = (rho * stdDev1 - stdDev2) / stdDev;
 
-            Real D1 = (std::log(forward1/forward2) + 0.5*variance) / stdDev;
+            Real D1 = (log(forward1/forward2) + 0.5*variance) / stdDev;
 
             Real alfa, beta, gamma;
             if (strike != 0.0) {
@@ -58,9 +58,9 @@ namespace QuantLib {
                     BivariateCumulativeNormalDistribution(modRho1);
 
                 Real D1_1 =
-                    (std::log(forward1/strike) + 0.5*variance1) / stdDev1;
+                    (log(forward1/strike) + 0.5*variance1) / stdDev1;
                 Real D1_2 =
-                    (std::log(forward2/strike) + 0.5*variance2) / stdDev2;
+                    (log(forward2/strike) + 0.5*variance2) / stdDev2;
                 alfa = bivCNormMod1(D1_1, -D1);
                 beta = bivCNormMod2(D1_2, D1 - stdDev);
                 gamma = bivCNorm(D1_1 - stdDev1, D1_2 - stdDev2);
@@ -87,10 +87,10 @@ namespace QuantLib {
                 PlainVanillaPayoff(Option::Call, strike));
 
             Real black1 = blackFormula(payoff->optionType(), payoff->strike(),
-                forward1, std::sqrt(variance1)) * riskFreeDiscount;
+                forward1, sqrt(variance1)) * riskFreeDiscount;
 
             Real black2 = blackFormula(payoff->optionType(), payoff->strike(),
-                forward2, std::sqrt(variance2)) * riskFreeDiscount;
+                forward2, sqrt(variance2)) * riskFreeDiscount;
 
             return black1 + black2 -
                 euroTwoAssetMinBasketCall(forward1, forward2, strike,

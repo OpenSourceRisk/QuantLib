@@ -73,7 +73,7 @@ namespace QuantLib {
             LinearFcts (const xContainer &x, Real intercept) {
                 if (intercept != 0.0)
                     v.push_back(constant<ArgumentType, Real>(intercept));
-                Size m = x.begin()->size();
+                Size m = x.size();
                 for (Size i = 0; i < m; ++i)
                     v.push_back(LinearFct<ArgumentType>(i));
             }

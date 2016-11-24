@@ -196,7 +196,7 @@ namespace QuantLib {
                 / (avgLgd * bsktSize);
         // model parameters:
         Real m = avgProb * bsktSize;
-        Real floorAveProb = std::min(Real(bsktSize-1), std::floor(Real(m)));
+        Real floorAveProb = min(Real(bsktSize-1), std::floor(Real(m)));
         Real ceilAveProb = floorAveProb + 1.;
         // nu_A
         Real varianceBinom = avgProb * (1. - avgProb)/bsktSize;
@@ -204,7 +204,7 @@ namespace QuantLib {
         std::vector<Probability> oneMinusDefProb;//: 1.-condDefProb[j]
         std::transform(condDefProb.begin(), condDefProb.end(), 
             std::back_inserter(oneMinusDefProb), 
-            std::bind1st(std::minus<Real>(), 1.));
+            std::bind1st(minus<Real>(), 1.));
 
         //breaks condDefProb and lgdsLeft to spare memory
         std::transform(condDefProb.begin(), condDefProb.end(), 
@@ -217,8 +217,8 @@ namespace QuantLib {
 
         variance = avgLgd <= QL_EPSILON ? 0. : 
             variance / (bsktSize * bsktSize * avgLgd * avgLgd );
-        Real sumAves = -std::pow(ceilAveProb-m, 2) 
-            - (std::pow(floorAveProb-m, 2) - std::pow(ceilAveProb,2.)) 
+        Real sumAves = -pow(ceilAveProb-m, 2) 
+            - (pow(floorAveProb-m, 2) - pow(ceilAveProb,2.)) 
                 * (ceilAveProb-m);
         Real alpha = (variance * bsktSize + sumAves) 
             / (varianceBinom * bsktSize + sumAves);
@@ -237,7 +237,7 @@ namespace QuantLib {
             pointed out in the book. This is numerical.
             */
             Probability probsRatio = avgProb/(1.-avgProb);
-            lossProbDensity[0] = std::pow(1.-avgProb, 
+            lossProbDensity[0] = pow(1.-avgProb, 
                 static_cast<Real>(bsktSize));
             for(Size i=1; i<bsktSize+1; i++) // recursive to avoid factorial
                 lossProbDensity[i] = lossProbDensity[i-1] * probsRatio 
@@ -322,7 +322,7 @@ namespace QuantLib {
         Real suma = 0.;
         for(Size i=0; i<lossVals.size(); i++) { 
             suma += condLProb[i] * 
-                std::min(std::max(lossVals[i]
+                min(max(lossVals[i]
                  - attachAmount_, 0.), detachAmount_ - attachAmount_);
         }
         return suma;
@@ -362,7 +362,7 @@ namespace QuantLib {
         for(Size i=0; i<lossPts.size(); i++) {
             distrib.insert(std::make_pair(lossPts[i], 
                 //capped, some situations giving a very small probability over 1
-                std::min(sum+values[i],1.)
+                min(sum+values[i],1.)
                 ));
             sum+= values[i];
         }
@@ -392,7 +392,7 @@ namespace QuantLib {
         Real portfLoss = xPlus-(xPlus-xMin)*(valPlus-perc)/(valPlus-valMin);
 
         return 
-            std::min(std::max(portfLoss - attachAmount_, 0.), 
+            min(max(portfLoss - attachAmount_, 0.), 
                 detachAmount_ - attachAmount_);
     }
 
@@ -413,9 +413,9 @@ namespace QuantLib {
             // \todo: I could linearly triangulate the exact point and get 
             //    extra precission on the first(broken) period.
             if(itNxt != distrib.end()) { 
-                Real lossNxt = std::min(std::max(itNxt->first - attachAmount_, 
+                Real lossNxt = min(max(itNxt->first - attachAmount_, 
                     0.), detachAmount_ - attachAmount_);
-                Real lossHere = std::min(std::max(itDist->first - attachAmount_,
+                Real lossHere = min(max(itDist->first - attachAmount_,
                     0.), detachAmount_ - attachAmount_);
 
                 Real val =  lossNxt - (itNxt->second - perctl) * 
@@ -423,9 +423,9 @@ namespace QuantLib {
                 Real suma = (itNxt->second - perctl) * (lossNxt + val) * .5;
                 itDist++;itNxt++;
                 do{
-                    lossNxt = std::min(std::max(itNxt->first - attachAmount_, 
+                    lossNxt = min(max(itNxt->first - attachAmount_, 
                         0.), detachAmount_ - attachAmount_);
-                    lossHere = std::min(std::max(itDist->first - attachAmount_, 
+                    lossHere = min(max(itDist->first - attachAmount_, 
                         0.), detachAmount_ - attachAmount_);
                     suma += .5 * (lossHere + lossNxt) 
                         * (itNxt->second - itDist->second);

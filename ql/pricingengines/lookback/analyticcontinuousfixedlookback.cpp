@@ -83,7 +83,7 @@ namespace QuantLib {
     }
 
     Real AnalyticContinuousFixedLookbackEngine::stdDeviation() const {
-        return volatility() * std::sqrt(residualTime());
+        return volatility() * sqrt(residualTime());
     }
 
     Rate AnalyticContinuousFixedLookbackEngine::riskFreeRate() const {
@@ -115,12 +115,12 @@ namespace QuantLib {
         Real lambda = 2.0*(riskFreeRate() - dividendYield())/(vol*vol);
         Real ss = underlying()/minmax();
         Real d1 =
-            std::log(ss)/stdDeviation() + 0.5*(lambda+1.0)*stdDeviation();
+            log(ss)/stdDeviation() + 0.5*(lambda+1.0)*stdDeviation();
         Real N1 = f_(eta*d1);
         Real N2 = f_(eta*(d1-stdDeviation()));
         Real N3 = f_(eta*(d1-lambda*stdDeviation()));
         Real N4 = f_(eta*d1);
-        Real powss = std::pow(ss, -lambda);
+        Real powss = pow(ss, -lambda);
         return eta*(underlying() * dividendDiscount() * N1 -
                     minmax() * riskFreeDiscount() * N2 -
                     underlying() * riskFreeDiscount() *
@@ -133,12 +133,12 @@ namespace QuantLib {
         Real lambda = 2.0*(riskFreeRate() - dividendYield())/(vol*vol);
         Real ss = underlying()/strike();
         Real d1 =
-            std::log(ss)/stdDeviation() + 0.5*(lambda+1.0)*stdDeviation();
+            log(ss)/stdDeviation() + 0.5*(lambda+1.0)*stdDeviation();
         Real N1 = f_(eta*d1);
         Real N2 = f_(eta*(d1-stdDeviation()));
         Real N3 = f_(eta*(d1-lambda*stdDeviation()));
         Real N4 = f_(eta*d1);
-        Real powss = std::pow(ss, -lambda);
+        Real powss = pow(ss, -lambda);
         return eta*(underlying() * dividendDiscount() * N1 -
                     strike() * riskFreeDiscount() * N2 -
                     underlying() * riskFreeDiscount() *

@@ -80,7 +80,7 @@ namespace QuantLib {
         Real eps = 0.00001;
         for (Size i = 1; i < nTest; i++) {
             Real factorAt = this->seasonalityFactor(curveBaseDate+Period(i,Years));
-            QL_REQUIRE(std::fabs(factorAt-factorBase)<eps,"seasonality is inconsistent with inflation term structure, factors "
+            QL_REQUIRE(abs(factorAt-factorBase)<eps,"seasonality is inconsistent with inflation term structure, factors "
                        << factorBase << " and later factor " << factorAt << ", " << i << " years later from inflation curve "
                        <<" with base date at " << curveBaseDate);
         }
@@ -149,7 +149,7 @@ namespace QuantLib {
             which = 0;
         } else {
             // days, weeks, months, years are the only time unit possibilities
-            Integer diffDays = std::abs(to - from);  // in days
+            Integer diffDays = abs(to - from);  // in days
             Integer dir = 1;
             if(from > to)dir = -1;
             Integer diff;
@@ -201,7 +201,7 @@ namespace QuantLib {
             Rate factorBase = this->seasonalityFactor(curveBaseDate);
             Real seasonalityAt = factorAt / factorBase;
             Time timeFromCurveBase = dc.yearFraction(curveBaseDate, atDate);
-            f = std::pow(seasonalityAt, 1/timeFromCurveBase);
+            f = pow(seasonalityAt, 1/timeFromCurveBase);
         }
         else {
             Rate factor1Ybefore = this->seasonalityFactor(atDate - Period(1,Years));
@@ -262,7 +262,7 @@ namespace QuantLib {
         if (isZeroRate) {
             std::pair<Date,Date> lim = inflationPeriod(curveBaseDate, Monthly);
             Time timeFromCurveBase = dc.yearFraction(lim.first, atDate);
-            f = std::pow(indexFactor, 1/timeFromCurveBase);
+            f = pow(indexFactor, 1/timeFromCurveBase);
         }
         else {
             QL_FAIL("Seasonal Kerkhof model is not defined on YoY rates");

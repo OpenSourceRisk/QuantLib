@@ -292,7 +292,7 @@ namespace QuantLib {
                               output_data&,
                               output_data&, output_data&,
                               result_type &res) {
-                res = a * y[i] + b * y[i + 1] + a2 * y2[i] + b2 * y2[i + 1];
+                res = a.first * y[i] + b.first * y[i + 1] + a2.first * y2[i] + b2.first * y2[i + 1];
             }
         };
 

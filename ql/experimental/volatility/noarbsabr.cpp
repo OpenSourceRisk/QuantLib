@@ -38,7 +38,7 @@ class NoArbSabrModel::integrand {
     integrand(const NoArbSabrModel* model, Real strike)
     : model(model), strike(strike) {}
     Real operator()(Real f) const {
-        return std::max(f - strike, 0.0) * model->p(f);
+        return max(f - strike, Real(0.0)) * model->p(f);
     }
 };
 
@@ -54,7 +54,7 @@ NoArbSabrModel::NoArbSabrModel(const Real expiryTime, const Real forward,
     QL_REQUIRE(forward > 0.0, "forward (" << forward << ") must be positive");
     QL_REQUIRE(beta >= detail::NoArbSabrModel::beta_min && beta <= detail::NoArbSabrModel::beta_max,
                "beta (" << beta << ") out of bounds");
-    Real sigmaI = alpha * std::pow(forward, beta - 1.0);
+    Real sigmaI = alpha * pow(forward, beta - 1.0);
     QL_REQUIRE(sigmaI >= detail::NoArbSabrModel::sigmaI_min &&
                    sigmaI <= detail::NoArbSabrModel::sigmaI_max,
                "sigmaI = alpha*forward^(beta-1.0) ("
@@ -69,18 +69,18 @@ NoArbSabrModel::NoArbSabrModel(const Real expiryTime, const Real forward,
 
     fmin_ = fmax_ = forward_;
     for (Real tmp = p(fmax_);
-         tmp > std::max(detail::NoArbSabrModel::i_accuracy / std::max(1.0, fmax_ - fmin_),
+         tmp > max(detail::NoArbSabrModel::i_accuracy / max(Real(1.0), fmax_ - fmin_),
                         detail::NoArbSabrModel::density_threshold);
          tmp = p(fmax_)) {
         fmax_ *= 2.0;
     }
     for (Real tmp = p(fmin_);
-         tmp > std::max(detail::NoArbSabrModel::i_accuracy / std::max(1.0, fmax_ - fmin_),
+         tmp > max(detail::NoArbSabrModel::i_accuracy / max(Real(1.0), fmax_ - fmin_),
                         detail::NoArbSabrModel::density_threshold);
          tmp = p(fmin_)) {
         fmin_ *= 0.5;
     }
-    fmin_ = std::max(detail::NoArbSabrModel::strike_min, fmin_);
+    fmin_ = max(detail::NoArbSabrModel::strike_min, fmin_);
 
     QL_REQUIRE(fmax_ > fmin_, "could not find a reasonable integration domain");
 
@@ -93,39 +93,39 @@ NoArbSabrModel::NoArbSabrModel(const Real expiryTime, const Real forward,
 
     try {
         Brent b;
-        Real start = std::sqrt(externalForward_ - detail::NoArbSabrModel::strike_min);
+        Real start = sqrt(externalForward_ - detail::NoArbSabrModel::strike_min);
         Real tmp =
             b.solve(boost::lambda::bind(&NoArbSabrModel::forwardError, this,
                                         boost::lambda::_1),
                     detail::NoArbSabrModel::forward_accuracy, start,
-                    std::min(detail::NoArbSabrModel::forward_search_step, start / 2.0));
+                    min(detail::NoArbSabrModel::forward_search_step, start / 2.0));
         forward_ = tmp * tmp + detail::NoArbSabrModel::strike_min;
     } catch (QuantLib::Error e) {
         // fall back to unadjusted forward
         forward_ = externalForward_;
     }
 
-    Real d = forwardError(std::sqrt(forward_ - detail::NoArbSabrModel::strike_min));
+    Real d = forwardError(sqrt(forward_ - detail::NoArbSabrModel::strike_min));
     numericalForward_ = d + externalForward_;
 }
 
 Real NoArbSabrModel::optionPrice(const Real strike) const {
-    if (p(std::max(forward_, strike)) < detail::NoArbSabrModel::density_threshold)
+    if (p(max(forward_, strike)) < detail::NoArbSabrModel::density_threshold)
         return 0.0;
     return (1.0 - absProb_) *
         ((*integrator_)(integrand(this, strike),
-                        strike, std::max(fmax_, 2.0 * strike)) /
+                        strike, max(fmax_, 2.0 * strike)) /
             numericalIntegralOverP_);
 }
 
 Real NoArbSabrModel::digitalOptionPrice(const Real strike) const {
     if (strike < QL_MIN_POSITIVE_REAL)
         return 1.0;
-    if (p(std::max(forward_, strike)) < detail::NoArbSabrModel::density_threshold)
+    if (p(max(forward_, strike)) < detail::NoArbSabrModel::density_threshold)
         return 0.0;
     return (1.0 - absProb_)
         * ((*integrator_)(std::bind1st(std::mem_fun(&NoArbSabrModel::p), this),
-                          strike, std::max(fmax_, 2.0 * strike)) /
+                          strike, max(fmax_, 2.0 * strike)) /
            numericalIntegralOverP_);
 }
 
@@ -143,35 +143,35 @@ Real NoArbSabrModel::p(const Real f) const {
         forward_ < detail::NoArbSabrModel::density_lower_bound)
         return 0.0;
 
-    Real fOmB = std::pow(f, 1.0 - beta_);
-    Real FOmB = std::pow(forward_, 1.0 - beta_);
+    Real fOmB = pow(f, 1.0 - beta_);
+    Real FOmB = pow(forward_, 1.0 - beta_);
 
     Real zf = fOmB / (alpha_ * (1.0 - beta_));
     Real zF = FOmB / (alpha_ * (1.0 - beta_));
     Real z = zF - zf;
 
-    // Real JzF = std::sqrt(1.0 - 2.0 * rho_ * nu_ * zF + nu_ * nu_ * zF * zF);
-    Real Jmzf = std::sqrt(1.0 + 2.0 * rho_ * nu_ * zf + nu_ * nu_ * zf * zf);
-    Real Jz = std::sqrt(1.0 - 2.0 * rho_ * nu_ * z + nu_ * nu_ * z * z);
+    // Real JzF = sqrt(1.0 - 2.0 * rho_ * nu_ * zF + nu_ * nu_ * zF * zF);
+    Real Jmzf = sqrt(1.0 + 2.0 * rho_ * nu_ * zf + nu_ * nu_ * zf * zf);
+    Real Jz = sqrt(1.0 - 2.0 * rho_ * nu_ * z + nu_ * nu_ * z * z);
 
-    Real xz = std::log((Jz - rho_ + nu_ * z) / (1.0 - rho_)) / nu_;
+    Real xz = log((Jz - rho_ + nu_ * z) / (1.0 - rho_)) / nu_;
     Real Bp_B = beta_ / FOmB;
     // Real Bpp_B = beta_ * (2.0 * beta_ - 1.0) / (FOmB * FOmB);
     Real kappa1 = 0.125 * nu_ * nu_ * (2.0 - 3.0 * rho_ * rho_) -
                   0.25 * rho_ * nu_ * alpha_ * Bp_B;
     // Real kappa2 = alpha_ * alpha_ * (0.25 * Bpp_B - 0.375 * Bp_B * Bp_B);
     Real gamma = 1.0 / (2.0 * (1.0 - beta_));
-    Real sqrtOmR = std::sqrt(1.0 - rho_ * rho_);
+    Real sqrtOmR = sqrt(1.0 - rho_ * rho_);
     Real h = 0.5 * beta_ * rho_ / ((1.0 - beta_) * Jmzf * Jmzf) *
-             (nu_ * zf * std::log(zf * Jz / zF) +
+             (nu_ * zf * log(zf * Jz / zF) +
               (1 + rho_ * nu_ * zf) / sqrtOmR *
-                  (std::atan((nu_ * z - rho_) / sqrtOmR) +
-                   std::atan(rho_ / sqrtOmR)));
+                  (atan((nu_ * z - rho_) / sqrtOmR) +
+                   atan(rho_ / sqrtOmR)));
 
     Real res =
-        std::pow(Jz, -1.5) / (alpha_ * std::pow(f, beta_) * expiryTime_) *
-        std::pow(zf, 1.0 - gamma) * std::pow(zF, gamma) *
-        std::exp(-(xz * xz) / (2.0 * expiryTime_) +
+        pow(Jz, -1.5) / (alpha_ * pow(f, beta_) * expiryTime_) *
+        pow(zf, 1.0 - gamma) * pow(zF, gamma) *
+        exp(-(xz * xz) / (2.0 * expiryTime_) +
                  (h + kappa1 * expiryTime_)) *
         modifiedBesselFunction_i_exponentiallyWeighted(gamma,
                                                        zF * zf / expiryTime_);
@@ -188,7 +188,7 @@ D0Interpolator::D0Interpolator(const Real forward, const Real expiryTime,
     : forward_(forward), expiryTime_(expiryTime), alpha_(alpha), beta_(beta),
       nu_(nu), rho_(rho), gamma_(1.0 / (2.0 * (1.0 - beta_))) {
 
-    sigmaI_ = alpha_ * std::pow(forward_, beta_ - 1.0);
+    sigmaI_ = alpha_ * pow(forward_, beta_ - 1.0);
 
     tauG_ += 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0,
         3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0, 6.25,
@@ -316,11 +316,11 @@ Real D0Interpolator::operator()() const {
 Real D0Interpolator::phi(const Real d0) const {
     if (d0 < 1e-14)
         return detail::NoArbSabrModel::phiByTau_cutoff * expiryTime_;
-    return boost::math::gamma_q_inv(gamma_, d0) * expiryTime_;
+    return boost::math::gamma_q_inv(VALUE(gamma_), VALUE(d0)) * expiryTime_;
 }
 
 Real D0Interpolator::d0(const Real phi) const {
-    return boost::math::gamma_q(gamma_, std::max(0.0, phi / expiryTime_));
+    return boost::math::gamma_q(VALUE(gamma_), max(0.0, VALUE(phi / expiryTime_)));
 }
 
 } // namespace detail

@@ -57,7 +57,7 @@ using namespace boost::unit_test_framework;
 namespace {
 
     Integer timeToDays(Time t) {
-        return Integer(t*360+0.5);
+        return Integer(VALUE(t*360+0.5));
     }
 
     struct CompoundOptionData {
@@ -188,7 +188,7 @@ void CompoundOptionTest::testPutCallParity(){
             - vanillaOption.NPV();
 
         Real expected=0.0;
-        Real error=std::abs(calculated-expected);
+        Real error=abs(calculated-expected);
         Real tolerance=1.0e-8;
 
         if(error>tolerance){
@@ -302,7 +302,7 @@ void CompoundOptionTest::testValues(){
         compoundOption.setPricingEngine(engineCompound);
 
         Real calculated = compoundOption.NPV();
-        Real error= std::fabs(calculated-values[i].npv); //-values[i].npv
+        Real error= abs(calculated-values[i].npv); //-values[i].npv
         Real tolerance = values[i].tol;
 
         if (error>tolerance) {
@@ -314,7 +314,7 @@ void CompoundOptionTest::testValues(){
         }
 
         calculated = compoundOption.delta();
-        error= std::fabs(calculated-values[i].delta);
+        error= abs(calculated-values[i].delta);
         tolerance = values[i].tol;
 
         if (error>tolerance) {
@@ -326,7 +326,7 @@ void CompoundOptionTest::testValues(){
         }
 
         calculated = compoundOption.gamma();
-        error= std::fabs(calculated-values[i].gamma);
+        error= abs(calculated-values[i].gamma);
         tolerance = values[i].tol;
 
         if (error>tolerance) {
@@ -338,7 +338,7 @@ void CompoundOptionTest::testValues(){
         }
 
         calculated = compoundOption.vega();
-        error= std::fabs(calculated-values[i].vega);
+        error= abs(calculated-values[i].vega);
         tolerance = values[i].tol;
 
         if (error>tolerance) {
@@ -350,7 +350,7 @@ void CompoundOptionTest::testValues(){
         }
 
         calculated = compoundOption.theta();
-        error= std::fabs(calculated-values[i].theta);
+        error= abs(calculated-values[i].theta);
         tolerance = values[i].tol;
 
         if (error>tolerance) {

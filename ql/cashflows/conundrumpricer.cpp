@@ -67,7 +67,7 @@ namespace QuantLib {
                                               Real deflator) const {
         const Real variance = smile_->variance(strike);
         return deflator * blackFormula(optionType, strike,
-            forwardValue_, std::sqrt(variance));
+            forwardValue_, sqrt(variance));
     }
 
 
@@ -113,7 +113,7 @@ namespace QuantLib {
             swapRateValue_ = swap->fairRate();
 
             static const Spread bp = 1.0e-4;
-            annuity_ = std::fabs(swap->fixedLegBPS()/bp);
+            annuity_ = abs(swap->fixedLegBPS()/bp);
 
             Size q = swapIndex->fixedLegTenor().frequency();
             const Schedule& schedule = swap->fixedSchedule();
@@ -163,14 +163,14 @@ namespace QuantLib {
         if (fixingDate_ <= today) {
             // the fixing is determined
             const Rate Rs =
-                std::max(coupon_->swapIndex()->fixing(fixingDate_)-effectiveCap, 0.);
+                max<Real>(coupon_->swapIndex()->fixing(fixingDate_)-effectiveCap, 0.);
             Rate price = (gearing_*Rs)*(coupon_->accrualPeriod()*discount_);
             return price;
         } else {
             Real cutoffNearZero = 1e-10;
             Real capletPrice = 0;
             if (effectiveCap < cutoffForCaplet_) {
-                Rate effectiveStrikeForMax = std::max(effectiveCap,cutoffNearZero);
+                Rate effectiveStrikeForMax = max(effectiveCap,cutoffNearZero);
                 capletPrice = optionletPrice(Option::Call, effectiveStrikeForMax);
             }
             return gearing_ * capletPrice;
@@ -187,14 +187,14 @@ namespace QuantLib {
         if (fixingDate_ <= today) {
             // the fixing is determined
             const Rate Rs =
-                std::max(effectiveFloor-coupon_->swapIndex()->fixing(fixingDate_),0.);
+                max<Real>(effectiveFloor-coupon_->swapIndex()->fixing(fixingDate_),0.);
             Rate price = (gearing_*Rs)*(coupon_->accrualPeriod()*discount_);
             return price;
         } else {
             Real cutoffNearZero = 1e-10;
             Real floorletPrice = 0;
             if (effectiveFloor > cutoffForFloorlet_){
-                Rate effectiveStrikeForMin = std::max(effectiveFloor,cutoffNearZero);
+                Rate effectiveStrikeForMin = max(effectiveFloor,cutoffNearZero);
                 floorletPrice=optionletPrice(Option::Put, effectiveStrikeForMin);
             }
             return gearing_ * floorletPrice;
@@ -286,14 +286,14 @@ namespace QuantLib {
                     upperBoundary *=2.0;
                 // sometimes b < a because of a wrong estimation of b based on stdev
                 if (b > a)
-                    upperBoundary = std::min(upperBoundary, b);
+                    upperBoundary = min(upperBoundary, b);
 
                 boost::function<Real (Real)> f;
                 GaussKronrodNonAdaptive
                     gaussKronrodNonAdaptive(precision_, 1000000, 1.0);
                 // if the integration intervall is wide enough we use the
                 // following change variable x -> a + (b-a)*(t/(a-b))^3
-                upperBoundary = std::max(a,std::min(upperBoundary, hardUpperLimit_));
+                upperBoundary = max(a,min(upperBoundary, hardUpperLimit_));
                 if (upperBoundary > 2*a){
                     Size k = 3;
                     boost::function<Real (Real)> temp = boost::ref(integrand);
@@ -308,12 +308,12 @@ namespace QuantLib {
                 // if the expected precision has not been reached we use the old algorithm
                 if (!gaussKronrodNonAdaptive.integrationSuccess()){
                     const GaussKronrodAdaptive integrator(precision_, 100000);
-                    b = std::max(a,std::min(b, hardUpperLimit_));
+                    b = max(a,min(b, hardUpperLimit_));
                     result = integrator(integrand,a , b);
                 }
 
             } else {   // if a < b we use the old algorithm
-                b = std::max(a,std::min(b,hardUpperLimit_));
+                b = max(a,min(b,hardUpperLimit_));
                 const GaussKronrodAdaptive integrator(precision_, 100000);
                 result = integrator(integrand,a , b);
             }
@@ -338,7 +338,7 @@ namespace QuantLib {
             integralValue = integrate(strike, upperLimit_, *integrand);
             //refineIntegration(integralValue, *integrand);
         } else {
-            a = std::min(strike, lowerLimit_);
+            a = min(strike, lowerLimit_);
             b = strike;
             integralValue = integrate(a, b, *integrand);
         }
@@ -372,7 +372,7 @@ namespace QuantLib {
     Real NumericHaganPricer::refineIntegration(Real integralValue,
                                                 const ConundrumIntegrand& integrand) const {
         Real percDiff = 1000.;
-        while(std::fabs(percDiff) < refiningIntegrationTolerance_){
+        while(abs(percDiff) < refiningIntegrationTolerance_){
             stdDeviationsForUpperLimit_ += 1.;
             Real lowerLimit = upperLimit_;
             upperLimit_ = resetUpperLimit(stdDeviationsForUpperLimit_);
@@ -389,7 +389,7 @@ namespace QuantLib {
         Real variance =
             swaptionVolatility()->blackVariance(fixingDate_,swapTenor_,swapRateValue_);
         return swapRateValue_ *
-            std::exp(stdDeviationsForUpperLimit*std::sqrt(variance));
+            exp(stdDeviationsForUpperLimit*sqrt(variance));
     }
 
 
@@ -478,8 +478,8 @@ namespace QuantLib {
 
         Real CK = (*vanillaOptionPricer_)(strike, optionType, annuity_);
         price += (discount_/annuity_)*CK;
-        const Real sqrtSigma2T = std::sqrt(variance);
-        const Real lnRoverK =  std::log(swapRateValue_/strike);
+        const Real sqrtSigma2T = sqrt(variance);
+        const Real lnRoverK =  log(swapRateValue_/strike);
         const Real d32 = (lnRoverK+1.5*variance)/sqrtSigma2T;
         const Real d12 =  (lnRoverK+.5*variance)/sqrtSigma2T;
         const Real dminus12 =  (lnRoverK-.5*variance)/sqrtSigma2T;
@@ -490,7 +490,7 @@ namespace QuantLib {
         const Real Nminus12 = cumulativeOfNormal(optionType*dminus12);
 
         price += optionType * firstDerivativeOfGAtForwardValue * annuity_ *
-            swapRateValue_ * (swapRateValue_ * std::exp(variance) * N32-
+            swapRateValue_ * (swapRateValue_ * exp(variance) * N32-
             (swapRateValue_+strike) * N12 + strike * Nminus12);
         price *= coupon_->accrualPeriod();
         return price;
@@ -514,7 +514,7 @@ namespace QuantLib {
             Real price = 0;
             price += discount_*swapRateValue_;
             price += firstDerivativeOfGAtForwardValue*annuity_*swapRateValue_*
-                     swapRateValue_*(std::exp(variance)-1.);
+                     swapRateValue_*(exp(variance)-1.);
             return gearing_ * price * coupon_->accrualPeriod() + spreadLegValue_;
         }
     }
@@ -526,19 +526,19 @@ namespace QuantLib {
 
     Real GFunctionFactory::GFunctionStandard::operator()(Real x) {
         Real n = static_cast<Real>(swapLength_) * q_;
-        return x / std::pow((1.0 + x/q_), delta_) * 1.0 /
-            (1.0 - 1.0 / std::pow((1.0 + x/q_), n));
+        return x / pow((1.0 + x/q_), delta_) * 1.0 /
+            (1.0 - 1.0 / pow((1.0 + x/q_), n));
     }
 
     Real GFunctionFactory::GFunctionStandard::firstDerivative(Real x) {
         Real n = static_cast<Real>(swapLength_) * q_;
         Real a = 1.0 + x / q_;
         Real AA = a - delta_/q_ * x;
-        Real B = std::pow(a,(n - delta_ - 1.0))/(std::pow(a,n) - 1.0);
+        Real B = pow(a,(n - delta_ - 1.0))/(pow(a,n) - 1.0);
 
-        Real secNum = n * x * std::pow(a,(n-1.0));
-        Real secDen = q_ * std::pow(a, delta_) * (std::pow(a, n) - 1.0) *
-            (std::pow(a, n) - 1.0);
+        Real secNum = n * x * pow(a,(n-1.0));
+        Real secDen = q_ * pow(a, delta_) * (pow(a, n) - 1.0) *
+            (pow(a, n) - 1.0);
         Real sec = secNum / secDen;
 
         return AA * B - sec;
@@ -549,20 +549,20 @@ namespace QuantLib {
         Real a = 1.0 + x/q_;
         Real AA = a - delta_/q_ * x;
         Real A1 = (1.0 - delta_)/q_;
-        Real B = std::pow(a,(n - delta_ - 1.0))/(std::pow(a,n) - 1.0);
-        Real Num = (1.0 + delta_ - n) * std::pow(a, (n-delta_-2.0)) -
-            (1.0 + delta_) * std::pow(a, (2.0*n-delta_-2.0));
-        Real Den = (std::pow(a, n) - 1.0) * (std::pow(a, n) - 1.0);
+        Real B = pow(a,(n - delta_ - 1.0))/(pow(a,n) - 1.0);
+        Real Num = (1.0 + delta_ - n) * pow(a, (n-delta_-2.0)) -
+            (1.0 + delta_) * pow(a, (2.0*n-delta_-2.0));
+        Real Den = (pow(a, n) - 1.0) * (pow(a, n) - 1.0);
         Real B1 = 1.0 / q_ * Num / Den;
 
-        Real C =  x / std::pow(a, delta_);
-        Real C1 = (std::pow(a, delta_)
-            - delta_ /q_ * x * std::pow(a, (delta_ - 1.0))) / std::pow(a, 2 * delta_);
+        Real C =  x / pow(a, delta_);
+        Real C1 = (pow(a, delta_)
+            - delta_ /q_ * x * pow(a, (delta_ - 1.0))) / pow(a, 2 * delta_);
 
-        Real D =  std::pow(a, (n-1.0))/ ((std::pow(a, n) - 1.0) * (std::pow(a, n) - 1.0));
-        Real D1 = ((n - 1.0) * std::pow(a, (n-2.0)) * (std::pow(a, n) - 1.0)
-            - 2 * n * std::pow(a, (2 * (n-1.0))))
-            / (q_ * (std::pow(a, n) - 1.0)*(std::pow(a, n) - 1.0)*(std::pow(a, n) - 1.0));
+        Real D =  pow(a, (n-1.0))/ ((pow(a, n) - 1.0) * (pow(a, n) - 1.0));
+        Real D1 = ((n - 1.0) * pow(a, (n-2.0)) * (pow(a, n) - 1.0)
+            - 2 * n * pow(a, (2 * (n-1.0))))
+            / (q_ * (pow(a, n) - 1.0)*(pow(a, n) - 1.0)*(pow(a, n) - 1.0));
 
         return A1 * B + AA * B1 - n/q_ * (C1 * D + C * D1);
     }
@@ -613,7 +613,7 @@ namespace QuantLib {
         for(Size i=0; i<accruals_.size(); i++) {
             product *= 1./(1.+ accruals_[i]*x);
         }
-        return x*std::pow(1.+ accruals_[0]*x,-delta_)*(1./(1.-product));
+        return x*pow(1.+ accruals_[0]*x,-delta_)*(1./(1.-product));
     }
 
     Real GFunctionFactory::GFunctionExactYield::firstDerivative(Real x) {
@@ -631,8 +631,8 @@ namespace QuantLib {
         c = 1./c;
         derC *= (c-c*c);
 
-        return -delta_*accruals_[0]*std::pow(b[0],delta_+1.)*x*c+
-                std::pow(b[0],delta_)*c+ std::pow(b[0],delta_)*x*derC;
+        return -delta_*accruals_[0]*pow(b[0],delta_+1.)*x*c+
+                pow(b[0],delta_)*c+ pow(b[0],delta_)*x*derC;
         //Real dx = 1.0e-8;
         //return (operator()(x+dx)-operator()(x-dx))/(2.0*dx);
     }
@@ -648,15 +648,15 @@ namespace QuantLib {
             b.push_back(temp);
             c *= temp;
             sum += accruals_[i]*temp;
-            sumOfSquare += std::pow(accruals_[i]*temp, 2.0);
+            sumOfSquare += pow(accruals_[i]*temp, 2.0);
         }
         c += 1.;
         c = 1./c;
         Real derC =sum*(c-c*c);
 
-        return (-delta_*accruals_[0]*std::pow(b[0],delta_+1.)*c+ std::pow(b[0],delta_)*derC)*
+        return (-delta_*accruals_[0]*pow(b[0],delta_+1.)*c+ pow(b[0],delta_)*derC)*
                (-delta_*accruals_[0]*b[0]*x + 1. + x*(1.-c)*sum)+
-                std::pow(b[0],delta_)*c*(delta_*std::pow(accruals_[0]*b[0],2.)*x - delta_* accruals_[0]*b[0] -
+                pow(b[0],delta_)*c*(delta_*pow(accruals_[0]*b[0],2.)*x - delta_* accruals_[0]*b[0] -
                 x*derC*sum + (1.-c)*sum - x*(1.-c)*sumOfSquare);
         //Real dx = 1.0e-8;
         //return (firstDerivative(x+dx)-firstDerivative(x-dx))/(2.0*dx);
@@ -709,7 +709,7 @@ namespace QuantLib {
                 boost::dynamic_pointer_cast<Coupon>(fixedLeg[i]);
             accruals_.push_back(coupon->accrualPeriod());
             const Date paymentDate(coupon->date());
-            const double swapPaymentTime(dc.yearFraction(rateCurve->referenceDate(), paymentDate));
+            const Real swapPaymentTime(dc.yearFraction(rateCurve->referenceDate(), paymentDate));
             shapedSwapPaymentTimes_.push_back(shapeOfShift(swapPaymentTime));
             swapPaymentDiscounts_.push_back(rateCurve->discount(paymentDate));
         }
@@ -722,8 +722,8 @@ namespace QuantLib {
     }
 
     Real GFunctionFactory::GFunctionWithShifts::functionZ(Real x) {
-        return std::exp(-shapedPaymentTime_*x)
-            / (1.-discountRatio_*std::exp(-shapedSwapPaymentTimes_.back()*x));
+        return exp(-shapedPaymentTime_*x)
+            / (1.-discountRatio_*exp(-shapedSwapPaymentTimes_.back()*x));
     }
 
     Real GFunctionFactory::GFunctionWithShifts::derRs_derX(Real x) {
@@ -731,16 +731,16 @@ namespace QuantLib {
         Real derSqrtDenominator = 0;
         for(Size i=0; i<accruals_.size(); i++) {
             sqrtDenominator += accruals_[i]*swapPaymentDiscounts_[i]
-                *std::exp(-shapedSwapPaymentTimes_[i]*x);
+                *exp(-shapedSwapPaymentTimes_[i]*x);
             derSqrtDenominator -= shapedSwapPaymentTimes_[i]* accruals_[i]*swapPaymentDiscounts_[i]
-                *std::exp(-shapedSwapPaymentTimes_[i]*x);
+                *exp(-shapedSwapPaymentTimes_[i]*x);
         }
         const Real denominator = sqrtDenominator* sqrtDenominator;
 
         Real numerator = 0;
         numerator += shapedSwapPaymentTimes_.back()* swapPaymentDiscounts_.back()*
-                     std::exp(-shapedSwapPaymentTimes_.back()*x)*sqrtDenominator;
-        numerator -= (discountAtStart_ - swapPaymentDiscounts_.back()* std::exp(-shapedSwapPaymentTimes_.back()*x))*
+                     exp(-shapedSwapPaymentTimes_.back()*x)*sqrtDenominator;
+        numerator -= (discountAtStart_ - swapPaymentDiscounts_.back()* exp(-shapedSwapPaymentTimes_.back()*x))*
                      derSqrtDenominator;
         QL_REQUIRE(denominator!=0, "GFunctionWithShifts::derRs_derX: denominator == 0");
         return numerator/denominator;
@@ -752,32 +752,32 @@ namespace QuantLib {
         Real der2DenOfRfunztion = 0.;
         for(Size i=0; i<accruals_.size(); i++) {
             denOfRfunztion += accruals_[i]*swapPaymentDiscounts_[i]
-                *std::exp(-shapedSwapPaymentTimes_[i]*x);
+                *exp(-shapedSwapPaymentTimes_[i]*x);
             derDenOfRfunztion -= shapedSwapPaymentTimes_[i]* accruals_[i]*swapPaymentDiscounts_[i]
-                *std::exp(-shapedSwapPaymentTimes_[i]*x);
+                *exp(-shapedSwapPaymentTimes_[i]*x);
             der2DenOfRfunztion+= shapedSwapPaymentTimes_[i]*shapedSwapPaymentTimes_[i]* accruals_[i]*
-                swapPaymentDiscounts_[i]*std::exp(-shapedSwapPaymentTimes_[i]*x);
+                swapPaymentDiscounts_[i]*exp(-shapedSwapPaymentTimes_[i]*x);
         }
 
-        const Real denominator = std::pow(denOfRfunztion, 4);
+        const Real denominator = pow(denOfRfunztion, 4);
 
         Real numOfDerR = 0;
         numOfDerR += shapedSwapPaymentTimes_.back()* swapPaymentDiscounts_.back()*
-                     std::exp(-shapedSwapPaymentTimes_.back()*x)*denOfRfunztion;
-        numOfDerR -= (discountAtStart_ - swapPaymentDiscounts_.back()* std::exp(-shapedSwapPaymentTimes_.back()*x))*
+                     exp(-shapedSwapPaymentTimes_.back()*x)*denOfRfunztion;
+        numOfDerR -= (discountAtStart_ - swapPaymentDiscounts_.back()* exp(-shapedSwapPaymentTimes_.back()*x))*
                      derDenOfRfunztion;
 
-        const Real denOfDerR = std::pow(denOfRfunztion,2);
+        const Real denOfDerR = pow(denOfRfunztion,2);
 
         Real derNumOfDerR = 0.;
         derNumOfDerR -= shapedSwapPaymentTimes_.back()*shapedSwapPaymentTimes_.back()* swapPaymentDiscounts_.back()*
-                     std::exp(-shapedSwapPaymentTimes_.back()*x)*denOfRfunztion;
+                     exp(-shapedSwapPaymentTimes_.back()*x)*denOfRfunztion;
         derNumOfDerR += shapedSwapPaymentTimes_.back()* swapPaymentDiscounts_.back()*
-                     std::exp(-shapedSwapPaymentTimes_.back()*x)*derDenOfRfunztion;
+                     exp(-shapedSwapPaymentTimes_.back()*x)*derDenOfRfunztion;
 
         derNumOfDerR -= (shapedSwapPaymentTimes_.back()*swapPaymentDiscounts_.back()*
-                        std::exp(-shapedSwapPaymentTimes_.back()*x))* derDenOfRfunztion;
-        derNumOfDerR -= (discountAtStart_ - swapPaymentDiscounts_.back()* std::exp(-shapedSwapPaymentTimes_.back()*x))*
+                        exp(-shapedSwapPaymentTimes_.back()*x))* derDenOfRfunztion;
+        derNumOfDerR -= (discountAtStart_ - swapPaymentDiscounts_.back()* exp(-shapedSwapPaymentTimes_.back()*x))*
                      der2DenOfRfunztion;
 
         const Real derDenOfDerR = 2*denOfRfunztion*derDenOfRfunztion;
@@ -788,34 +788,34 @@ namespace QuantLib {
     }
 
     Real GFunctionFactory::GFunctionWithShifts::derZ_derX(Real x) {
-        const Real sqrtDenominator = (1.-discountRatio_*std::exp(-shapedSwapPaymentTimes_.back()*x));
+        const Real sqrtDenominator = (1.-discountRatio_*exp(-shapedSwapPaymentTimes_.back()*x));
         const Real denominator = sqrtDenominator* sqrtDenominator;
         QL_REQUIRE(denominator!=0, "GFunctionWithShifts::derZ_derX: denominator == 0");
 
         Real numerator = 0;
-        numerator -= shapedPaymentTime_* std::exp(-shapedPaymentTime_*x)* sqrtDenominator;
-        numerator -= shapedSwapPaymentTimes_.back()* std::exp(-shapedPaymentTime_*x)* (1.-sqrtDenominator);
+        numerator -= shapedPaymentTime_* exp(-shapedPaymentTime_*x)* sqrtDenominator;
+        numerator -= shapedSwapPaymentTimes_.back()* exp(-shapedPaymentTime_*x)* (1.-sqrtDenominator);
 
         return numerator/denominator;
     }
 
     Real GFunctionFactory::GFunctionWithShifts::der2Z_derX2(Real x) {
-        const Real denOfZfunction = (1.-discountRatio_*std::exp(-shapedSwapPaymentTimes_.back()*x));
-        const Real derDenOfZfunction = shapedSwapPaymentTimes_.back()*discountRatio_*std::exp(-shapedSwapPaymentTimes_.back()*x);
-        const Real denominator = std::pow(denOfZfunction, 4);
+        const Real denOfZfunction = (1.-discountRatio_*exp(-shapedSwapPaymentTimes_.back()*x));
+        const Real derDenOfZfunction = shapedSwapPaymentTimes_.back()*discountRatio_*exp(-shapedSwapPaymentTimes_.back()*x);
+        const Real denominator = pow(denOfZfunction, 4);
         QL_REQUIRE(denominator!=0, "GFunctionWithShifts::der2Z_derX2: denominator == 0");
 
         Real numOfDerZ = 0;
-        numOfDerZ -= shapedPaymentTime_* std::exp(-shapedPaymentTime_*x)* denOfZfunction;
-        numOfDerZ -= shapedSwapPaymentTimes_.back()* std::exp(-shapedPaymentTime_*x)* (1.-denOfZfunction);
+        numOfDerZ -= shapedPaymentTime_* exp(-shapedPaymentTime_*x)* denOfZfunction;
+        numOfDerZ -= shapedSwapPaymentTimes_.back()* exp(-shapedPaymentTime_*x)* (1.-denOfZfunction);
 
-        const Real denOfDerZ = std::pow(denOfZfunction,2);
-        const Real derNumOfDerZ = (-shapedPaymentTime_* std::exp(-shapedPaymentTime_*x)*
+        const Real denOfDerZ = pow(denOfZfunction,2);
+        const Real derNumOfDerZ = (-shapedPaymentTime_* exp(-shapedPaymentTime_*x)*
                              (-shapedPaymentTime_+(shapedPaymentTime_*discountRatio_-
-                               shapedSwapPaymentTimes_.back()*discountRatio_)* std::exp(-shapedSwapPaymentTimes_.back()*x))
-                              -shapedSwapPaymentTimes_.back()*std::exp(-shapedPaymentTime_*x)*
+                               shapedSwapPaymentTimes_.back()*discountRatio_)* exp(-shapedSwapPaymentTimes_.back()*x))
+                              -shapedSwapPaymentTimes_.back()*exp(-shapedPaymentTime_*x)*
                               (shapedPaymentTime_*discountRatio_- shapedSwapPaymentTimes_.back()*discountRatio_)*
-                              std::exp(-shapedSwapPaymentTimes_.back()*x));
+                              exp(-shapedSwapPaymentTimes_.back()*x));
 
         const Real derDenOfDerZ = 2*denOfZfunction*derDenOfZfunction;
         const Real numerator = derNumOfDerZ*denOfDerZ -numOfDerZ*derDenOfDerZ;
@@ -835,9 +835,9 @@ namespace QuantLib {
         //return (firstDerivative(Rs+dRs)-firstDerivative(Rs-dRs))/(2.0*dRs);
         const Real calibratedShift = calibrationOfShift(Rs);
         return 2.*derZ_derX(calibratedShift)/derRs_derX(calibratedShift) +
-            Rs * der2Z_derX2(calibratedShift)/std::pow(derRs_derX(calibratedShift),2.)-
+            Rs * der2Z_derX2(calibratedShift)/pow(derRs_derX(calibratedShift),2.)-
             Rs * derZ_derX(calibratedShift)*der2Rs_derX2(calibratedShift)/
-            std::pow(derRs_derX(calibratedShift),3.);
+            pow(derRs_derX(calibratedShift),3.);
     }
 
     Real GFunctionFactory::GFunctionWithShifts::ObjectiveFunction::operator ()(const Real& x) const {
@@ -845,14 +845,14 @@ namespace QuantLib {
         derivative_ = 0;
         for(Size i=0; i<o_.accruals_.size(); i++) {
             Real temp = o_.accruals_[i]*o_.swapPaymentDiscounts_[i]
-                *std::exp(-o_.shapedSwapPaymentTimes_[i]*x);
+                *exp(-o_.shapedSwapPaymentTimes_[i]*x);
             result += temp;
             derivative_ -= o_.shapedSwapPaymentTimes_[i] * temp;
         }
         result *= Rs_;
         derivative_ *= Rs_;
         Real temp = o_.swapPaymentDiscounts_.back()
-            * std::exp(-o_.shapedSwapPaymentTimes_.back()*x);
+            * exp(-o_.shapedSwapPaymentTimes_.back()*x);
 
         result += temp-o_.discountAtStart_;
         derivative_ -= o_.shapedSwapPaymentTimes_.back()*temp;
@@ -871,7 +871,7 @@ namespace QuantLib {
         const Real x(s-swapStartTime_);
         Real meanReversion = meanReversion_->value();
         if(meanReversion>0) {
-            return (1.-std::exp(-meanReversion*x))/meanReversion;
+            return (1.-exp(-meanReversion*x))/meanReversion;
         }
         else {
             return x;
@@ -906,7 +906,7 @@ namespace QuantLib {
 
             try {
                 calibratedShift_ = solver.solve(*objectiveFunction_, accuracy_,
-                    std::max( std::min(initialGuess, upper*.99), lower*.99),
+                    max( min(initialGuess, upper*.99), lower*.99),
                     lower, upper);
             } catch (std::exception& e) {
                 QL_FAIL("meanReversion: " << meanReversion_->value() <<

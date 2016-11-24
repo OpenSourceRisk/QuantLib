@@ -29,9 +29,9 @@
 #include <ql/time/calendars/nullcalendar.hpp>
 #include <boost/make_shared.hpp>
 
-using std::pow;
-using std::log;
-using std::sqrt;
+// using pow;
+// using log;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -221,20 +221,20 @@ namespace QuantLib {
 
             //Analytical Black Scholes formula for vanilla option
             NormalDistribution norm;
-            Real d1atm = (std::log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/atmStrike) 
-                           + 0.5*std::pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
+            Real d1atm = (log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/atmStrike) 
+                           + 0.5*pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
             Real vegaAtm_Analytical = x0Quote->value() * norm(d1atm) * sqrt(T_) * foreignTS_->discount(T_);
             Real vannaAtm_Analytical = vegaAtm_Analytical/x0Quote->value() *(1.0 - d1atm/(atmVolQuote->value()*sqrt(T_)));
             Real volgaAtm_Analytical = vegaAtm_Analytical * d1atm * (d1atm - atmVolQuote->value() * sqrt(T_))/atmVolQuote->value();
 
-            Real d125call = (std::log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/call25Strike) 
-                           + 0.5*std::pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
+            Real d125call = (log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/call25Strike) 
+                           + 0.5*pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
             Real vega25Call_Analytical = x0Quote->value() * norm(d125call) * sqrt(T_) * foreignTS_->discount(T_);
             Real vanna25Call_Analytical = vega25Call_Analytical/x0Quote->value() *(1.0 - d125call/(atmVolQuote->value()*sqrt(T_)));
             Real volga25Call_Analytical = vega25Call_Analytical * d125call * (d125call - atmVolQuote->value() * sqrt(T_))/atmVolQuote->value();
 
-            Real d125Put = (std::log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/put25Strike) 
-                           + 0.5*std::pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
+            Real d125Put = (log(x0Quote->value()* foreignTS_->discount(T_)/ domesticTS_->discount(T_)/put25Strike) 
+                           + 0.5*pow(atmVolQuote->value(),2.0) * T_)/(atmVolQuote->value() * sqrt(T_));
             Real vega25Put_Analytical = x0Quote->value() * norm(d125Put) * sqrt(T_) * foreignTS_->discount(T_);
             Real vanna25Put_Analytical = vega25Put_Analytical/x0Quote->value() *(1.0 - d125Put/(atmVolQuote->value()*sqrt(T_)));
             Real volga25Put_Analytical = vega25Put_Analytical * d125Put * (d125Put - atmVolQuote->value() * sqrt(T_))/atmVolQuote->value();
@@ -318,7 +318,7 @@ namespace QuantLib {
 
             //touch probability
             CumulativeNormalDistribution cnd;
-            Real mu = domesticTS_->zeroRate(T_, Continuous) - foreignTS_->zeroRate(T_, Continuous) - pow(atmVol_->value(), 2.0)/2.0;
+            Real mu = domesticTS_->zeroRate(T_, Continuous).rate() - foreignTS_->zeroRate(T_, Continuous).rate() - pow(atmVol_->value(), 2.0)/2.0;
             Real h2 = (log(arguments_.barrier/x0Quote->value()) + mu*T_)/(atmVol_->value()*sqrt(T_));
             Real h2Prime = (log(x0Quote->value()/arguments_.barrier) + mu*T_)/(atmVol_->value()*sqrt(T_));
             Real probTouch = 0.0;
@@ -339,12 +339,12 @@ namespace QuantLib {
             if(adaptVanDelta_ == true){
                 outPrice += lambda*(bsPriceWithSmile_ - vanillaOption);
                 //capfloored by (0, vanilla)
-                outPrice = std::max(0.0, std::min(bsPriceWithSmile_, outPrice));
+                outPrice = max(Real(0.0), min(bsPriceWithSmile_, outPrice));
                 inPrice = bsPriceWithSmile_ - outPrice;
             }
             else{
                 //capfloored by (0, vanilla)
-                outPrice = std::max(0.0, std::min(vanillaOption , outPrice));
+                outPrice = max(Real(0.0), min(vanillaOption , outPrice));
                 inPrice = vanillaOption - outPrice;
             }
 

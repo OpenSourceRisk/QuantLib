@@ -72,7 +72,7 @@ namespace QuantLib {
         virtual Real maxStrike() const {return maxStrike_;}
         virtual Date maxDate() const {
             //FIXME approx
-            return optionDateFromTenor(Period((int)ceil(this->interpolation_.xMax()),Years));
+            return optionDateFromTenor(Period((int)ceil(VALUE(this->interpolation_.xMax())),Years));
         }
         //@}
 

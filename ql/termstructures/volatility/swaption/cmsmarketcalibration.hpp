@@ -73,19 +73,19 @@ namespace QuantLib {
         EndCriteria::Type endCriteria() { return endCriteria_; };
 
         static Real betaTransformInverse(Real beta) {
-            return std::sqrt(-std::log(beta));
+            return sqrt(-log(beta));
         }
         static Real betaTransformDirect(Real y) {
-            return std::max(
-                std::min(std::fabs(y) < 10.0 ? std::exp(-(y * y)) : 0.0,
-                         0.999999),
-                0.000001);
+            return max(
+                min(abs(y) < 10.0 ? exp(-(y * y)) : Real(0.0),
+                    Real(0.999999)),
+                Real(0.000001));
         }
         static Real reversionTransformInverse(Real reversion) {
             return reversion * reversion;
         }
         static Real reversionTransformDirect(Real y) {
-            return std::sqrt(y);
+            return sqrt(y);
         }
 
       private:

@@ -37,7 +37,7 @@
 #include <ql/currencies/europe.hpp>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 namespace {
 
@@ -116,7 +116,7 @@ void SwapTest::testFairRate() {
             boost::shared_ptr<VanillaSwap> swap =
                 vars.makeSwap(lengths[i],0.0,spreads[j]);
             swap = vars.makeSwap(lengths[i],swap->fairRate(),spreads[j]);
-            if (std::fabs(swap->NPV()) > 1.0e-10) {
+            if (abs(swap->NPV()) > 1.0e-10) {
                 BOOST_ERROR("recalculating with implied rate:\n"
                             << std::setprecision(2)
                             << "    length: " << lengths[i] << " years\n"
@@ -144,7 +144,7 @@ void SwapTest::testFairSpread() {
             boost::shared_ptr<VanillaSwap> swap =
                 vars.makeSwap(lengths[i],rates[j],0.0);
             swap = vars.makeSwap(lengths[i],rates[j],swap->fairSpread());
-            if (std::fabs(swap->NPV()) > 1.0e-10) {
+            if (abs(swap->NPV()) > 1.0e-10) {
                 BOOST_ERROR("recalculating with implied spread:\n"
                             << std::setprecision(2)
                             << "    length: " << lengths[i] << " years\n"
@@ -252,7 +252,7 @@ void SwapTest::testInArrears() {
                                              Following, false, dayCounter,
                                              vars.termStructure));
     Rate oneYear = 0.05;
-    Rate r = std::log(1.0+oneYear);
+    Rate r = log(1.0+oneYear);
     vars.termStructure.linkTo(flatRate(vars.today,r,dayCounter));
 
 
@@ -289,7 +289,7 @@ void SwapTest::testInArrears() {
     Decimal storedValue = -144813.0;
     Real tolerance = 1.0;
 
-    if (std::fabs(swap.NPV()-storedValue) > tolerance)
+    if (abs(swap.NPV()-storedValue) > tolerance)
         BOOST_ERROR("Wrong NPV calculation:\n"
                     << "    expected:   " << storedValue << "\n"
                     << "    calculated: " << swap.NPV());
@@ -314,7 +314,7 @@ void SwapTest::testCachedValue() {
     Real cachedNPV   = -5.872342992212;
     #endif
 
-    if (std::fabs(swap->NPV()-cachedNPV) > 1.0e-11)
+    if (abs(swap->NPV()-cachedNPV) > 1.0e-11)
         BOOST_ERROR("failed to reproduce cached swap value:\n"
                     << QL_FIXED << std::setprecision(12)
                     << "    calculated: " << swap->NPV() << "\n"
@@ -322,8 +322,8 @@ void SwapTest::testCachedValue() {
 }
 
 
-test_suite* SwapTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Swap tests");
+boost::unit_test_framework::test_suite* SwapTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Swap tests");
     suite->add(QUANTLIB_TEST_CASE(&SwapTest::testFairRate));
     suite->add(QUANTLIB_TEST_CASE(&SwapTest::testFairSpread));
     suite->add(QUANTLIB_TEST_CASE(&SwapTest::testRateDependency));

@@ -540,7 +540,7 @@ namespace QuantLib {
                     Real dAv = bAv*bAv - 4.0*aAv*cAv;
                     if (dAv >= 0.0) {
                         splitRegion_ = true;
-                        Real avRoot = (-bAv - std::sqrt(dAv))/(2*aAv);
+                        Real avRoot = (-bAv - sqrt(dAv))/(2*aAv);
 
                         xRatio_ = fAverage_ / avRoot;
                         xScaling_ *= xRatio_;
@@ -651,8 +651,8 @@ namespace QuantLib {
                 Real gPrev = f[i-1] - this->yBegin_[i];
                 Real gNext = f[i] - this->yBegin_[i];
                 //first deal with the zero gradient case
-                if ( std::fabs(gPrev) < 1.0E-14
-                     && std::fabs(gNext) < 1.0E-14 ) {
+                if ( abs(gPrev) < 1.0E-14
+                     && abs(gNext) < 1.0E-14 ) {
                     boost::shared_ptr<SectionHelper> singleHelper(
                                      new ConstantGradHelper(f[i-1], primitive,
                                                             this->xBegin_[i-1],

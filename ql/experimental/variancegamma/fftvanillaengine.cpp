@@ -63,9 +63,9 @@ namespace QuantLib {
 
         Real s = process_->x0();
 
-        std::complex<Real> phi = std::exp(i1 * u * (std::log(s) - (var_ * t_) / 2.0) 
-            - (var_ * u * u * t_) / 2.0); 
-        phi = phi * std::pow(dividendDiscount_/ riskFreeDiscount_, i1 * u);
+        std::complex<Real> phi = exp(i1 * u * (log(s) - (var_ * t_) / 2.0) 
+                                     - (var_ * u * u * t_) / Real(2.0)); 
+        phi = phi * pow(std::complex<Real>(dividendDiscount_/ riskFreeDiscount_,0.0), i1 * u);
         return phi;
     }
 

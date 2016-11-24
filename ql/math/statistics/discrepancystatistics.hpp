@@ -69,7 +69,7 @@ namespace QuantLib {
                     r_ik = stats_[k].data()[m].first;
                     // fixed j=N
                     r_jk = *it;
-                    temp *= (1.0 - std::max(r_ik, r_jk));
+                    temp *= (1.0 - CppAD::max(r_ik, r_jk)); // PC AD TODO resolve this
                 }
                 adiscr_ += temp;
 
@@ -79,7 +79,7 @@ namespace QuantLib {
                     r_ik = *it;
                     // running j=1..(N-1)
                     r_jk = stats_[k].data()[m].first;
-                    temp *= (1.0 - std::max(r_ik, r_jk));
+                    temp *= (1.0 - CppAD::max(r_ik, r_jk)); // PC AD TODO resolve this
                 }
                 adiscr_ += temp;
             }
@@ -87,7 +87,7 @@ namespace QuantLib {
             for (k=0, it=begin; k<dimension_; ++it, ++k) {
                 // fixed i=N, j=N
                 r_ik = r_jk = *it;
-                temp *= (1.0 - std::max(r_ik, r_jk));
+                temp *= (1.0 - CppAD::max(r_ik, r_jk)); // PC AD TODO resolve this
             }
             adiscr_ += temp;
         }
@@ -114,9 +114,9 @@ namespace QuantLib {
         SequenceStatistics::reset(dimension);
 
         adiscr_ = 0.0;
-        bdiscr_ = 1.0/std::pow(2.0, Integer(dimension-1));
+        bdiscr_ = 1.0/pow(2.0, Integer(dimension-1));
         cdiscr_ = 0.0;
-        ddiscr_ = 1.0/std::pow(3.0, Integer(dimension));
+        ddiscr_ = 1.0/pow(3.0, Integer(dimension));
     }
 
 }

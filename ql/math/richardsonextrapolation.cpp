@@ -34,8 +34,8 @@ namespace QuantLib {
             : fdelta_h_(fh), ft_(ft), fs_(fs), t_(t), s_(s) { }
 
             Real operator()(Real k) const {
-                return      ft_ + (ft_-fdelta_h_)/(std::pow(t_, k)-1.0)
-                        - ( fs_ + (fs_-fdelta_h_)/(std::pow(s_, k)-1.0));
+                return      ft_ + (ft_-fdelta_h_)/(pow(t_, k)-1.0)
+                        - ( fs_ + (fs_-fdelta_h_)/(pow(s_, k)-1.0));
             }
           private:
             const Real fdelta_h_, ft_, fs_, t_, s_;
@@ -57,7 +57,7 @@ namespace QuantLib {
         QL_REQUIRE(t > 1, "scaling factor must be greater than 1");
         QL_REQUIRE(n_ != Null<Real>(), "order of convergence must be known");
 
-        const Real tk = std::pow(t, n_);
+        const Real tk = pow(t, n_);
 
         return (tk*f_(delta_h_/t)-fdelta_h_)/(tk-1.0);
     }
@@ -73,7 +73,7 @@ namespace QuantLib {
         const Real k = Brent().solve(RichardsonEqn(fdelta_h_, ft, fs, t, s),
                                      1e-8, 0.05, 10);
 
-        const Real ts = std::pow(s, k);
+        const Real ts = pow(s, k);
 
         return (ts*fs-fdelta_h_)/(ts-1.0);
     }

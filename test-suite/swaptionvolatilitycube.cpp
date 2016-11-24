@@ -64,7 +64,7 @@ namespace {
                 Volatility actVol = volCube.volatility(atm.tenors.options[i],
                                                        atm.tenors.swaps[j],
                                                        strike, true);
-                Volatility error = std::abs(expVol-actVol);
+                Volatility error = abs(expVol-actVol);
                 if (error>tolerance)
                   BOOST_ERROR("\nrecovery of atm vols failed:"
                               "\nexpiry time = " << atm.tenors.options[i] <<
@@ -97,7 +97,7 @@ namespace {
                   Volatility spread = vol-atmVol;
                   Volatility expVolSpread =
                       cube.volSpreads[i*cube.tenors.swaps.size()+j][k];
-                  Volatility error = std::abs(expVolSpread-spread);
+                  Volatility error = abs(expVolSpread-spread);
                   if (error>tolerance)
                       BOOST_FAIL("\nrecovery of smile vol spreads failed:"
                                  "\n    option tenor = " << cube.tenors.options[i] <<
@@ -275,7 +275,7 @@ void SwaptionVolatilityCubeTest::testSpreadedCube() {
                 Real strike = strikes[k];
                 Real diff = spreadedVolCube->volatility(vars.cube.tenors.options[i], vars.cube.tenors.swaps[j], strike)
                             - volCube->volatility(vars.cube.tenors.options[i], vars.cube.tenors.swaps[j], strike);
-                if (std::fabs(diff-spread->value())>1e-16)
+                if (abs(diff-spread->value())>1e-16)
                     BOOST_ERROR("\ndiff!=spread in volatility method:"
                                 "\nexpiry time = " << vars.cube.tenors.options[i] <<
                                 "\nswap length = " << vars.cube.tenors.swaps[j] <<
@@ -285,7 +285,7 @@ void SwaptionVolatilityCubeTest::testSpreadedCube() {
 
                 diff = smileSectionBySpreadedCube->volatility(strike)
                        - smileSectionByCube->volatility(strike);
-                if (std::fabs(diff-spread->value())>1e-16)
+                if (abs(diff-spread->value())>1e-16)
                     BOOST_ERROR("\ndiff!=spread in smile section method:"
                                 "\nexpiry time = " << vars.cube.tenors.options[i] <<
                                 "\nswap length = " << vars.cube.tenors.swaps[j] <<
@@ -377,14 +377,14 @@ void SwaptionVolatilityCubeTest::testObservability() {
                                                        vars.cube.tenors.swaps[j],
                                                        dummyStrike + vars.cube.strikeSpreads[k],
                                                        false);
-                if (std::fabs(v0 - v1) > 1e-14)
+                if (abs(v0 - v1) > 1e-14)
                     BOOST_ERROR(description <<
                                 " option tenor = " << vars.cube.tenors.options[i] <<
                                 " swap tenor = " << vars.cube.tenors.swaps[j] <<
                                 " strike = " << io::rate(dummyStrike+vars.cube.strikeSpreads[k])<<
                                 "  v0 = " << io::volatility(v0) <<
                                 "  v1 = " << io::volatility(v1) <<
-                                "  error = " << std::fabs(v1-v0));
+                                "  error = " << abs(v1-v0));
             }
         }
     }
@@ -427,14 +427,14 @@ void SwaptionVolatilityCubeTest::testObservability() {
                                                        vars.cube.tenors.swaps[j],
                                                        dummyStrike + vars.cube.strikeSpreads[k],
                                                        false);
-                if (std::fabs(v0 - v1) > 1e-14)
+                if (abs(v0 - v1) > 1e-14)
                     BOOST_ERROR(description <<
                                 " option tenor = " << vars.cube.tenors.options[i] <<
                                 " swap tenor = " << vars.cube.tenors.swaps[j] <<
                                 " strike = " << io::rate(dummyStrike+vars.cube.strikeSpreads[k])<<
                                 "  v0 = " << io::volatility(v0) <<
                                 "  v1 = " << io::volatility(v1) <<
-                                "  error = " << std::fabs(v1-v0));
+                                "  error = " << abs(v1-v0));
             }
         }
     }

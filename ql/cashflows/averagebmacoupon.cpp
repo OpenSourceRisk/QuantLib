@@ -51,7 +51,7 @@ namespace QuantLib {
                 QL_REQUIRE (index->valueDate(fixingDates.back()) >= endDate,
                             "last fixing date valid before period end");
 
-                Rate avgBMA = 0.0;
+                Rate avgBMA = Real(0.0);
                 Integer days = 0;
                 for (Size i=0; i<fixingDates.size() - 1; ++i) {
                     Date valueDate = index->valueDate(fixingDates[i]);
@@ -238,7 +238,7 @@ namespace QuantLib {
                                  start, end,
                                  index_,
                                  detail::get(gearings_, i, 1.0),
-                                 detail::get(spreads_, i, 0.0),
+                                 detail::get(spreads_, i, Real(0.0)),
                                  refStart, refEnd,
                                  paymentDayCounter_)));
         }

@@ -51,7 +51,7 @@
 #include <boost/make_shared.hpp>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 void RiskNeutralDensityCalculatorTest::testDensityAgainstOptionPrices() {
     BOOST_TEST_MESSAGE("Testing density against option prices...");
@@ -84,22 +84,22 @@ void RiskNeutralDensityCalculatorTest::testDensityAgainstOptionPrices() {
 
     for (Size i=0; i < LENGTH(times); ++i) {
         const Time t = times[i];
-        const Volatility stdDev = v*std::sqrt(t);
+        const Volatility stdDev = v*sqrt(t);
         const DiscountFactor df = rTS->discount(t);
         const Real fwd = s0*qTS->discount(t)/df;
 
         for (Size j=0; j < LENGTH(strikes); ++j) {
             const Real strike = strikes[j];
-            const Real xs = std::log(strike);
+            const Real xs = log(strike);
             const BlackCalculator blackCalc(
                 Option::Put, strike, fwd, stdDev, df);
 
-            const Real tol = std::sqrt(QL_EPSILON);
+            const Real tol = sqrt(QL_EPSILON);
             const Real calculatedCDF = bsm.cdf(xs, t);
             const Real expectedCDF
                 = blackCalc.strikeSensitivity()/df;
 
-            if (std::fabs(calculatedCDF - expectedCDF) > tol) {
+            if (abs(calculatedCDF - expectedCDF) > tol) {
                 BOOST_FAIL("failed to reproduce Black-Scholes-Merton cdf"
                         << "\n   calculated: " << calculatedCDF
                         << "\n   expected:   " << expectedCDF
@@ -107,7 +107,7 @@ void RiskNeutralDensityCalculatorTest::testDensityAgainstOptionPrices() {
                         << "\n   tol:        " << tol);
             }
 
-            const Real deltaStrike = strike*std::sqrt(QL_EPSILON);
+            const Real deltaStrike = strike*sqrt(QL_EPSILON);
 
             const Real calculatedPDF = bsm.pdf(xs, t);
             const Real expectedPDF = strike/df*
@@ -116,7 +116,7 @@ void RiskNeutralDensityCalculatorTest::testDensityAgainstOptionPrices() {
                  - BlackCalculator(Option::Put, strike - deltaStrike,
                          fwd, stdDev, df).strikeSensitivity())/(2*deltaStrike);
 
-            if (std::fabs(calculatedPDF - expectedPDF) > tol) {
+            if (abs(calculatedPDF - expectedPDF) > tol) {
                 BOOST_FAIL("failed to reproduce Black-Scholes-Merton pdf"
                         << "\n   calculated: " << calculatedPDF
                         << "\n   expected:   " << expectedPDF
@@ -173,13 +173,13 @@ void RiskNeutralDensityCalculatorTest::testBSMagainstHestonRND() {
 
         for (Size j=0; j < LENGTH(strikes); ++j) {
             const Real strike = strikes[j];
-            const Real xs = std::log(strike);
+            const Real xs = log(strike);
 
             const Real expectedPDF = bsm.pdf(xs, t);
             const Real calculatedPDF = heston.pdf(xs, t);
 
             const Real tol = 1e-4;
-            if (std::fabs(expectedPDF - calculatedPDF) > tol) {
+            if (abs(expectedPDF - calculatedPDF) > tol) {
                 BOOST_FAIL("failed to reproduce Black-Scholes-Merton pdf "
                            "with the Heston model"
                         << "\n   calculated: " << calculatedPDF
@@ -191,7 +191,7 @@ void RiskNeutralDensityCalculatorTest::testBSMagainstHestonRND() {
             const Real expectedCDF = bsm.cdf(xs, t);
             const Real calculatedCDF = heston.cdf(xs, t);
 
-            if (std::fabs(expectedCDF - calculatedCDF) > tol) {
+            if (abs(expectedCDF - calculatedCDF) > tol) {
                 BOOST_FAIL("failed to reproduce Black-Scholes-Merton cdf "
                            "with the Heston model"
                         << "\n   calculated: " << calculatedCDF
@@ -207,7 +207,7 @@ void RiskNeutralDensityCalculatorTest::testBSMagainstHestonRND() {
             const Real calculatedInvCDF = heston.invcdf(prob, t);
 
             const Real tol = 1e-3;
-            if (std::fabs(expectedInvCDF - calculatedInvCDF) > tol) {
+            if (abs(expectedInvCDF - calculatedInvCDF) > tol) {
                 BOOST_FAIL("failed to reproduce Black-Scholes-Merton "
                         "inverse cdf with the Heston model"
                         << "\n   calculated: " << calculatedInvCDF
@@ -246,7 +246,7 @@ namespace {
                 return b1_;
 
             const Real fwd = spot_->value()*qTS_->discount(t)/rTS_->discount(t);
-            const Real mn = std::log(fwd/strike)/std::sqrt(t);
+            const Real mn = log(fwd/strike)/sqrt(t);
 
             return b1_ + b2_*mn + b3_*mn*mn + b4_*t + b5_*mn*t;
         }
@@ -267,7 +267,7 @@ namespace {
       : t_(t), payoff_(payoff), calc_(calc) {}
 
         Real operator()(Real x) const {
-            return calc_->pdf(x, t_) * (*payoff_)(std::exp(x));
+            return calc_->pdf(x, t_) * (*payoff_)(exp(x));
         }
 
       private:
@@ -284,8 +284,8 @@ namespace {
         Time t=0.0;
         std::vector<Time> times(1, t);
         while (t < endTime) {
-            const Time dt = maxDt*std::exp(-decay*t)
-                          + minDt*(1.0-std::exp(-decay*t));
+            const Time dt = maxDt*exp(-decay*t)
+                          + minDt*(1.0-exp(-decay*t));
             t+=dt;
             times.push_back(std::min(endTime, t));
         }
@@ -328,9 +328,9 @@ void RiskNeutralDensityCalculatorTest::testLocalVolatilityRND() {
 
     const Real rTol = 0.01, atol = 0.005;
     for (Time t=0.1; t < 0.99; t+=0.015) {
-        const Volatility stdDev = v * std::sqrt(t);
+        const Volatility stdDev = v * sqrt(t);
         const Real xm = - 0.5 * stdDev * stdDev +
-            std::log(s0 * qTS->discount(t)/rTS->discount(t));
+            log(s0 * qTS->discount(t)/rTS->discount(t));
 
         const GaussianDistribution gaussianPDF(xm, stdDev);
         const CumulativeNormalDistribution gaussianCDF(xm, stdDev);
@@ -339,12 +339,12 @@ void RiskNeutralDensityCalculatorTest::testLocalVolatilityRND() {
         for (Real x = xm - 3*stdDev; x < xm + 3*stdDev; x+=0.05) {
             const Real expectedPDF = gaussianPDF(x);
             const Real calculatedPDF = constVolCalc->pdf(x, t);
-            const Real absDiffPDF = std::fabs(expectedPDF - calculatedPDF);
+            const Real absDiffPDF = abs(expectedPDF - calculatedPDF);
 
             if (absDiffPDF > atol || absDiffPDF/expectedPDF > rTol) {
                 BOOST_FAIL("failed to reproduce forward probability density"
                         << "\n   time:       " << t
-                        << "\n   spot        " << std::exp(x)
+                        << "\n   spot        " << exp(x)
                         << "\n   calculated: " << calculatedPDF
                         << "\n   expected:   " << expectedPDF
                         << "\n   abs diff:   " << absDiffPDF
@@ -355,13 +355,13 @@ void RiskNeutralDensityCalculatorTest::testLocalVolatilityRND() {
 
             const Real expectedCDF =  gaussianCDF(x);
             const Real calculatedCDF = constVolCalc->cdf(x, t);
-            const Real absDiffCDF = std::fabs(expectedCDF - calculatedCDF);
+            const Real absDiffCDF = abs(expectedCDF - calculatedCDF);
 
             if (absDiffCDF > atol) {
                 BOOST_FAIL("failed to reproduce forward "
                         "cumulative probability density"
                         << "\n   time:       " << t
-                        << "\n   spot        " << std::exp(x)
+                        << "\n   spot        " << exp(x)
                         << "\n   calculated: " << calculatedCDF
                         << "\n   expected:   " << expectedCDF
                         << "\n   abs diff:   " << absDiffCDF
@@ -370,13 +370,13 @@ void RiskNeutralDensityCalculatorTest::testLocalVolatilityRND() {
 
             const Real expectedX = x;
             const Real calculatedX = constVolCalc->invcdf(expectedCDF, t);
-            const Real absDiffX = std::fabs(expectedX - calculatedX);
+            const Real absDiffX = abs(expectedX - calculatedX);
 
             if (absDiffX > atol || absDiffX/expectedX > rTol) {
                 BOOST_FAIL("failed to reproduce "
                         "inverse cumulative probability density"
                         << "\n   time:       " << t
-                        << "\n   spot        " << std::exp(x)
+                        << "\n   spot        " << exp(x)
                         << "\n   calculated: " << calculatedX
                         << "\n   expected:   " << expectedX
                         << "\n   abs diff:   " << absDiffX
@@ -441,7 +441,7 @@ void RiskNeutralDensityCalculatorTest::testLocalVolatilityRND() {
 
         const boost::shared_ptr<PricingEngine> engine(
             new FdBlackScholesVanillaEngine(
-                bsmProcess, std::max(Size(51), Size(expiry*101)),
+                bsmProcess, std::max(Size(51), Size(VALUE(expiry*101))),
                 201, 0, FdmSchemeDesc::Douglas(), true, b1));
 
         const boost::shared_ptr<Exercise> exercise(
@@ -469,7 +469,7 @@ void RiskNeutralDensityCalculatorTest::testLocalVolatilityRND() {
             const Real calculated =    GaussLobattoIntegral(10000, 1e-10)(
                 probWeightedPayoff, x.front(), x.back()) * df;
 
-            const Real absDiff = std::fabs(expected - calculated);
+            const Real absDiff = abs(expected - calculated);
 
             if (absDiff > 0.5*atol) {
                 BOOST_ERROR("failed to reproduce option prices for"
@@ -511,7 +511,7 @@ void RiskNeutralDensityCalculatorTest::testSquareRootProcessRND() {
                 boost::bind(&SquareRootProcessRNDCalculator::pdf,
                     &rndCalculator, _1, t), 0, v);
 
-            if (std::fabs(cdfCalculated - cdfExpected) > tol) {
+            if (abs(cdfCalculated - cdfExpected) > tol) {
                 BOOST_FAIL("failed to calculate cdf"
                         << "\n   t:          " << t
                         << "\n   v:          " << v
@@ -524,7 +524,7 @@ void RiskNeutralDensityCalculatorTest::testSquareRootProcessRND() {
             if (cdfExpected < (1-1e-6) && cdfExpected > 1e-6) {
                 const Real vCalculated = rndCalculator.invcdf(cdfCalculated, t);
 
-                if (std::fabs(v - vCalculated) > tol) {
+                if (abs(v - vCalculated) > tol) {
                     BOOST_FAIL("failed to calculate round trip cdf <-> invcdf"
                             << "\n   t:          " << t
                             << "\n   v:          " << v
@@ -538,7 +538,7 @@ void RiskNeutralDensityCalculatorTest::testSquareRootProcessRND() {
             const Real statPdfCalculated = rndCalculator.pdf(v, tInfty);
             const Real statPdfExpected = rndCalculator.stationary_pdf(v);
 
-            if (std::fabs(statPdfCalculated - statPdfExpected) > tol) {
+            if (abs(statPdfCalculated - statPdfExpected) > tol) {
                 BOOST_FAIL("failed to calculate stationary pdf"
                         << "\n   v:          " << v
                         << "\n   calculated: " << statPdfCalculated
@@ -550,7 +550,7 @@ void RiskNeutralDensityCalculatorTest::testSquareRootProcessRND() {
             const Real statCdfCalculated = rndCalculator.cdf(v, tInfty);
             const Real statCdfExpected = rndCalculator.stationary_cdf(v);
 
-            if (std::fabs(statCdfCalculated - statCdfExpected) > tol) {
+            if (abs(statCdfCalculated - statCdfExpected) > tol) {
                 BOOST_FAIL("failed to calculate stationary cdf"
                         << "\n   v:          " << v
                         << "\n   calculated: " << statCdfCalculated
@@ -564,7 +564,7 @@ void RiskNeutralDensityCalculatorTest::testSquareRootProcessRND() {
             const Real statInvCdfCalculated = rndCalculator.invcdf(q, tInfty);
             const Real statInvCdfExpected = rndCalculator.stationary_invcdf(q);
 
-            if (std::fabs(statInvCdfCalculated - statInvCdfExpected) > tol) {
+            if (abs(statInvCdfCalculated - statInvCdfExpected) > tol) {
                 BOOST_FAIL("failed to calculate stationary inverse of cdf"
                         << "\n   q:          " << q
                         << "\n   calculated: " << statInvCdfCalculated
@@ -577,8 +577,8 @@ void RiskNeutralDensityCalculatorTest::testSquareRootProcessRND() {
 }
 
 
-test_suite* RiskNeutralDensityCalculatorTest::experimental() {
-    test_suite* suite = BOOST_TEST_SUITE("Risk neutral density calculator tests");
+boost::unit_test_framework::test_suite* RiskNeutralDensityCalculatorTest::experimental() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Risk neutral density calculator tests");
 
     suite->add(QUANTLIB_TEST_CASE(
         &RiskNeutralDensityCalculatorTest::testDensityAgainstOptionPrices));

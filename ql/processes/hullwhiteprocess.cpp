@@ -36,7 +36,7 @@ namespace QuantLib {
     }
 
     Real HullWhiteProcess::drift(Time t, Real x) const {
-        Real alpha_drift = sigma_*sigma_/(2*a_)*(1-std::exp(-2*a_*t));
+        Real alpha_drift = sigma_*sigma_/(2*a_)*(1-exp(-2*a_*t));
         Real shift = 0.0001;
         Real f = h_->forwardRate(t, t, Continuous, NoFrequency);
         Real fup = h_->forwardRate(t+shift, t+shift, Continuous, NoFrequency);
@@ -51,7 +51,7 @@ namespace QuantLib {
 
     Real HullWhiteProcess::expectation(Time t0, Real x0, Time dt) const {
         return process_->expectation(t0, x0, dt)
-             + alpha(t0 + dt) - alpha(t0)*std::exp(-a_*dt);
+             + alpha(t0 + dt) - alpha(t0)*exp(-a_*dt);
     }
 
     Real HullWhiteProcess::stdDeviation(Time t0, Real x0, Time dt) const{
@@ -64,7 +64,7 @@ namespace QuantLib {
 
     Real HullWhiteProcess::alpha(Time t) const {
         Real alfa = a_ > QL_EPSILON ?
-                    (sigma_/a_)*(1 - std::exp(-a_*t)) :
+                    (sigma_/a_)*(1 - exp(-a_*t)) :
                     sigma_*t;
         alfa *= 0.5*alfa;
         alfa += h_->forwardRate(t, t, Continuous, NoFrequency);
@@ -92,7 +92,7 @@ namespace QuantLib {
     }
 
     Real HullWhiteForwardProcess::drift(Time t, Real x) const {
-        Real alpha_drift = sigma_*sigma_/(2*a_)*(1-std::exp(-2*a_*t));
+        Real alpha_drift = sigma_*sigma_/(2*a_)*(1-exp(-2*a_*t));
         Real shift = 0.0001;
         Real f = h_->forwardRate(t, t, Continuous, NoFrequency);
         Real fup = h_->forwardRate(t+shift, t+shift, Continuous, NoFrequency);
@@ -108,7 +108,7 @@ namespace QuantLib {
     Real HullWhiteForwardProcess::expectation(Time t0, Real x0,
                                               Time dt) const {
         return process_->expectation(t0, x0, dt)
-             + alpha(t0 + dt) - alpha(t0)*std::exp(-a_*dt)
+             + alpha(t0 + dt) - alpha(t0)*exp(-a_*dt)
              - M_T(t0, t0+dt, T_);
     }
 
@@ -123,7 +123,7 @@ namespace QuantLib {
 
     Real HullWhiteForwardProcess::alpha(Time t) const {
         Real alfa = a_ > QL_EPSILON ?
-                    (sigma_/a_)*(1 - std::exp(-a_*t)) :
+                    (sigma_/a_)*(1 - exp(-a_*t)) :
                     sigma_*t;
         alfa *= 0.5*alfa;
         alfa += h_->forwardRate(t, t, Continuous, NoFrequency);
@@ -134,9 +134,9 @@ namespace QuantLib {
     Real HullWhiteForwardProcess::M_T(Real s, Real t, Real T) const {
         if (a_ > QL_EPSILON) {
             Real coeff = (sigma_*sigma_)/(a_*a_);
-            Real exp1 = std::exp(-a_*(t-s));
-            Real exp2 = std::exp(-a_*(T-t));
-            Real exp3 = std::exp(-a_*(T+t-2.0*s));
+            Real exp1 = exp(-a_*(t-s));
+            Real exp2 = exp(-a_*(T-t));
+            Real exp3 = exp(-a_*(T+t-2.0*s));
             return coeff*(1-exp1)-0.5*coeff*(exp2-exp3);
         } else {
             // low-a algebraic limit
@@ -147,7 +147,7 @@ namespace QuantLib {
 
     Real HullWhiteForwardProcess::B(Time t, Time T) const {
         return a_ > QL_EPSILON ?
-               1/a_ * (1-std::exp(-a_*(T-t))) :
+               1/a_ * (1-exp(-a_*(T-t))) :
                T-t;
     }
 

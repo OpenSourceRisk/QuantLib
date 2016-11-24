@@ -152,7 +152,7 @@ namespace QuantLib {
     }
 
     Volatility FixedLocalVolSurface::localVolImpl(Time t, Real strike) const {
-        t = std::min(times_.back(), std::max(t, times_.front()));
+        t = min(times_.back(), max(t, times_.front()));
 
         const Size idx = std::distance(times_.begin(),
             std::lower_bound(times_.begin(), times_.end(), t));

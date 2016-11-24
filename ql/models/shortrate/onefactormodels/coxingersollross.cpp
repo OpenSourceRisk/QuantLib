@@ -63,17 +63,17 @@ namespace QuantLib {
 
     Real CoxIngersollRoss::A(Time t, Time T) const {
         Real sigma2 = sigma()*sigma();
-        Real h = std::sqrt(k()*k() + 2.0*sigma2);
-        Real numerator = 2.0*h*std::exp(0.5*(k()+h)*(T-t));
-        Real denominator = 2.0*h + (k()+h)*(std::exp((T-t)*h) - 1.0);
-        Real value = std::log(numerator/denominator)*
+        Real h = sqrt(k()*k() + 2.0*sigma2);
+        Real numerator = 2.0*h*exp(0.5*(k()+h)*(T-t));
+        Real denominator = 2.0*h + (k()+h)*(exp((T-t)*h) - 1.0);
+        Real value = log(numerator/denominator)*
             2.0*k()*theta()/sigma2;
-        return std::exp(value);
+        return exp(value);
     }
 
     Real CoxIngersollRoss::B(Time t, Time T) const {
-        Real h = std::sqrt(k()*k() + 2.0*sigma()*sigma());
-        Real temp = std::exp((T-t)*h) - 1.0;
+        Real h = sqrt(k()*k() + 2.0*sigma()*sigma());
+        Real temp = exp((T-t)*h) - 1.0;
         Real numerator = 2.0*temp;
         Real denominator = 2.0*h + (k()+h)*temp;
         Real value = numerator/denominator;
@@ -91,28 +91,28 @@ namespace QuantLib {
         if (t < QL_EPSILON) {
             switch(type) {
               case Option::Call:
-                return std::max<Real>(discountS - strike, 0.0);
+                return max<Real>(discountS - strike, 0.0);
               case Option::Put:
-                return std::max<Real>(strike - discountS, 0.0);
+                return max<Real>(strike - discountS, 0.0);
               default: QL_FAIL("unsupported option type");
             }
         }
 
         Real sigma2 = sigma()*sigma();
-        Real h = std::sqrt(k()*k() + 2.0*sigma2);
+        Real h = sqrt(k()*k() + 2.0*sigma2);
         Real b = B(t,s);
 
-        Real rho = 2.0*h/(sigma2*(std::exp(h*t) - 1.0));
+        Real rho = 2.0*h/(sigma2*(exp(h*t) - 1.0));
         Real psi = (k() + h)/sigma2;
 
         Real df = 4.0*k()*theta()/sigma2;
-        Real ncps = 2.0*rho*rho*x0()*std::exp(h*t)/(rho+psi+b);
-        Real ncpt = 2.0*rho*rho*x0()*std::exp(h*t)/(rho+psi);
+        Real ncps = 2.0*rho*rho*x0()*exp(h*t)/(rho+psi+b);
+        Real ncpt = 2.0*rho*rho*x0()*exp(h*t)/(rho+psi);
 
         NonCentralChiSquareDistribution chis(df, ncps);
         NonCentralChiSquareDistribution chit(df, ncpt);
 
-        Real z = std::log(A(t,s)/strike)/b;
+        Real z = log(A(t,s)/strike)/b;
         Real call = discountS*chis(2.0*z*(rho+psi+b)) -
             strike*discountT*chit(2.0*z*(rho+psi));
 

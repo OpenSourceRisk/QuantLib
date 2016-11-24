@@ -136,7 +136,7 @@ namespace QuantLib {
                                                    begin, end);
 
             for (Size i=0; i<dimension_; ++begin, ++i)
-                stats_[i].add(*begin, weight);
+                stats_[i].add(VALUE(*begin), VALUE(weight)); // PC AD FIXME
 
         }
         //@}
@@ -277,7 +277,7 @@ namespace QuantLib {
                         correlation[i][j] = 1.0;
                     } else {
                         correlation[i][j] *=
-                            1.0/std::sqrt(variances[i]*variances[j]);
+                            1.0/sqrt(variances[i]*variances[j]);
                     }
                 } else {
                     if (variances[i]==0.0 && variances[j]==0) {
@@ -286,7 +286,7 @@ namespace QuantLib {
                         correlation[i][j] = 0.0;
                     } else {
                         correlation[i][j] *=
-                            1.0/std::sqrt(variances[i]*variances[j]);
+                            1.0/sqrt(variances[i]*variances[j]);
                     }
                 }
             } // j for

@@ -93,7 +93,7 @@ namespace QuantLib {
         QL_REQUIRE(mu_>=0.0,
                    "mu must be non negative (" << mu_ << " not allowed)");
 
-        if (mu_!=0.0) logMu_ = std::log(mu_);
+        if (mu_!=0.0) logMu_ = log(mu_);
     }
 
     inline Real PoissonDistribution::operator()(BigNatural k) const {
@@ -102,7 +102,7 @@ namespace QuantLib {
             else      return 0.0;
         }
         Real logFactorial = Factorial::ln(k);
-        return std::exp(k*std::log(mu_) - logFactorial - mu_);
+        return exp(k*log(mu_) - logFactorial - mu_);
     }
 
 
@@ -130,7 +130,7 @@ namespace QuantLib {
     }
 
     inline Real InverseCumulativePoisson::calcSummand(BigNatural index) const {
-        return std::exp(-lambda_) * std::pow(lambda_, Integer(index)) /
+        return exp(-lambda_) * pow(lambda_, Integer(index)) /
             Factorial::get(index);
     }
 

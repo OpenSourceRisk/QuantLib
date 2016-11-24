@@ -118,7 +118,7 @@ namespace {
     };
 
     bool checkAbsError(Real x1, Real x2, Real tolerance){
-        return std::fabs(x1 - x2) < tolerance;
+        return abs(x1 - x2) < tolerance;
     }
 
     std::string typeToString(CapFloor::Type type) {
@@ -172,7 +172,7 @@ void CapFloorTest::testVega() {
                     if (numericalVega>1.0e-4) {
                         Real analyticalVega = capFloor->result<Real>("vega");
                         Real discrepancy =
-                            std::fabs(numericalVega - analyticalVega);
+                            abs(numericalVega - analyticalVega);
                         discrepancy /= numericalVega;
                         if (discrepancy > tolerance)
                             BOOST_FAIL(
@@ -283,7 +283,7 @@ void CapFloorTest::testConsistency() {
                             std::vector<Rate>(1,floor_rates[k]));
               collar.setPricingEngine(vars.makeEngine(vols[l]));
 
-              if (std::fabs((cap->NPV()-floor->NPV())-collar.NPV()) > 1e-10) {
+              if (abs((cap->NPV()-floor->NPV())-collar.NPV()) > 1e-10) {
                   BOOST_FAIL(
                     "inconsistency between cap, floor and collar:\n"
                     << "    length:       " << lengths[i] << " years\n"
@@ -304,7 +304,7 @@ void CapFloorTest::testConsistency() {
                 capletsNPV += caplets[m]->NPV();
               }
 
-              if (std::fabs(cap->NPV() - capletsNPV) > 1e-10) {
+              if (abs(cap->NPV() - capletsNPV) > 1e-10) {
                 BOOST_FAIL(
                   "sum of caplet NPVs does not equal cap NPV:\n"
                     << "    length:       " << lengths[i] << " years\n"
@@ -324,7 +324,7 @@ void CapFloorTest::testConsistency() {
                 floorletsNPV += floorlets[m]->NPV();
               }
 
-              if (std::fabs(floor->NPV() - floorletsNPV) > 1e-10) {
+              if (abs(floor->NPV() - floorletsNPV) > 1e-10) {
                 BOOST_FAIL(
                   "sum of floorlet NPVs does not equal floor NPV:\n"
                     << "    length:       " << lengths[i] << " years\n"
@@ -344,7 +344,7 @@ void CapFloorTest::testConsistency() {
                 collarletsNPV += collarlets[m]->NPV();
               }
 
-              if (std::fabs(collar.NPV() - collarletsNPV) > 1e-10) {
+              if (abs(collar.NPV() - collarletsNPV) > 1e-10) {
                 BOOST_FAIL(
                   "sum of collarlet NPVs does not equal floor NPV:\n"
                     << "    length:       " << lengths[i] << " years\n"
@@ -404,7 +404,7 @@ void CapFloorTest::testParity() {
             swap.setPricingEngine(boost::shared_ptr<PricingEngine>(
                               new DiscountingSwapEngine(vars.termStructure)));
             // FLOATING_POINT_EXCEPTION
-            if (std::fabs((cap->NPV()-floor->NPV()) - swap.NPV()) > 1.0e-10) {
+            if (abs((cap->NPV()-floor->NPV()) - swap.NPV()) > 1.0e-10) {
                 BOOST_FAIL(
                     "put/call parity violated:\n"
                     << "    length:      " << lengths[i] << " years\n"
@@ -530,7 +530,7 @@ void CapFloorTest::testImpliedVolatility() {
                             // couldn't bracket?
                             capfloor->setPricingEngine(vars.makeEngine(0.0));
                             Real value2 = capfloor->NPV();
-                            if (std::fabs(value-value2) < tolerance) {
+                            if (abs(value-value2) < tolerance) {
                                 // ok, just skip:
                                 continue;
                             }
@@ -544,12 +544,12 @@ void CapFloorTest::testImpliedVolatility() {
                                         "\n  price:      " << value <<
                                         "\n" << e.what());
                         }
-                        if (std::fabs(implVol-v) > tolerance) {
+                        if (abs(implVol-v) > tolerance) {
                             // the difference might not matter
                             capfloor->setPricingEngine(
                                                     vars.makeEngine(implVol));
                             Real value2 = capfloor->NPV();
-                            if (std::fabs(value-value2) > tolerance) {
+                            if (abs(value-value2) > tolerance) {
                             BOOST_FAIL("implied vol failure: " <<
                                        typeToString(types[i]) <<
                                        "\n  strike:        " << io::rate(strikes[j]) <<
@@ -594,14 +594,14 @@ void CapFloorTest::testCachedValue() {
          cachedFloorNPV = 2.65796764715;
 #endif
     // test Black cap price against cached value
-    if (std::fabs(cap->NPV()-cachedCapNPV) > 1.0e-11)
+    if (abs(cap->NPV()-cachedCapNPV) > 1.0e-11)
         BOOST_ERROR(
             "failed to reproduce cached cap value:\n"
             << std::setprecision(12)
             << "    calculated: " << cap->NPV() << "\n"
             << "    expected:   " << cachedCapNPV);
     // test Black floor price against cached value
-    if (std::fabs(floor->NPV()-cachedFloorNPV) > 1.0e-11)
+    if (abs(floor->NPV()-cachedFloorNPV) > 1.0e-11)
         BOOST_ERROR(
             "failed to reproduce cached floor value:\n"
             << std::setprecision(12)

@@ -199,22 +199,22 @@ namespace QuantLib {
     }
 
     inline Real GeneralStatistics::standardDeviation() const {
-        return std::sqrt(variance());
+        return sqrt(variance());
     }
 
     inline Real GeneralStatistics::errorEstimate() const {
-        return std::sqrt(variance()/samples());
+        return sqrt(variance()/samples());
     }
 
     inline Real GeneralStatistics::min() const {
         QL_REQUIRE(samples() > 0, "empty sample set");
-        return std::min_element(samples_.begin(),
+        return min_element(samples_.begin(),
                                 samples_.end())->first;
     }
 
     inline Real GeneralStatistics::max() const {
         QL_REQUIRE(samples() > 0, "empty sample set");
-        return std::max_element(samples_.begin(),
+        return max_element(samples_.begin(),
                                 samples_.end())->first;
     }
 

@@ -76,7 +76,7 @@ namespace QuantLib {
                     fh = froot;
                 }
                 // Convergence criterion
-                if (std::fabs(del) < xAccuracy || (close(froot, 0.0)))
+                if (abs(del) < xAccuracy || (close(froot, 0.0)))
                     return root_;
             }
 

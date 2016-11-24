@@ -156,8 +156,8 @@ namespace QuantLib {
                    "positive barrier value required");
         Barrier::Type barrierType = arguments_.barrierType;
 
-        Real stdDev = std::sqrt(variance);
-        Real mu = std::log(dividendDiscount/discount)/variance - 0.5;
+        Real stdDev = sqrt(variance);
+        Real mu = log(dividendDiscount/discount)/variance - 0.5;
         Real K = 0;
 
         // binary cash-or-nothing payoff?
@@ -175,11 +175,11 @@ namespace QuantLib {
             K = spot * dividendDiscount / discount; // forward
         }
 
-        Real log_S_X = std::log(spot/strike);
-        Real log_S_H = std::log(spot/barrier);
-        Real log_H_S = std::log(barrier/spot);
-        Real log_H2_SX = std::log(barrier*barrier/(spot*strike));
-        Real H_S_2mu = std::pow(barrier/spot, 2*mu);
+        Real log_S_X = log(spot/strike);
+        Real log_S_H = log(spot/barrier);
+        Real log_H_S = log(barrier/spot);
+        Real log_H2_SX = log(barrier*barrier/(spot*strike));
+        Real H_S_2mu = pow(barrier/spot, 2*mu);
 
         Real eta = (barrierType == Barrier::DownIn ||
                     barrierType == Barrier::DownOut ? 1.0 : -1.0);

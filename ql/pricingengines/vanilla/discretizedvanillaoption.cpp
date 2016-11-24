@@ -71,7 +71,7 @@ namespace QuantLib {
     void DiscretizedVanillaOption::applySpecificCondition() {
         Array grid = method()->grid(time());
         for (Size j=0; j<values_.size(); j++) {
-            values_[j] = std::max(values_[j],
+            values_[j] = max(values_[j],
                                   (*arguments_.payoff)(grid[j]));
         }
     }

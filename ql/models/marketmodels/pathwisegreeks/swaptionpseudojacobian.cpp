@@ -71,7 +71,7 @@ namespace QuantLib
 
         expiry_ = subRateTimes[0];
 
-        impliedVolatility_ = std::sqrt(variance_/expiry_);
+        impliedVolatility_ = sqrt(variance_/expiry_);
 
         Real scale = 0.5*(1.0/expiry_)/impliedVolatility_;
 
@@ -201,7 +201,7 @@ namespace QuantLib
             {
                 price += blackFormula(Option::Call,strike_,
                     currentRates_[i],
-                    volatility*std::sqrt(expiries_[i]),
+                    volatility*sqrt(expiries_[i]),
                     annuities_[i]);
 
 
@@ -218,7 +218,7 @@ namespace QuantLib
 
                 vega+= blackFormulaVolDerivative(strike_,currentRates_[i],
                                                  
-                                                 volatility*std::sqrt(expiries_[i]),
+                                                 volatility*sqrt(expiries_[i]),
                                                  expiries_[i],
                                                  annuities_[i],
                                                  0.0);
@@ -265,8 +265,8 @@ namespace QuantLib
             Time resetTime = inputModel->evolution().rateTimes()[j];
             expiries[capletIndex] =  resetTime;
 
-            Real sd = std::sqrt(totalCovariance[j][j]);
-            displacedImpliedVols[capletIndex] = std::sqrt(totalCovariance[j][j]/resetTime);
+            Real sd = sqrt(totalCovariance[j][j]);
+            displacedImpliedVols[capletIndex] = sqrt(totalCovariance[j][j]/resetTime);
 
             Real forward = inputModel->initialRates()[j];
             initialRates[capletIndex] = forward;
@@ -277,8 +277,8 @@ namespace QuantLib
             Real displacement =  inputModel->displacements()[j];
 
             guess+=  displacedImpliedVols[capletIndex]*(forward+displacement)/forward;
-            minVol =std::min(minVol, displacedImpliedVols[capletIndex]);
-            maxVol =std::max(maxVol, displacedImpliedVols[capletIndex]*(forward+displacement)/forward);
+            minVol =min(minVol, displacedImpliedVols[capletIndex]);
+            maxVol =max(maxVol, displacedImpliedVols[capletIndex]*(forward+displacement)/forward);
 
 
             Real capletPrice = blackFormula(Option::Call,
@@ -311,7 +311,7 @@ namespace QuantLib
                     Real volDerivative = inputModel->pseudoRoot(step)[rate][f]
                     /(displacedImpliedVols[rate-startIndex]*expiry);
                     Real capletVega = blackFormulaVolDerivative(strike,inputModel->initialRates()[rate],
-                        displacedImpliedVols[rate-startIndex]*std::sqrt(expiry),
+                        displacedImpliedVols[rate-startIndex]*sqrt(expiry),
                         expiry,
                         annuities[rate-startIndex],
                         inputModel->displacements()[rate]);

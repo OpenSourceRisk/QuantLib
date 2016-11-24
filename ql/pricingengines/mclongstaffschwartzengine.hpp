@@ -234,8 +234,8 @@ namespace QuantLib {
             return TimeGrid(requiredTimes.begin(), requiredTimes.end(),
                             this->timeSteps_);
         } else if (this->timeStepsPerYear_ != Null<Size>()) {
-            Size steps = static_cast<Size>(this->timeStepsPerYear_ *
-                                           requiredTimes.back());
+            Size steps = static_cast<Size>(VALUE(this->timeStepsPerYear_ *
+                                                 requiredTimes.back()));
             return TimeGrid(requiredTimes.begin(), requiredTimes.end(),
                             std::max<Size>(steps, 1));
         } else {

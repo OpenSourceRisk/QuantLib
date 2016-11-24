@@ -33,7 +33,7 @@ namespace QuantLib {
     : HestonProcess(riskFreeRate, dividendYield, 
                     s0, v0, kappa, theta, sigma, rho, d),
       lambda_(lambda), delta_(delta), nu_(nu),
-      m_(std::exp(nu+0.5*delta*delta)-1) {
+      m_(exp(nu+0.5*delta*delta)-1) {
     }
 
     Disposable<Array> BatesProcess::drift(Time t, const Array& x) const {
@@ -54,7 +54,7 @@ namespace QuantLib {
         const Real n = InverseCumulativePoisson(lambda_*dt)(p);        
         Array retVal = HestonProcess::evolve(t0, x0, dt, dw);
         retVal[0] *= 
-            std::exp(-lambda_*m_*dt + nu_*n+delta_*std::sqrt(n)*dw[3]);
+            exp(-lambda_*m_*dt + nu_*n+delta_*sqrt(n)*dw[3]);
 
         return retVal;
     }

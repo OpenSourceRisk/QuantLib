@@ -435,7 +435,7 @@ void OptionletStripperTest::testFlatTermVolatilityStripping1() {
             cap->setPricingEngine(blackCapFloorEngineConstantVolatility);
             Real priceFromConstantVolatility = cap->NPV();
 
-            Real error = std::fabs(priceFromStrippedVolatility - priceFromConstantVolatility);
+            Real error = abs(priceFromStrippedVolatility - priceFromConstantVolatility);
             if (error>vars.tolerance)
                 BOOST_FAIL("\noption tenor:       " << vars.optionTenors[tenorIndex] <<
                            "\nstrike:             " << io::rate(vars.strikes[strikeIndex]) <<
@@ -497,7 +497,7 @@ void OptionletStripperTest::testTermVolatilityStripping1() {
             cap->setPricingEngine(blackCapFloorEngineConstantVolatility);
             Real priceFromConstantVolatility = cap->NPV();
 
-            Real error = std::fabs(priceFromStrippedVolatility - priceFromConstantVolatility);
+            Real error = abs(priceFromStrippedVolatility - priceFromConstantVolatility);
             if (error>vars.tolerance)
                 BOOST_FAIL("\noption tenor:       " << vars.optionTenors[tenorIndex] <<
                            "\nstrike:             " << io::rate(vars.strikes[strikeIndex]) <<
@@ -565,7 +565,7 @@ void OptionletStripperTest::testTermVolatilityStrippingNormalVol() {
             cap->setPricingEngine(bachelierCapFloorEngineConstantVolatility);
             Real priceFromConstantVolatility = cap->NPV();
 
-            Real error = std::fabs(priceFromStrippedVolatility -
+            Real error = abs(priceFromStrippedVolatility -
                                    priceFromConstantVolatility);
             if (error > vars.tolerance)
                 BOOST_FAIL(
@@ -639,7 +639,7 @@ void OptionletStripperTest::testTermVolatilityStrippingShiftedLogNormalVol() {
             cap->setPricingEngine(blackCapFloorEngineConstantVolatility);
             Real priceFromConstantVolatility = cap->NPV();
 
-            Real error = std::fabs(priceFromStrippedVolatility -
+            Real error = abs(priceFromStrippedVolatility -
                                    priceFromConstantVolatility);
             if (error > vars.tolerance)
                 BOOST_FAIL(
@@ -709,7 +709,7 @@ void OptionletStripperTest::testFlatTermVolatilityStripping2() {
       Volatility flatVol = vars.flatTermVolSurface->volatility(vars.optionTenors[tenorIndex],
                                                                vars.strikes[strikeIndex], true);
 
-    Real error = std::fabs(strippedVol1-strippedVol2);
+    Real error = abs(strippedVol1-strippedVol2);
       if (error>vars.tolerance)
       BOOST_FAIL("\noption tenor:  " << vars.optionTenors[tenorIndex] <<
                  "\nstrike:        " << io::rate(vars.strikes[strikeIndex]) <<
@@ -776,7 +776,7 @@ void OptionletStripperTest::testTermVolatilityStripping2() {
       Volatility flatVol = vars.capFloorVolSurface->volatility(vars.optionTenors[tenorIndex],
                                                                vars.strikes[strikeIndex], true);
 
-      Real error = std::fabs(strippedVol1-strippedVol2);
+      Real error = abs(strippedVol1-strippedVol2);
       if (error>vars.tolerance)
       BOOST_FAIL("\noption tenor:  " << vars.optionTenors[tenorIndex] <<
                  "\nstrike:        " << io::rate(vars.strikes[strikeIndex]) <<
@@ -807,7 +807,7 @@ void OptionletStripperTest::testSwitchStrike() {
         new OptionletStripper1(vars.capFloorVolSurface, iborIndex,
                                Null< Rate >(), vars.accuracy));
 
-    Real error = std::fabs(optionletStripper1->switchStrike() - 0.02981223);
+    Real error = abs(optionletStripper1->switchStrike() - 0.02981223);
     if (error > vars.tolerance)
         BOOST_FAIL("\nSwitchstrike not correctly computed:  "
                    << "\nexpected switch strike: " << io::rate(0.02981223)
@@ -819,7 +819,7 @@ void OptionletStripperTest::testSwitchStrike() {
     yieldTermStructure.linkTo(boost::shared_ptr< FlatForward >(
         new FlatForward(0, vars.calendar, 0.05, vars.dayCounter)));
 
-    error = std::fabs(optionletStripper1->switchStrike() - 0.0499371);
+    error = abs(optionletStripper1->switchStrike() - 0.0499371);
     if (error > vars.tolerance)
         BOOST_FAIL("\nSwitchstrike not correctly computed:  "
                    << "\nexpected switch strike: " << io::rate(0.0499371)

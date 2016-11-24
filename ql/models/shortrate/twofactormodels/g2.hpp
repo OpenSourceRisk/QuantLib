@@ -169,8 +169,8 @@ namespace QuantLib {
                 Rate forward = termStructure_->forwardRate(t, t,
                                                            Continuous,
                                                            NoFrequency);
-                Real temp1 = sigma_*(1.0-std::exp(-a_*t))/a_;
-                Real temp2 = eta_*(1.0-std::exp(-b_*t))/b_;
+                Real temp1 = sigma_*(1.0-exp(-a_*t))/a_;
+                Real temp2 = eta_*(1.0-exp(-b_*t))/b_;
                 Real value = 0.5*temp1*temp1 + 0.5*temp2*temp2 +
                     rho_*temp1*temp2 + forward;
                 return value;

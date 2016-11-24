@@ -38,9 +38,9 @@ namespace QuantLib {
     std::pair<Real, Volatility>
     BSMRNDCalculator::distributionParams(Real x, Time t) const {
         const Volatility stdDev =
-            process_->blackVolatility()->blackVol(t, std::exp(x))*std::sqrt(t);
-        const Real mean = std::log(process_->x0()) - 0.5*stdDev*stdDev
-            + std::log(  process_->dividendYield()->discount(t)
+            process_->blackVolatility()->blackVol(t, exp(x))*sqrt(t);
+        const Real mean = log(process_->x0()) - 0.5*stdDev*stdDev
+            + log(  process_->dividendYield()->discount(t)
                        / process_->riskFreeRate()->discount(t));
 
         return std::make_pair(mean, stdDev);

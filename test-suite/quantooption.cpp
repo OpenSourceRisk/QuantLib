@@ -258,7 +258,7 @@ void QuantoOptionTest::testValues() {
 
         boost::shared_ptr<StrikedTypePayoff> payoff(
                     new PlainVanillaPayoff(values[i].type, values[i].strike));
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -274,7 +274,7 @@ void QuantoOptionTest::testValues() {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = 1e-4;
         if (error>tolerance) {
             QUANTO_REPORT_FAILURE("value", payoff, exercise, values[i].s,
@@ -541,9 +541,9 @@ void QuantoOptionTest::testForwardValues() {
 
         boost::shared_ptr<StrikedTypePayoff> payoff(
                                  new PlainVanillaPayoff(values[i].type, 0.0));
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
-        Date reset = today + Integer(values[i].start*360+0.5);
+        Date reset = today + Integer(VALUE(values[i].start*360+0.5));
 
         spot ->setValue(values[i].s);
         qRate->setValue(values[i].q);
@@ -559,7 +559,7 @@ void QuantoOptionTest::testForwardValues() {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = 1e-4;
         if (error>tolerance) {
             QUANTO_FORWARD_REPORT_FAILURE("value", payoff, values[i].moneyness,
@@ -836,9 +836,9 @@ void QuantoOptionTest::testForwardPerformanceValues() {
         boost::shared_ptr<StrikedTypePayoff> payoff(
 //                               new PercentageStrikePayoff(values[i].type, values[i].moneyness));
                                  new PlainVanillaPayoff(values[i].type, 0.0));
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
-        Date reset = today + Integer(values[i].start*360+0.5);
+        Date reset = today + Integer(VALUE(values[i].start*360+0.5));
 
         spot ->setValue(values[i].s);
         qRate->setValue(values[i].q);
@@ -854,7 +854,7 @@ void QuantoOptionTest::testForwardPerformanceValues() {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = 1e-4;
         if (error>tolerance) {
             QUANTO_FORWARD_REPORT_FAILURE("value", payoff, values[i].moneyness,
@@ -918,7 +918,7 @@ void QuantoOptionTest::testBarrierValues()  {
         boost::shared_ptr<StrikedTypePayoff> payoff(
                     new PlainVanillaPayoff(values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -939,7 +939,7 @@ void QuantoOptionTest::testBarrierValues()  {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = values[i].tol;
 
         if (error>tolerance) {
@@ -1003,7 +1003,7 @@ void QuantoOptionTest::testDoubleBarrierValues()  {
         boost::shared_ptr<StrikedTypePayoff> payoff(
                     new PlainVanillaPayoff(values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -1025,7 +1025,7 @@ void QuantoOptionTest::testDoubleBarrierValues()  {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = values[i].tol;
 
         if (error>tolerance) {

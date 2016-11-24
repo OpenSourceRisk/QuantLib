@@ -159,7 +159,7 @@ namespace QuantLib {
         }
         this->results_.gamma = 0.0;
         this->results_.theta = process_->dividendYield()->
-            zeroRate(this->arguments_.resetDate, divdc, Continuous, NoFrequency)
+            zeroRate(this->arguments_.resetDate, divdc, Continuous, NoFrequency).rate()
             * this->results_.value;
         if (originalResults_->vega != Null<Real>())
             this->results_.vega  = discQ * originalResults_->vega;

@@ -46,7 +46,7 @@ namespace QuantLib {
         for (Size i = 0; i < cf.size(); i++) {
             Date d2 = cf[i]->date();
             if (d2 > today) {
-                d1 = max(today , d1);
+                d1 = std::max(today , d1);
                 Date defaultDate = d1 + (d2-d1)/2;
 
                 Real coupon = cf[i]->amount()
@@ -92,7 +92,7 @@ namespace QuantLib {
         for (Size i = 0; i < cf.size(); i++) {
             Date d2 = cf[i]->date();
             if (d2 > today) {
-                d1 = max(today , d1);
+                d1 = std::max(today , d1);
                 Date defaultDate = d1 + (d2-d1)/2;
 
                 Real coupon = cf[i]->amount()

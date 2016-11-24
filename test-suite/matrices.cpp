@@ -45,7 +45,7 @@ namespace {
     Matrix M1, M2, M3, M4, M5, M6, M7, I;
 
     Real norm(const Array& v) {
-        return std::sqrt(DotProduct(v,v));
+        return sqrt(DotProduct(v,v));
     }
 
     Real norm(const Matrix& m) {
@@ -53,7 +53,7 @@ namespace {
         for (Size i=0; i<m.rows(); i++)
             for (Size j=0; j<m.columns(); j++)
                 sum += m[i][j]*m[i][j];
-        return std::sqrt(sum);
+        return sqrt(sum);
     }
 
     void setup() {
@@ -318,7 +318,7 @@ void MatricesTest::testQRSolve() {
                     if (w[i] > threshold) {
                         const Real u = std::inner_product(U.column_begin(i),
                                                           U.column_end(i),
-                                                          b.begin(), 0.0)/w[i];
+                                                          b.begin(), Real(0.0))/w[i];
 
                         for (Size j=0; j<n; ++j) {
                             xr[j]  +=u*V[j][i];
@@ -378,7 +378,7 @@ void MatricesTest::testDeterminant() {
 
     for (Size j=0; j<LENGTH(testMatrices); ++j) {
         const Real calculated = determinant(testMatrices[j]);
-        if (std::fabs(expected[j] - calculated) > tol)
+        if (abs(expected[j] - calculated) > tol)
             BOOST_FAIL("determinant calculation failed "
                        << "\n matrix     :\n" << testMatrices[j]
                        << "\n calculated : " << calculated
@@ -393,7 +393,7 @@ void MatricesTest::testDeterminant() {
 
         if (!(j%3)) {
             // every third matrix is a singular matrix
-            Size row = Size(3*rng.next().value);
+            Size row = Size(VALUE(3*rng.next().value));
             std::fill(m.row_begin(row), m.row_end(row), 0.0);
         }
 
@@ -410,7 +410,7 @@ void MatricesTest::testDeterminant() {
         const Real expected = a*e*i+b*f*g+c*d*h-(g*e*c+h*f*a+i*d*b);
         const Real calculated = determinant(m);
 
-        if (std::fabs(expected-calculated) > tol)
+        if (abs(expected-calculated) > tol)
             BOOST_FAIL("determinant calculation failed "
                        << "\n matrix     :\n" << m
                        << "\n calculated : " << calculated
@@ -457,7 +457,7 @@ void MatricesTest::testOrthogonalProjection() {
                       for (Size k=0; k < dimension; ++k)
                           dotProduct += test[j][k]*projector.GetVector(i)[k];
 
-                      if (fabs(dotProduct) > errorAcceptable)
+                      if (abs(dotProduct) > errorAcceptable)
                           ++numberFailures;
 
                   }
@@ -471,7 +471,7 @@ void MatricesTest::testOrthogonalProjection() {
                 normSq += test[i][j]*test[i][j];
            }
 
-           if (fabs(innerProductWithOriginal-normSq) > errorAcceptable)
+           if (abs(innerProductWithOriginal-normSq) > errorAcceptable)
                ++failuresTwo;
 
         }
@@ -546,7 +546,7 @@ void MatricesTest::testCholeskyDecomposition() {
                            << i << "," << j << "), replicated value is nan");
             }
             // this does not detect nan values
-            if(std::abs(m[i][j]-m2[i][j]) > tol) {
+            if(abs(m[i][j]-m2[i][j]) > tol) {
                 BOOST_FAIL("Failed to verify Cholesky decomposition at (i,j)=("
                            << i << "," << j << "), original value is "
                            << m[i][j] << ", replicated value is " << m2[i][j]);
@@ -578,7 +578,7 @@ void MatricesTest::testMoorePenroseInverse() {
     Real tol = 500.0 * QL_EPSILON;
 
     for (Size i = 0; i < 6; ++i) {
-        if (std::abs(x[i] - cached[i]) > tol) {
+        if (abs(x[i] - cached[i]) > tol) {
             BOOST_FAIL("Failed to verify minimal norm solution obtained from "
                        "Moore-Penrose-Inverse against cached results, component "
                        << i << " is " << x[i] << ", expected " << cached[i]
@@ -590,7 +590,7 @@ void MatricesTest::testMoorePenroseInverse() {
     Array y = A*x;
     Real tol2 = 1000.0 * QL_EPSILON;
     for (Size i = 0; i < 6; ++i) {
-        if (std::abs(y[i] - 260.0) > tol2) {
+        if (abs(y[i] - 260.0) > tol2) {
             BOOST_FAIL(
                 "Failed to verify minimal norm solution obtained from "
                 "Moore-Penrose-Inverse when back-substituting, rhs component "

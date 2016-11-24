@@ -156,7 +156,7 @@ void VarianceGammaTest::testVarianceGamma() {
         std::vector<boost::shared_ptr<StrikedTypePayoff> > payoffs;
         for (Size j=0; j<LENGTH(options); j++)
         {
-            Date exDate = today + Integer(options[j].t*360+0.5);
+            Date exDate = today + Integer(VALUE(options[j].t*360+0.5));
             boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
             boost::shared_ptr<StrikedTypePayoff> payoff(new
@@ -169,7 +169,7 @@ void VarianceGammaTest::testVarianceGamma() {
 
             Real calculated = option->NPV();
             Real expected = results[i][j];
-            Real error = std::fabs(calculated-expected);
+            Real error = abs(calculated-expected);
 
             if (error>tol) {
                 REPORT_FAILURE("analytic value", payoff, exercise,
@@ -191,7 +191,7 @@ void VarianceGammaTest::testVarianceGamma() {
 
             Real calculated = option->NPV();
             Real expected = results[i][j];
-            Real error = std::fabs(calculated-expected);
+            Real error = abs(calculated-expected);
             if (error>tol) {
                 boost::shared_ptr<StrikedTypePayoff> payoff = 
                     boost::dynamic_pointer_cast<StrikedTypePayoff>(option->payoff());

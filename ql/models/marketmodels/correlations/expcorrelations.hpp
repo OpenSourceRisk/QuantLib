@@ -44,7 +44,7 @@ namespace QuantLib {
                                     Real longTermCorr = 0.5,
                                     Real beta = 0.2,
                                     Real gamma = 1.0,
-                                    Time t = 0.0);
+                                    Time t = Real(0.0));
 
     class ExponentialForwardCorrelation :
         public PiecewiseConstantCorrelation {

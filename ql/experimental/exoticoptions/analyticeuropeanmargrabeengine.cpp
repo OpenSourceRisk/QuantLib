@@ -70,11 +70,11 @@ namespace QuantLib {
         Real forward2 = process2_->stateVariable()->value() *
             dividendDiscount2 / riskFreeDiscount;
 
-        Real stdDev1 = std::sqrt(variance1);
-        Real stdDev2 = std::sqrt(variance2);
+        Real stdDev1 = sqrt(variance1);
+        Real stdDev2 = sqrt(variance2);
         Real variance = variance1 + variance2 - 2*rho_*stdDev1*stdDev2;
-        Real stdDev = std::sqrt(variance);
-        Real d1 = (std::log((quantity1*forward1)/(quantity2*forward2))
+        Real stdDev = sqrt(variance);
+        Real d1 = (log((quantity1*forward1)/(quantity2*forward2))
                    + 0.5*variance) / stdDev;
         Real d2 = d1 - stdDev;
         Real Nd1, Nd2, nd1, nd2;
@@ -87,9 +87,9 @@ namespace QuantLib {
         DayCounter rfdc  = process1_->riskFreeRate()->dayCounter();
         Time t = rfdc.yearFraction(process1_->riskFreeRate()->referenceDate(),
                                   arguments_.exercise->lastDate());
-        Real sqt = std::sqrt(t);
-        Real q1  = -std::log(dividendDiscount1)/(sqt*sqt);
-        Real q2  = -std::log(dividendDiscount2)/(sqt*sqt);
+        Real sqt = sqrt(t);
+        Real q1  = -log(dividendDiscount1)/(sqt*sqt);
+        Real q2  = -log(dividendDiscount2)/(sqt*sqt);
 
         results_.value =
             riskFreeDiscount * (quantity1*forward1*Nd1 - quantity2*forward2*Nd2);

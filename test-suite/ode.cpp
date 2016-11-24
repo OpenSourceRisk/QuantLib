@@ -27,8 +27,8 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-using std::exp;
-using std::sin;
+// using exp;
+// using sin;
 
 namespace {
 
@@ -99,15 +99,15 @@ void OdeTest::testAdaptiveRungeKutta() {
     while (x<5.0) {
         Real exact1 = exp(x);
         std::complex<Real> exact2 =
-            std::exp(std::complex<Real>(0.0,x)) * std::complex<Real>(0.0,1.0);
+            exp(std::complex<Real>(0.0,x)) * std::complex<Real>(0.0,1.0);
         Real exact3 = sin(x);
-        std::complex<Real> exact4 = std::exp(std::complex<Real>(0.0,x));
+        std::complex<Real> exact4 = exp(std::complex<Real>(0.0,x));
 
-        if ( std::fabs( exact1 - y1 ) > tol1 )
+        if ( abs( exact1 - y1 ) > tol1 )
             BOOST_FAIL("Error in ode #1: exact solution at x=" << x
                        << " is " << exact1
                        << ", numerical solution is " << y1
-                       << " difference " << std::fabs(exact1-y1)
+                       << " difference " << abs(exact1-y1)
                        << " outside tolerance " << tol1);
         if ( abs( exact2 - y2 ) > tol2 )
             BOOST_FAIL("Error in ode #2: exact solution at x=" << x
@@ -115,11 +115,11 @@ void OdeTest::testAdaptiveRungeKutta() {
                        << ", numerical solution is " << y2
                        << " difference " << abs(exact2-y2)
                        << " outside tolerance " << tol2);
-        if ( std::fabs( exact3 - y3[0] ) > tol3 )
+        if ( abs( exact3 - y3[0] ) > tol3 )
             BOOST_FAIL("Error in ode #3: exact solution at x=" << x
                        << " is " << exact3
                        << ", numerical solution is " << y3[0]
-                       << " difference " << std::fabs(exact3-y3[0])
+                       << " difference " << abs(exact3-y3[0])
                        << " outside tolerance " << tol3);
         if ( abs( exact4 - y4[0] ) > tol4 )
             BOOST_FAIL("Error in ode #4: exact solution at x=" << x
@@ -137,7 +137,7 @@ void OdeTest::testAdaptiveRungeKutta() {
 
 namespace {
     Real frobenuiusNorm(const Matrix& m) {
-        return std::sqrt(DotProduct((m*transpose(m)).diagonal(),
+        return sqrt(DotProduct((m*transpose(m)).diagonal(),
                                     Array(m.rows(), 1.0)));
     }
 }
@@ -159,20 +159,20 @@ void OdeTest::testMatrixExponential() {
         const Matrix calculated = Expm(m, t, tol);
 
         Matrix expected(3, 3);
-        expected[0][0] = -3*std::exp(t)+4*std::exp(2*t);
-        expected[0][1] =  6*std::exp(t)-6*std::exp(2*t);
-        expected[0][2] =  6*std::exp(t)-6*std::exp(2*t);
-        expected[1][0] =    std::exp(t)-  std::exp(2*t);
-        expected[1][1] = -2*std::exp(t)+3*std::exp(2*t);
-        expected[1][2] = -2*std::exp(t)+2*std::exp(2*t);
-        expected[2][0] = -3*std::exp(t)+3*std::exp(2*t);
-        expected[2][1] =  6*std::exp(t)-6*std::exp(2*t);
-        expected[2][2] =  6*std::exp(t)-5*std::exp(2*t);
+        expected[0][0] = -3*exp(t)+4*exp(2*t);
+        expected[0][1] =  6*exp(t)-6*exp(2*t);
+        expected[0][2] =  6*exp(t)-6*exp(2*t);
+        expected[1][0] =    exp(t)-  exp(2*t);
+        expected[1][1] = -2*exp(t)+3*exp(2*t);
+        expected[1][2] = -2*exp(t)+2*exp(2*t);
+        expected[2][0] = -3*exp(t)+3*exp(2*t);
+        expected[2][1] =  6*exp(t)-6*exp(2*t);
+        expected[2][2] =  6*exp(t)-5*exp(2*t);
 
         Matrix diff = calculated - expected;
         Real relDiffNorm = frobenuiusNorm(diff)/frobenuiusNorm(expected);
 
-        if ( std::fabs(relDiffNorm) > 100*tol) {
+        if ( abs(relDiffNorm) > 100*tol) {
             BOOST_FAIL("Failed to reproduce expected matrix exponential."
                     << "\n rel. difference norm: " << relDiffNorm
                     << "\n tolerance           : " << 100*tol);
@@ -182,7 +182,7 @@ void OdeTest::testMatrixExponential() {
         diff = negativeTime - expected;
         relDiffNorm = frobenuiusNorm(diff)/frobenuiusNorm(expected);
 
-        if ( std::fabs(relDiffNorm) > 100*tol) {
+        if ( abs(relDiffNorm) > 100*tol) {
             BOOST_FAIL("Failed to reproduce expected matrix exponential."
                     << "\n rel. difference norm: " << relDiffNorm
                     << "\n tolerance           : " << 100*tol);
@@ -204,7 +204,7 @@ void OdeTest::testMatrixExponentialOfZero() {
     for (Size i=0; i < calculated.rows(); ++i) {
         for (Size j=0; j < calculated.columns(); ++j) {
             const Real kroneckerDelta = (i==j)? 1.0 : 0.0;
-            if (std::fabs(calculated[i][j] -kroneckerDelta) > tol) {
+            if (abs(calculated[i][j] -kroneckerDelta) > tol) {
                 BOOST_FAIL("Failed to reproduce expected matrix exponential."
                         << "\n tolerance           : " << tol);
             }

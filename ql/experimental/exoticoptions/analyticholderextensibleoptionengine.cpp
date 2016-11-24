@@ -22,10 +22,10 @@
 #include <ql/exercise.hpp>
 #include <boost/make_shared.hpp>
 
-using std::pow;
-using std::log;
-using std::exp;
-using std::sqrt;
+// using pow;
+// using log;
+// using exp;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -112,7 +112,7 @@ namespace QuantLib {
             Real epsilon = 0.001;
 
             //Newton-Raphson process
-            while (std::fabs(yi) > epsilon){
+            while (abs(yi) > epsilon){
                 Sv = Sv - yi / di;
 
                 bs = bsCalculator(Sv, Option::Call);
@@ -135,7 +135,7 @@ namespace QuantLib {
         Time t1 = firstExpiryTime();
         Real r=riskFreeRate();
 
-        Real val=X1-X2*std::exp(-r*(T2-t1));
+        Real val=X1-X2*exp(-r*(T2-t1));
         if(A< val){
             return std::numeric_limits<Real>::infinity();
         } else {
@@ -149,7 +149,7 @@ namespace QuantLib {
             Real epsilon = 0.001;
 
             //Newton-Raphson process
-            while (std::fabs(yi) > epsilon){
+            while (abs(yi) > epsilon){
                 Sv = Sv - yi / di;
 
                 bs = bsCalculator(Sv, Option::Call);
@@ -180,7 +180,7 @@ namespace QuantLib {
         Real epsilon = 0.001;
 
         //Newton-Raphson prosess
-        while (std::fabs(yi) > epsilon){
+        while (abs(yi) > epsilon){
             Sv = Sv - yi / di;
 
             bs = bsCalculator(Sv, Option::Put);
@@ -210,7 +210,7 @@ namespace QuantLib {
             Real epsilon = 0.001;
 
             //Newton-Raphson prosess
-            while (std::fabs(yi) > epsilon){
+            while (abs(yi) > epsilon){
                 Sv = Sv - yi / di;
 
                 bs = bsCalculator(Sv, Option::Put);
@@ -241,7 +241,7 @@ namespace QuantLib {
             boost::make_shared<PlainVanillaPayoff>(optionType, X2);
 
         //QuantLib requires sigma * sqrt(T) rather than just sigma/volatility
-        vol = volatility() * std::sqrt(t);
+        vol = volatility() * sqrt(t);
         //calculate dividend discount factor assuming continuous compounding (e^-rt)
         growth = dividendDiscount(t);
         //calculate payoff discount factor assuming continuous compounding

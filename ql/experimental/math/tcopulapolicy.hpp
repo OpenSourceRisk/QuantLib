@@ -95,8 +95,8 @@ namespace QuantLib {
         }
         //! Cumulative probability of the idiosyncratic factors (all the same)
         Probability cumulativeZ(Real z) const {
-            return boost::math::cdf(distributions_.back(), z / 
-                varianceFactors_.back());
+            return boost::math::cdf(distributions_.back(), VALUE(z / 
+                                                                 varianceFactors_.back()));
         }
         /*! Probability density of a given realization of values of the systemic
           factors (remember they are independent).
@@ -111,7 +111,7 @@ namespace QuantLib {
             Real prodDensities = 1.;
             for(Size i=0; i<m.size(); i++) 
                 prodDensities *= boost::math::pdf(distributions_[i], 
-                    m[i] /varianceFactors_[i]) /varianceFactors_[i];
+                                                  VALUE(m[i] /varianceFactors_[i] /varianceFactors_[i]));
                  // accumulate lambda
             return prodDensities;
         }
@@ -131,8 +131,8 @@ namespace QuantLib {
         factors following the same distribution.
         */
         Real inverseCumulativeZ(Probability p) const {
-            return boost::math::quantile(distributions_.back(), p)
-                * varianceFactors_.back();
+            return boost::math::quantile(distributions_.back(), VALUE(p))
+                                         * varianceFactors_.back();
         }
         /*! Returns the inverse of the cumulative distribution of the 
           systemic factor iFactor.
@@ -142,7 +142,7 @@ namespace QuantLib {
             QL_REQUIRE(iFactor < distributions_.size()-1, 
                 "Random factor variable index out of bounds.");
     #endif
-            return boost::math::quantile(distributions_[iFactor], p)
+            return boost::math::quantile(distributions_[iFactor], VALUE(p))
                 * varianceFactors_[iFactor];
         }
         //to use this (by default) version, the generator must be a uniform one.

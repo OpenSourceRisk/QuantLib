@@ -25,12 +25,12 @@ namespace QuantLib {
 
     Real StudentDistribution::operator()(Real x) const {
         static GammaFunction G;
-        Real g1 = std::exp (G.logValue(0.5 * (n_ + 1)));
-        Real g2 = std::exp (G.logValue(0.5 * n_));
+        Real g1 = exp (G.logValue(0.5 * (n_ + 1)));
+        Real g2 = exp (G.logValue(0.5 * n_));
 
-        Real power = std::pow (1. + x*x / n_, 0.5 * (n_ + 1));
+        Real power = pow (1. + x*x / n_, 0.5 * (n_ + 1));
 
-        return g1 / (g2 * power * std::sqrt (M_PI * n_));
+        return g1 / (g2 * power * sqrt (M_PI * n_));
     }
 
     Real CumulativeStudentDistribution::operator()(Real x) const {
@@ -52,7 +52,7 @@ namespace QuantLib {
             x -= (f_(x) - y) / d_(x);
             count++;
         }
-        while (std::fabs(f_(x) - y) > accuracy_ && count < maxIterations_);
+        while (abs(f_(x) - y) > accuracy_ && count < maxIterations_);
 
         QL_REQUIRE (count < maxIterations_,
                     "maximum number of iterations " << maxIterations_

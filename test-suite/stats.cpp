@@ -46,7 +46,7 @@ namespace {
 
         S s;
         for (Size i=0; i<LENGTH(data); i++)
-            s.add(data[i],weights[i]);
+            s.add(VALUE(data[i]),VALUE(weights[i]));
 
         Real calculated, expected;
         Real tolerance;
@@ -80,35 +80,35 @@ namespace {
         expected = 4.3;
         tolerance = 1.0e-9;
         calculated = s.mean();
-        if (std::fabs(calculated-expected) > tolerance)
+        if (abs(calculated-expected) > tolerance)
             BOOST_FAIL(name << ": wrong mean value\n"
                        << "    calculated: " << calculated << "\n"
                        << "    expected:   " << expected);
 
         expected = 2.23333333333;
         calculated = s.variance();
-        if (std::fabs(calculated-expected) > tolerance)
+        if (abs(calculated-expected) > tolerance)
             BOOST_FAIL(name << ": wrong variance\n"
                        << "    calculated: " << calculated << "\n"
                        << "    expected:   " << expected);
 
         expected = 1.4944341181;
         calculated = s.standardDeviation();
-        if (std::fabs(calculated-expected) > tolerance)
+        if (abs(calculated-expected) > tolerance)
             BOOST_FAIL(name << ": wrong standard deviation\n"
                        << "    calculated: " << calculated << "\n"
                        << "    expected:   " << expected);
 
         expected = 0.359543071407;
         calculated = s.skewness();
-        if (std::fabs(calculated-expected) > tolerance)
+        if (abs(calculated-expected) > tolerance)
             BOOST_FAIL(name << ": wrong skewness\n"
                        << "    calculated: " << calculated << "\n"
                        << "    expected:   " << expected);
 
         expected = -0.151799637209;
         calculated = s.kurtosis();
-        if (std::fabs(calculated-expected) > tolerance)
+        if (abs(calculated-expected) > tolerance)
             BOOST_FAIL(name << ": wrong kurtosis\n"
                        << "    calculated: " << calculated << "\n"
                        << "    expected:   " << expected);
@@ -181,7 +181,7 @@ namespace {
         tolerance = 1.0e-9;
         calculated = ss.mean();
         for (i=0; i<dimension; i++) {
-            if (std::fabs(calculated[i]-expected) > tolerance)
+            if (abs(calculated[i]-expected) > tolerance)
                 BOOST_FAIL("SequenceStatistics<" << name << ">: "
                            << io::ordinal(i+1) << " dimension: "
                            << "wrong mean value\n"
@@ -192,7 +192,7 @@ namespace {
         expected = 2.23333333333;
         calculated = ss.variance();
         for (i=0; i<dimension; i++) {
-            if (std::fabs(calculated[i]-expected) > tolerance)
+            if (abs(calculated[i]-expected) > tolerance)
                 BOOST_FAIL("SequenceStatistics<" << name << ">: "
                            << io::ordinal(i+1) << " dimension: "
                            << "wrong variance\n"
@@ -203,7 +203,7 @@ namespace {
         expected = 1.4944341181;
         calculated = ss.standardDeviation();
         for (i=0; i<dimension; i++) {
-            if (std::fabs(calculated[i]-expected) > tolerance)
+            if (abs(calculated[i]-expected) > tolerance)
                 BOOST_FAIL("SequenceStatistics<" << name << ">: "
                            << io::ordinal(i+1) << " dimension: "
                            << "wrong standard deviation\n"
@@ -214,7 +214,7 @@ namespace {
         expected = 0.359543071407;
         calculated = ss.skewness();
         for (i=0; i<dimension; i++) {
-            if (std::fabs(calculated[i]-expected) > tolerance)
+            if (abs(calculated[i]-expected) > tolerance)
                 BOOST_FAIL("SequenceStatistics<" << name << ">: "
                            << io::ordinal(i+1) << " dimension: "
                            << "wrong skewness\n"
@@ -225,7 +225,7 @@ namespace {
         expected = -0.151799637209;
         calculated = ss.kurtosis();
         for (i=0; i<dimension; i++) {
-            if (std::fabs(calculated[i]-expected) > tolerance)
+            if (abs(calculated[i]-expected) > tolerance)
                 BOOST_FAIL("SequenceStatistics<" << name << ">: "
                            << io::ordinal(i+1) << " dimension: "
                            << "wrong kurtosis\n"
@@ -274,7 +274,7 @@ namespace {
         const Real expectedValue1 = 4.0;
         const Real tolerance = 1.0e-9;
         Real calculatedValue = stats.convergenceTable().back().second;
-        if (std::fabs(calculatedValue-expectedValue1) > tolerance)
+        if (abs(calculatedValue-expectedValue1) > tolerance)
             BOOST_FAIL("wrong last value in convergence table"
                        << "\n    calculated: " << calculatedValue
                        << "\n    expected:   " << expectedValue1);
@@ -301,7 +301,7 @@ namespace {
 
         const Real expectedValue2 = 2.0;
         calculatedValue = stats.convergenceTable().back().second;
-        if (std::fabs(calculatedValue-expectedValue2) > tolerance)
+        if (abs(calculatedValue-expectedValue2) > tolerance)
             BOOST_FAIL("wrong last value in convergence table"
                        << "\n    calculated: " << calculatedValue
                        << "\n    expected:   " << expectedValue2);
@@ -349,7 +349,7 @@ void StatisticsTest::testIncrementalStatistics() {
     for (Size i = 0; i < 500000; ++i) {
         Real x = 2.0 * (mt.nextReal() - 0.5) * 1234.0;
         Real w = mt.nextReal();
-        stat.add(x, w);
+        stat.add(VALUE(x), VALUE(w));
     }
 
     if (stat.samples() != 500000)
@@ -378,12 +378,12 @@ void StatisticsTest::testIncrementalStatistics() {
     for (Size i = 0; i < 500000; ++i) {
         Real x = normal_gen.next().value * 1E-1 + 1E8;
         Real w = 1.0;
-        stat2.add(x, w);
+        stat2.add(VALUE(x), VALUE(w));
     }
 
     Real tol = 1E-5;
 
-    if(std::fabs( stat2.variance() - 1E-2 ) > tol)
+    if(abs( stat2.variance() - Real(1E-2) ) > tol)
         BOOST_ERROR("variance (" << stat2.variance()
                                  << ") out of expected range " << 1E-2 << " +- "
                                  << tol);

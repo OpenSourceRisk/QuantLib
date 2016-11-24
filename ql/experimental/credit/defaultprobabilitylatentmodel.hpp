@@ -150,7 +150,7 @@ namespace QuantLib {
             const std::vector<Real>& m) const {
             Real sumMs = 
                 std::inner_product(factorWeights_[iName].begin(), 
-                    factorWeights_[iName].end(), m.begin(), 0.);
+                                   factorWeights_[iName].end(), m.begin(), Real(0.));
             Real res = cumulativeZ((invCumYProb - sumMs) / 
                     idiosyncFctrs_[iName] );
             #if defined(QL_EXTRA_SAFETY_CHECKS)
@@ -280,7 +280,7 @@ namespace QuantLib {
         }else{
             E1i1j = pi;
         }
-        return (E1i1j - pipj )/std::sqrt(pipj*(1.-pi)*(1.-pj));
+        return (E1i1j - pipj )/sqrt(pipj*(1.-pi)*(1.-pj));
     }
 
 
@@ -302,7 +302,7 @@ namespace QuantLib {
             const boost::shared_ptr<Pool>& pool = basket_->pool();
 
             BigNatural limit = 
-                static_cast<BigNatural>(std::pow(2., (int)(poolSize)));
+                static_cast<BigNatural>(pow(2., (int)(poolSize)));
 
             // Precalc conditional probabilities
             std::vector<Probability> pDefCond;
@@ -314,7 +314,7 @@ namespace QuantLib {
 
             Probability probNEventsOrMore = 0.;
             for(BigNatural mask = 
-                  static_cast<BigNatural>(std::pow(2., (int)(n))-1);
+                  static_cast<BigNatural>(pow(2., (int)(n))-1);
                 mask < limit; mask++) 
             {
                 // cheap permutations

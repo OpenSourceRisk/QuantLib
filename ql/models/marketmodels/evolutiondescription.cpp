@@ -65,7 +65,7 @@ namespace QuantLib {
         //for (Size j=0; j<numberOfSteps; ++j) {
         //    for (Size i=0; i<numberOfRates_; ++i)
         //        effStopTime_[j][i] =
-        //            std::min(evolutionTimes_[j], rateTimes_[i]);
+        //            min(evolutionTimes_[j], rateTimes_[i]);
         //}
 
         Time currentEvolutionTime = 0.0;
@@ -131,7 +131,7 @@ namespace QuantLib {
     bool isInTerminalMeasure(const EvolutionDescription& evolution,
                              const std::vector<Size>& numeraires) {
         const std::vector<Time>& rateTimes = evolution.rateTimes();
-        return *std::min_element(numeraires.begin(), numeraires.end()) ==
+        return *min_element(numeraires.begin(), numeraires.end()) ==
                                                           rateTimes.size()-1;
     }
 

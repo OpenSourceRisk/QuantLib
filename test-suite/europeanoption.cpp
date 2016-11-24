@@ -188,7 +188,7 @@ namespace {
 
     Integer timeToDays(Time t) {
         // FLOATING_POINT_EXCEPTION
-        return Integer(t*360+0.5);
+        return Integer(VALUE(t*360+0.5));
     }
 
 }
@@ -288,7 +288,7 @@ void EuropeanOptionTest::testValues() {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         Real tolerance = values[i].tol;
         if (error>tolerance) {
             REPORT_FAILURE("value", payoff, exercise, values[i].s,
@@ -302,7 +302,7 @@ void EuropeanOptionTest::testValues() {
         option.setPricingEngine(engine);
 
         calculated = option.NPV();
-        error = std::fabs(calculated-values[i].result);
+        error = abs(calculated-values[i].result);
         tolerance = 1.0e-3;
         if (error>tolerance) {
             REPORT_FAILURE("value", payoff, exercise, values[i].s,
@@ -388,7 +388,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->delta();
-    Real error = std::fabs(calculated-values[i].result);
+    Real error = abs(calculated-values[i].result);
     Real tolerance = 1e-4;
     if (error>tolerance)
         REPORT_FAILURE("delta", payoff, exercise, values[i].s,
@@ -409,7 +409,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->delta();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("delta", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -429,7 +429,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->elasticity();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("elasticity", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -450,7 +450,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->gamma();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("gamma", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -470,7 +470,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->gamma();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("gamma", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -491,7 +491,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->vega();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("vega", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -512,7 +512,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->vega();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("vega", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -533,7 +533,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->theta();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("theta", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -554,7 +554,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->thetaPerDay();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("thetaPerDay", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -575,7 +575,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->rho();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("rho", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -596,7 +596,7 @@ void EuropeanOptionTest::testGreekValues() {
                                         new EuropeanOption(payoff, exercise));
     option->setPricingEngine(engine);
     calculated = option->dividendRho();
-    error = std::fabs(calculated-values[i].result);
+    error = abs(calculated-values[i].result);
     if (error>tolerance)
         REPORT_FAILURE("dividendRho", payoff, exercise, values[i].s,
                        values[i].q, values[i].r, today,
@@ -830,7 +830,7 @@ void EuropeanOptionTest::testImpliedVol() {
                   if (value != 0.0) {
                       // shift guess somehow
                       vol->setValue(v*0.5);
-                      if (std::fabs(value-option->NPV()) <= 1.0e-12) {
+                      if (abs(value-option->NPV()) <= 1.0e-12) {
                           // flat price vs vol --- pointless (and
                           // numerically unstable) to solve
                           continue;
@@ -854,7 +854,7 @@ void EuropeanOptionTest::testImpliedVol() {
                               "\n   option value:   " << value <<
                               "\n" << e.what());
                       }
-                      if (std::fabs(implVol-v) > tolerance) {
+                      if (abs(implVol-v) > tolerance) {
                           // the difference might not matter
                           vol->setValue(implVol);
                           Real value2 = option->NPV();
@@ -952,7 +952,7 @@ void EuropeanOptionTest::testImpliedVolContainment() {
                     "in another instrument");
 
     option2->recalculate();
-    if (std::fabs(option2->NPV() - refValue) >= 1.0e-8)
+    if (abs(option2->NPV() - refValue) >= 1.0e-8)
         BOOST_ERROR("implied volatility calculation changed the value "
                     << "of another instrument: \n"
                     << std::setprecision(8)
@@ -964,7 +964,7 @@ void EuropeanOptionTest::testImpliedVolContainment() {
     if (!f.isUp())
         BOOST_ERROR("volatility change not notified");
 
-    if (std::fabs(option2->NPV() - refValue) <= 1.0e-8)
+    if (abs(option2->NPV() - refValue) <= 1.0e-8)
         BOOST_ERROR("volatility change did not cause the value to change");
 
 }
@@ -1362,7 +1362,7 @@ void EuropeanOptionTest::testPriceCurve() {
 
             option.setPricingEngine(engine1);
             Real calculated = option.NPV();
-            Real error = std::fabs(calculated-price_curve.value(i));
+            Real error = abs(calculated-price_curve.value(i));
             Real tolerance = 1e-3;
             if (error>tolerance) {
                 REPORT_FAILURE("price curve error", payoff, exercise,
@@ -1473,21 +1473,21 @@ void EuropeanOptionTest::testLocalVolatility() {
             const Real calculatedGamma = option.gamma();
             
             // check implied pricing first
-            if (std::fabs(expectedNPV - calculatedNPV) > tol*expectedNPV) {
+            if (abs(expectedNPV - calculatedNPV) > tol*expectedNPV) {
                 BOOST_FAIL("Failed to reproduce option price for "
                            << "\n    strike:     " << payoff->strike()
                            << "\n    maturity:   " << exDate
                            << "\n    calculated: " << calculatedNPV
                            << "\n    expected:   " << expectedNPV);
             }
-            if (std::fabs(expectedDelta - calculatedDelta) >tol*expectedDelta) {
+            if (abs(expectedDelta - calculatedDelta) >tol*expectedDelta) {
                 BOOST_FAIL("Failed to reproduce option delta for "
                            << "\n    strike:     " << payoff->strike()
                            << "\n    maturity:   " << exDate
                            << "\n    calculated: " << calculatedDelta
                            << "\n    expected:   " << expectedDelta);
             }
-            if (std::fabs(expectedGamma - calculatedGamma) >tol*expectedGamma) {
+            if (abs(expectedGamma - calculatedGamma) >tol*expectedGamma) {
                 BOOST_FAIL("Failed to reproduce option gamma for "
                            << "\n    strike:     " << payoff->strike()
                            << "\n    maturity:   " << exDate
@@ -1502,7 +1502,7 @@ void EuropeanOptionTest::testLocalVolatility() {
                                                     FdmSchemeDesc::Douglas(), 
                                                     true, 0.35)));
             calculatedNPV = option.NPV();
-            if (std::fabs(expectedNPV - calculatedNPV) > tol*expectedNPV) {
+            if (abs(expectedNPV - calculatedNPV) > tol*expectedNPV) {
                 BOOST_FAIL("Failed to reproduce local vol option price for "
                            << "\n    strike:     " << payoff->strike()
                            << "\n    maturity:   " << exDate

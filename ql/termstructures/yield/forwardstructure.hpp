@@ -107,7 +107,7 @@ namespace QuantLib {
             return 1.0;   // zeroYieldImpl(0.0) would throw.
 
         Rate r = zeroYieldImpl(t);
-        return DiscountFactor(std::exp(-r*t));
+        return DiscountFactor(exp(-r*t));
     }
 
 }

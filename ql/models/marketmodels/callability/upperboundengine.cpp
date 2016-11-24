@@ -286,7 +286,7 @@ namespace QuantLib {
                 }
 
                 // ...and use it to update the maximum value
-                maximumValue = std::max(maximumValue, portfolioValue);
+                maximumValue = max(maximumValue, portfolioValue);
             }
 
 
@@ -312,7 +312,7 @@ namespace QuantLib {
 
         // finally, we update the maximum with the total accumulated
         // cash flows (in case we never exercised)
-        maximumValue = std::max(maximumValue, numerairesHeld);
+        maximumValue = max(maximumValue, numerairesHeld);
 
 
         // all done; we just convert the result back to cash

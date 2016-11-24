@@ -65,13 +65,13 @@ namespace QuantLib {
         if (x == y)
             return true;
 
-        Real diff = std::fabs(x-y), tolerance = n * QL_EPSILON;
+        Real diff = abs(x-y), tolerance = n * QL_EPSILON;
 
         if (x * y == 0.0) // x or y = 0.0
             return diff < (tolerance * tolerance);
 
-        return diff <= tolerance*std::fabs(x) &&
-               diff <= tolerance*std::fabs(y);
+        return diff <= tolerance*abs(x) &&
+               diff <= tolerance*abs(y);
     }
 
     inline bool close_enough(Real x, Real y) {
@@ -83,13 +83,13 @@ namespace QuantLib {
         if (x == y)
             return true;
 
-        Real diff = std::fabs(x-y), tolerance = n * QL_EPSILON;
+        Real diff = abs(x-y), tolerance = n * QL_EPSILON;
 
         if (x * y == 0.0) // x or y = 0.0
             return diff < (tolerance * tolerance);
 
-        return diff <= tolerance*std::fabs(x) ||
-               diff <= tolerance*std::fabs(y);
+        return diff <= tolerance*abs(x) ||
+               diff <= tolerance*abs(y);
     }
 
 

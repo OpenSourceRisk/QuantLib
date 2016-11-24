@@ -126,32 +126,32 @@ void HybridHestonHullWhiteProcessTest::testBsmHullWhiteEngine() {
         Volatility impliedVol =
             comp.impliedVolatility(npv, bsProcess, 1e-10, 100);
 
-        if (std::fabs(impliedVol - expectedVol[i]) > tol) {
+        if (abs(impliedVol - expectedVol[i]) > tol) {
             BOOST_FAIL("Failed to reproduce implied volatility"
                        << "\n    calculated: " << impliedVol
                        << "\n    expected  : " << expectedVol[i]);
         }
-        if (std::fabs((comp.NPV() - npv)/npv) > tol) {
+        if (abs((comp.NPV() - npv)/npv) > tol) {
             BOOST_FAIL("Failed to reproduce NPV"
                        << "\n    calculated: " << npv
                        << "\n    expected  : " << comp.NPV());
         }
-        if (std::fabs(comp.delta() - option.delta()) > tol) {
+        if (abs(comp.delta() - option.delta()) > tol) {
             BOOST_FAIL("Failed to reproduce NPV"
                        << "\n    calculated: " << npv
                        << "\n    expected  : " << comp.NPV());
         }
-        if (std::fabs((comp.gamma() - option.gamma())/npv) > tol) {
+        if (abs((comp.gamma() - option.gamma())/npv) > tol) {
             BOOST_FAIL("Failed to reproduce NPV"
                        << "\n    calculated: " << npv
                        << "\n    expected  : " << comp.NPV());
         }
-        if (std::fabs((comp.theta() - option.theta())/npv) > tol) {
+        if (abs((comp.theta() - option.theta())/npv) > tol) {
             BOOST_FAIL("Failed to reproduce NPV"
                        << "\n    calculated: " << npv
                        << "\n    expected  : " << comp.NPV());
         }
-        if (std::fabs((comp.vega() - option.vega())/npv) > tol) {
+        if (abs((comp.vega() - option.vega())/npv) > tol) {
             BOOST_FAIL("Failed to reproduce NPV"
                        << "\n    calculated: " << npv
                        << "\n    expected  : " << comp.NPV());
@@ -180,8 +180,8 @@ void HybridHestonHullWhiteProcessTest::testCompareBsmHWandHestonHW() {
     for (Size i=0; i <= 40; ++i) {
         dates.push_back(today+Period(i, Years));
         // FLOATING_POINT_EXCEPTION
-        rates.push_back(0.01 + 0.0002*std::exp(std::sin(i/4.0)));
-        divRates.push_back(0.02 + 0.0001*std::exp(std::sin(i/5.0)));
+        rates.push_back(0.01 + 0.0002*exp(sin(i/4.0)));
+        divRates.push_back(0.02 + 0.0001*exp(sin(i/5.0)));
         times.push_back(dc.yearFraction(today, dates.back()));
     }
 
@@ -243,8 +243,8 @@ void HybridHestonHullWhiteProcessTest::testCompareBsmHWandHestonHW() {
                 option.setPricingEngine(hestonHwEngine);
                 const Real expected = option.NPV();
 
-                if (std::fabs(calculated-expected) > calculated*tol &&
-                    std::fabs(calculated-expected) > tol) {
+                if (abs(calculated-expected) > calculated*tol &&
+                    abs(calculated-expected) > tol) {
                     BOOST_ERROR("Failed to reproduce npvs"
                                 << "\n    calculated: " << calculated
                                 << "\n    expected  : " << expected
@@ -281,7 +281,7 @@ void HybridHestonHullWhiteProcessTest::testZeroBondPricing() {
     times.push_back(0.0);
     for (Size i=120; i < 240; ++i) {
         dates.push_back(today+Period(i, Months));
-        rates.push_back(0.02 + 0.0002*std::exp(std::sin(i/8.0)));
+        rates.push_back(0.02 + 0.0002*exp(sin(i/8.0)));
         times.push_back(dc.yearFraction(today, dates.back()));
     }
 
@@ -342,7 +342,7 @@ void HybridHestonHullWhiteProcessTest::testZeroBondPricing() {
             const DiscountFactor zeroBond
                 = 1.0/jointProcess->numeraire(t, states);
             const DiscountFactor zeroOption = zeroBond
-                * std::max(0.0, hwModel->discountBond(t, T, states[2])-strike);
+                * std::max(Real(0.0), hwModel->discountBond(t, T, states[2])-strike);
 
             zeroStat[j].add(zeroBond);
             optionStat[j].add(zeroOption);
@@ -354,7 +354,7 @@ void HybridHestonHullWhiteProcessTest::testZeroBondPricing() {
         Real calculated = zeroStat[j].mean();
         Real expected = ts->discount(t);
 
-        if (std::fabs(calculated - expected) > 0.03) {
+        if (abs(calculated - expected) > 0.03) {
             BOOST_ERROR("Failed to reproduce expected zero bond prices"
                         << "\n   t:          " << t
                         << "\n   calculated: " << calculated
@@ -366,7 +366,7 @@ void HybridHestonHullWhiteProcessTest::testZeroBondPricing() {
         calculated = optionStat[j].mean();
         expected = hwModel->discountBondOption(Option::Call, strike, t, T);
 
-        if (std::fabs(calculated - expected) > 0.0035) {
+        if (abs(calculated - expected) > 0.0035) {
             BOOST_ERROR("Failed to reproduce expected zero bond option prices"
                         << "\n   t:          " << t
                         << "\n   T:          " << T
@@ -396,8 +396,8 @@ void HybridHestonHullWhiteProcessTest::testMcVanillaPricing() {
     for (Size i=0; i <= 40; ++i) {
         dates.push_back(today+Period(i, Years));
         // FLOATING_POINT_EXCEPTION
-        rates.push_back(0.03 + 0.0003*std::exp(std::sin(i/4.0)));
-        divRates.push_back(0.02 + 0.0001*std::exp(std::sin(i/5.0)));
+        rates.push_back(0.03 + 0.0003*exp(sin(i/4.0)));
+        divRates.push_back(0.02 + 0.0001*exp(sin(i/5.0)));
         times.push_back(dc.yearFraction(today, dates.back()));
     }
 
@@ -460,8 +460,8 @@ void HybridHestonHullWhiteProcessTest::testMcVanillaPricing() {
             const Real error      = optionHestonHW.errorEstimate();
             const Real expected   = optionBsmHW.NPV();
 
-            if (  (corr[i] != 0.0 && std::fabs(calculated - expected) > 3*error)
-                ||(corr[i] == 0.0 &&  std::fabs(calculated - expected)> 1e-4)) {
+            if (  (corr[i] != 0.0 && abs(calculated - expected) > 3*error)
+                ||(corr[i] == 0.0 &&  abs(calculated - expected)> 1e-4)) {
                 BOOST_ERROR("Failed to reproduce BSM-HW vanilla prices"
                         << "\n   corr:       " << corr[i]
                         << "\n   strike:     " << strike[j]
@@ -494,8 +494,8 @@ void HybridHestonHullWhiteProcessTest::testMcPureHestonPricing() {
     for (Size i=0; i <= 100; ++i) {
         dates.push_back(today+Period(i, Months));
         // FLOATING_POINT_EXCEPTION
-        rates.push_back(0.02 + 0.0002*std::exp(std::sin(i/10.0)));
-        divRates.push_back(0.02 + 0.0001*std::exp(std::sin(i/20.0)));
+        rates.push_back(0.02 + 0.0002*exp(sin(i/10.0)));
+        divRates.push_back(0.02 + 0.0001*exp(sin(i/20.0)));
         times.push_back(dc.yearFraction(today, dates.back()));
     }
 
@@ -552,8 +552,8 @@ void HybridHestonHullWhiteProcessTest::testMcPureHestonPricing() {
             Real calculated = optionHestonHW.NPV();
             Real error      = optionHestonHW.errorEstimate();
 
-            if (   std::fabs(calculated - expected) > 3*error
-                && std::fabs(calculated - expected) > tol) {
+            if (   abs(calculated - expected) > 3*error
+                && abs(calculated - expected) > tol) {
                 BOOST_ERROR("Failed to reproduce pure heston vanilla prices"
                         << "\n   corr:       " << corr[i]
                         << "\n   strike:     " << strike[j]
@@ -586,8 +586,8 @@ void HybridHestonHullWhiteProcessTest::testAnalyticHestonHullWhitePricing() {
     for (Size i=0; i <= 40; ++i) {
         dates.push_back(today+Period(i, Years));
         // FLOATING_POINT_EXCEPTION
-        rates.push_back(0.03 + 0.0001*std::exp(std::sin(i/4.0)));
-        divRates.push_back(0.02 + 0.0002*std::exp(std::sin(i/3.0)));
+        rates.push_back(0.03 + 0.0001*exp(sin(i/4.0)));
+        divRates.push_back(0.02 + 0.0002*exp(sin(i/3.0)));
         times.push_back(dc.yearFraction(today, dates.back()));
     }
 
@@ -645,8 +645,8 @@ void HybridHestonHullWhiteProcessTest::testAnalyticHestonHullWhitePricing() {
             Real error      = optionHestonHW.errorEstimate();
             Real expected   = optionPureHeston.NPV();
 
-            if (   std::fabs(calculated - expected) > 3*error
-                && std::fabs(calculated - expected) > tol) {
+            if (   abs(calculated - expected) > 3*error
+                && abs(calculated - expected) > tol) {
                 BOOST_ERROR("Failed to reproduce hw heston vanilla prices"
                         << "\n   strike:     " << strike[j]
                         << "\n   calculated: " << calculated
@@ -764,7 +764,7 @@ void HybridHestonHullWhiteProcessTest::testCallableEquityPricing() {
     const Real calculated = stat.mean();
     const Real error = stat.errorEstimate();
 
-    if (std::fabs(expected - calculated) > 3*error) {
+    if (abs(expected - calculated) > 3*error) {
         BOOST_ERROR("Failed to reproduce auto-callable equity structure price"
                     << "\n   calculated: " << calculated
                     << "\n   error:      " << error
@@ -793,8 +793,8 @@ void HybridHestonHullWhiteProcessTest::testDiscretizationError() {
     for (Size i=0; i <= 31; ++i) {
         dates.push_back(today+Period(i, Years));
         // FLOATING_POINT_EXCEPTION
-        rates.push_back(0.04 + 0.0001*std::exp(std::sin(double(i))));
-        divRates.push_back(0.04 + 0.0001*std::exp(std::sin(double(i))));
+        rates.push_back(0.04 + 0.0001*exp(sin(double(i))));
+        divRates.push_back(0.04 + 0.0001*exp(sin(double(i))));
         times.push_back(dc.yearFraction(today, dates.back()));
     }
 
@@ -855,8 +855,8 @@ void HybridHestonHullWhiteProcessTest::testDiscretizationError() {
             Real calculated = optionHestonHW.NPV();
             Real error      = optionHestonHW.errorEstimate();
 
-            if ((   std::fabs(calculated - expected) > 3*error
-                 && std::fabs(calculated - expected) > 1e-5)) {
+            if ((   abs(calculated - expected) > 3*error
+                 && abs(calculated - expected) > 1e-5)) {
                 BOOST_ERROR("Failed to reproduce discretization error"
                         << "\n   corr:       " << corr[i]
                         << "\n   strike:     " << strike[j]
@@ -925,7 +925,7 @@ void HybridHestonHullWhiteProcessTest::testFdmHestonHullWhiteEngine() {
             const Real expectedGamma = option.gamma();
 
             const Real npvTol = 0.01;
-            if (std::fabs(calculated - expected) > npvTol) {
+            if (abs(calculated - expected) > npvTol) {
                  BOOST_ERROR("Failed to reproduce analytic npv values"
                          << "\n   corr:       " << corr[i]
                          << "\n   strike:     " << strike[j]
@@ -933,7 +933,7 @@ void HybridHestonHullWhiteProcessTest::testFdmHestonHullWhiteEngine() {
                          << "\n   expected:   " << expected);
             }
             const Real deltaTol = 0.001;
-            if (std::fabs(calculatedDelta - expectedDelta) > deltaTol) {
+            if (abs(calculatedDelta - expectedDelta) > deltaTol) {
                  BOOST_ERROR("Failed to reproduce analytic delta values"
                          << "\n   corr:       " << corr[i]
                          << "\n   strike:     " << strike[j]
@@ -941,7 +941,7 @@ void HybridHestonHullWhiteProcessTest::testFdmHestonHullWhiteEngine() {
                          << "\n   expected:   " << expected);
             }
             const Real gammaTol = 0.001;
-            if (std::fabs(calculatedGamma - expectedGamma) > gammaTol) {
+            if (abs(calculatedGamma - expectedGamma) > gammaTol) {
                  BOOST_ERROR("Failed to reproduce analytic gamma values"
                          << "\n   corr:       " << corr[i]
                          << "\n   strike:     " << strike[j]
@@ -1035,7 +1035,7 @@ namespace {
                                             const VanillaOptionData& params) {
         
         Date maturity = Date(Settings::instance().evaluationDate()) 
-                                          + Period(Size(params.maturity*365), Days);
+            + Period(Size(VALUE(params.maturity*365)), Days);
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(maturity));
         boost::shared_ptr<StrikedTypePayoff> payoff(
                     new PlainVanillaPayoff(params.optionType, params.strike));
@@ -1078,7 +1078,7 @@ void HybridHestonHullWhiteProcessTest::testBsmHullWhitePricing() {
         new BlackScholesMertonProcess(
             hp->s0(), hp->dividendYield(), hp->riskFreeRate(), 
             Handle<BlackVolTermStructure>(
-                flatVol(today, std::sqrt(hestonModelData.theta),
+                flatVol(today, sqrt(hestonModelData.theta),
                         hp->riskFreeRate()->dayCounter()))));
     
     boost::shared_ptr<PricingEngine> bsmhwEngine(
@@ -1091,7 +1091,7 @@ void HybridHestonHullWhiteProcessTest::testBsmHullWhitePricing() {
         SchemeData scheme = schemes[l];
         for (Size i=0; i < LENGTH(controlVariate); ++i) {
             for (Size u=0; u < LENGTH(listOfTimeStepsPerYear); ++u) {
-                Size tSteps = Size(maturity*listOfTimeStepsPerYear[u]);
+                Size tSteps = Size(VALUE(maturity*listOfTimeStepsPerYear[u]));
     
                 boost::shared_ptr<FdHestonHullWhiteVanillaEngine> fdEngine(
                     new FdHestonHullWhiteVanillaEngine(
@@ -1113,7 +1113,7 @@ void HybridHestonHullWhiteProcessTest::testBsmHullWhitePricing() {
                     option->setPricingEngine(fdEngine);
                     Real calculated = option->NPV();
                     avgPriceDiff
-                        +=std::fabs(expected-calculated)/LENGTH(strikes);
+                        +=abs(expected-calculated)/LENGTH(strikes);
                 }
                 
                 if (controlVariate[i] && tolWithCV[l] < avgPriceDiff) {
@@ -1160,7 +1160,7 @@ void HybridHestonHullWhiteProcessTest::testSpatialDiscretizatinError() {
                 boost::shared_ptr<PricingEngine> analyticEngine(
                                new AnalyticHestonEngine(hestonModel, 172));
     
-                Size tSteps = Size(maturity*listOfTimeStepsPerYear[u]);
+                Size tSteps = Size(VALUE(maturity*listOfTimeStepsPerYear[u]));
     
                 boost::shared_ptr<FdHestonVanillaEngine> fdEngine(
                     new FdHestonVanillaEngine(
@@ -1181,7 +1181,7 @@ void HybridHestonHullWhiteProcessTest::testSpatialDiscretizatinError() {
                     Real calculated = option->NPV();
      
                     avgPriceDiff
-                        +=std::fabs(expected-calculated)/LENGTH(strikes);
+                        +=abs(expected-calculated)/LENGTH(strikes);
                 }
     
                 if (avgPriceDiff > tol[i]) {
@@ -1293,7 +1293,7 @@ void HybridHestonHullWhiteProcessTest::testHestonHullWhiteCalibration() {
     std::vector<boost::shared_ptr<CalibrationHelper> > options;
     
     for (Size i=0; i < LENGTH(maturities); ++i) {
-        const Period maturity((int)(maturities[i]*12.0+0.5), Months);
+        const Period maturity((int)(VALUE(maturities[i]*12.0+0.5)), Months);
         boost::shared_ptr<Exercise> exercise(
                                         new EuropeanExercise(today + maturity));
 
@@ -1350,7 +1350,7 @@ void HybridHestonHullWhiteProcessTest::testHestonHullWhiteCalibration() {
     fdmHestonModel->setParams(analyticHestonModel->params());
 
     for (Size i=0; i < LENGTH(maturities); ++i) {
-        const Size tGrid = static_cast<Size>(std::max(10.0, maturities[i]*10.0));
+        const Size tGrid = static_cast<Size>(std::max(10.0, VALUE(maturities[i])*10.0));
         boost::shared_ptr<FdHestonHullWhiteVanillaEngine> engine(
             new FdHestonHullWhiteVanillaEngine(fdmHestonModel, hwProcess, 
                                                equityShortRateCorr, 
@@ -1359,7 +1359,7 @@ void HybridHestonHullWhiteProcessTest::testHestonHullWhiteCalibration() {
         engine->enableMultipleStrikesCaching(
                      std::vector<Real>(strikes, strikes + LENGTH(strikes)));
         
-        const Period maturity((int)(maturities[i]*12.0+0.5), Months);
+        const Period maturity((int)(VALUE(maturities[i]*12.0+0.5)), Months);
         
         for (Size j=0; j < LENGTH(strikes); ++j) {
             // multiple strikes engine works best if the first option
@@ -1393,34 +1393,34 @@ void HybridHestonHullWhiteProcessTest::testHestonHullWhiteCalibration() {
     const Real expected_sigma =  0.5;
     const Real expected_rho   = -0.75;
     
-    if (std::fabs(fdmHestonModel->v0() - expected_v0)/expected_v0 > relTol) {
+    if (abs(fdmHestonModel->v0() - expected_v0)/expected_v0 > relTol) {
          BOOST_ERROR("Failed to reproduce Heston-Hull-White model"
                  << "\n   v0 calculated: " << fdmHestonModel->v0()
                  << "\n   v0 expected  : " << expected_v0
                  << "\n   relatove tol : " << relTol);
     }
-    if (std::fabs(fdmHestonModel->theta() - expected_theta)/expected_theta 
+    if (abs(fdmHestonModel->theta() - expected_theta)/expected_theta 
                                                                     > relTol) {
          BOOST_ERROR("Failed to reproduce Heston-Hull-White model"
                  << "\n   theta calculated: " << fdmHestonModel->theta()
                  << "\n   theta expected  : " << expected_theta
                  << "\n   relatove tol    : " << relTol);
     }
-    if (std::fabs(fdmHestonModel->kappa() - expected_kappa)/expected_kappa 
+    if (abs(fdmHestonModel->kappa() - expected_kappa)/expected_kappa 
                                                                     > relTol) {
         BOOST_ERROR("Failed to reproduce Heston-Hull-White model"
                 << "\n   kappa calculated: " << fdmHestonModel->kappa()
                 << "\n   kappa expected  : " << expected_kappa
                 << "\n   relatove tol    : " << relTol);
     }
-    if (std::fabs(fdmHestonModel->sigma() - expected_sigma)/expected_sigma 
+    if (abs(fdmHestonModel->sigma() - expected_sigma)/expected_sigma 
                                                                     > relTol) {
        BOOST_ERROR("Failed to reproduce Heston-Hull-White model"
                << "\n   sigma calculated: " << fdmHestonModel->sigma()
                << "\n   sigma expected  : " << expected_sigma
                << "\n   relatove tol    : " << relTol);
     }
-    if (std::fabs(fdmHestonModel->rho() - expected_rho)/expected_rho > relTol) {
+    if (abs(fdmHestonModel->rho() - expected_rho)/expected_rho > relTol) {
          BOOST_ERROR("Failed to reproduce Heston-Hull-White model"
                  << "\n   rho calculated: " << fdmHestonModel->rho()
                  << "\n   rho expected  : " << expected_rho
@@ -1498,7 +1498,7 @@ void HybridHestonHullWhiteProcessTest::testH1HWPricingEngine() {
             const Real impliedH1HW
                 = option.impliedVolatility(option.NPV(), bsProcess);
 
-            if (std::fabs(expected[j][i] - impliedH1HW) > tol) {
+            if (abs(expected[j][i] - impliedH1HW) > tol) {
                 BOOST_ERROR("Failed to reproduce H1HW implied volatility"
                         << "\n   expected       : " << expected[j][i]
                         << "\n   calculated     : " << impliedH1HW

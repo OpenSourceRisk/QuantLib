@@ -58,14 +58,14 @@ namespace QuantLib {
         const Size tGridMin = 5;
         const boost::shared_ptr<FdmHestonVarianceMesher> varianceMesher(
             new FdmHestonVarianceMesher(vGrid_, process, maturity,
-                                        std::max(tGridMin, tGrid_/50)));
+                                        max(double(tGridMin), VALUE(Real(tGrid_/50)))));
 
         // 1.2 The equity mesher
         const boost::shared_ptr<StrikedTypePayoff> payoff =
             boost::dynamic_pointer_cast<StrikedTypePayoff>(arguments_.payoff);
 
-        Real xMin = std::log(arguments_.barrier_lo);
-        Real xMax = std::log(arguments_.barrier_hi);
+        Real xMin = log(arguments_.barrier_lo);
+        Real xMax = log(arguments_.barrier_hi);
 
         const boost::shared_ptr<Fdm1dMesher> equityMesher(
             new FdmBlackScholesMesher(

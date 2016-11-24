@@ -72,7 +72,7 @@ namespace QuantLib {
     // inline definitions
 
     inline Probability FlatHazardRate::survivalProbabilityImpl(Time t) const {
-        return std::exp(-hazardRate_->value()*t);
+        return exp(-hazardRate_->value()*t);
     }
 
 }

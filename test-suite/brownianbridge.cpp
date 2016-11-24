@@ -39,7 +39,7 @@ namespace {
                  ForwardIterator2 begin2) {
         Real diff = 0.0;
         while (begin1 != end1) {
-            diff = std::max(diff, std::fabs(*begin1 - *begin2));
+            diff = std::max(diff, abs(*begin1 - *begin2));
             ++begin1; ++begin2;
         }
         return diff;
@@ -50,7 +50,7 @@ namespace {
                     ForwardIterator2 begin2) {
         Real diff = 0.0;
         while (begin1 != end1) {
-            diff = std::max(diff, std::fabs((*begin1 - *begin2)/(*begin2)));
+            diff = std::max(diff, abs((*begin1 - *begin2)/(*begin2)));
             ++begin1; ++begin2;
         }
         return diff;
@@ -96,9 +96,9 @@ void BrownianBridgeTest::testVariates() {
         bridge.transform(sample.begin(), sample.end(), temp.begin());
         stats1.add(temp.begin(), temp.end());
 
-        temp[0] = temp[0]*std::sqrt(times[0]);
+        temp[0] = temp[0]*sqrt(times[0]);
         for (Size j=1; j<N; ++j)
-            temp[j] = temp[j-1] + temp[j]*std::sqrt(times[j]-times[j-1]);
+            temp[j] = temp[j-1] + temp[j]*sqrt(times[j]-times[j-1]);
         stats2.add(temp.begin(), temp.end());
     }
 

@@ -36,7 +36,7 @@ namespace QuantLib {
     public:
         void applyTo(array_type& a, Time) const {
             for(Size i=0; i < a.size(); i++) {
-                a[i] = std::max(a[i], 0.0);
+                a[i] = max(a[i], 0.0);
             }
         }
     };

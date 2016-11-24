@@ -23,8 +23,8 @@
 #include <ql/methods/lattices/trinomialtree.hpp>
 #include <ql/pricingengines/blackformula.hpp>
 
-using std::exp;
-using std::sqrt;
+// using exp;
+// using sqrt;
 
 namespace QuantLib {
 
@@ -63,10 +63,10 @@ namespace QuantLib {
             Real x = trinomial->underlying(i,0);
             Real value = 0.0;
             for (Size j=0; j<size; j++) {
-                value += statePrices[j]*std::exp(-x*dt);
+                value += statePrices[j]*exp(-x*dt);
                 x += dx;
             }
-            value = std::log(value/discountBond)/dt;
+            value = log(value/discountBond)/dt;
             impl->set(grid[i], value);
         }
         return numericTree;
@@ -79,7 +79,7 @@ namespace QuantLib {
                                                     Continuous, NoFrequency);
         Real temp = sigma()*B(t,T);
         Real value = B(t,T)*forward - 0.25*temp*temp*B(0.0,2.0*t);
-        return std::exp(value)*discount2/discount1;
+        return exp(value)*discount2/discount1;
     }
 
     void HullWhite::generateArguments() {
@@ -92,11 +92,11 @@ namespace QuantLib {
 
         Real _a = a();
         Real v;
-        if (_a < std::sqrt(QL_EPSILON)) {
-            v = sigma()*B(maturity, bondMaturity)* std::sqrt(maturity);
+        if (_a < sqrt(QL_EPSILON)) {
+            v = sigma()*B(maturity, bondMaturity)* sqrt(maturity);
         } else {
             v = sigma()*B(maturity, bondMaturity)*
-                std::sqrt(0.5*(1.0 - std::exp(-2.0*_a*maturity))/_a);
+                sqrt(0.5*(1.0 - exp(-2.0*_a*maturity))/_a);
         }
         Real f = termStructure()->discount(bondMaturity);
         Real k = termStructure()->discount(maturity)*strike;
@@ -110,8 +110,8 @@ namespace QuantLib {
 
         Real _a = a();
         Real v;
-        if (_a < std::sqrt(QL_EPSILON)) {
-            v = sigma()*B(bondStart, bondMaturity)* std::sqrt(maturity);
+        if (_a < sqrt(QL_EPSILON)) {
+            v = sigma()*B(bondStart, bondMaturity)* sqrt(maturity);
         } else {
             v = sigma()/(_a*sqrt(2.0*_a)) * sqrt ( 
                    exp(-2.0*_a*(bondStart-maturity))-exp(-2.0*_a*bondStart)
@@ -141,14 +141,14 @@ namespace QuantLib {
             "negative a (" << a << ") not allowed");
 
         Time deltaT = (T-t);
-        Real tempDeltaT = (1.-std::exp(-a*deltaT)) / a;
+        Real tempDeltaT = (1.-exp(-a*deltaT)) / a;
         Real halfSigmaSquare = sigma*sigma/2.0;
 
         // lambda adjusts for the fact that the underlying is an interest rate
-        Real lambda = halfSigmaSquare * (1.-std::exp(-2.0*a*t)) / a *
+        Real lambda = halfSigmaSquare * (1.-exp(-2.0*a*t)) / a *
             tempDeltaT * tempDeltaT;
 
-        Real tempT = (1.0 - std::exp(-a*t)) / a;
+        Real tempT = (1.0 - exp(-a*t)) / a;
 
         // phi is the MtM adjustment
         Real phi = halfSigmaSquare * tempDeltaT * tempT * tempT;
@@ -157,7 +157,7 @@ namespace QuantLib {
         Real z = lambda + phi;
 
         Rate futureRate = (100.0-futuresPrice)/100.0;
-        return (1.0-std::exp(-z)) * (futureRate + 1.0/(T-t));
+        return (1.0-exp(-z)) * (futureRate + 1.0/(T-t));
     }
 
 }

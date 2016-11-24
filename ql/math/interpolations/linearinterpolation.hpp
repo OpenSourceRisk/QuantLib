@@ -77,20 +77,24 @@ namespace QuantLib {
                 primitiveConst_[0] = 0.0;
                 for (Size i=1; i<Size(this->xEnd_-this->xBegin_); ++i) {
                     Real dx = this->xBegin_[i]-this->xBegin_[i-1];
-                    s_[i-1] = (this->yBegin_[i]-this->yBegin_[i-1])/dx;
+                    Real y2 = this->yBegin_[i];
+                    Real y1 = this->yBegin_[i-1];
+                    s_[i-1] = (y2-y1)/dx;
                     primitiveConst_[i] = primitiveConst_[i-1]
-                        + dx*(this->yBegin_[i-1] +0.5*dx*s_[i-1]);
+                        + dx*(y1 +0.5*dx*s_[i-1]);
                 }
             }
             Real value(Real x) const {
                 Size i = this->locate(x);
-                return this->yBegin_[i] + (x-this->xBegin_[i])*s_[i];
+                Real y0 = this->yBegin_[i];
+                return y0 + (x-this->xBegin_[i])*s_[i];
             }
             Real primitive(Real x) const {
                 Size i = this->locate(x);
                 Real dx = x-this->xBegin_[i];
+                Real y0 = this->yBegin_[i];
                 return primitiveConst_[i] +
-                    dx*(this->yBegin_[i] + 0.5*dx*s_[i]);
+                    dx*(y0 + 0.5*dx*s_[i]);
             }
             Real derivative(Real x) const {
                 Size i = this->locate(x);

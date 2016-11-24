@@ -63,7 +63,7 @@ namespace QuantLib {
             p(state.coterminalSwapRate(currentIndex_));
 
      //   value /= state.discountRatios()[currentIndex_];
-        value =  std::max(value, 0.0);
+        value =  max(value, Real(0.0));
         cf_.timeIndex = currentIndex_;
         cf_.amount = value;
         ++currentIndex_;

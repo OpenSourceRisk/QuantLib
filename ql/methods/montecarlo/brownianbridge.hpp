@@ -111,20 +111,22 @@ namespace QuantLib {
             QL_REQUIRE(Size(end-begin) == size_,
                        "incompatible sequence size");
             // We use output to store the path...
-            output[size_-1] = stdDev_[0] * begin[0];
+            Real tmp = begin[0];
+            output[size_-1] = stdDev_[0] * tmp;
             for (Size i=1; i<size_; ++i) {
                 Size j = leftIndex_[i];
                 Size k = rightIndex_[i];
                 Size l = bridgeIndex_[i];
+                Real tmp = begin[i];
                 if (j != 0) {
                     output[l] =
                         leftWeight_[i] * output[j-1] +
                         rightWeight_[i] * output[k]   +
-                        stdDev_[i] * begin[i];
+                        stdDev_[i] * tmp;
                 } else {
                     output[l] =
                         rightWeight_[i] * output[k]   +
-                        stdDev_[i] * begin[i];
+                        stdDev_[i] * tmp;
                 }
             }
             // ...after which, we calculate the variations and

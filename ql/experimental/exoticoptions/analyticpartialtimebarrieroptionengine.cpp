@@ -123,17 +123,17 @@ namespace QuantLib {
         if (strike()<barrier()){
             switch (barrierType) {
               case PartialBarrier::DownOut:
-                result = underlying()*std::exp((b-riskFreeRate())*residualTime());
+                result = underlying()*exp((b-riskFreeRate())*residualTime());
                 result *= (M(g1(),e1(),rho())-HS(underlying(),barrier(),2*(mu()+1))*M(g3(),-e3(),-rho()));
-                result -= strike()*std::exp(-riskFreeRate()*residualTime())*(M(g2(),e2(),rho())-HS(underlying(),barrier(),2*mu())*M(g4(),-e4(),-rho()));
+                result -= strike()*exp(-riskFreeRate()*residualTime())*(M(g2(),e2(),rho())-HS(underlying(),barrier(),2*mu())*M(g4(),-e4(),-rho()));
                 return result;
 
               case PartialBarrier::UpOut:
-                result = underlying()*std::exp((b-riskFreeRate())*residualTime());
+                result = underlying()*exp((b-riskFreeRate())*residualTime());
                 result *= (M(-g1(),-e1(),rho())-HS(underlying(),barrier(),2*(mu()+1))*M(-g3(),e3(),-rho()));
-                result -= strike()*std::exp(-riskFreeRate()*residualTime())*(M(-g2(),-e2(),rho())-HS(underlying(),barrier(),2*mu())*M(-g4(),e4(),-rho()));
-                result -= underlying()*std::exp((b-riskFreeRate())*residualTime())*(M(-d1(),-e1(),rho())-HS(underlying(),barrier(),2*(mu()+1))*M(e3(),-f1(),-rho()));
-                result += strike()*std::exp(-riskFreeRate()*residualTime())*(M(-d2(),-e2(),rho())-HS(underlying(),barrier(),2*mu())*M(e4(),-f2(),-rho()));
+                result -= strike()*exp(-riskFreeRate()*residualTime())*(M(-g2(),-e2(),rho())-HS(underlying(),barrier(),2*mu())*M(-g4(),e4(),-rho()));
+                result -= underlying()*exp((b-riskFreeRate())*residualTime())*(M(-d1(),-e1(),rho())-HS(underlying(),barrier(),2*(mu()+1))*M(e3(),-f1(),-rho()));
+                result += strike()*exp(-riskFreeRate()*residualTime())*(M(-d2(),-e2(),rho())-HS(underlying(),barrier(),2*mu())*M(e4(),-f2(),-rho()));
                 return result;
 
               default:
@@ -148,13 +148,13 @@ namespace QuantLib {
         Real result = 0.0;
         Real b = riskFreeRate()-dividendYield();
         if (strike()>barrier()) {
-            result = underlying()*std::exp((b-riskFreeRate())*residualTime());
+            result = underlying()*exp((b-riskFreeRate())*residualTime());
             result *= (M(d1(),e1(),rho())-HS(underlying(),barrier(),2*(mu()+1))*M(f1(),-e3(),-rho()));
-            result -= (strike()*std::exp(-riskFreeRate()*residualTime()))*(M(d2(),e2(),rho())-HS(underlying(),barrier(),2*mu())*M(f2(),-e4(),-rho()));
+            result -= (strike()*exp(-riskFreeRate()*residualTime()))*(M(d2(),e2(),rho())-HS(underlying(),barrier(),2*mu())*M(f2(),-e4(),-rho()));
             return result;
         } else {
-            Real S1 = underlying()*std::exp((b-riskFreeRate())*residualTime());
-            Real X1 = (strike()*std::exp(-riskFreeRate()*residualTime()));
+            Real S1 = underlying()*exp((b-riskFreeRate())*residualTime());
+            Real X1 = (strike()*exp(-riskFreeRate()*residualTime()));
             Real HS1 = HS(underlying(),barrier(),2*(mu()+1));
             Real HS2 = HS(underlying(), barrier(), 2 * mu());
             result = S1;
@@ -189,9 +189,9 @@ namespace QuantLib {
         //Partial-Time-Start- OUT  Call Option calculation
         Real b = riskFreeDiscount()-dividendYield();
         Real result;
-        result = underlying()*std::exp((b-riskFreeRate())*residualTime());
+        result = underlying()*exp((b-riskFreeRate())*residualTime());
         result *= (M(d1(),eta*e1(),eta*rho())-HS(underlying(),barrier(),2*(mu()+1))*M(f1(),eta*e3(),eta*rho()));
-        result -= (strike()*std::exp(-riskFreeRate()*residualTime())*(M(d2(),eta*e2(),eta*rho())-HS(underlying(),barrier(),2*mu())*M(f2(),eta*e4(),eta*rho())));
+        result -= (strike()*exp(-riskFreeRate()*residualTime())*(M(d2(),eta*e2(),eta*rho())-HS(underlying(),barrier(),2*mu())*M(f2(),eta*e4(),eta*rho())));
         return result;
     }
 
@@ -220,7 +220,7 @@ namespace QuantLib {
 
     Real AnalyticPartialTimeBarrierOptionEngine::stdDeviation() const {
         Time T = residualTime();
-        return volatility(T) * std::sqrt(T);
+        return volatility(T) * sqrt(T);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::barrier() const {
@@ -254,12 +254,12 @@ namespace QuantLib {
         Real S = underlying();
         Real T = residualTime();
         Real sigma = volatility(T);
-        return (std::log(S / strike()) + 2 * std::log(barrier() / S) + ((riskFreeRate()-dividendYield()) + (std::pow(sigma, 2) / 2))*T) / (sigma*std::sqrt(T));
+        return (log(S / strike()) + 2 * log(barrier() / S) + ((riskFreeRate()-dividendYield()) + (pow(sigma, 2) / 2))*T) / (sigma*sqrt(T));
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::f2() const {
         Time T = residualTime();
-        return f1() - volatility(T)*std::sqrt(T);
+        return f1() - volatility(T)*sqrt(T);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::M(Real a,Real b,Real rho) const {
@@ -268,7 +268,7 @@ namespace QuantLib {
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::rho() const {
-        return std::sqrt(coverEventTime()/residualTime());
+        return sqrt(coverEventTime()/residualTime());
     }
 
     Rate AnalyticPartialTimeBarrierOptionEngine::mu() const {
@@ -280,66 +280,66 @@ namespace QuantLib {
         Real b = riskFreeRate()-dividendYield();
         Time T2 = residualTime();
         Volatility vol = volatility(T2);
-        return (std::log(underlying()/strike())+(b+vol*vol/2)*T2)/(std::sqrt(T2)*vol);
+        return (log(underlying()/strike())+(b+vol*vol/2)*T2)/(sqrt(T2)*vol);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::d2() const {
         Time T2 = residualTime();
         Volatility vol = volatility(T2);
-        return d1() - vol*std::sqrt(T2);
+        return d1() - vol*sqrt(T2);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::e1() const {
         Real b = riskFreeRate()-dividendYield();
         Time T1 = coverEventTime();
         Volatility vol = volatility(T1);
-        return (std::log(underlying()/barrier())+(b+vol*vol/2)*T1)/(std::sqrt(T1)*vol);
+        return (log(underlying()/barrier())+(b+vol*vol/2)*T1)/(sqrt(T1)*vol);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::e2() const {
         Time T1 = coverEventTime();
         Volatility vol = volatility(T1);
-        return e1() - vol*std::sqrt(T1);
+        return e1() - vol*sqrt(T1);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::e3() const {
         Time T1 = coverEventTime();
         Real vol = volatility(T1);
-        return e1()+(2*std::log(barrier()/underlying()) /(vol*std::sqrt(T1)));
+        return e1()+(2*log(barrier()/underlying()) /(vol*sqrt(T1)));
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::e4() const {
         Time t = coverEventTime();
-        return e3()-volatility(t)*std::sqrt(t);
+        return e3()-volatility(t)*sqrt(t);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::g1() const {
         Real b = riskFreeRate()-dividendYield();
         Time T2 = residualTime();
         Volatility vol = volatility(T2);
-        return (std::log(underlying()/barrier())+(b+vol*vol/2)*T2)/(std::sqrt(T2)*vol);
+        return (log(underlying()/barrier())+(b+vol*vol/2)*T2)/(sqrt(T2)*vol);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::g2() const {
         Time T2 = residualTime();
         Volatility vol = volatility(T2);
-        return g1() - vol*std::sqrt(T2);
+        return g1() - vol*sqrt(T2);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::g3() const {
         Time T2 = residualTime();
         Real vol = volatility(T2);
-        return g1()+(2*std::log(barrier()/underlying()) /(vol*std::sqrt(T2)));
+        return g1()+(2*log(barrier()/underlying()) /(vol*sqrt(T2)));
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::g4() const {
         Time T2 = residualTime();
         Real vol = volatility(T2);
-        return g3()-vol*std::sqrt(T2);
+        return g3()-vol*sqrt(T2);
     }
 
     Real AnalyticPartialTimeBarrierOptionEngine::HS(Real S, Real H, Real power) const {
-        return std::pow((H/S),power);
+        return pow((H/S),power);
     }
 
 }

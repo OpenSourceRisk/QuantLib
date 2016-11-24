@@ -58,10 +58,10 @@ namespace QuantLib {
     Real LinearTsrPricer::GsrG(const Date &d) const {
 
         Real yf = volDayCounter_.yearFraction(fixingDate_, d);
-        if (std::fabs(meanReversion_->value()) < 1.0E-4)
+        if (abs(meanReversion_->value()) < 1.0E-4)
             return yf;
         else
-            return (1.0 - std::exp(-meanReversion_->value() * yf)) /
+            return (1.0 - exp(-meanReversion_->value() * yf)) /
                    meanReversion_->value();
     }
 
@@ -69,7 +69,7 @@ namespace QuantLib {
                                         const Real strike) const {
 
         Real omega = (type == Option::Call ? 1.0 : -1.0);
-        Real s1 = std::max(omega * (swapRateValue_ - strike), 0.0) *
+        Real s1 = max(omega * (swapRateValue_ - strike), Real(0.0)) *
                   (a_ * swapRateValue_ + b_);
         Real s2 = (a_ * strike + b_) *
                   smileSection_->optionPrice(strike, strike < swapRateValue_
@@ -127,7 +127,7 @@ namespace QuantLib {
             swap_ = swapIndex_->underlyingSwap(fixingDate_);
 
             swapRateValue_ = swap_->fairRate();
-            annuity_ = 1.0E4 * std::fabs(swap_->fixedLegBPS());
+            annuity_ = 1.0E4 * abs(swap_->fixedLegBPS());
 
             boost::shared_ptr<SmileSection> sectionTmp =
                 swaptionVolatility()->smileSection(fixingDate_, swapTenor_);
@@ -175,17 +175,17 @@ namespace QuantLib {
                                               Option::Type optionType,
                                               Real referenceStrike) const {
 
-        Real a, b, min, max, k;
+        Real a, b, min_, max_, k;
         if (optionType == Option::Call) {
             a = swapRateValue_;
-            min = referenceStrike;
-            b = max = k =
-                std::min(smileSection_->maxStrike(), shiftedUpperBound_);
+            min_ = referenceStrike;
+            b = max_ = k =
+                min(smileSection_->maxStrike(), shiftedUpperBound_);
         } else {
-            a = min = k =
-                std::max(smileSection_->minStrike(), shiftedLowerBound_);
+            a = min_ = k =
+                max(smileSection_->minStrike(), shiftedLowerBound_);
             b = swapRateValue_;
-            max = referenceStrike;
+            max_ = referenceStrike;
         }
 
         VegaRatioHelper h(&*smileSection_,
@@ -199,23 +199,23 @@ namespace QuantLib {
             // use default value set above
         }
 
-        return std::min(std::max(k, min), max);
+        return min(max(k, min_), max_);
     }
 
     Real LinearTsrPricer::strikeFromPrice(Real price, Option::Type optionType,
                                           Real referenceStrike) const {
 
-        Real a, b, min, max, k;
+        Real a, b, min_, max_, k;
         if (optionType == Option::Call) {
             a = swapRateValue_;
-            min = referenceStrike;
-            b = max = k =
-                std::min(smileSection_->maxStrike(), shiftedUpperBound_);
+            min_ = referenceStrike;
+            b = max_ = k =
+                min(smileSection_->maxStrike(), shiftedUpperBound_);
         } else {
-            a = min = k =
-                std::max(smileSection_->minStrike(), shiftedLowerBound_);
+            a = min_ = k =
+                max(smileSection_->minStrike(), shiftedLowerBound_);
             b = swapRateValue_;
-            max = referenceStrike;
+            max_ = referenceStrike;
         }
 
         PriceHelper h(&*smileSection_, optionType, price);
@@ -228,7 +228,7 @@ namespace QuantLib {
             // use default value set above
         }
 
-        return std::min(std::max(k, min), max);
+        return min(max(k, min_), max_);
     }
 
     Real LinearTsrPricer::optionletPrice(Option::Type optionType,
@@ -259,9 +259,9 @@ namespace QuantLib {
             Real bound =
                 strikeFromVegaRatio(settings_.vegaRatio_, optionType, strike);
             if (optionType == Option::Call)
-                upper = std::min(bound, shiftedUpperBound_);
+                upper = min(bound, shiftedUpperBound_);
             else
-                lower = std::max(bound, shiftedLowerBound_);
+                lower = max(bound, shiftedLowerBound_);
             break;
         }
 
@@ -271,9 +271,9 @@ namespace QuantLib {
             Real bound =
                 strikeFromPrice(settings_.vegaRatio_, optionType, strike);
             if (optionType == Option::Call)
-                upper = std::min(bound, shiftedUpperBound_);
+                upper = min(bound, shiftedUpperBound_);
             else
-                lower = std::max(bound, shiftedLowerBound_);
+                lower = max(bound, shiftedLowerBound_);
             break;
         }
 
@@ -284,23 +284,23 @@ namespace QuantLib {
             Real lowerTmp, upperTmp;
             if (smileSection_->volatilityType() == ShiftedLognormal) {
                 upperTmp = (atm + shift) *
-                               std::exp(settings_.stdDevs_ * atmVol -
+                               exp(settings_.stdDevs_ * atmVol -
                                         0.5 * atmVol * atmVol *
                                             smileSection_->exerciseTime()) -
                            shift;
                 lowerTmp = (atm + shift) *
-                               std::exp(-settings_.stdDevs_ * atmVol -
+                               exp(-settings_.stdDevs_ * atmVol -
                                         0.5 * atmVol * atmVol *
                                             smileSection_->exerciseTime()) -
                            shift;
             } else {
                 Real tmp = settings_.stdDevs_ * atmVol *
-                           std::sqrt(smileSection_->exerciseTime());
+                           sqrt(smileSection_->exerciseTime());
                 upperTmp = atm + tmp;
                 lowerTmp = atm - tmp;
             }
-            upper = std::min(upperTmp - shift, shiftedUpperBound_);
-            lower = std::max(lowerTmp - shift, shiftedLowerBound_);
+            upper = min(upperTmp - shift, shiftedUpperBound_);
+            lower = max(lowerTmp - shift, shiftedLowerBound_);
             break;
         }
 
@@ -313,14 +313,14 @@ namespace QuantLib {
         Real result = 0.0;
         Real tmpBound;
         if (upper > lower) {
-            tmpBound = std::min(upper, swapRateValue_);
+            tmpBound = min(upper, swapRateValue_);
             if (tmpBound > lower) {
                 result += integrator_->operator()(
                     std::bind1st(std::mem_fun(&LinearTsrPricer::integrand),
                                  this),
                     lower, tmpBound);
             }
-            tmpBound = std::max(lower, swapRateValue_);
+            tmpBound = max(lower, swapRateValue_);
             if (upper > tmpBound) {
                 result += integrator_->operator()(
                     std::bind1st(std::mem_fun(&LinearTsrPricer::integrand),
@@ -348,8 +348,8 @@ namespace QuantLib {
         // caplet is equivalent to call option on fixing
         if (fixingDate_ <= today_) {
             // the fixing is determined
-            const Rate Rs = std::max(
-                coupon_->swapIndex()->fixing(fixingDate_) - effectiveCap, 0.);
+            const Rate Rs = max(
+                coupon_->swapIndex()->fixing(fixingDate_) - effectiveCap, Real(0.));
             Rate price =
                 (gearing_ * Rs) *
                 (coupon_->accrualPeriod() *
@@ -371,8 +371,8 @@ namespace QuantLib {
         // floorlet is equivalent to put option on fixing
         if (fixingDate_ <= today_) {
             // the fixing is determined
-            const Rate Rs = std::max(
-                effectiveFloor - coupon_->swapIndex()->fixing(fixingDate_), 0.);
+            const Rate Rs = max(
+                effectiveFloor - coupon_->swapIndex()->fixing(fixingDate_), Real(0.));
             Rate price =
                 (gearing_ * Rs) *
                 (coupon_->accrualPeriod() *

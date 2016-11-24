@@ -49,8 +49,8 @@ namespace QuantLib {
 
     void ImplicitEulerScheme::step(array_type& a, Time t) {
         QL_REQUIRE(t-dt_ > -1e-8, "a step towards negative time given");
-        map_->setTime(std::max(0.0, t-dt_), t);
-        bcSet_.setTime(std::max(0.0, t-dt_));
+        map_->setTime(max(Real(0.0), t-dt_), t);
+        bcSet_.setTime(max(Real(0.0), t-dt_));
 
         bcSet_.applyBeforeSolving(*map_, a);
 

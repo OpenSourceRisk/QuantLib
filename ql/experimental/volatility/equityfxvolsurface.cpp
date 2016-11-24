@@ -51,7 +51,7 @@ namespace QuantLib {
                                                  bool extrapolate) const {
         Real fwdVariance = atmForwardVariance(time1, time2, extrapolate);
         Time t = time2-time1;
-        return std::sqrt(fwdVariance/t);
+        return sqrt(fwdVariance/t);
     }
 
     Real EquityFXVolSurface::atmForwardVariance(const Date& date1,

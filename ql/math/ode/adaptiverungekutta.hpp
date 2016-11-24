@@ -126,7 +126,7 @@ namespace QuantLib {
         for (Size nstp=1; nstp<=ADAPTIVERK_MAXSTP; nstp++) {
             std::vector<T> dydx=ode(x,y);
             for (Size i=0;i<n;i++)
-                yScale[i] = std::abs(y[i])+std::abs(dydx[i]*h)+ADAPTIVERK_TINY;
+                yScale[i] = abs(y[i])+abs(dydx[i]*h)+ADAPTIVERK_TINY;
             if ((x+h-x2)*(x+h-x1) > 0.0)
                 h=x2-x;
             rkqs(y,dydx,x,h,eps_,yScale,hdid,hnext,ode);
@@ -134,7 +134,7 @@ namespace QuantLib {
             if ((x-x2)*(x2-x1) >= 0.0)
                 return y;
 
-            if (std::fabs(hnext) <= hmin_)
+            if (abs(hnext) <= hmin_)
                 QL_FAIL("Step size (" << hnext << ") too small ("
                         << hmin_ << " min) in AdaptiveRungeKutta");
             h=hnext;
@@ -189,12 +189,12 @@ namespace QuantLib {
             rkck(y,dydx,x,h,ytemp,yerr,derivs);
             errmax=0.0;
             for (Size i=0;i<n;i++)
-                errmax=std::max(errmax,std::abs(yerr[i]/yScale[i]));
+                errmax=max(errmax,abs(yerr[i]/yScale[i]));
             errmax/=eps;
             if (errmax>1.0) {
-                Real htemp1 = ADAPTIVERK_SAFETY*h*std::pow(errmax,ADAPTIVERK_PSHRINK);
+                Real htemp1 = ADAPTIVERK_SAFETY*h*pow(errmax,ADAPTIVERK_PSHRINK);
                 Real htemp2 = h / 10;
-                // These would be std::min and std::max, of course,
+                // These would be min and max, of course,
                 // but VC++14 had problems inlining them and caused
                 // the wrong results to be calculated.  The problem
                 // seems to be fixed in update 3, but let's keep this
@@ -209,7 +209,7 @@ namespace QuantLib {
                 continue;
             } else {
                 if (errmax>ADAPTIVERK_ERRCON)
-                    hnext=ADAPTIVERK_SAFETY*h*std::pow(errmax,ADAPTIVERK_PGROW);
+                    hnext=ADAPTIVERK_SAFETY*h*pow(errmax,ADAPTIVERK_PGROW);
                 else
                     hnext=5.0*h;
                 x+=(hdid=h);

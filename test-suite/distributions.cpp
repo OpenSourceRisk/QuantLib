@@ -30,22 +30,22 @@
 #include <ql/math/functional.hpp>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 namespace {
 
     Real average = 1.0, sigma = 2.0;
 
     Real gaussian(Real x) {
-        Real normFact = sigma*std::sqrt(2*M_PI);
+        Real normFact = sigma*sqrt(2*M_PI);
         Real dx = x-average;
-        return std::exp(-dx*dx/(2.0*sigma*sigma))/normFact;
+        return exp(-dx*dx/(2.0*sigma*sigma))/normFact;
     }
 
     Real gaussianDerivative(Real x) {
-        Real normFact = sigma*sigma*sigma*std::sqrt(2*M_PI);
+        Real normFact = sigma*sigma*sigma*sqrt(2*M_PI);
         Real dx = x-average;
-        return -dx*std::exp(-dx*dx/(2.0*sigma*sigma))/normFact;
+        return -dx*exp(-dx*dx/(2.0*sigma*sigma))/normFact;
     }
 
     struct BivariateTestData {
@@ -94,7 +94,7 @@ namespace {
             {  0.5,  0.5,  0.5, 0.546244 },
 
             // known analytical values
-            {  0.0, 0.0, std::sqrt(1/2.0), 3.0/8},
+            {  0.0, 0.0, sqrt(1/2.0), 3.0/8},
 
             // {  0.0,  big,  any, 0.500000 },
             {  0.0,   30, -1.0, 0.500000 },
@@ -123,7 +123,7 @@ namespace {
             Real value = bcd(values[i].a, values[i].b);
 
             Real tolerance = 1.0e-6;
-            if (std::fabs(value-values[i].result) >= tolerance) {
+            if (abs(value-values[i].result) >= tolerance) {
                 BOOST_ERROR(tag << " bivariate cumulative distribution\n"
                             << "    case: " << i+1 << "\n"
                             << QL_FIXED
@@ -154,10 +154,10 @@ namespace {
         for (Size i=0;i<LENGTH(rho);i++) {
             for (Integer sgn=-1; sgn < 2; sgn+=2) {
                 Bivariate bvn(sgn*rho[i]);
-                Real expected = 0.25 + std::asin(sgn*rho[i]) / (2*M_PI) ;
+                Real expected = 0.25 + asin(sgn*rho[i]) / (2*M_PI) ;
                 Real realised = bvn(x,y);
 
-                if (std::fabs(realised-expected)>=tolerance) {
+                if (abs(realised-expected)>=tolerance) {
                     BOOST_ERROR(tag << " bivariate cumulative distribution\n"
                                 << QL_SCIENTIFIC
                                 << "    rho: " << sgn*rho[i] << "\n"
@@ -330,8 +330,8 @@ void DistributionTest::testPoisson() {
         PoissonDistribution pdf(mean);
         Real calculated = pdf(i);
         Real logHelper = -mean;
-        Real expected = std::exp(logHelper);
-        Real error = std::fabs(calculated-expected);
+        Real expected = exp(logHelper);
+        Real error = abs(calculated-expected);
         if (error > 1.0e-16)
             BOOST_ERROR("Poisson pdf(" << mean << ")(" << i << ")\n"
                         << std::setprecision(16)
@@ -344,10 +344,10 @@ void DistributionTest::testPoisson() {
             if (mean == 0.0) {
                 expected = 0.0;
             } else {
-                logHelper = logHelper+std::log(mean)-std::log(Real(i));
-                expected = std::exp(logHelper);
+                logHelper = logHelper+log(mean)-log(Real(i));
+                expected = exp(logHelper);
             }
-            error = std::fabs(calculated-expected);
+            error = abs(calculated-expected);
             if (error>1.0e-13)
                 BOOST_ERROR("Poisson pdf(" << mean << ")(" << i << ")\n"
                             << std::setprecision(13)
@@ -367,8 +367,8 @@ void DistributionTest::testCumulativePoisson() {
         CumulativePoissonDistribution cdf(mean);
         Real cumCalculated = cdf(i);
         Real logHelper = -mean;
-        Real cumExpected = std::exp(logHelper);
-        Real error = std::fabs(cumCalculated-cumExpected);
+        Real cumExpected = exp(logHelper);
+        Real error = abs(cumCalculated-cumExpected);
         if (error>1.0e-13)
             BOOST_ERROR("Poisson cdf(" << mean << ")(" << i << ")\n"
                         << std::setprecision(13)
@@ -380,10 +380,10 @@ void DistributionTest::testCumulativePoisson() {
             if (mean == 0.0) {
                 cumExpected = 1.0;
             } else {
-                logHelper = logHelper+std::log(mean)-std::log(Real(i));
-                cumExpected += std::exp(logHelper);
+                logHelper = logHelper+log(mean)-log(Real(i));
+                cumExpected += exp(logHelper);
             }
-            error = std::fabs(cumCalculated-cumExpected);
+            error = abs(cumCalculated-cumExpected);
             if (error>1.0e-12)
                 BOOST_ERROR("Poisson cdf(" << mean << ")(" << i << ")\n"
                             << std::setprecision(12)
@@ -488,11 +488,11 @@ void DistributionTest::testBivariateCumulativeStudent() {
             Real reference1 = expected1[i*LENGTH(xs)+j];
 			Real calculated2 = f2(xs[j], xs[j]);
             Real reference2 = expected2[i*LENGTH(xs)+j];
-            if (std::fabs(calculated1 - reference1) > tolerance)
+            if (abs(calculated1 - reference1) > tolerance)
                 BOOST_ERROR("Failed to reproduce CDF value at " << xs[j] <<
                             "\n    calculated: " << calculated1 <<
                             "\n    expected:   " << reference1);
-            if (std::fabs(calculated2 - reference2) > tolerance)
+            if (abs(calculated2 - reference2) > tolerance)
                 BOOST_ERROR("Failed to reproduce CDF value at " << xs[j] <<
                             "\n    calculated: " << calculated2 <<
                             "\n    expected:   " << reference1);
@@ -574,7 +574,7 @@ void DistributionTest::testBivariateCumulativeStudent() {
 		BivariateCumulativeStudentDistribution f(cases[i].n,  cases[i].rho);
         Real calculated = f(cases[i].x, cases[i].y);
         Real expected = cases[i].result;
-        if (std::fabs(calculated - expected) > tolerance)
+        if (abs(calculated - expected) > tolerance)
             BOOST_ERROR("Failed to reproduce CDF value:" <<
                         "\n    n:   " << cases[i].n <<
                         "\n    rho: " << cases[i].rho <<
@@ -603,7 +603,7 @@ void DistributionTest::testBivariateCumulativeStudentVsBivariate() {
 			for (Real y = -10; y < 10.1; y += 0.25) {
                 Real calculated = T(x, y);
                 Real expected = N(x, y);
-				Real diff = std::fabs(calculated - expected);
+				Real diff = abs(calculated - expected);
                 if (diff > tolerance)
                     BOOST_ERROR("Failed to reproduce limit value:" <<
                                 "\n    rho: " << rho <<
@@ -624,8 +624,8 @@ void DistributionTest::testBivariateCumulativeStudentVsBivariate() {
     }
 }
     
-test_suite* DistributionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Distribution tests");
+boost::unit_test_framework::test_suite* DistributionTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Distribution tests");
     suite->add(QUANTLIB_TEST_CASE(&DistributionTest::testNormal));
     suite->add(QUANTLIB_TEST_CASE(&DistributionTest::testBivariate));
     suite->add(QUANTLIB_TEST_CASE(&DistributionTest::testPoisson));

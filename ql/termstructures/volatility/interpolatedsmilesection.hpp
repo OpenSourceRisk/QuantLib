@@ -155,7 +155,7 @@ namespace QuantLib {
                                const VolatilityType type,
                                const Real shift)
     : SmileSection(timeToExpiry, dc, type, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevHandles), atmLevel_(atmLevel),
       vols_(stdDevHandles.size())
     {
@@ -179,7 +179,7 @@ namespace QuantLib {
                                 const VolatilityType type,
                                 const Real shift)
     : SmileSection(timeToExpiry, dc, type, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevs.size()), vols_(stdDevs.size())
     {
         // fill dummy handles to allow generic handle-based
@@ -207,7 +207,7 @@ namespace QuantLib {
                            const VolatilityType type,
                            const Real shift)
     : SmileSection(d, dc, referenceDate, type, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevHandles), atmLevel_(atmLevel), vols_(stdDevHandles.size())
     {
         for (Size i=0; i<stdDevHandles_.size(); ++i)
@@ -231,7 +231,7 @@ namespace QuantLib {
                            const VolatilityType type,
                            const Real shift)
     : SmileSection(d, dc, referenceDate, type, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevs.size()), vols_(stdDevs.size())
     {
         //fill dummy handles to allow generic handle-based
@@ -258,7 +258,7 @@ namespace QuantLib {
                                const DayCounter& dc,
                                const Real shift)
     : SmileSection(timeToExpiry, dc, ShiftedLognormal, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevHandles), atmLevel_(atmLevel),
       vols_(stdDevHandles.size())
     {
@@ -281,7 +281,7 @@ namespace QuantLib {
                                 const DayCounter& dc,
                                 const Real shift)
     : SmileSection(timeToExpiry, dc, ShiftedLognormal, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevs.size()), vols_(stdDevs.size())
     {
         // fill dummy handles to allow generic handle-based
@@ -308,7 +308,7 @@ namespace QuantLib {
                            const Date& referenceDate,
                            const Real shift)
     : SmileSection(d, dc, referenceDate, ShiftedLognormal, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevHandles), atmLevel_(atmLevel), vols_(stdDevHandles.size())
     {
         for (Size i=0; i<stdDevHandles_.size(); ++i)
@@ -331,7 +331,7 @@ namespace QuantLib {
                            const Date& referenceDate,
                            const Real shift)
     : SmileSection(d, dc, referenceDate, ShiftedLognormal, shift),
-      exerciseTimeSquareRoot_(std::sqrt(exerciseTime())), strikes_(strikes),
+      exerciseTimeSquareRoot_(sqrt(exerciseTime())), strikes_(strikes),
       stdDevHandles_(stdDevs.size()), vols_(stdDevs.size())
     {
         //fill dummy handles to allow generic handle-based

@@ -77,7 +77,7 @@ namespace QuantLib {
                 r = x1*x1+x2*x2;
             } while (r>=1.0 || r==0.0);
 
-            ratio = std::sqrt(-2.0*std::log(r)/r);
+            ratio = sqrt(-2.0*log(r)/r);
             firstValue_ = x1*ratio;
             secondValue_ = x2*ratio;
             weight_ = firstWeight_*secondWeight_;

@@ -114,7 +114,7 @@ namespace QuantLib {
             }
 
             Real vecNorm(const Array& X)const{
-                return std::sqrt(DotProduct(X,X));
+                return sqrt(DotProduct(X,X));
             }
 
             Real gammaFunc(const Array& X)const{

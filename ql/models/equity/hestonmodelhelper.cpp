@@ -86,7 +86,7 @@ namespace QuantLib {
 
     Real HestonModelHelper::blackPrice(Real volatility) const {
         calculate();
-        const Real stdDev = volatility * std::sqrt(maturity());
+        const Real stdDev = volatility * sqrt(maturity());
         return blackFormula(
             type_, strikePrice_ * termStructure_->discount(tau_),
             s0_->value() * dividendYield_->discount(tau_), stdDev);

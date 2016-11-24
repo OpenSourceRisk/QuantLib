@@ -85,7 +85,7 @@ namespace QuantLib {
                 n_d1_ = 0.0;
                 n_d2_ = 0.0;
             } else {
-                d1_ = std::log(forward_/strike_)/stdDev_ + 0.5*stdDev_;
+                d1_ = log(forward_/strike_)/stdDev_ + 0.5*stdDev_;
                 d2_ = d1_-stdDev_;
                 CumulativeNormalDistribution f;
                 cum_d1_ = f(d1_);
@@ -233,7 +233,7 @@ namespace QuantLib {
         Real del = delta(spot);
         if (val>QL_EPSILON)
             return del/val*spot;
-        else if (std::fabs(del)<QL_EPSILON)
+        else if (abs(del)<QL_EPSILON)
             return 0.0;
         else if (del>0.0)
             return QL_MAX_REAL;
@@ -246,7 +246,7 @@ namespace QuantLib {
         Real del = deltaForward();
         if (val>QL_EPSILON)
             return del/val*forward_;
-        else if (std::fabs(del)<QL_EPSILON)
+        else if (abs(del)<QL_EPSILON)
             return 0.0;
         else if (del>0.0)
             return QL_MAX_REAL;
@@ -295,8 +295,8 @@ namespace QuantLib {
         QL_REQUIRE(maturity>=0.0,
                    "maturity (" << maturity << ") must be non-negative");
         if (close(maturity, 0.0)) return 0.0;
-        return -( std::log(discount_)            * value()
-                 +std::log(forward_/spot) * spot * delta(spot)
+        return -( log(discount_)            * value()
+                 +log(forward_/spot) * spot * delta(spot)
                  +0.5*variance_ * spot  * spot * gamma(spot))/maturity;
     }
 
@@ -304,14 +304,14 @@ namespace QuantLib {
         QL_REQUIRE(maturity>=0.0,
                    "negative maturity not allowed");
 
-        Real temp = std::log(strike_/forward_)/variance_;
+        Real temp = log(strike_/forward_)/variance_;
         // actually DalphaDsigma / SQRT(T)
         Real DalphaDsigma = DalphaDd1_*(temp+0.5);
         Real DbetaDsigma  = DbetaDd2_ *(temp-0.5);
 
         Real temp2 = DalphaDsigma * forward_ + DbetaDsigma * x_;
 
-        return discount_ * std::sqrt(maturity) * temp2;
+        return discount_ * sqrt(maturity) * temp2;
 
     }
 

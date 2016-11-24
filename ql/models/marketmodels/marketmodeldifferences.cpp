@@ -47,7 +47,7 @@ namespace QuantLib {
         std::vector<Volatility> result(totalCovariance1.columns());
         for (Size i=0; i<totalCovariance1.columns(); ++i) {
             Real diff = totalCovariance1[i][i]-totalCovariance2[i][i];
-            result[i] = std::sqrt(diff/maturities[i]);
+            result[i] = sqrt(diff/maturities[i]);
         }
         return result;
     }
@@ -79,7 +79,7 @@ namespace QuantLib {
             const Matrix& covariance1 = marketModel1.covariance(i);
             const Matrix& covariance2 = marketModel2.covariance(i);
             Real diff = covariance1[index][index] - covariance2[index][index];
-            result[i] = std::sqrt(diff/dt);
+            result[i] = sqrt(diff/dt);
             previousEvolutionTime = currentEvolutionTime;
         }
         return result;
@@ -96,7 +96,7 @@ namespace QuantLib {
             const std::vector<Time>& rateTimes
                 = piecewiseConstantVariances.front()->rateTimes();
             for (Size i=1; i<rateTimes.size(); ++i) {
-                Time sqrtTau = std::sqrt(rateTimes[i]-rateTimes[i-1]);
+                Time sqrtTau = sqrt(rateTimes[i]-rateTimes[i-1]);
                 const Matrix& correlations
                     = piecewiseConstantCorrelation.correlation(i);
                 Matrix pseudoRoot(correlations.rows(), correlations.rows());

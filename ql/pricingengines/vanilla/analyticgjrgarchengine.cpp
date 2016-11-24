@@ -26,8 +26,8 @@
 #include <ql/math/distributions/normaldistribution.hpp>
 #include <ql/instruments/payoffs.hpp>
 
-using std::exp;
-using std::pow;
+// using exp;
+// using pow;
 
 namespace QuantLib {
 
@@ -70,8 +70,8 @@ namespace QuantLib {
         QL_REQUIRE(spotPrice > 0.0, "negative or null underlying given");
         const Real strikePrice = payoff->strike();
         const Real term = process->time(arguments_.exercise->lastDate());
-        Size T = Size(process->daysPerYear()*term+0.5);
-        Real r = -std::log(riskFreeDiscount/dividendDiscount)/(process->daysPerYear()*term);
+        Size T = Size(VALUE(process->daysPerYear()*term+0.5));
+        Real r = -log(riskFreeDiscount/dividendDiscount)/(process->daysPerYear()*term);
         Real h1 = process->v0();
         Real b0 = process->omega();
         Real b2 = process->alpha();
@@ -79,7 +79,7 @@ namespace QuantLib {
         Real b3 = process->gamma();
         Real la = process->lambda();
         Real N = CumulativeNormalDistribution()(la);
-        Real n = std::exp(-la*la/2)/(M_SQRTPI*M_SQRT2);
+        Real n = exp(-la*la/2)/(M_SQRTPI*M_SQRT2);
         const Real s = spotPrice;
         const Real x = strikePrice;
         Real m1, m2, m3, v1, v2, v3, z1, z2, x1;
@@ -123,7 +123,7 @@ namespace QuantLib {
                 *(9*la*la*n+8*n+15*la*N+pow<4>(la)*n+pow<5>(la)*N
                   +10*pow<3>(la)*N)
                 - 6*b1*b1*b2*la - 6*b3*b1*b1*(n+la*N)
-                - 12*b2*b2*b1*(3*la+std::pow(la,3)); // ok
+                - 12*b2*b2*b1*(3*la+pow(la,3)); // ok
             z1 = b1 + b2*(3+la*la) + b3*(la*n+3*N+la*la*N); // ok
             z2 = b1*b1 + b2*b2*(15+pow<4>(la)+18*la*la)
                 + (b3*b3+2*b2*b3)*(pow<3>(la)*n+17*la*n+15*N
@@ -181,8 +181,8 @@ namespace QuantLib {
                                 +2*m2*(m1im3i/(m1-m3)-m2im3i/(m2-m3))/(m1-m2))
                     + 3*b0*m2*h1*h1*m2im3i/(m2-m3) 
                     + m3i*h1*h1*h1; // ko
-                Real Eh3_2 = .375*std::pow(Eh,-0.5)*Eh2+.625*std::pow(Eh,1.5);
-                Real Eh5_2 = 1.875*std::pow(Eh,0.5)*Eh2-.875*std::pow(Eh,2.5);
+                Real Eh3_2 = .375*pow(Eh,-0.5)*Eh2+.625*pow(Eh,1.5);
+                Real Eh5_2 = 1.875*pow(Eh,0.5)*Eh2-.875*pow(Eh,2.5);
                 sEh += Eh;
                 sEh2 += Eh2;
                 sEh3 += Eh3;
@@ -201,13 +201,13 @@ namespace QuantLib {
                         + v2*m2ai[j]*Eh5_2; // ko
                     Real Ehij = b0*(1-m1ai[i+j+1])/(1-m1) 
                         + m1ai[i+j+1]*h1; // ko
-                    Real Ehh3_2 = 0.375*Ehh2/std::sqrt(Ehij) 
-                        + 0.75*std::sqrt(Ehij)*Ehh 
-                        - 0.125*std::pow(Ehij,1.5)*Eh; // ko
+                    Real Ehh3_2 = 0.375*Ehh2/sqrt(Ehij) 
+                        + 0.75*sqrt(Ehij)*Ehh 
+                        - 0.125*pow(Ehij,1.5)*Eh; // ko
                     Real Eh3_2eh = v1*m1ai[j]*Eh5_2; // ko
                     Real Eh3_2e3h = x1*m1ai[j]*Eh5_2; // ok
-                    Real Eh1_2eh3_2 = 0.375*Eh1_2eh2/std::sqrt(Ehij) 
-                        + 0.75*std::sqrt(Ehij)*Eh1_2eh; // ko
+                    Real Eh1_2eh3_2 = 0.375*Eh1_2eh2/sqrt(Ehij) 
+                        + 0.75*sqrt(Ehij)*Eh1_2eh; // ko
                     sEhh += Ehh;
                     sEh1_2eh += Eh1_2eh;
                     sEhh2 += Ehh2; 
@@ -255,7 +255,7 @@ namespace QuantLib {
             k3 = ex3 - 3*sigma*ex - ex*ex*ex;
             // 4th central moment mu4
             k4 = ex4 + 6*ex*ex*ex2 - 3*ex*ex*ex*ex - 4*ex*ex3;
-            k3 /= std::pow(sigma,1.5); // 3rd standardized moment, ie skewness 
+            k3 /= pow(sigma,1.5); // 3rd standardized moment, ie skewness 
             k4 /= pow<2>(sigma); // 4th standardized moment, ie kurtosis
             ex_ = ex; sigma_ = sigma; 
             k3_ = k3; k4_ = k4; r_ = r; T_ = T; b0_ = b0; h1_ = h1;
@@ -265,17 +265,17 @@ namespace QuantLib {
         }
         
         // compute call option price
-        stdev = std::sqrt(sigma);
+        stdev = sqrt(sigma);
         del = (ex - r*T + sigma/2)/stdev;
-        d = (std::log(s/x) + (r*T+sigma/2))/stdev;
+        d = (log(s/x) + (r*T+sigma/2))/stdev;
         d_ = d+del;
-        C = s*std::exp(del*stdev)*CumulativeNormalDistribution()(d_) 
-            - x*std::exp(-r*T)*CumulativeNormalDistribution()(d_-stdev);
-        A3 = s*std::exp(del*stdev)*stdev*((2*stdev-d_)
-                   *std::exp(-d_*d_/2)/std::sqrt(2*M_PI)
+        C = s*exp(del*stdev)*CumulativeNormalDistribution()(d_) 
+            - x*exp(-r*T)*CumulativeNormalDistribution()(d_-stdev);
+        A3 = s*exp(del*stdev)*stdev*((2*stdev-d_)
+                   *exp(-d_*d_/2)/sqrt(2*M_PI)
                    +sigma*CumulativeNormalDistribution()(d_))/6;
-        A4 = s*std::exp(del*stdev)*stdev*(
-            (d_*d_-1-3*stdev*(d_-stdev))*exp(-d_*d_/2)/std::sqrt(2*M_PI)
+        A4 = s*exp(del*stdev)*stdev*(
+            (d_*d_-1-3*stdev*(d_-stdev))*exp(-d_*d_/2)/sqrt(2*M_PI)
             -sigma*stdev*CumulativeNormalDistribution()(d_))/24;
         Capp = C + k3*A3 + (k4-3)*A4;
         init_ = true;

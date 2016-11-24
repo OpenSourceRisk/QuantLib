@@ -382,7 +382,7 @@ namespace {
                 * (todaysCMSwapRates[i]-fixedRate) * todaysDiscounts[i];
             expectedNPVs[i] = expectedNPV;
             discrepancies[i] = (results[i]-expectedNPVs[i])/errors[i];
-            maxError = std::max(std::fabs(discrepancies[i]), maxError);
+            maxError = std::max(abs(discrepancies[i]), maxError);
         }
 
         if (maxError > errorThreshold) {
@@ -408,12 +408,12 @@ namespace {
             Real expectedSwaption =
                 BlackCalculator(displacedPayoff[i],
                                 todaysCMSwapRates[i]+displacement,
-                                volatilities[i]*std::sqrt(rateTimes[i]),
+                                volatilities[i]*sqrt(rateTimes[i]),
                                 curveState_lmm.cmSwapAnnuity(i,i, spanningForwards)
                                 * todaysDiscounts[i]).value();
             expectedSwaptions[i] = expectedSwaption;
             discrepancies[i] = (results[N+i]-expectedSwaptions[i])/errors[N+i];
-            maxError = std::max(std::fabs(discrepancies[i]), maxError);
+            maxError = std::max(abs(discrepancies[i]), maxError);
         }
         errorThreshold = 2.0;
 

@@ -76,15 +76,15 @@ namespace QuantLib {
 
                 const Real price = calculator_->innerValue(iter, t);
 
-                const Real maxWithDraw = std::min(y-y_.front(), changeRate_);
+                const Real maxWithDraw = min(y-y_.front(), changeRate_);
                 const Real sellPrice   = interpl(x, y-maxWithDraw);
 
-                const Real maxInject = std::min(y_.back()-y, changeRate_);
+                const Real maxInject = min(y_.back()-y, changeRate_);
                 const Real buyPrice  = interpl(x, y+maxInject);
 
                 // bang-bang-wait strategy
-                Real currentValue = std::max(a[iter.index()],
-                    std::max(buyPrice - price*maxInject,
+                Real currentValue = max(a[iter.index()],
+                    max(buyPrice - price*maxInject,
                              sellPrice + price*maxWithDraw));
 
                 // check if intermediate grid points give a better value
@@ -96,7 +96,7 @@ namespace QuantLib {
                         const Real change = *yIter - y;
                         const Real storagePrice(interpl(x, *yIter));
 
-                        currentValue = std::max(currentValue,
+                        currentValue = max(currentValue,
                             storagePrice - change*price);
                     }
                     ++yIter;

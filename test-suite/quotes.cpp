@@ -95,7 +95,7 @@ void QuoteTest::testDerived() {
         DerivedQuote<unary_f> derived(h,funcs[i]);
         Real x = derived.value(),
              y = funcs[i](me->value());
-        if (std::fabs(x-y) > 1.0e-10)
+        if (abs(x-y) > 1.0e-10)
             BOOST_FAIL("derived quote yields " << x << "\n"
                        << "function result is " << y);
     }
@@ -116,7 +116,7 @@ void QuoteTest::testComposite() {
         CompositeQuote<binary_f> composite(h1,h2,funcs[i]);
         Real x = composite.value(),
              y = funcs[i](me1->value(),me2->value());
-        if (std::fabs(x-y) > 1.0e-10)
+        if (abs(x-y) > 1.0e-10)
             BOOST_FAIL("composite quote yields " << x << "\n"
                        << "function result is " << y);
     }
@@ -143,7 +143,7 @@ void QuoteTest::testForwardValueQuoteAndImpliedStdevQuote(){
     Rate expectedForwardValue = euribor->fixing(fixingDate, true);
     // we test if the forward value given by the quote is consistent
     // with the one directly given by the index
-    if (std::fabs(forwardValue-expectedForwardValue) > 1.0e-15)
+    if (abs(forwardValue-expectedForwardValue) > 1.0e-15)
         BOOST_FAIL("Foward Value Quote quote yields " << forwardValue << "\n"
                    << "expected result is " << expectedForwardValue);
     // then we test the observer/observable chain
@@ -156,7 +156,7 @@ void QuoteTest::testForwardValueQuoteAndImpliedStdevQuote(){
     // and we retest if the values are still matching
     forwardValue =  forwardValueQuote->value();
     expectedForwardValue = euribor->fixing(fixingDate, true);
-    if (std::fabs(forwardValue-expectedForwardValue) > 1.0e-15)
+    if (abs(forwardValue-expectedForwardValue) > 1.0e-15)
         BOOST_FAIL("Foward Value Quote quote yields " << forwardValue << "\n"
                    << "expected result is " << expectedForwardValue);
     // we test the ImpliedStdevQuote class
@@ -177,7 +177,7 @@ void QuoteTest::testForwardValueQuoteAndImpliedStdevQuote(){
         blackFormulaImpliedStdDev(optionType, strike,
                                   forwardQuote->value(), price,
                                   1.0, 0.0, guess, 1.0e-6);
-    if (std::fabs(impliedStdev-expectedImpliedStdev) > 1.0e-15)
+    if (abs(impliedStdev-expectedImpliedStdev) > 1.0e-15)
         BOOST_FAIL("\nimpliedStdevQuote yields :" << impliedStdev <<
                    "\nexpected result is       :" << expectedImpliedStdev);
     // then we test the observer/observable chain

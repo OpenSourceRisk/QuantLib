@@ -104,7 +104,7 @@ namespace QuantLib {
                                          std::back_inserter(diff));
                 if (diff.front()==0.0)
                     diff.erase(diff.begin());
-                dtMax = *(std::min_element(diff.begin(), diff.end()));
+                dtMax = *(min_element(diff.begin(), diff.end()));
             } else {
                 dtMax = last/steps;
             }
@@ -117,7 +117,7 @@ namespace QuantLib {
                 Time periodEnd = *t;
                 if (periodEnd != 0.0) {
                     // the nearest integer
-                    Size nSteps = Size((periodEnd - periodBegin)/dtMax+0.5);
+                    Size nSteps = Size(VALUE((periodEnd - periodBegin)/dtMax+0.5));
                     // at least one time step!
                     nSteps = (nSteps!=0 ? nSteps : 1);
                     Time dt = (periodEnd - periodBegin)/nSteps;

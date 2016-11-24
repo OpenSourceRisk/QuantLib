@@ -166,10 +166,10 @@ void LiborMarketModelProcessTest::testLambdaBootstrapping() {
     Matrix covar = process->covariance(0.0, Null<Array>(), 1.0);
 
     for (Size i=0; i<9; ++i) {
-        const Real calculated = std::sqrt(covar[i+1][i+1]);
+        const Real calculated = sqrt(covar[i+1][i+1]);
         const Real expected   = lambdaExpected[i]/100;
 
-        if (std::fabs(calculated - expected) > tolerance)
+        if (abs(calculated - expected) > tolerance)
             BOOST_ERROR("Failed to reproduce expected lambda values"
                         << "\n    calculated: " << calculated
                         << "\n    expected:   " << expected);
@@ -187,7 +187,7 @@ void LiborMarketModelProcessTest::testLambdaBootstrapping() {
 
         for (Size i=0; i<diff.rows(); ++i) {
             for (Size j=0; j<diff.columns(); ++j) {
-                if (std::fabs(diff[i][j]) > tolerance) {
+                if (abs(diff[i][j]) > tolerance) {
                      BOOST_FAIL("Failed to reproduce integrated covariance" <<
                         "\n    i: " << i <<
                         "\n    j: " << j <<
@@ -267,15 +267,15 @@ void LiborMarketModelProcessTest::testMonteCarloCapletPricing() {
             Real accrualPeriod =  process1->accrualEndTimes()[k]
                                 - process1->accrualStartTimes()[k];
             // caplet payoff function, cap rate at 4%
-            Real payoff1 = std::max(rates1[k] - 0.04, 0.0) * accrualPeriod;
+            Real payoff1 = max(rates1[k] - 0.04, Real(0.0)) * accrualPeriod;
 
-            Real payoff2 = std::max(rates2[k] - 0.04, 0.0) * accrualPeriod;
+            Real payoff2 = max(rates2[k] - 0.04, Real(0.0)) * accrualPeriod;
             stat1[k].add(dis1[k] * payoff1);
             stat2[k].add(dis2[k] * payoff2);
 
             if (k != 0) {
                 // ratchet cap payoff function
-                Real payoff3 =  std::max(rates2[k] - (rates2[k-1]+0.0025), 0.0)
+                Real payoff3 =  max(rates2[k] - (rates2[k-1]+0.0025), Real(0.0))
                               * accrualPeriod;
                 stat3[k-1].add(dis2[k] * payoff3);
             }
@@ -298,7 +298,7 @@ void LiborMarketModelProcessTest::testMonteCarloCapletPricing() {
         Real tolerance1  = stat1[k].errorEstimate();
         Real expected    = capletNpv[k];
 
-        if (std::fabs(calculated1 - expected) > tolerance1) {
+        if (abs(calculated1 - expected) > tolerance1) {
             BOOST_ERROR("Failed to reproduce expected caplet NPV"
                         << "\n    calculated: " << calculated1
                         << "\n    error int:  " << tolerance1
@@ -308,7 +308,7 @@ void LiborMarketModelProcessTest::testMonteCarloCapletPricing() {
         Real calculated2 = stat2[k].mean();
         Real tolerance2  = stat2[k].errorEstimate();
 
-        if (std::fabs(calculated2 - expected) > tolerance2) {
+        if (abs(calculated2 - expected) > tolerance2) {
             BOOST_ERROR("Failed to reproduce expected caplet NPV"
                         << "\n    calculated: " << calculated2
                         << "\n    error int:  " << tolerance2
@@ -322,7 +322,7 @@ void LiborMarketModelProcessTest::testMonteCarloCapletPricing() {
 
             Real refError = 1e-5; // 1e-5. error bars of the reference values
 
-            if (std::fabs(calculated3 - expected) > tolerance3 + refError) {
+            if (abs(calculated3 - expected) > tolerance3 + refError) {
                 BOOST_ERROR("Failed to reproduce expected caplet NPV"
                             << "\n    calculated: " << calculated3
                             << "\n    error int:  " << tolerance3 + refError

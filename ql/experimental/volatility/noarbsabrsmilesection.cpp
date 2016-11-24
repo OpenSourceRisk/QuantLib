@@ -83,7 +83,7 @@ Real NoArbSabrSmileSection::volatilityImpl(Rate strike) const {
         impliedVol =
             blackFormulaImpliedStdDev(type, strike, forward_,
                                       optionPrice(strike, type, 1.0), 1.0) /
-            std::sqrt(exerciseTime());
+            sqrt(exerciseTime());
     } catch (...) {
     }
     if (impliedVol == 0.0)

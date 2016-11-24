@@ -52,7 +52,7 @@ namespace QuantLib {
         Size numberOfRates = fwdCorrelation.rows();
         std::vector<Matrix> correlations(numberOfRates, Matrix(numberOfRates,
                                                                numberOfRates,
-                                                               0.0));
+                                                               Real(0.0)));
         for (Size k=0; k<correlations.size(); ++k) {
             // proper diagonal values
             for (Size i=k; i<numberOfRates; ++i)

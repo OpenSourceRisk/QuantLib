@@ -356,7 +356,7 @@ void InflationCPICapFloorTest::cpicapfloorpricesurface() {
              Real a = (*(common.fPriceUK))[i][j];
              Real b = cpiSurf.floorPrice(t,qK);
 
-             QL_REQUIRE(fabs(a-b)<1e-7,"cannot reproduce cpi floor data from surface: "
+             QL_REQUIRE(abs(a-b)<1e-7,"cannot reproduce cpi floor data from surface: "
                         << a << " vs constructed = " << b);
          }
 
@@ -371,7 +371,7 @@ void InflationCPICapFloorTest::cpicapfloorpricesurface() {
             Real a = (*(common.cPriceUK))[i][j];
             Real b = cpiSurf.capPrice(t,qK);
 
-            QL_REQUIRE(fabs(a-b)<1e-7,"cannot reproduce cpi cap data from surface: "
+            QL_REQUIRE(abs(a-b)<1e-7,"cannot reproduce cpi cap data from surface: "
                        << a << " vs constructed = " << b);
         }
     }
@@ -435,7 +435,7 @@ void InflationCPICapFloorTest::cpicapfloorpricer() {
 
 
     Real cached = cpiCFsurfUKh->capPrice(d, strike);
-    QL_REQUIRE(fabs(cached - aCap.NPV())<1e-10,"InterpolatingCPICapFloorEngine does not reproduce cached price: "
+    QL_REQUIRE(abs(cached - aCap.NPV())<1e-10,"InterpolatingCPICapFloorEngine does not reproduce cached price: "
                << cached << " vs " << aCap.NPV());
 
     // remove circular refernce

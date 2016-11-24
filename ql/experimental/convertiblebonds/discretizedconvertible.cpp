@@ -176,7 +176,7 @@ namespace QuantLib {
                     if (grid[j] >= trigger) {
                         // ...and might trigger conversion
                         values_[j] =
-                            std::min(std::max(
+                            min(max(
                                           arguments_.callabilityPrices[i],
                                           arguments_.conversionRatio*grid[j]),
                                      values_[j]);
@@ -186,20 +186,20 @@ namespace QuantLib {
                 for (j=0; j<values_.size(); j++) {
                     // exercising the callability might trigger conversion
                     values_[j] =
-                        std::min(std::max(arguments_.callabilityPrices[i],
+                        min(max(arguments_.callabilityPrices[i],
                                           arguments_.conversionRatio*grid[j]),
                                  values_[j]);
                 }
             } else {
                 for (j=0; j<values_.size(); j++) {
-                    values_[j] = std::min(arguments_.callabilityPrices[i],
+                    values_[j] = min(arguments_.callabilityPrices[i],
                                           values_[j]);
                 }
             }
             break;
           case Callability::Put:
             for (j=0; j<values_.size(); j++) {
-                values_[j] = std::max(values_[j],
+                values_[j] = max(values_[j],
                                       arguments_.callabilityPrices[i]);
             }
             break;

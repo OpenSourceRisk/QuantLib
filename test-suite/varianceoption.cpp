@@ -54,7 +54,7 @@ void VarianceOptionTest::testIntegralHeston() {
     Real strike = 0.05;
     Real nominal = 1.0;
     Time T = 1.5;
-    Date exDate = today + int(360*T);
+    Date exDate = today + int(VALUE(360*T));
 
     boost::shared_ptr<Payoff> payoff(new PlainVanillaPayoff(Option::Call,
                                                             strike));
@@ -64,7 +64,7 @@ void VarianceOptionTest::testIntegralHeston() {
 
     Real calculated = varianceOption1.NPV();
     Real expected = 0.9104619;
-    Real error = std::fabs(calculated-expected);
+    Real error = abs(calculated-expected);
     if (error>1.0e-7) {
         BOOST_ERROR(
                  "Failed to reproduce variance-option price:"
@@ -88,7 +88,7 @@ void VarianceOptionTest::testIntegralHeston() {
     strike = 0.7;
     nominal = 1.0;
     T = 1.0;
-    exDate = today + int(360*T);
+    exDate = today + int(VALUE(360*T));
 
     payoff = boost::shared_ptr<Payoff>(new PlainVanillaPayoff(Option::Put,
                                                               strike));
@@ -98,7 +98,7 @@ void VarianceOptionTest::testIntegralHeston() {
 
     calculated = varianceOption2.NPV();
     expected = 0.0466796;
-    error = std::fabs(calculated-expected);
+    error = abs(calculated-expected);
     if (error>1.0e-7) {
         BOOST_ERROR(
                  "Failed to reproduce variance-option price:"

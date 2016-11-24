@@ -41,14 +41,14 @@ namespace QuantLib {
         //! the minimum order required for the given input size
         static std::size_t min_order(std::size_t inputSize) {
             return static_cast<std::size_t>(
-                std::ceil(std::log(static_cast<Real>(inputSize)) / M_LN2));
+                std::ceil(static_cast<double>(inputSize)) / M_LN2);
         }
 
         FastFourierTransform(std::size_t order)
         : cs_(order), sn_(order) {
             std::size_t m = static_cast<std::size_t>(1) << order;
-            cs_[order - 1] = std::cos (2 * M_PI / m);
-            sn_[order - 1] = std::sin (2 * M_PI / m);
+            cs_[order - 1] = cos (2 * M_PI / m);
+            sn_[order - 1] = sin (2 * M_PI / m);
             for (std::size_t i = order - 1; i > 0; --i) {
                 cs_ [i - 1] = cs_[i]*cs_[i] - sn_[i]*sn_[i];
                 sn_ [i - 1] = 2*sn_[i]*cs_[i];

@@ -264,7 +264,7 @@ namespace {
             for (Size j = 0; j < beta.size(); ++j) {
                 Real t = smileAndCms_->volCube_->timeFromReference(
                     smileAndCms_->volCube_->optionDateFromTenor(swapLengths[j]));
-                beta[j] = betaInf + (beta0 - betaInf) * std::exp(-decay * t);
+                beta[j] = betaInf + (beta0 - betaInf) * exp(-decay * t);
             }
             volCubeBySabr->recalibration(swapLengths, beta, swapTenors[i]);
         }
@@ -297,7 +297,7 @@ namespace {
             for (Size j = 0; j < beta.size(); ++j) {
                 Real t = smileAndCms_->volCube_->timeFromReference(
                     smileAndCms_->volCube_->optionDateFromTenor(swapLengths[j]));
-                beta[j] = betaInf + (beta0 - betaInf) * std::exp(-decay * t);
+                beta[j] = betaInf + (beta0 - betaInf) * exp(-decay * t);
             }
             volCubeBySabr->recalibration(swapLengths, beta, swapTenors[i]);
         }
@@ -512,7 +512,7 @@ namespace QuantLib {
                 for (Size j = 0; j < nParams; ++j) {
                     betasGuess[i * 3 + j] =
                         (j == 0 || j == 1) ? betaTransformInverse(guess[j][i])
-                                           : std::sqrt(guess[j][i]);
+                                           : sqrt(guess[j][i]);
                 }
             }
             ObjectiveFunction5 costFunction(
@@ -544,7 +544,7 @@ namespace QuantLib {
                 for (Size j = 0; j < nParams; ++j) {
                     betasReversionGuess[i * nSwapLengths + j] =
                         (j == 0 || j == 1) ? betaTransformInverse(guess[j][i])
-                                           : std::sqrt(guess[j][i]);
+                                           : sqrt(guess[j][i]);
                 }
             }
             betasReversionGuess[nParams] =

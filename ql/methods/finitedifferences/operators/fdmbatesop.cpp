@@ -44,7 +44,7 @@ namespace QuantLib {
     : lambda_(batesProcess->lambda()), 
       delta_ (batesProcess->delta()), 
       nu_    (batesProcess->nu()),
-      m_(std::exp(nu_+0.5*delta_*delta_)-1.0),
+      m_(exp(nu_+0.5*delta_*delta_)-1.0),
       gaussHermiteIntegration_(integroIntegrationOrder),
       mesher_(mesher),
       bcSet_(bcSet),
@@ -92,7 +92,7 @@ namespace QuantLib {
                 = dirichlet->applyAfterApplying(x, valueOfDerivative);
         }
         
-        return std::exp(-y*y)*valueOfDerivative;
+        return exp(-y*y)*valueOfDerivative;
     }
     
     Disposable<Array> FdmBatesOp::integro(const Array& r) const {

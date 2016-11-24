@@ -92,7 +92,7 @@ namespace QuantLib {
         DiscountFactor discount(Size i, Size index) const {
             Real x = tree_->underlying(i, index);
             Rate r = dynamics_->shortRate(timeGrid()[i], x);
-            return std::exp(-r*timeGrid().dt(i));
+            return exp(-r*timeGrid().dt(i));
         }
         Real underlying(Size i, Size index) const {
             return tree_->underlying(i, index);
@@ -132,7 +132,7 @@ namespace QuantLib {
         }
 
         Real discountBond(Time now, Time maturity, Rate rate) const {
-            return A(now, maturity)*std::exp(-B(now, maturity)*rate);
+            return A(now, maturity)*exp(-B(now, maturity)*rate);
         }
 
         DiscountFactor discount(Time t) const;

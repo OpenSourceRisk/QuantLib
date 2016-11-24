@@ -24,16 +24,16 @@ namespace QuantLib {
 
     // Double Sticky/Ratchet payoffs
     Real DoubleStickyRatchetPayoff::operator()(Real forward) const {
-        QL_REQUIRE((std::fabs(type1_)==1.0 || type1_==0.0),
+        QL_REQUIRE((abs(type1_)==1.0 || type1_==0.0),
             "unknown/illegal type1 value (only 0.0 and +/-1,0 are allowed))");
-        QL_REQUIRE((std::fabs(type2_)==1.0 || type2_==0.0),
+        QL_REQUIRE((abs(type2_)==1.0 || type2_==0.0),
             "unknown/illegal type2 value(only 0.0 and +/-1,0 are allowed)");
         Real swaplet = gearing3_ * forward + spread3_;
         Real effStrike1 = gearing1_ * initialValue1_ + spread1_;
         Real effStrike2 = gearing2_ * initialValue2_ + spread2_;
-        Real effStrike3 = type1_*type2_*std::max<Real>(type2_*(swaplet-effStrike2),0.0);
+        Real effStrike3 = type1_*type2_*max<Real>(type2_*(swaplet-effStrike2),0.0);
         Real price = accrualFactor_ * (swaplet -
-                    type1_*std::max<Real>(type1_*(swaplet-effStrike1),effStrike3));
+                    type1_*max<Real>(type1_*(swaplet-effStrike1),effStrike3));
         return price;
     }
 
@@ -67,7 +67,7 @@ namespace QuantLib {
         Real swaplet = gearing2_ * forward + spread2_;
         Real effStrike = gearing2_ * initialValue_ + spread2_;
         Real price = accrualFactor_ * (swaplet -
-                    type_*std::max<Real>(type_*(swaplet-effStrike),0.0));
+                    type_*max<Real>(type_*(swaplet-effStrike),0.0));
         return price;
     }
 

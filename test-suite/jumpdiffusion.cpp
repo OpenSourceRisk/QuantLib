@@ -31,7 +31,7 @@
 #include <map>
 
 using namespace QuantLib;
-using namespace boost::unit_test_framework;
+// using namespace boost::unit_test_framework;
 
 #define REPORT_FAILURE_1(greekName, payoff, exercise, s, q, r, today, v, \
                          intensity, meanLogJump, jumpVol, expected, \
@@ -298,7 +298,7 @@ void JumpDiffusionTest::testMerton76() {
         boost::shared_ptr<StrikedTypePayoff> payoff(new
             PlainVanillaPayoff(values[i].type, values[i].strike));
 
-        Date exDate = today + Integer(values[i].t*360+0.5);
+        Date exDate = today + Integer(VALUE(values[i].t*360+0.5));
         boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
 
         spot ->setValue(values[i].s);
@@ -310,20 +310,20 @@ void JumpDiffusionTest::testMerton76() {
 
         // delta in Haug's notation
         Real jVol = values[i].v *
-            std::sqrt(values[i].gamma / values[i].jumpIntensity);
+            sqrt(values[i].gamma / values[i].jumpIntensity);
         jumpVol->setValue(jVol);
 
         // z in Haug's notation
-        Real diffusionVol = values[i].v * std::sqrt(1.0 - values[i].gamma);
+        Real diffusionVol = values[i].v * sqrt(1.0 - values[i].gamma);
         vol  ->setValue(diffusionVol);
 
         // Haug is assuming zero meanJump
         Real meanJump = 0.0;
-        meanLogJump->setValue(std::log(1.0+meanJump)-0.5*jVol*jVol);
+        meanLogJump->setValue(log(1.0+meanJump)-0.5*jVol*jVol);
 
-        Volatility totalVol = std::sqrt(values[i].jumpIntensity*jVol*jVol +
+        Volatility totalVol = sqrt(values[i].jumpIntensity*jVol*jVol +
                                       diffusionVol*diffusionVol);
-        Volatility volError = std::fabs(totalVol-values[i].v);
+        Volatility volError = abs(totalVol-values[i].v);
         QL_REQUIRE(volError<1e-13,
                    volError << " mismatch");
 
@@ -331,7 +331,7 @@ void JumpDiffusionTest::testMerton76() {
         option.setPricingEngine(engine);
 
         Real calculated = option.NPV();
-        Real error = std::fabs(calculated-values[i].result);
+        Real error = abs(calculated-values[i].result);
         if (error>values[i].tol) {
             REPORT_FAILURE_2("value", payoff, exercise,
                              values[i].s, values[i].q, values[i].r,
@@ -411,7 +411,7 @@ void JumpDiffusionTest::testGreeks() {
       for (Size jj3=0; jj3<LENGTH(jV); jj3++) {
         jumpVol->setValue(jV[jj3]);
         for (Size k=0; k<LENGTH(residualTimes); k++) {
-          Date exDate = today + Integer(residualTimes[k]*360+0.5);
+            Date exDate = today + Integer(VALUE(residualTimes[k]*360+0.5));
           boost::shared_ptr<Exercise> exercise(new EuropeanExercise(exDate));
           for (Size kk=0; kk<1; kk++) {
               // option to check
@@ -508,7 +508,7 @@ void JumpDiffusionTest::testGreeks() {
                               Real expct = expected  [greek],
                                    calcl = calculated[greek],
                                    tol   = tolerance [greek];
-                              Real error = std::fabs(expct-calcl);
+                              Real error = abs(expct-calcl);
                               if (error>tol) {
                                   REPORT_FAILURE_1(greek, payoff, exercise,
                                                    u, q, r, today, v,
@@ -532,8 +532,8 @@ void JumpDiffusionTest::testGreeks() {
 }
 
 
-test_suite* JumpDiffusionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Jump-diffusion tests");
+boost::unit_test_framework::test_suite* JumpDiffusionTest::suite() {
+    boost::unit_test_framework::test_suite* suite = BOOST_TEST_SUITE("Jump-diffusion tests");
     suite->add(QUANTLIB_TEST_CASE(&JumpDiffusionTest::testMerton76));
     suite->add(QUANTLIB_TEST_CASE(&JumpDiffusionTest::testGreeks));
     return suite;

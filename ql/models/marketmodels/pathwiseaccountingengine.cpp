@@ -706,7 +706,7 @@ namespace QuantLib {
                 means[j] = sums[j]/numberOfPaths;
                 Real meanSq = sumsqs[j]/numberOfPaths;
                 Real variance = meanSq - means[j]*means[j];
-                errors[j] = std::sqrt(variance/numberOfPaths);
+                errors[j] = sqrt(variance/numberOfPaths);
 
             }
     }
@@ -1148,7 +1148,7 @@ namespace QuantLib {
                 means[j] = sums[j]/numberOfPaths;
                 Real meanSq = sumsqs[j]/numberOfPaths;
                 Real variance = meanSq - means[j]*means[j];
-                errors[j] = std::sqrt(variance/numberOfPaths);
+                errors[j] = sqrt(variance/numberOfPaths);
 
             }
     }

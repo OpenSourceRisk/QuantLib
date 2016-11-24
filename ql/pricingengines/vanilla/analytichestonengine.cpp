@@ -50,7 +50,7 @@ namespace QuantLib {
             : c_inf(c_inf), f(f) {}
             Real operator()(Real x) const {
                 if ((x+1.0)*c_inf > QL_EPSILON) {
-                    return f(-std::log(0.5*x+0.5)/c_inf)/((x+1.0)*c_inf);
+                    return f(-log(0.5*x+0.5)/c_inf)/((x+1.0)*c_inf);
                 } else {
                     return 0.0;
                 }
@@ -67,7 +67,7 @@ namespace QuantLib {
             : c_inf(c_inf), f(f) {}
             Real operator()(Real x) const {
                 if (x*c_inf > QL_EPSILON) {
-                    return f(-std::log(x)/c_inf)/(x*c_inf);
+                    return f(-log(x)/c_inf)/(x*c_inf);
                 } else {
                     return 0.0;
                 }
@@ -136,10 +136,10 @@ namespace QuantLib {
         kappa_(model->kappa()), theta_(model->theta()),
         sigma_(model->sigma()), v0_(model->v0()),
         cpxLog_(cpxLog), term_(term),
-        x_(std::log(model->process()->s0()->value())),
-        sx_(std::log(boost::dynamic_pointer_cast<StrikedTypePayoff>
+        x_(log(model->process()->s0()->value())),
+        sx_(log(boost::dynamic_pointer_cast<StrikedTypePayoff>
         (arguments.payoff)->strike())),
-        dd_(x_-std::log(ratio)),
+        dd_(x_-log(ratio)),
         sigma2_(sigma_*sigma_),
         rsigma_(model->rho()*sigma_),
         t0_(kappa_ - ((j_== 1)? model->rho()*sigma_ : 0)),
@@ -164,9 +164,9 @@ namespace QuantLib {
         v0_(v0),
         cpxLog_(cpxLog),
         term_(term),
-        x_(std::log(s0)),
-        sx_(std::log(strike)),
-        dd_(x_-std::log(ratio)),
+        x_(log(s0)),
+        sx_(log(strike)),
+        dd_(x_-log(ratio)),
         sigma2_(sigma_*sigma_),
         rsigma_(rho*sigma_),
         t0_(kappa - ((j== 1)? rho*sigma : 0)),
@@ -191,9 +191,9 @@ namespace QuantLib {
         v0_(v0),
         cpxLog_(cpxLog),
         term_(term),
-        x_(std::log(s0)),
-        sx_(std::log(strike)),
-        dd_(x_-std::log(ratio)),
+        x_(log(s0)),
+        sx_(log(strike)),
+        dd_(x_-log(ratio)),
         sigma2_(sigma_*sigma_),
         rsigma_(rho*sigma_),
         t0_(kappa - ((j== 1)? rho*sigma : 0)),
@@ -210,9 +210,9 @@ namespace QuantLib {
 
         const std::complex<Real> t1 = t0_+std::complex<Real>(0, -rpsig);
         const std::complex<Real> d =
-            std::sqrt(t1*t1 - sigma2_*phi
+            sqrt(t1*t1 - sigma2_*phi
                       *std::complex<Real>(-phi, (j_== 1)? 1 : -1));
-        const std::complex<Real> ex = std::exp(-d*term_);
+        const std::complex<Real> ex = exp(-d*term_);
         const std::complex<Real> addOnTerm
             = engine_ > 0 ? engine_->addOnTerm(phi, term_, j_) : Real(0.0);
 
@@ -221,24 +221,24 @@ namespace QuantLib {
                 if (sigma_ > 1e-5) {
                     const std::complex<Real> p = (t1-d)/(t1+d);
                     const std::complex<Real> g
-                                            = std::log((1.0 - p*ex)/(1.0 - p));
+                        = log((Real(1.0) - p*ex)/(Real(1.0) - p));
 
                     return
-                        std::exp(v0_*(t1-d)*(1.0-ex)/(sigma2_*(1.0-ex*p))
-                                 + (kappa_*theta_)/sigma2_*((t1-d)*term_-2.0*g)
+                        exp(v0_*(t1-d)*(Real(1.0)-ex)/(sigma2_*(Real(1.0)-ex*p))
+                            + (kappa_*theta_)/sigma2_*((t1-d)*term_-Real(2.0)*g)
                                  + std::complex<Real>(0.0, phi*(dd_-sx_))
                                  + addOnTerm
                                  ).imag()/phi;
                 }
                 else {
-                    const std::complex<Real> td = phi/(2.0*t1)
+                    const std::complex<Real> td = phi/(Real(2.0)*t1)
                                    *std::complex<Real>(-phi, (j_== 1)? 1 : -1);
                     const std::complex<Real> p = td*sigma2_/(t1+d);
-                    const std::complex<Real> g = p*(1.0-ex);
+                    const std::complex<Real> g = p*(Real(1.0)-ex);
 
                     return
-                        std::exp(v0_*td*(1.0-ex)/(1.0-p*ex)
-                                 + (kappa_*theta_)*(td*term_-2.0*g/sigma2_)
+                        exp(v0_*td*(Real(1.0)-ex)/(Real(1.0)-p*ex)
+                            + (kappa_*theta_)*(td*term_-Real(2.0)*g/sigma2_)
                                  + std::complex<Real>(0.0, phi*(dd_-sx_))
                                  + addOnTerm
                                  ).imag()/phi;
@@ -248,11 +248,11 @@ namespace QuantLib {
                 // use l'Hospital's rule to get lim_{phi->0}
                 if (j_ == 1) {
                     const Real kmr = rsigma_-kappa_;
-                    if (std::fabs(kmr) > 1e-7) {
+                    if (abs(kmr) > 1e-7) {
                         return dd_-sx_
-                            + (std::exp(kmr*term_)*kappa_*theta_
+                            + (exp(kmr*term_)*kappa_*theta_
                                -kappa_*theta_*(kmr*term_+1.0) ) / (2*kmr*kmr)
-                            - v0_*(1.0-std::exp(kmr*term_)) / (2.0*kmr);
+                            - v0_*(1.0-exp(kmr*term_)) / (2.0*kmr);
                     }
                     else
                         // \kappa = \rho * \sigma
@@ -261,31 +261,31 @@ namespace QuantLib {
                 }
                 else {
                     return dd_-sx_
-                        - (std::exp(-kappa_*term_)*kappa_*theta_
+                        - (exp(-kappa_*term_)*kappa_*theta_
                            +kappa_*theta_*(kappa_*term_-1.0))/(2*kappa_*kappa_)
-                        - v0_*(1.0-std::exp(-kappa_*term_))/(2*kappa_);
+                        - v0_*(1.0-exp(-kappa_*term_))/(2*kappa_);
                 }
             }
         }
         else if (cpxLog_ == BranchCorrection) {
             const std::complex<Real> p  = (t1+d)/(t1 - d);
 
-            // next term: g = std::log((1.0 - p*std::exp(d*term_))/(1.0 - p))
+            // next term: g = log((1.0 - p*exp(d*term_))/(1.0 - p))
             std::complex<Real> g;
 
             // the exp of the following expression is needed.
-            const std::complex<Real> e = std::log(p)+d*term_;
+            const std::complex<Real> e = log(p)+d*term_;
 
             // does it fit to the machine precision?
-            if (std::exp(-e.real()) > QL_EPSILON) {
-                g = std::log((1.0 - p/ex)/(1.0 - p));
+            if (exp(-e.real()) > QL_EPSILON) {
+                g = log((Real(1.0) - p/ex)/(Real(1.0) - p));
             } else {
                 // use a "big phi" approximation
-                g = d*term_ + std::log(p/(p - 1.0));
+                g = d*term_ + log(p/(p - Real(1.0)));
 
                 if (g.imag() > M_PI || g.imag() <= -M_PI) {
                     // get back to principal branch of the complex logarithm
-                    Real im = std::fmod(g.imag(), 2*M_PI);
+                    Real im = fmod(VALUE(g.imag()), 2*M_PI);
                     if (im > M_PI)
                         im -= 2*M_PI;
                     else if (im <= -M_PI)
@@ -310,8 +310,8 @@ namespace QuantLib {
             g_km1_ = g.imag();
             g += std::complex<Real>(0, 2*b_*M_PI);
 
-            return std::exp(v0_*(t1+d)*(ex-1.0)/(sigma2_*(ex-p))
-                            + (kappa_*theta_)/sigma2_*((t1+d)*term_-2.0*g)
+            return exp(v0_*(t1+d)*(ex-Real(1.0))/(sigma2_*(ex-p))
+                       + (kappa_*theta_)/sigma2_*((t1+d)*term_-Real(2.0)*g)
                             + std::complex<Real>(0,phi*(dd_-sx_))
                             + addOnTerm
                             ).imag()/phi;
@@ -381,8 +381,8 @@ namespace QuantLib {
 
         const Real ratio = riskFreeDiscount/dividendDiscount;
 
-        const Real c_inf = std::min(10.0, std::max(0.0001,
-                std::sqrt(1.0-square<Real>()(rho))/sigma))
+        const Real c_inf = min(Real(10.0), max(Real(0.0001),
+                sqrt(1.0-square<Real>()(rho))/sigma))
                 *(v0 + kappa*theta*term);
 
         evaluations = 0;

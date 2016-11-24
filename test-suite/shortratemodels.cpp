@@ -112,8 +112,8 @@ void ShortRateModelTest::testCachedHullWhite() {
     xMinExpected[0]= cachedA;
     xMinExpected[1]= cachedSigma;
     Real yMinExpected = model->value(xMinExpected, swaptions);
-    if (std::fabs(xMinCalculated[0]-cachedA) > tolerance
-        || std::fabs(xMinCalculated[1]-cachedSigma) > tolerance) {
+    if (abs(xMinCalculated[0]-cachedA) > tolerance
+        || abs(xMinCalculated[1]-cachedSigma) > tolerance) {
         BOOST_ERROR("Failed to reproduce cached calibration results:\n"
                     << "calculated: a = " << xMinCalculated[0] << ", "
                     << "sigma = " << xMinCalculated[1] << ", "
@@ -188,8 +188,8 @@ void ShortRateModelTest::testCachedHullWhiteFixedReversion() {
     xMinExpected[0]= cachedA;
     xMinExpected[1]= cachedSigma;
     Real yMinExpected = model->value(xMinExpected, swaptions);
-    if (std::fabs(xMinCalculated[0]-cachedA) > tolerance
-        || std::fabs(xMinCalculated[1]-cachedSigma) > tolerance) {
+    if (abs(xMinCalculated[0]-cachedA) > tolerance
+        || abs(xMinCalculated[1]-cachedSigma) > tolerance) {
         BOOST_ERROR("Failed to reproduce cached calibration results:\n"
                     << "calculated: a = " << xMinCalculated[0] << ", "
                     << "sigma = " << xMinCalculated[1] << ", "
@@ -271,8 +271,8 @@ void ShortRateModelTest::testCachedHullWhite2() {
     xMinExpected[0]= cachedA;
     xMinExpected[1]= cachedSigma;
     Real yMinExpected = model->value(xMinExpected, swaptions);
-    if (std::fabs(xMinCalculated[0]-cachedA) > tolerance
-        || std::fabs(xMinCalculated[1]-cachedSigma) > tolerance) {
+    if (abs(xMinCalculated[0]-cachedA) > tolerance
+        || abs(xMinCalculated[1]-cachedSigma) > tolerance) {
         BOOST_ERROR("Failed to reproduce cached calibration results:\n"
                     << "calculated: a = " << xMinCalculated[0] << ", "
                     << "sigma = " << xMinCalculated[1] << ", "
@@ -384,7 +384,7 @@ void ShortRateModelTest::testSwaps() {
                 swap.setPricingEngine(engine);
                 Real calculated = swap.NPV();
 
-                Real error = std::fabs((expected-calculated)/expected);
+                Real error = abs((expected-calculated)/expected);
                 if (error > tolerance) {
                     BOOST_ERROR("Failed to reproduce swap NPV:"
                                 << QL_FIXED << std::setprecision(9)
@@ -415,7 +415,7 @@ void ShortRateModelTest::testFuturesConvexityBias() {
     Rate calculatedForward =
         futureImpliedRate - HullWhite::convexityBias(futureQuote,t,T,sigma,a);
 
-    Real error = std::fabs(calculatedForward-expectedForward);
+    Real error = abs(calculatedForward-expectedForward);
 
     if (error > tolerance) {
         BOOST_ERROR("Failed to reproduce convexity bias:"

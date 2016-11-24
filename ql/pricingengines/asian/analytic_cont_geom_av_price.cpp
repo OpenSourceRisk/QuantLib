@@ -59,20 +59,20 @@ namespace QuantLib {
 
         Spread dividendYield = 0.5 * (
             process_->riskFreeRate()->zeroRate(exercise, rfdc,
-                                               Continuous, NoFrequency) +
+                                               Continuous, NoFrequency).rate() +
             process_->dividendYield()->zeroRate(exercise, divdc,
-                                                Continuous, NoFrequency) +
+                                                Continuous, NoFrequency).rate() +
             volatility*volatility/6.0);
 
         Time t_q = divdc.yearFraction(
             process_->dividendYield()->referenceDate(), exercise);
-        DiscountFactor dividendDiscount = std::exp(-dividendYield*t_q);
+        DiscountFactor dividendDiscount = exp(-dividendYield*t_q);
 
         Real spot = process_->stateVariable()->value();
         QL_REQUIRE(spot > 0.0, "negative or null underlying");
         Real forward = spot * dividendDiscount / riskFreeDiscount;
 
-        BlackCalculator black(payoff, forward, std::sqrt(variance/3.0),
+        BlackCalculator black(payoff, forward, sqrt(variance/3.0),
                               riskFreeDiscount);
 
         results_.value = black.value();
@@ -88,7 +88,7 @@ namespace QuantLib {
         Time t_v = voldc.yearFraction(
             process_->blackVolatility()->referenceDate(),
             arguments_.exercise->lastDate());
-        results_.vega = black.vega(t_v)/std::sqrt(3.0) +
+        results_.vega = black.vega(t_v)/sqrt(3.0) +
                         black.dividendRho(t_q)*volatility/6.0;
         try {
             results_.theta = black.theta(spot, t_v);

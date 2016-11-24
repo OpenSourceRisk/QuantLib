@@ -161,7 +161,7 @@ OptionletStripper1::OptionletStripper1(
                         optionletStDevs_[i][j], accuracy_, maxIter_);
                   } else if (volatilityType_ == Normal) {
                     optionletStDevs_[i][j] =
-                        std::sqrt(optionletTimes_[i]) *
+                        sqrt(optionletTimes_[i]) *
                         bachelierBlackFormulaImpliedVol(
                             optionletType, strikes[j], atmOptionletRate_[i],
                             optionletTimes_[i], optionletPrices_[i][j],
@@ -184,7 +184,7 @@ OptionletStripper1::OptionletStripper1(
                             "\n error:   " << e.what());
                 }
                 optionletVolatilities_[i][j] = optionletStDevs_[i][j] /
-                                                std::sqrt(optionletTimes_[i]);
+                                                sqrt(optionletTimes_[i]);
             }
         }
 

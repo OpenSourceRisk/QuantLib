@@ -104,7 +104,7 @@ void HimalayaOptionTest::testCached() {
     Real storedValue = 6.60370398;
     Real tolerance = 1.0e-8;
 
-    if (std::fabs(value-storedValue) > tolerance)
+    if (abs(value-storedValue) > tolerance)
         BOOST_FAIL(std::setprecision(10)
                    << "    calculated value: " << value << "\n"
                    << "    expected:         " << storedValue);
