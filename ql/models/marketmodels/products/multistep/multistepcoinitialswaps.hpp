@@ -47,7 +47,7 @@ namespace QuantLib {
       private:
         std::vector<Real> fixedAccruals_, floatingAccruals_;
         std::vector<Time> paymentTimes_;
-        double fixedRate_;
+        Real fixedRate_;
         Size lastIndex_;
         // things that vary in a path
         Size currentIndex_;
