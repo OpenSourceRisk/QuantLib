@@ -184,10 +184,17 @@
 // limits used as such
 #define QL_MIN_INTEGER         ((std::numeric_limits<QL_INTEGER>::min)())
 #define QL_MAX_INTEGER         ((std::numeric_limits<QL_INTEGER>::max)())
+#ifdef USE_CPPAD
+#define QL_MIN_REAL           -(CppAD::AD<double>((std::numeric_limits<double>::max)()))
+#define QL_MAX_REAL            (CppAD::AD<double>((std::numeric_limits<double>::max)()))
+#define QL_MIN_POSITIVE_REAL   (CppAD::AD<double>((std::numeric_limits<double>::min)()))
+#define QL_EPSILON             (CppAD::AD<double>((std::numeric_limits<double>::epsilon)()))
+#else
 #define QL_MIN_REAL           -((std::numeric_limits<QL_REAL>::max)())
 #define QL_MAX_REAL            ((std::numeric_limits<QL_REAL>::max)())
 #define QL_MIN_POSITIVE_REAL   ((std::numeric_limits<QL_REAL>::min)())
 #define QL_EPSILON             ((std::numeric_limits<QL_REAL>::epsilon)())
+#endif
 // specific values---these should fit into any Integer or Real
 #define QL_NULL_INTEGER        ((std::numeric_limits<int>::max)())
 #define QL_NULL_REAL           ((std::numeric_limits<float>::max)())
