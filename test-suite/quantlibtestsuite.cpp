@@ -220,6 +220,9 @@ namespace {
             std::cout << minutes << " m ";
         std::cout << std::fixed << std::setprecision(0)
                   << seconds << " s\n" << std::endl;
+        std::cout << "Peak memory usage: "
+                  << static_cast<double>(getPeakRSS()) / (1024.0 * 1024.0) << " kB"
+                  << std::endl;
     }
 
     void configure(QuantLib::Date evaluationDate) {
