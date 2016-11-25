@@ -184,17 +184,22 @@
 // limits used as such
 #define QL_MIN_INTEGER         ((std::numeric_limits<QL_INTEGER>::min)())
 #define QL_MAX_INTEGER         ((std::numeric_limits<QL_INTEGER>::max)())
+
 #ifdef USE_CPPAD
-#define QL_MIN_REAL           -(CppAD::AD<double>((std::numeric_limits<double>::max)()))
-#define QL_MAX_REAL            (CppAD::AD<double>((std::numeric_limits<double>::max)()))
-#define QL_MIN_POSITIVE_REAL   (CppAD::AD<double>((std::numeric_limits<double>::min)()))
-#define QL_EPSILON             (CppAD::AD<double>((std::numeric_limits<double>::epsilon)()))
-#else
+namespace std {
+    template<class T> struct numeric_limits<CppAD::AD<T>> {
+        static const CppAD::AD<T> max() { return std::numeric_limits<T>::max(); }
+        static const CppAD::AD<T> min() { return std::numeric_limits<T>::min(); }
+        static const CppAD::AD<T> epsilon() { return std::numeric_limits<T>::epsilon(); }
+        static const CppAD::AD<T> infinity() { return std::numeric_limits<T>::infinity(); }
+    };
+}
+#endif
+
 #define QL_MIN_REAL           -((std::numeric_limits<QL_REAL>::max)())
 #define QL_MAX_REAL            ((std::numeric_limits<QL_REAL>::max)())
 #define QL_MIN_POSITIVE_REAL   ((std::numeric_limits<QL_REAL>::min)())
 #define QL_EPSILON             ((std::numeric_limits<QL_REAL>::epsilon)())
-#endif
 // specific values---these should fit into any Integer or Real
 #define QL_NULL_INTEGER        ((std::numeric_limits<int>::max)())
 #define QL_NULL_REAL           ((std::numeric_limits<float>::max)())
@@ -228,11 +233,15 @@ const T min(const T& x, const T& y) {
 }
 
 template <class T> inline bool isinf(const CppAD::AD<T>& x) {
-    return isinf(x);
+    return std::isinf(Value(x));
+}
+
+template <class T> inline bool isnan(const CppAD::AD<T>& x) {
+    return std::isnan(Value(x));
 }
 
 template <class T> inline bool isfinite(const CppAD::AD<T>& x) {
-    return !isinf(x);
+    return !std::isinf(Value(x));
 }
 
 template <class T> inline bool signbit(const CppAD::AD<T>& x) {
@@ -280,12 +289,18 @@ template <class T> inline CppAD::AD<T> modf(CppAD::AD<T> x, CppAD::AD<T>* y) {
 } // namespace CppAD
 
 namespace boost {
-    template<> struct is_float<CppAD::AD<double>> {
-        static const bool value = true;
-    };
-}
+template <class T> struct is_float<CppAD::AD<T>> { static const bool value = true; };
+template <class T> struct is_arithmetic<CppAD::AD<T>> { static const bool value = true; };
 
-using CppAD::min; using CppAD::max; using CppAD::isinf; using CppAD::copysign; using CppAD::fmax; using CppAD::operator/;
+namespace math {
+template <class T> inline bool isnan(const CppAD::AD<T>& x) { return std::isnan(Value(x)); }
+template <class T> inline bool isinf(const CppAD::AD<T>& x) { return std::isinf(Value(x)); }
+} // math
+
+} // boost
+
+using CppAD::min; using CppAD::max; using CppAD::isinf; using CppAD::isnan; using CppAD::copysign;
+using CppAD::fmax; using CppAD::operator/; using CppAD::modf;
 
 #define VALUE(x) (CppAD::Value(x))
 

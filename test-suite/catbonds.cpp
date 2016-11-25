@@ -70,17 +70,17 @@ void CatBondTest::testEventSetForWholeYears() {
 	BOOST_REQUIRE(simulation->nextPath(path));
 	BOOST_CHECK_EQUAL(Size(1), path.size());
 	BOOST_CHECK_EQUAL(Date(1, February, 2015), path.at(0).first);
-	BOOST_CHECK_EQUAL(100, path.at(0).second);
+	BOOST_CHECK_EQUAL(100, VALUE(path.at(0).second));
 
 	BOOST_REQUIRE(simulation->nextPath(path));
 	BOOST_CHECK_EQUAL(Size(1), path.size());
 	BOOST_CHECK_EQUAL(Date(1, July, 2015), path.at(0).first);
-	BOOST_CHECK_EQUAL(150, path.at(0).second);
+	BOOST_CHECK_EQUAL(150, VALUE(path.at(0).second));
 
 	BOOST_REQUIRE(simulation->nextPath(path));
 	BOOST_CHECK_EQUAL(Size(1), path.size());
 	BOOST_CHECK_EQUAL(Date(5, January, 2015), path.at(0).first);
-	BOOST_CHECK_EQUAL(50, path.at(0).second);
+	BOOST_CHECK_EQUAL(50, VALUE(path.at(0).second));
 
 	BOOST_REQUIRE(!simulation->nextPath(path));
 }
@@ -102,9 +102,9 @@ void CatBondTest::testEventSetForIrregularPeriods() {
 	BOOST_REQUIRE(simulation->nextPath(path));
 	BOOST_CHECK_EQUAL(Size(2), path.size());
 	BOOST_CHECK_EQUAL(Date(1, July, 2015), path.at(0).first);
-	BOOST_CHECK_EQUAL(150, path.at(0).second);
+	BOOST_CHECK_EQUAL(150, VALUE(path.at(0).second));
 	BOOST_CHECK_EQUAL(Date(5, January, 2016), path.at(1).first);
-	BOOST_CHECK_EQUAL(50, path.at(1).second);
+    BOOST_CHECK_EQUAL(50, VALUE(path.at(1).second));
 
 	BOOST_REQUIRE(!simulation->nextPath(path));
 }
@@ -156,17 +156,17 @@ void CatBondTest::testBetaRisk() {
         poissonSumSquares+=path.size()*path.size();
     }
     Real poissonMean = poissonSum/PATHS;
-    BOOST_CHECK_CLOSE(Real(3.0/100.0), poissonMean, 2);
+    BOOST_CHECK_CLOSE(3.0/100.0, VALUE(poissonMean), 2);
     Real poissonVar = poissonSumSquares/PATHS - poissonMean*poissonMean;
-    BOOST_CHECK_CLOSE(Real(3.0/100.0), poissonVar, 5);
+    BOOST_CHECK_CLOSE(3.0/100.0, VALUE(poissonVar), 5);
     
     Real expectedMean = 3.0*10.0/100.0;
     Real actualMean = sum/PATHS;
-    BOOST_CHECK_CLOSE(expectedMean, actualMean, 1);
+    BOOST_CHECK_CLOSE(VALUE(expectedMean), VALUE(actualMean), 1);
     
     Real expectedVar = 3.0*(15.0*15.0+10*10)/100.0;
     Real actualVar = sumSquares/PATHS - actualMean*actualMean;
-    BOOST_CHECK_CLOSE(expectedVar, actualVar, 1);
+    BOOST_CHECK_CLOSE(VALUE(expectedVar), VALUE(actualVar), 1);
 }
 
 namespace {
@@ -206,7 +206,7 @@ void CatBondTest::testRiskFreeAgainstFloatingRateBond() {
     shared_ptr<IborIndex> index(new USDLibor(6*Months, riskFreeRate));
     Natural fixingDays = 1;
 
-    Real tolerance = 1.0e-6;
+    double tolerance = 1.0e-6;
 
     shared_ptr<IborCouponPricer> pricer(new
         BlackIborCouponPricer(Handle<OptionletVolatilityStructure>()));
@@ -385,7 +385,7 @@ void CatBondTest::testCatBondInDoomScenario() {
     shared_ptr<IborIndex> index(new USDLibor(6*Months, riskFreeRate));
     Natural fixingDays = 1;
 
-    Real tolerance = 1.0e-6;
+    double tolerance = 1.0e-6;
 
     shared_ptr<IborCouponPricer> pricer(new
         BlackIborCouponPricer(Handle<OptionletVolatilityStructure>()));
@@ -420,15 +420,15 @@ void CatBondTest::testCatBondInDoomScenario() {
     setCouponPricer(catBond.cashflows(),pricer);
 
     Real price = catBond.cleanPrice();
-    BOOST_CHECK_EQUAL(0, price);
+    BOOST_CHECK_EQUAL(0, VALUE(price));
 
     Real lossProbability = catBond.lossProbability();
     Real exhaustionProbability = catBond.exhaustionProbability();
     Real expectedLoss = catBond.expectedLoss();
 
-    BOOST_CHECK_CLOSE(Real(1.0), lossProbability, tolerance);
-    BOOST_CHECK_CLOSE(Real(1.0), exhaustionProbability, tolerance);
-    BOOST_CHECK_CLOSE(Real(1.0), expectedLoss, tolerance);
+    BOOST_CHECK_CLOSE(1.0, VALUE(lossProbability), tolerance);
+    BOOST_CHECK_CLOSE(1.0, VALUE(exhaustionProbability), tolerance);
+    BOOST_CHECK_CLOSE(1.0, VALUE(expectedLoss), tolerance);
 }
 
 
@@ -448,7 +448,7 @@ void CatBondTest::testCatBondWithDoomOnceInTenYears() {
     shared_ptr<IborIndex> index(new USDLibor(6*Months, riskFreeRate));
     Natural fixingDays = 1;
 
-    Real tolerance = 1.0e-6;
+    double tolerance = 1.0e-6;
 
     shared_ptr<IborCouponPricer> pricer(new
         BlackIborCouponPricer(Handle<OptionletVolatilityStructure>()));
@@ -492,9 +492,9 @@ void CatBondTest::testCatBondWithDoomOnceInTenYears() {
     Real exhaustionProbability = catBond.exhaustionProbability();
     Real expectedLoss = catBond.expectedLoss();
 
-    BOOST_CHECK_CLOSE(Real(0.1), lossProbability, tolerance);
-    BOOST_CHECK_CLOSE(Real(0.1), exhaustionProbability, tolerance);
-    BOOST_CHECK_CLOSE(Real(0.1), expectedLoss, tolerance);
+    BOOST_CHECK_CLOSE(0.1, VALUE(lossProbability), tolerance);
+    BOOST_CHECK_CLOSE(0.1, VALUE(exhaustionProbability), tolerance);
+    BOOST_CHECK_CLOSE(0.1, VALUE(expectedLoss), tolerance);
 
     shared_ptr<PricingEngine> catBondEngineRF(new MonteCarloCatBondEngine(noCatRisk, discountCurve));
     catBond.setPricingEngine(catBondEngineRF);
@@ -505,12 +505,12 @@ void CatBondTest::testCatBondWithDoomOnceInTenYears() {
     Real riskFreeExhaustionProbability = catBond.exhaustionProbability();
     Real riskFreeExpectedLoss = catBond.expectedLoss();
     
-    BOOST_CHECK_CLOSE(Real(0.0), riskFreeLossProbability, tolerance);
-    BOOST_CHECK_CLOSE(Real(0.0), riskFreeExhaustionProbability, tolerance);
-    BOOST_CHECK(abs(riskFreeExpectedLoss) < tolerance);
+    BOOST_CHECK_CLOSE(0.0, VALUE(riskFreeLossProbability), tolerance);
+    BOOST_CHECK_CLOSE(0.0, VALUE(riskFreeExhaustionProbability), tolerance);
+    BOOST_CHECK(VALUE(abs(riskFreeExpectedLoss)) < tolerance);
     
-    BOOST_CHECK_CLOSE(riskFreePrice*0.9, price, tolerance);
-    BOOST_CHECK_LT(riskFreeYield, yield);
+    BOOST_CHECK_CLOSE(VALUE(riskFreePrice*0.9), VALUE(price), tolerance);
+    BOOST_CHECK_LT(VALUE(riskFreeYield), VALUE(yield));
 }
 
 void CatBondTest::testCatBondWithDoomOnceInTenYearsProportional() {
@@ -529,7 +529,7 @@ void CatBondTest::testCatBondWithDoomOnceInTenYearsProportional() {
     shared_ptr<IborIndex> index(new USDLibor(6*Months, riskFreeRate));
     Natural fixingDays = 1;
 
-    Real tolerance = 1.0e-6;
+    double tolerance = 1.0e-6;
 
     shared_ptr<IborCouponPricer> pricer(new
         BlackIborCouponPricer(Handle<OptionletVolatilityStructure>()));
@@ -573,9 +573,9 @@ void CatBondTest::testCatBondWithDoomOnceInTenYearsProportional() {
     Real exhaustionProbability = catBond.exhaustionProbability();
     Real expectedLoss = catBond.expectedLoss();
 
-    BOOST_CHECK_CLOSE(Real(0.1), lossProbability, tolerance);
-    BOOST_CHECK_CLOSE(Real(0.0), exhaustionProbability, tolerance);
-    BOOST_CHECK_CLOSE(Real(0.05), expectedLoss, tolerance);
+    BOOST_CHECK_CLOSE(0.1, VALUE(lossProbability), tolerance);
+    BOOST_CHECK_CLOSE(0.0, VALUE(exhaustionProbability), tolerance);
+    BOOST_CHECK_CLOSE(0.05, VALUE(expectedLoss), tolerance);
 
     shared_ptr<PricingEngine> catBondEngineRF(new MonteCarloCatBondEngine(noCatRisk, discountCurve));
     catBond.setPricingEngine(catBondEngineRF);
@@ -585,11 +585,11 @@ void CatBondTest::testCatBondWithDoomOnceInTenYearsProportional() {
     Real riskFreeLossProbability = catBond.lossProbability();
     Real riskFreeExpectedLoss = catBond.expectedLoss();
     
-    BOOST_CHECK_CLOSE(Real(0.0), riskFreeLossProbability, tolerance);
-    BOOST_CHECK(abs(riskFreeExpectedLoss) < tolerance);
+    BOOST_CHECK_CLOSE(0.0, VALUE(riskFreeLossProbability), tolerance);
+    BOOST_CHECK(VALUE(abs(riskFreeExpectedLoss)) < tolerance);
     
-    BOOST_CHECK_CLOSE(riskFreePrice*0.95, price, tolerance);
-    BOOST_CHECK_LT(riskFreeYield, yield);
+    BOOST_CHECK_CLOSE(VALUE(riskFreePrice*0.95), VALUE(price), tolerance);
+    BOOST_CHECK_LT(VALUE(riskFreeYield), VALUE(yield));
 }
 
 
@@ -609,7 +609,7 @@ void CatBondTest::testCatBondWithGeneratedEventsProportional() {
     shared_ptr<IborIndex> index(new USDLibor(6*Months, riskFreeRate));
     Natural fixingDays = 1;
 
-    Real tolerance = 1.0e-6;
+    double tolerance = 1.0e-6;
 
     shared_ptr<IborCouponPricer> pricer(new
         BlackIborCouponPricer(Handle<OptionletVolatilityStructure>()));
@@ -661,11 +661,11 @@ void CatBondTest::testCatBondWithGeneratedEventsProportional() {
     Real riskFreeLossProbability = catBond.lossProbability();
     Real riskFreeExpectedLoss = catBond.expectedLoss();
     
-    BOOST_CHECK_CLOSE(Real(0.0), riskFreeLossProbability, tolerance);
-    BOOST_CHECK(abs(riskFreeExpectedLoss) < tolerance);
+    BOOST_CHECK_CLOSE(0.0, VALUE(riskFreeLossProbability), tolerance);
+    BOOST_CHECK(VALUE(abs(riskFreeExpectedLoss)) < tolerance);
     
-    BOOST_CHECK_GT(riskFreePrice, price);
-    BOOST_CHECK_LT(riskFreeYield, yield);
+    BOOST_CHECK_GT(VALUE(riskFreePrice), VALUE(price));
+    BOOST_CHECK_LT(VALUE(riskFreeYield), VALUE(yield));
 }
 
 test_suite* CatBondTest::suite() {
