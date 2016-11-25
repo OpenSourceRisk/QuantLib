@@ -112,7 +112,7 @@ namespace QuantLib {
 
         QL_REQUIRE( n == Size(std::distance(yBegin, yEnd)),
             "sample set need to be of the same size");
-        QL_REQUIRE(n >= m, "sample set is too small");
+        QL_REQUIRE(n >= m, "sample set is too small, n=" << n << ", m=" << m);
 
         Size i;
 

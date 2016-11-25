@@ -73,7 +73,7 @@ namespace {
         testSingle(I, "f(x) = sin(x)",
                    [](const Real x) { return sin(x); }, 0.0, M_PI, 2.0);
         testSingle(I, "f(x) = cos(x)",
-                   [](const Real x) { return sin(x); }, 0.0, M_PI, 0.0);
+                   [](const Real x) { return cos(x); }, 0.0, M_PI, 0.0);
         testSingle(I, "f(x) = Gaussian(x)",
                    NormalDistribution(), -10.0, 10.0, 1.0);
         testSingle(I, "f(x) = Abcd2(x)",
