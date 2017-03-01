@@ -278,7 +278,7 @@ class XABRInterpolationImpl : public Interpolation::templateImpl<I1, I2>,
         I2 j = this->yBegin_;
         for (; i != this->xEnd_; ++i, ++j) {
             error = abs(value(*i) - *j);
-            maxError = max(maxError, error);
+            maxError = QL_FCT_EXPL::max(maxError, error);
         }
         return maxError;
     }

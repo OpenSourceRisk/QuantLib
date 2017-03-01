@@ -51,6 +51,7 @@
 #include <cppad/cppad.hpp>
 #include <complex>
 #include <boost/type_traits.hpp>
+#include <boost/mpl/apply.hpp>
 #endif
 
 /* This allows one to include a given file at this point by
@@ -82,8 +83,10 @@
 #ifndef QL_REAL
 #ifdef USE_CPPAD
 #   define QL_REAL CppAD::AD<double>
+#   define QL_FLOAT CppAD::AD<float>
 #else
 #   define QL_REAL double;
+#   define QL_FLOAT double;
 #endif
 #endif
 
@@ -297,16 +300,32 @@ template <class T> inline bool isnan(const CppAD::AD<T>& x) { return std::isnan(
 template <class T> inline bool isinf(const CppAD::AD<T>& x) { return std::isinf(Value(x)); }
 } // math
 
+namespace mpl {
+    template <typename U, typename Base> struct apply1<U, CppAD::AD<Base>> : apply1<U, Base> {};
+} // mpl
+
 } // boost
 
 using CppAD::min; using CppAD::max; using CppAD::isinf; using CppAD::isnan; using CppAD::copysign;
 using CppAD::fmax; using CppAD::operator/; using CppAD::modf;
+
+// last resort if function calls are ambiguous
+namespace QL_FCT_EXPL {
+using CppAD::min; using CppAD::max; using CppAD::isinf; using CppAD::isnan; using CppAD::copysign;
+using CppAD::fmax; using CppAD::operator/; using CppAD::modf;
+}
 
 #define VALUE(x) (CppAD::Value(x))
 
 #elif // not USE_CPPAD
 
 #define VALUE(x) (x)
+
+// last resort if function calls are ambiguous
+namespace QL_FCT_EXPL {
+using std::min; using std::max; using std::isinf; using std::isnan; using std::copysign;
+using std::fmax; using std::operator/; using std::modf;
+}
 
 #endif // USE_CPPAD
 

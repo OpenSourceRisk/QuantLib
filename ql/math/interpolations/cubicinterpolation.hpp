@@ -647,7 +647,7 @@ namespace QuantLib {
                                         -S_[i-2]*dx_[i-1])/
                                         (dx_[i-2]+dx_[i-1]);
                                     if (pm*pd>0.0 && pm*(S_[i-1]-S_[i-2])>0.0) {
-                                        M = max<Real>(M, 1.5*min(
+                                        M = QL_FCT_EXPL::max<Real>(M, 1.5*QL_FCT_EXPL::min(
                                                 abs(pm),abs(pd)));
                                     }
                                 }
@@ -657,7 +657,7 @@ namespace QuantLib {
                                     pu=(S_[i]*(2.0*dx_[i]+dx_[i+1])-S_[i+1]*dx_[i])/
                                         (dx_[i]+dx_[i+1]);
                                     if (pm*pu>0.0 && -pm*(S_[i]-S_[i-1])>0.0) {
-                                        M = max<Real>(M, 1.5*min(
+                                        M = QL_FCT_EXPL::max<Real>(M, 1.5*QL_FCT_EXPL::min(
                                                 abs(pm),abs(pu)));
                                     }
                                 }
