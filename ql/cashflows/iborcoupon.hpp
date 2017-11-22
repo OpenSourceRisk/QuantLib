@@ -42,14 +42,14 @@ namespace QuantLib {
                    Real nominal,
                    const Date& startDate,
                    const Date& endDate,
-                   Natural fixingDays,
+                   const boost::variant<Natural, Date>& fixingDelay,
                    const boost::shared_ptr<IborIndex>& index,
                    Real gearing = 1.0,
                    Spread spread = 0.0,
                    const Date& refPeriodStart = Date(),
                    const Date& refPeriodEnd = Date(),
                    const DayCounter& dayCounter = DayCounter(),
-                   bool isInArrears = false);
+                   const boost::optional<bool>& isInArrears = boost::none);
         //! \name Inspectors
         //@{
         const boost::shared_ptr<IborIndex>& iborIndex() const {
@@ -68,8 +68,9 @@ namespace QuantLib {
         virtual void accept(AcyclicVisitor&);
         //@}
       private:
+        void init();
         boost::shared_ptr<IborIndex> iborIndex_;
-        Date fixingDate_, fixingValueDate_, fixingEndDate_;
+        Date fixingValueDate_, fixingEndDate_;
         Time spanningTime_;
     };
 

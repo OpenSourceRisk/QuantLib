@@ -34,28 +34,51 @@ namespace QuantLib {
                             Real nominal,
                             const Date& startDate,
                             const Date& endDate,
-                            Natural fixingDays,
+                            const boost::variant<Natural, Date>& fixingDelay,
                             const boost::shared_ptr<InterestRateIndex>& index,
                             Real gearing,
                             Spread spread,
                             const Date& refPeriodStart,
                             const Date& refPeriodEnd,
                             const DayCounter& dayCounter,
-                            bool isInArrears)
+                            const boost::optional<bool>& isInArrears)
     : Coupon(paymentDate, nominal,
              startDate, endDate, refPeriodStart, refPeriodEnd),
-      index_(index), dayCounter_(dayCounter),
-      fixingDays_(fixingDays==Null<Natural>() ? index->fixingDays() : fixingDays),
+      index_(index), fixingDelay_(fixingDelay), dayCounter_(dayCounter),
       gearing_(gearing), spread_(spread),
       isInArrears_(isInArrears)
     {
-        QL_REQUIRE(gearing_!=0, "Null gearing not allowed");
+        QL_REQUIRE(!close_enough(gearing_, 0.0), "Null gearing not allowed");
+        if (fixingDelay_.which() == 0 &&
+            boost::get<Natural>(fixingDelay_) == Null<Natural>())
+            fixingDelay_ = index->fixingDays();
 
         if (dayCounter_.empty())
             dayCounter_ = index_->dayCounter();
 
         registerWith(index_);
         registerWith(Settings::instance().evaluationDate());
+
+        if (fixingDelay_.which() == 0) {
+            if (isInArrears_ == boost::none)
+                isInArrears_ = false;
+            // if isInArrears_ fix at the end of period
+            Date refDate = *isInArrears_ ? accrualEndDate_ : accrualStartDate_;
+            fixingDate_ = index_->fixingCalendar().advance(
+                refDate,
+                -static_cast<Integer>(boost::get<Natural>(fixingDelay_)), Days,
+                Preceding);
+        } else {
+            fixingDate_ = boost::get<Date>(fixingDelay_);
+            QL_REQUIRE(fixingDate_ != Null<Date>(),
+                       "FloatingRateCoupon::FloatingRateCoupon(): null fixing "
+                       "date not allowed");
+            QL_REQUIRE(fixingDate_ <= date(),
+                       "FloatingRateCoupon::FloatingRateCouon(): fixing date ("
+                           << fixingDate_
+                           << ") can not be later than payment date (" << date()
+                           << ")");
+        }
     }
 
     void FloatingRateCoupon::setPricer(
@@ -80,11 +103,21 @@ namespace QuantLib {
         }
     }
 
+    Natural FloatingRateCoupon::fixingDays() const {
+        QL_REQUIRE(
+            hasFixingDays(),
+            "FloatingRateCoupon::fixingDays(): fixing days not provided");
+        return boost::get<Natural>(fixingDelay_);
+    }
+
+   bool FloatingRateCoupon::isInArrears() const {
+       QL_REQUIRE(hasInArrears(),
+                  "FloatingRateCoupon::isInArrears(): in arrears not provided");
+       return *isInArrears_;
+    }
+
     Date FloatingRateCoupon::fixingDate() const {
-        // if isInArrears_ fix at the end of period
-        Date refDate = isInArrears_ ? accrualEndDate_ : accrualStartDate_;
-        return index_->fixingCalendar().advance(refDate,
-            -static_cast<Integer>(fixingDays_), Days, Preceding);
+        return fixingDate_;
     }
 
     Rate FloatingRateCoupon::rate() const {

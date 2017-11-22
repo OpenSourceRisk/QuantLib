@@ -29,16 +29,16 @@ namespace QuantLib {
                          Real nominal,
                          const Date& startDate,
                          const Date& endDate,
-                         Natural fixingDays,
+                         const boost::variant<Natural, Date>& fixingDelay,
                          const boost::shared_ptr<SwapIndex>& swapIndex,
                          Real gearing,
                          Spread spread,
                          const Date& refPeriodStart,
                          const Date& refPeriodEnd,
                          const DayCounter& dayCounter,
-                         bool isInArrears)
+                         const boost::optional<bool>& isInArrears)
     : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
-                         fixingDays, swapIndex, gearing, spread,
+                         fixingDelay, swapIndex, gearing, spread,
                          refPeriodStart, refPeriodEnd,
                          dayCounter, isInArrears),
       swapIndex_(swapIndex) {}
@@ -50,8 +50,6 @@ namespace QuantLib {
         else
             FloatingRateCoupon::accept(v);
     }
-
-
 
     CmsLeg::CmsLeg(const Schedule& schedule,
                    const boost::shared_ptr<SwapIndex>& swapIndex)

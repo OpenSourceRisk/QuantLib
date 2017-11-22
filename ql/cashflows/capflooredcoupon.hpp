@@ -104,7 +104,7 @@ namespace QuantLib {
                   Real nominal,
                   const Date& startDate,
                   const Date& endDate,
-                  Natural fixingDays,
+                  const boost::variant<Natural, Date>& fixingDelay,
                   const boost::shared_ptr<IborIndex>& index,
                   Real gearing = 1.0,
                   Spread spread = 0.0,
@@ -113,9 +113,9 @@ namespace QuantLib {
                   const Date& refPeriodStart = Date(),
                   const Date& refPeriodEnd = Date(),
                   const DayCounter& dayCounter = DayCounter(),
-                  bool isInArrears = false)
+                  const boost::optional<bool>& isInArrears = boost::none)
         : CappedFlooredCoupon(boost::shared_ptr<FloatingRateCoupon>(new
-            IborCoupon(paymentDate, nominal, startDate, endDate, fixingDays,
+            IborCoupon(paymentDate, nominal, startDate, endDate, fixingDelay,
                        index, gearing, spread, refPeriodStart, refPeriodEnd,
                        dayCounter, isInArrears)), cap, floor) {}
 
@@ -136,7 +136,7 @@ namespace QuantLib {
                   Real nominal,
                   const Date& startDate,
                   const Date& endDate,
-                  Natural fixingDays,
+                  const boost::variant<Natural, Date>& fixingDelay,
                   const boost::shared_ptr<SwapIndex>& index,
                   Real gearing = 1.0,
                   Spread spread= 0.0,
@@ -145,9 +145,9 @@ namespace QuantLib {
                   const Date& refPeriodStart = Date(),
                   const Date& refPeriodEnd = Date(),
                   const DayCounter& dayCounter = DayCounter(),
-                  bool isInArrears = false)
+                  const boost::optional<bool>& isInArrears = false)
         : CappedFlooredCoupon(boost::shared_ptr<FloatingRateCoupon>(new
-            CmsCoupon(paymentDate, nominal, startDate, endDate, fixingDays,
+            CmsCoupon(paymentDate, nominal, startDate, endDate, fixingDelay,
                       index, gearing, spread, refPeriodStart, refPeriodEnd,
                       dayCounter, isInArrears)), cap, floor) {}
 

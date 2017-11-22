@@ -1,4 +1,5 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+
 /*
   Copyright (C) 2014, 2015 Peter Caspers
 
@@ -161,17 +162,17 @@ namespace QuantLib {
 
         c1_ = boost::shared_ptr<CmsCoupon>(new CmsCoupon(
             coupon_->date(), coupon_->nominal(), coupon_->accrualStartDate(),
-            coupon_->accrualEndDate(), coupon_->fixingDays(),
+            coupon_->accrualEndDate(), coupon_->fixingDelay(),
             index_->swapIndex1(), 1.0, 0.0, coupon_->referencePeriodStart(),
             coupon_->referencePeriodEnd(), coupon_->dayCounter(),
-            coupon_->isInArrears()));
+            coupon_->isInArrearsAsOptional()));
 
         c2_ = boost::shared_ptr<CmsCoupon>(new CmsCoupon(
             coupon_->date(), coupon_->nominal(), coupon_->accrualStartDate(),
-            coupon_->accrualEndDate(), coupon_->fixingDays(),
+            coupon_->accrualEndDate(), coupon_->fixingDelay(),
             index_->swapIndex2(), 1.0, 0.0, coupon_->referencePeriodStart(),
             coupon_->referencePeriodEnd(), coupon_->dayCounter(),
-            coupon_->isInArrears()));
+            coupon_->isInArrearsAsOptional()));
 
         c1_->setPricer(cmsPricer_);
         c2_->setPricer(cmsPricer_);
@@ -240,12 +241,16 @@ namespace QuantLib {
 
             rho_ = std::max(std::min(correlation()->value(), 0.9999),
                             -0.9999); // avoid division by zero in integrand
+        } else {
+            // fixing is in the past or today
+            adjustedRate1_ = c1_->indexFixing();
+            adjustedRate2_ = c2_->indexFixing();
         }
     }
 
     Real LognormalCmsSpreadPricer::optionletPrice(Option::Type optionType,
                                                   Real strike) const {
-
+        // this method is only called for future fixings
         phi_ = optionType == Option::Call ? 1.0 : -1.0;
         Real res = 0.0;
         if (volType_ == ShiftedLognormal) {

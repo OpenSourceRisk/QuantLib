@@ -31,14 +31,14 @@ namespace QuantLib {
                          underlying->nominal(),
                          underlying->accrualStartDate(),
                          underlying->accrualEndDate(),
-                         underlying->fixingDays(),
+                         underlying->fixingDelay(),
                          underlying->index(),
                          underlying->gearing(),
                          underlying->spread(),
                          underlying->referencePeriodStart(),
                          underlying->referencePeriodEnd(),
                          underlying->dayCounter(),
-                         underlying->isInArrears()),
+                         underlying->isInArrearsAsOptional()),
       underlying_(underlying),
       isCapped_(false), isFloored_(false) {
 

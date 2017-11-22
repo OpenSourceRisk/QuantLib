@@ -36,22 +36,23 @@ namespace QuantLib {
                            Real nominal,
                            const Date& startDate,
                            const Date& endDate,
-                           Natural fixingDays,
+                           const boost::variant<Natural, Date>& fixingDelay,
                            const shared_ptr<IborIndex>& iborIndex,
                            Real gearing,
                            Spread spread,
                            const Date& refPeriodStart,
                            const Date& refPeriodEnd,
                            const DayCounter& dayCounter,
-                           bool isInArrears)
+                           const boost::optional<bool>& isInArrears)
     : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
-                         fixingDays, iborIndex, gearing, spread,
+                         fixingDelay, iborIndex, gearing, spread,
                          refPeriodStart, refPeriodEnd,
                          dayCounter, isInArrears),
       iborIndex_(iborIndex) {
+        init();
+    }
 
-        fixingDate_ = fixingDate();
-
+    void IborCoupon::init() {
         const Calendar& fixingCalendar = index_->fixingCalendar();
         Natural indexFixingDays = index_->fixingDays();
 
@@ -61,11 +62,12 @@ namespace QuantLib {
         #ifdef QL_USE_INDEXED_COUPON
         fixingEndDate_ = index_->maturityDate(fixingValueDate_);
         #else
-        if (isInArrears_)
+        // with a free fixing date we always use the indexed coupon mode
+        if (!isInArrears_ || *isInArrears_)
             fixingEndDate_ = index_->maturityDate(fixingValueDate_);
         else { // par coupon approximation
             Date nextFixingDate = fixingCalendar.advance(
-                accrualEndDate_, -static_cast<Integer>(fixingDays_), Days);
+                accrualEndDate_, -static_cast<Integer>(fixingDays()), Days);
             fixingEndDate_ = fixingCalendar.advance(
                 nextFixingDate, indexFixingDays, Days);
         }

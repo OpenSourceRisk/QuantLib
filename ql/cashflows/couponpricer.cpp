@@ -108,17 +108,39 @@ namespace QuantLib {
         if (fixing == Null<Rate>())
             fixing = coupon_->indexFixing();
 
-        if (!coupon_->isInArrears() && timingAdjustment_ == Black76)
+        // if the pay date is equal to the index estimation end date
+        // there is no convexity; in all other cases in principle an
+        // adjustment has to be applied, but the Black76 method only
+        // applies the standard in arrears adjustment; the bivariate
+        // lognormal method is more accurate in this regard.
+        Date d1 = coupon_->fixingDate();
+        Date d2 = index_->valueDate(d1);
+        Date d3 = index_->maturityDate(d2);
+        // if payment date = index maturity date, no timimg adjustment
+        // is required
+        if(coupon_->date() == d3)
             return fixing;
+        // for Black76 timing adjustment decide whether to apply it
+        if(timingAdjustment_ == Black76) {
+            // was the coupon set up with an in arrears flag and
+            // does this indicate in advance fixing?
+            if (coupon_->hasInArrears() && !coupon_->isInArrears())
+                return fixing;
+            // if the coupon was not set up with the in arrears flag
+            // we apply the classic in arrears adjustment only if
+            // the index value date is sufficiently close to the
+            // accrual end date
+            if (!coupon_->hasInArrears() &&
+                std::abs(d2 - coupon_->accrualEndDate()) > 10)
+                return fixing;
+        }
 
         QL_REQUIRE(!capletVolatility().empty(),
                    "missing optionlet volatility");
-        Date d1 = coupon_->fixingDate();
         Date referenceDate = capletVolatility()->referenceDate();
+        // no variance has accumulated, so the convexity is zero
         if (d1 <= referenceDate)
             return fixing;
-        Date d2 = index_->valueDate(d1);
-        Date d3 = index_->maturityDate(d2);
         Time tau = index_->dayCounter().yearFraction(d2, d3);
         Real variance = capletVolatility()->blackVariance(d1, fixing);
 

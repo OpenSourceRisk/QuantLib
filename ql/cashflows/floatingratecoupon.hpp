@@ -7,6 +7,7 @@
  Copyright (C) 2006, 2007 Cristina Duminuco
  Copyright (C) 2006 Ferdinando Ametrano
  Copyright (C) 2007 Giorgio Facchinetti
+ Copyright (C) 2017 Peter Caspers
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -34,6 +35,8 @@
 #include <ql/time/daycounter.hpp>
 #include <ql/handle.hpp>
 
+#include <boost/variant.hpp>
+
 namespace QuantLib {
 
     class InterestRateIndex;
@@ -48,14 +51,14 @@ namespace QuantLib {
                            Real nominal,
                            const Date& startDate,
                            const Date& endDate,
-                           Natural fixingDays,
+                           const boost::variant<Natural, Date>& fixingDelay,
                            const boost::shared_ptr<InterestRateIndex>& index,
                            Real gearing = 1.0,
                            Spread spread = 0.0,
                            const Date& refPeriodStart = Date(),
                            const Date& refPeriodEnd = Date(),
                            const DayCounter& dayCounter = DayCounter(),
-                           bool isInArrears = false);
+                           const boost::optional<bool>& isInArrears = boost::none);
 
         //! \name CashFlow interface
         //@{
@@ -75,9 +78,15 @@ namespace QuantLib {
         //! floating index
         const boost::shared_ptr<InterestRateIndex>& index() const;
         //! fixing days
-        Natural fixingDays() const { return fixingDays_; }
+        Natural fixingDays() const;
+        //! whether coupon was set up with fixing days
+        bool hasFixingDays() const { return fixingDelay_.which() == 0; }
         //! fixing date
         virtual Date fixingDate() const;
+        //! fixing days or date, whatever was used to set up the coupon
+        const boost::variant<Natural, Date>& fixingDelay() const {
+              return fixingDelay_;
+        }
         //! index gearing, i.e. multiplicative coefficient for the index
         Real gearing() const { return gearing_; }
         //! spread paid over the fixing of the underlying index
@@ -89,7 +98,13 @@ namespace QuantLib {
         //! convexity-adjusted fixing
         virtual Rate adjustedFixing() const;
         //! whether or not the coupon fixes in arrears
-        bool isInArrears() const { return isInArrears_; }
+        bool isInArrears() const;
+        //! whether coupon was set up with in arrears information
+        bool hasInArrears() const { return isInArrears_ != boost::none; }
+        //! in arrears as optional inspector
+        const boost::optional<bool>& isInArrearsAsOptional() const {
+            return isInArrears_;
+        }
         //@}
 
         //! \name Observer interface
@@ -108,11 +123,12 @@ namespace QuantLib {
         //! convexity adjustment for the given index fixing
         Rate convexityAdjustmentImpl(Rate fixing) const;
         boost::shared_ptr<InterestRateIndex> index_;
+        boost::variant<Natural, Date> fixingDelay_;
         DayCounter dayCounter_;
-        Natural fixingDays_;
+        Date fixingDate_;
         Real gearing_;
         Spread spread_;
-        bool isInArrears_;
+        boost::optional<bool> isInArrears_;
         boost::shared_ptr<FloatingRateCouponPricer> pricer_;
     };
 
