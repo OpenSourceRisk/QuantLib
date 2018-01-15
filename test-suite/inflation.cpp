@@ -94,7 +94,9 @@ namespace {
 // zero inflation tests, index, termstructure, and swaps
 //===========================================================================================
 
-void InflationTest::checkSeasonality(const Handle<ZeroInflationTermStructure>& hz, 
+namespace {
+
+void checkSeasonality(const Handle<ZeroInflationTermStructure>& hz, 
     const boost::shared_ptr<ZeroInflationIndex>& ii) {
     
     QL_REQUIRE(!hz->hasSeasonality(), "We require that the initially passed in term structure "
@@ -206,6 +208,8 @@ void InflationTest::checkSeasonality(const Handle<ZeroInflationTermStructure>& h
                 << " for fixing date " << io::iso_date(fixingDates[i]));
         }
     }
+}
+
 }
 
 void InflationTest::testZeroIndex() {
