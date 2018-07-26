@@ -54,8 +54,13 @@
     #endif
 #endif
 
-#if defined(QL_SINGLETON_THREAD_SAFE_INIT) || defined(QL_ENABLE_SESSIONS)
+#if defined(QL_SINGLETON_THREAD_SAFE_INIT)
 #include <boost/thread/mutex.hpp>
+#endif
+
+#if defined(QL_ENABLE_SESSIONS)
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #endif
 
 #include <ql/types.hpp>
@@ -120,8 +125,11 @@ namespace QuantLib {
     #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
         static boost::atomic<T*> instance_;
     #endif
-    #if defined(QL_SINGLETON_THREAD_SAFE_INIT) || defined(QL_ENABLE_SESSIONS)
+    #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
         static boost::mutex mutex_;
+    #endif
+    #if defined(QL_ENABLE_SESSIONS)
+        static boost::shared_mutex mutex_;
     #endif
 
       public:
@@ -141,8 +149,11 @@ namespace QuantLib {
     #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
     template <class T> boost::atomic<T*> Singleton<T>::instance_;
     #endif
-    #if defined(QL_SINGLETON_THREAD_SAFE_INIT) || defined(QL_ENABLE_SESSIONS)
+    #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
     template <class T> boost::mutex Singleton<T>::mutex_;
+    #endif
+    #if defined(QL_ENABLE_SESSIONS)
+    template <class T> boost::shared_mutex Singleton<T>::mutex_;
     #endif
 
     // template definitions
@@ -174,11 +185,14 @@ namespace QuantLib {
         // thread safe
         Integer id = sessionId();
         const std::map<Integer, boost::shared_ptr<T> >& i = instances_;
+        {
+        boost::shared_lock<boost::shared_mutex> guard(mutex_);
         std::map<Integer, boost::shared_ptr<T> >::const_iterator instance = i.find(id);
         if(instance != i.end())
             return *instance->second;
-        else {
-            boost::mutex::scoped_lock guard(mutex_);
+        }
+        {
+            boost::unique_lock<boost::shared_mutex> guard(mutex_);
             boost::shared_ptr<T> tmp(new T);
             instances_[id] = tmp;
             return *tmp;
