@@ -15,7 +15,7 @@ else()
 endif()
 set(QL_LINK_LIBRARY ${QL_OUTPUT_NAME} PARENT_SCOPE)
 
-if(!MSVC)
+if(!${BUILD_SHARED_LIBS})
   find_package (Boost COMPONENTS thread system REQUIRED)
   target_link_libraries(${QL_OUTPUT_NAME} ${Boost_LIBRARIES})
 endif()
