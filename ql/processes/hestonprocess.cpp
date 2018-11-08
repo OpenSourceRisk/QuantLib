@@ -49,7 +49,7 @@ namespace QuantLib {
                               Real v0, Real kappa,
                               Real theta, Real sigma, Real rho,
                               Discretization d)
-    : StochasticProcess(boost::shared_ptr<discretization>(
+    : StochasticProcess(ext::shared_ptr<discretization>(
                                                     new EulerDiscretization)),
       riskFreeRate_(riskFreeRate), dividendYield_(dividendYield), s0_(s0),
       v0_(v0), kappa_(kappa), theta_(theta), sigma_(sigma), rho_(rho),
@@ -593,6 +593,6 @@ namespace QuantLib {
             std::max(0.0, CumulativeNormalDistribution()(dw)));
 
         return sigma_*sigma_*(1-std::exp(-kappa_*dt))/(4*kappa_)
-            *InverseNonCentralChiSquareDistribution(df, ncp, 100)(p);
+            *InverseNonCentralCumulativeChiSquareDistribution(df, ncp, 100)(p);
     }
 }

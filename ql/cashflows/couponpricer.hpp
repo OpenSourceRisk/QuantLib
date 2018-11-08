@@ -63,9 +63,12 @@ namespace QuantLib {
     //! base pricer for capped/floored Ibor coupons
     class IborCouponPricer : public FloatingRateCouponPricer {
       public:
-        IborCouponPricer(const Handle<OptionletVolatilityStructure>& v =
-                                          Handle<OptionletVolatilityStructure>())
-        : capletVol_(v) { registerWith(capletVol_); }
+        explicit IborCouponPricer(
+            const Handle<OptionletVolatilityStructure>& v =
+                                       Handle<OptionletVolatilityStructure>())
+        : capletVol_(v) {
+            registerWith(capletVol_);
+        }
 
         Handle<OptionletVolatilityStructure> capletVolatility() const{
             return capletVol_;
@@ -95,7 +98,7 @@ namespace QuantLib {
                 Handle<OptionletVolatilityStructure>(),
             const TimingAdjustment timingAdjustment = Black76,
             const Handle<Quote> correlation =
-                Handle<Quote>(boost::shared_ptr<Quote>(new SimpleQuote(1.0))))
+                Handle<Quote>(ext::shared_ptr<Quote>(new SimpleQuote(1.0))))
             : IborCouponPricer(v), timingAdjustment_(timingAdjustment),
               correlation_(correlation) {
             QL_REQUIRE(timingAdjustment_ == Black76 ||
@@ -121,7 +124,7 @@ namespace QuantLib {
         Real gearing_;
         Spread spread_;
         Time accrualPeriod_;
-        boost::shared_ptr<IborIndex> index_;
+        ext::shared_ptr<IborIndex> index_;
         Real discount_;
         Real spreadLegValue_;
 
@@ -135,9 +138,12 @@ namespace QuantLib {
     //! base pricer for vanilla CMS coupons
     class CmsCouponPricer : public FloatingRateCouponPricer {
       public:
-        CmsCouponPricer(const Handle<SwaptionVolatilityStructure>& v =
-                                        Handle<SwaptionVolatilityStructure>())
-        : swaptionVol_(v) { registerWith(swaptionVol_); }
+        explicit CmsCouponPricer(
+            const Handle<SwaptionVolatilityStructure>& v =
+                                       Handle<SwaptionVolatilityStructure>())
+        : swaptionVol_(v) {
+            registerWith(swaptionVol_);
+        }
 
         Handle<SwaptionVolatilityStructure> swaptionVolatility() const{
             return swaptionVol_;
@@ -164,30 +170,30 @@ namespace QuantLib {
     };
 
     void setCouponPricer(const Leg& leg,
-                         const boost::shared_ptr<FloatingRateCouponPricer>&);
+                         const ext::shared_ptr<FloatingRateCouponPricer>&);
 
     void setCouponPricers(
             const Leg& leg,
-            const std::vector<boost::shared_ptr<FloatingRateCouponPricer> >&);
+            const std::vector<ext::shared_ptr<FloatingRateCouponPricer> >&);
 
     /*! set the first matching pricer (if any) to each coupon of the leg */
     void setCouponPricers(
             const Leg& leg,
-            const boost::shared_ptr<FloatingRateCouponPricer>&,
-            const boost::shared_ptr<FloatingRateCouponPricer>&);
+            const ext::shared_ptr<FloatingRateCouponPricer>&,
+            const ext::shared_ptr<FloatingRateCouponPricer>&);
 
     void setCouponPricers(
             const Leg& leg,
-            const boost::shared_ptr<FloatingRateCouponPricer>&,
-            const boost::shared_ptr<FloatingRateCouponPricer>&,
-            const boost::shared_ptr<FloatingRateCouponPricer>&);
+            const ext::shared_ptr<FloatingRateCouponPricer>&,
+            const ext::shared_ptr<FloatingRateCouponPricer>&,
+            const ext::shared_ptr<FloatingRateCouponPricer>&);
 
     void setCouponPricers(
             const Leg& leg,
-            const boost::shared_ptr<FloatingRateCouponPricer>&,
-            const boost::shared_ptr<FloatingRateCouponPricer>&,
-            const boost::shared_ptr<FloatingRateCouponPricer>&,
-            const boost::shared_ptr<FloatingRateCouponPricer>&);
+            const ext::shared_ptr<FloatingRateCouponPricer>&,
+            const ext::shared_ptr<FloatingRateCouponPricer>&,
+            const ext::shared_ptr<FloatingRateCouponPricer>&,
+            const ext::shared_ptr<FloatingRateCouponPricer>&);
 
     // inline
 
@@ -199,7 +205,7 @@ namespace QuantLib {
     }
 
     inline Rate BlackIborCouponPricer::swapletRate() const {
-        return swapletPrice()/(accrualPeriod_*discount_);
+        return gearing_ * adjustedFixing() + spread_;
     }
 
     inline Real BlackIborCouponPricer::capletPrice(Rate effectiveCap) const {

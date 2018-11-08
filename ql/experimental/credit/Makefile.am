@@ -1,5 +1,5 @@
 
-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
+AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 
 this_includedir=${includedir}/${subdir}
 this_include_HEADERS = \
@@ -25,11 +25,13 @@ this_include_HEADERS = \
     inhomogeneouspooldef.hpp \
     integralcdoengine.hpp \
     integralntdengine.hpp \
+    interpolatedaffinehazardratecurve.hpp \
     issuer.hpp \
     loss.hpp \
     lossdistribution.hpp \
     midpointcdoengine.hpp \
     nthtodefault.hpp \
+    onefactoraffinesurvival.hpp \
     onefactorcopula.hpp \
     onefactorgaussiancopula.hpp \
     onefactorstudentcopula.hpp \

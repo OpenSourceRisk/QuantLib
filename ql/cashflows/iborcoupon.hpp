@@ -43,7 +43,7 @@ namespace QuantLib {
                    const Date& startDate,
                    const Date& endDate,
                    const boost::variant<Natural, Date>& fixingDelay,
-                   const boost::shared_ptr<IborIndex>& index,
+                   const ext::shared_ptr<IborIndex>& index,
                    Real gearing = 1.0,
                    Spread spread = 0.0,
                    const Date& refPeriodStart = Date(),
@@ -52,7 +52,7 @@ namespace QuantLib {
                    const boost::optional<bool>& isInArrears = boost::none);
         //! \name Inspectors
         //@{
-        const boost::shared_ptr<IborIndex>& iborIndex() const {
+        const ext::shared_ptr<IborIndex>& iborIndex() const {
             return iborIndex_;
         }
         //! this is dependent on QL_USE_INDEXED_COUPON
@@ -69,7 +69,7 @@ namespace QuantLib {
         //@}
       private:
         void init();
-        boost::shared_ptr<IborIndex> iborIndex_;
+        ext::shared_ptr<IborIndex> iborIndex_;
         Date fixingValueDate_, fixingEndDate_;
         Time spanningTime_;
     };
@@ -79,7 +79,7 @@ namespace QuantLib {
     class IborLeg {
       public:
         IborLeg(const Schedule& schedule,
-                const boost::shared_ptr<IborIndex>& index);
+                const ext::shared_ptr<IborIndex>& index);
         IborLeg& withNotionals(Real notional);
         IborLeg& withNotionals(const std::vector<Real>& notionals);
         IborLeg& withPaymentDayCounter(const DayCounter&);
@@ -101,7 +101,7 @@ namespace QuantLib {
         operator Leg() const;
       private:
         Schedule schedule_;
-        boost::shared_ptr<IborIndex> index_;
+        ext::shared_ptr<IborIndex> index_;
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
         BusinessDayConvention paymentAdjustment_;

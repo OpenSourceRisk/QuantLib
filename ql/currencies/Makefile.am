@@ -1,5 +1,5 @@
 
-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
+AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 
 this_includedir=${includedir}/${subdir}
 this_include_HEADERS = \
@@ -7,6 +7,7 @@ this_include_HEADERS = \
 	africa.hpp \
 	america.hpp \
 	asia.hpp \
+	crypto.hpp \
 	europe.hpp \
 	exchangeratemanager.hpp \
 	oceania.hpp
@@ -15,6 +16,7 @@ cpp_files = \
 	africa.cpp \
 	america.cpp \
 	asia.cpp \
+	crypto.cpp \
 	europe.cpp \
 	exchangeratemanager.cpp \
 	oceania.cpp

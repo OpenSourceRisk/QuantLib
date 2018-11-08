@@ -25,7 +25,7 @@ namespace QuantLib {
     CmsSpreadCoupon::CmsSpreadCoupon(
         const Date &paymentDate, Real nominal, const Date &startDate,
         const Date &endDate, const boost::variant<Natural, Date>& fixingDelay,
-        const boost::shared_ptr<SwapSpreadIndex> &index, Real gearing,
+        const ext::shared_ptr<SwapSpreadIndex> &index, Real gearing,
         Spread spread, const Date &refPeriodStart,
         const Date &refPeriodEnd,
         const DayCounter &dayCounter, const boost::optional<bool>& isInArrears)
@@ -44,7 +44,7 @@ namespace QuantLib {
     }
 
     CmsSpreadLeg::CmsSpreadLeg(const Schedule &schedule,
-                               const boost::shared_ptr<SwapSpreadIndex> &index)
+                               const ext::shared_ptr<SwapSpreadIndex> &index)
         : schedule_(schedule), swapSpreadIndex_(index),
           paymentAdjustment_(Following), inArrears_(false),
           zeroPayments_(false) {}

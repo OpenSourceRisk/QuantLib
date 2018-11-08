@@ -1,5 +1,5 @@
 
-AM_CPPFLAGS = -I${top_srcdir} -I${top_builddir}
+AM_CPPFLAGS = -I${top_builddir} -I${top_srcdir}
 
 this_includedir=${includedir}/${subdir}
 this_include_HEADERS = \
@@ -7,6 +7,7 @@ this_include_HEADERS = \
 	argentina.hpp \
 	australia.hpp \
 	bespokecalendar.hpp \
+	botswana.hpp \
 	brazil.hpp \
 	canada.hpp \
 	china.hpp \
@@ -39,6 +40,7 @@ this_include_HEADERS = \
 	switzerland.hpp \
 	taiwan.hpp \
 	target.hpp \
+	thailand.hpp \
 	turkey.hpp \
 	ukraine.hpp \
 	unitedkingdom.hpp \
@@ -49,6 +51,7 @@ cpp_files = \
 	argentina.cpp \
 	australia.cpp \
 	bespokecalendar.cpp \
+	botswana.cpp \
 	brazil.cpp \
 	canada.cpp \
 	china.cpp \
@@ -80,6 +83,7 @@ cpp_files = \
 	switzerland.cpp \
 	taiwan.cpp \
 	target.cpp \
+	thailand.cpp \
 	turkey.cpp \
 	ukraine.cpp \
 	unitedkingdom.cpp \
