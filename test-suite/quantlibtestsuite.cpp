@@ -238,13 +238,14 @@ namespace {
 
 }
 
-#if defined(QL_ENABLE_SESSIONS)
-namespace QuantLib {
+// defined in ql/sessionid.cpp
+// #if defined(QL_ENABLE_SESSIONS)
+// namespace QuantLib {
 
-    Integer sessionId() { return 0; }
+//     Integer sessionId() { return 0; }
 
-}
-#endif
+// }
+// #endif
 
 QuantLib::Date evaluation_date(int argc, char** argv) {
     /*! Dead simple parser:
