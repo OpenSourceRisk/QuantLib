@@ -1,6 +1,11 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
+ Copyright (C) 2018 Quaternion Risk Management Ltd
+ All rights reserved.
+*/
+
+/*
  Copyright (C) 2004, 2005, 2007 StatPro Italia srl
 
  This file is part of QuantLib, a free-software/open-source library
@@ -19,6 +24,7 @@
 
 /*! \file singleton.hpp
     \brief basic support for the singleton pattern
+           QRM: add thread safe singleton init for QL_ENABLE_SEESION
 */
 
 #ifndef quantlib_singleton_hpp
