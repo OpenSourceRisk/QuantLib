@@ -1828,6 +1828,7 @@
     <ClCompile Include="ql\methods\finitedifferences\operators\fdmornsteinuhlenbeckop.cpp" />
     <ClCompile Include="ql\patterns\observable.cpp" />
     <ClCompile Include="ql\rebatedexercise.cpp" />
+    <ClCompile Include="ql\sessionid.cpp" />
     <ClInclude Include="ql\experimental\finitedifferences\all.hpp" />
     <ClCompile Include="ql\experimental\finitedifferences\dynprogvppintrinsicvalueengine.cpp" />
     <ClCompile Include="ql\experimental\finitedifferences\fdextoujumpvanillaengine.cpp" />

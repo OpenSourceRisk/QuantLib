@@ -77,7 +77,7 @@
 #endif
 
 /* Also, these Boost libraries might be needed */
-#if defined(QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN) || defined(QL_ENABLE_SINGLETON_THREAD_SAFE_INIT)
+#if defined(QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN) || defined(QL_ENABLE_SINGLETON_THREAD_SAFE_INIT) || defined(QL_ENABLE_SESSIONS)
 #  define BOOST_LIB_NAME boost_system
 #  include <boost/config/auto_link.hpp>
 #  undef BOOST_LIB_NAME
