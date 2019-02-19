@@ -70,7 +70,7 @@
 #endif
 
 #include <ql/types.hpp>
-#include <boost/shared_ptr.hpp>
+#include <ql/shared_ptr.hpp>
 #if defined(QL_PATCH_MSVC)
     #pragma managed(push, off)
 #endif
@@ -125,7 +125,7 @@ namespace QuantLib {
     class Singleton : private boost::noncopyable {
       private:
     #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-        static std::map<Integer, boost::shared_ptr<T> > instances_;
+        static std::map<Integer, ext::shared_ptr<T> > instances_;
     #endif
 
     #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
@@ -149,7 +149,7 @@ namespace QuantLib {
 
     #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
       template <class T>
-      std::map<Integer, boost::shared_ptr<T> > Singleton<T>::instances_;
+      std::map<Integer, ext::shared_ptr<T> > Singleton<T>::instances_;
     #endif
 
     #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
@@ -168,7 +168,7 @@ namespace QuantLib {
     T& Singleton<T>::instance() {
 
         #if (QL_MANAGED == 0) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-        static std::map<Integer, boost::shared_ptr<T> > instances_;
+        static std::map<Integer, ext::shared_ptr<T> > instances_;
         #endif
 
         // thread safe double checked locking pattern with atomic memory calls
@@ -190,22 +190,22 @@ namespace QuantLib {
         #if defined(QL_ENABLE_SESSIONS)
         // thread safe
         Integer id = sessionId();
-        const std::map<Integer, boost::shared_ptr<T> >& i = instances_;
+        const std::map<Integer, ext::shared_ptr<T> >& i = instances_;
         boost::upgrade_lock<boost::shared_mutex> sharedLock(mutex_);
-        typename std::map<Integer, boost::shared_ptr<T> >::const_iterator instance = i.find(id);
+        typename std::map<Integer, ext::shared_ptr<T> >::const_iterator instance = i.find(id);
         if(instance != i.end())
             return *instance->second;
         else
         {
             boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(sharedLock);
-            boost::shared_ptr<T> tmp(new T);
+            ext::shared_ptr<T> tmp(new T);
             instances_[id] = tmp;
             return *tmp;
         }
         #else
-        boost::shared_ptr<T>& instance = instances_[0];
+        ext::shared_ptr<T>& instance = instances_[0];
         if (!instance)
-            instance = boost::shared_ptr<T>(new T);
+            instance = ext::shared_ptr<T>(new T);
         return *instance;
         #endif
 

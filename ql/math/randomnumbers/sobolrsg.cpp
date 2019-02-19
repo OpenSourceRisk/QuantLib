@@ -24,8 +24,9 @@
 #include <ql/math/randomnumbers/primitivepolynomials.hpp>
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
 #include <ql/errors.hpp>
-
+#include <algorithm>
 #include <cmath>
+
 namespace QuantLib {
 
     namespace {
