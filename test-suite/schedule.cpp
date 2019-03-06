@@ -360,6 +360,28 @@ void ScheduleTest::testFourWeeksTenor() {
     }
 }
 
+void ScheduleTest::testShortEomSchedule() {
+    BOOST_TEST_MESSAGE("Testing short eom schedule...");
+
+    try {
+        // seg-faults in 1.15
+        Schedule s = MakeSchedule()
+                         .from(Date(21, Feb, 2019))
+                         .to(Date(28, Feb, 2019))
+                         .withCalendar(TARGET())
+                         .withTenor(1 * Years)
+                         .withConvention(ModifiedFollowing)
+                         .withTerminationDateConvention(ModifiedFollowing)
+                         .backwards()
+                         .endOfMonth(true);
+        BOOST_CHECK(s.size() == 2);
+        BOOST_CHECK(s[0] == Date(21, Feb, 2019));
+        BOOST_CHECK(s[1] == Date(28, Feb, 2019));
+    } catch (std::exception& e) {
+        BOOST_ERROR(
+            "Short eom schedule construction caused an exception: " << e.what());
+    }
+}
 
 test_suite* ScheduleTest::suite() {
     test_suite* suite = BOOST_TEST_SUITE("Schedule tests");
@@ -378,5 +400,6 @@ test_suite* ScheduleTest::suite() {
     suite->add(QUANTLIB_TEST_CASE(&ScheduleTest::testCDS2015Convention));
     suite->add(QUANTLIB_TEST_CASE(&ScheduleTest::testDateConstructor));
     suite->add(QUANTLIB_TEST_CASE(&ScheduleTest::testFourWeeksTenor));
+    suite->add(QUANTLIB_TEST_CASE(&ScheduleTest::testShortEomSchedule));
     return suite;
 }
