@@ -76,6 +76,8 @@ namespace QuantLib {
         results_.deltaForward = black.deltaForward();
         results_.elasticity = black.elasticity(spot);
         results_.gamma = black.gamma(spot);
+        results_.additionalResults["impliedVol"] =
+            std::sqrt(variance / process_->blackVolatility()->timeFromReference(arguments_.exercise->lastDate()));
 
         DayCounter rfdc  = discountPtr->dayCounter();
         DayCounter divdc = process_->dividendYield()->dayCounter();

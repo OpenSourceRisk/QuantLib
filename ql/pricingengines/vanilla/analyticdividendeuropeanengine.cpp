@@ -69,6 +69,8 @@ namespace QuantLib {
         results_.value = black.value();
         results_.delta = black.delta(spot);
         results_.gamma = black.gamma(spot);
+        results_.additionalResults["impliedVol"] =
+            std::sqrt(variance / process_->blackVolatility()->timeFromReference(arguments_.exercise->lastDate()));
 
         DayCounter rfdc  = process_->riskFreeRate()->dayCounter();
         DayCounter voldc = process_->blackVolatility()->dayCounter();
