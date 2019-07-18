@@ -50,10 +50,10 @@ namespace QuantLib {
                                   const Array& weights = Array(),
                                   ext::shared_ptr<OptimizationMethod> optimizationMethod
                                           = ext::shared_ptr<OptimizationMethod>(),
-                                  const Array& l2 = Array());
+                                  const Array& l2 = Array(), const Real flatBeforeTime = 0.0);
         ExponentialSplinesFitting(bool constrainAtZero,
                                   const Array& weights,
-                                  const Array& l2);
+                                  const Array& l2, const Real flatBeforeTime = 0.0);
         #if defined(QL_USE_STD_UNIQUE_PTR)
         std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #else
@@ -81,8 +81,8 @@ namespace QuantLib {
         NelsonSiegelFitting(const Array& weights = Array(),
                             ext::shared_ptr<OptimizationMethod> optimizationMethod
                                           = ext::shared_ptr<OptimizationMethod>(),
-                            const Array& l2 = Array());
-        NelsonSiegelFitting(const Array& weights, const Array& l2);
+                            const Array& l2 = Array(), const Real flatBeforeTime = 0.0);
+        NelsonSiegelFitting(const Array& weights, const Array& l2, const Real flatBeforeTime = 0.0);
         #if defined(QL_USE_STD_UNIQUE_PTR)
         std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #else
@@ -112,8 +112,8 @@ namespace QuantLib {
         SvenssonFitting(const Array& weights = Array(),
                         ext::shared_ptr<OptimizationMethod> optimizationMethod
                                = ext::shared_ptr<OptimizationMethod>(),
-                        const Array& l2 = Array());
-        SvenssonFitting(const Array& weights, const Array& l2);
+                        const Array& l2 = Array(), const Real flatBeforeTime = 0.0);
+        SvenssonFitting(const Array& weights, const Array& l2, const Real flatBeforeTime = 0.0);
         #if defined(QL_USE_STD_UNIQUE_PTR)
         std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #else
@@ -152,11 +152,11 @@ namespace QuantLib {
                              const Array& weights = Array(),
                              ext::shared_ptr<OptimizationMethod> optimizationMethod
                                      = ext::shared_ptr<OptimizationMethod>(),
-                             const Array& l2 = Array());
+                             const Array& l2 = Array(), const Real flatBeforeTime = 0.0);
         CubicBSplinesFitting(const std::vector<Time>& knotVector,
                              bool constrainAtZero,
                              const Array& weights,
-                             const Array& l2);
+                             const Array& l2, const Real flatBeforeTime = 0.0);
         //! cubic B-spline basis functions
         Real basisFunction(Integer i, Time t) const;
         #if defined(QL_USE_STD_UNIQUE_PTR)
@@ -192,11 +192,11 @@ namespace QuantLib {
                                 const Array& weights = Array(),
                                 ext::shared_ptr<OptimizationMethod> optimizationMethod
                                        = ext::shared_ptr<OptimizationMethod>(),
-                                const Array& l2 = Array());
+                                const Array& l2 = Array(), const Real flatBeforeTime = 0.0);
         SimplePolynomialFitting(Natural degree,
                                 bool constrainAtZero,
                                 const Array& weights,
-                                const Array& l2);
+                                const Array& l2, const Real flatBeforeTime = 0.0);
         #if defined(QL_USE_STD_UNIQUE_PTR)
         std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #else

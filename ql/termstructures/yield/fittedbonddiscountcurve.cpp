@@ -129,9 +129,10 @@ namespace QuantLib {
                      bool constrainAtZero,
                      const Array& weights,
                      ext::shared_ptr<OptimizationMethod> optimizationMethod,
-                     const Array& l2)
+                     const Array& l2, const Real flatBeforeTime)
     : constrainAtZero_(constrainAtZero), weights_(weights), l2_(l2),
-      calculateWeights_(weights.empty()), optimizationMethod_(optimizationMethod) {}
+      calculateWeights_(weights.empty()), optimizationMethod_(optimizationMethod),
+      flatBeforeTime_(flatBeforeTime) {}
 
     void FittedBondDiscountCurve::FittingMethod::init() {
         // yield conventions
@@ -275,7 +276,7 @@ namespace QuantLib {
             for (Size k=firstCashFlow_[i]; k<cf.size(); ++k) {
                 Time tenor = dc.yearFraction(refDate, cf[k]->date());
                 modelPrice += cf[k]->amount() *
-                                    fittingMethod_->discountFunction(x, tenor);
+                                    fittingMethod_->discount(x, tenor);
             }
             if (helper->useCleanPrice())
                 modelPrice -= bond->accruedAmount(bondSettlement);
@@ -283,7 +284,7 @@ namespace QuantLib {
             // adjust price (NPV) for forward settlement
             if (bondSettlement != refDate ) {
                 Time tenor = dc.yearFraction(refDate, bondSettlement);
-                modelPrice /= fittingMethod_->discountFunction(x, tenor);
+                modelPrice /= fittingMethod_->discount(x, tenor);
             }
             Real marketPrice = helper->quote()->value();
             Real error = modelPrice - marketPrice;

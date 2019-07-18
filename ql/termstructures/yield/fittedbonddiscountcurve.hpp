@@ -206,6 +206,8 @@ namespace QuantLib {
         Array weights() const;
         //! return l2 penalties being used
         Array l2() const;
+        //! flat before time
+        Real flatBeforeTime() const;
         //! return optimization method being used
         ext::shared_ptr<OptimizationMethod> optimizationMethod() const;
         //! open discountFunction to public
@@ -215,7 +217,7 @@ namespace QuantLib {
         FittingMethod(bool constrainAtZero = true, const Array& weights = Array(),
                       ext::shared_ptr<OptimizationMethod> optimizationMethod
                                           = ext::shared_ptr<OptimizationMethod>(),
-                      const Array& l2 = Array());
+                      const Array& l2 = Array(), const Real flatBeforeTime = 0.0);
         //! rerun every time instruments/referenceDate changes
         virtual void init();
         //! discount function called by FittedBondDiscountCurve
@@ -251,6 +253,8 @@ namespace QuantLib {
         Real costValue_;
         // optimization method to be used, if none provided use Simplex
         ext::shared_ptr<OptimizationMethod> optimizationMethod_;
+        // flat extrapolation of zero rates before this time
+        Real flatBeforeTime_;
     };
 
     // inline
@@ -282,7 +286,7 @@ namespace QuantLib {
 
     inline DiscountFactor FittedBondDiscountCurve::discountImpl(Time t) const {
         calculate();
-        return fittingMethod_->discountFunction(fittingMethod_->solution_, t);
+        return fittingMethod_->discount(fittingMethod_->solution_, t);
     }
 
     inline Integer
@@ -311,6 +315,10 @@ namespace QuantLib {
         return l2_;
     }
 
+    inline Real FittedBondDiscountCurve::FittingMethod::flatBeforeTime() const {
+        return flatBeforeTime_;
+    }
+
     inline ext::shared_ptr<OptimizationMethod> 
     FittedBondDiscountCurve::FittingMethod::optimizationMethod() const {
         return optimizationMethod_;
@@ -318,6 +326,12 @@ namespace QuantLib {
 
     inline DiscountFactor 
     FittedBondDiscountCurve::FittingMethod::discount(const Array& x, Time t) const {
+        // flat fwd extrapolation before min cutoff time
+        if(!close_enough(flatBeforeTime_,0.0) && t < flatBeforeTime_) {
+            DiscountFactor d1 = discountFunction(x, flatBeforeTime_);
+            Rate lambda = -std::log(d1) / flatBeforeTime_;
+            return std::exp(-lambda * t);
+        }
         return discountFunction(x, t);
     }
 
