@@ -28,7 +28,11 @@
 #include <ql/patterns/observable.hpp>
 #include <ql/time/daycounters/actual365fixed.hpp>
 #include <boost/test/unit_test.hpp>
+#if BOOST_VERSION < 105900
 #include <boost/test/floating_point_comparison.hpp>
+#else
+#include <boost/test/tools/floating_point_comparison.hpp>
+#endif
 #include <boost/function.hpp>
 #include <vector>
 #include <string>
