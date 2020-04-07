@@ -215,7 +215,9 @@ namespace QuantLib {
         FittingMethod(bool constrainAtZero = true, const Array& weights = Array(),
                       ext::shared_ptr<OptimizationMethod> optimizationMethod
                                           = ext::shared_ptr<OptimizationMethod>(),
-                      const Array& l2 = Array());
+                      const Array& l2 = Array(),
+                      const Real minCutoffTime = 0.0,
+                      const Real maxCutoffTime = QL_MAX_REAL);
         //! rerun every time instruments/referenceDate changes
         virtual void init();
         //! discount function called by FittedBondDiscountCurve
@@ -251,6 +253,8 @@ namespace QuantLib {
         Real costValue_;
         // optimization method to be used, if none provided use Simplex
         ext::shared_ptr<OptimizationMethod> optimizationMethod_;
+        // flat extrapolation of instantaneous forward before / after cutoff
+        Real minCutoffTime_, maxCutoffTime_;
     };
 
     // inline
@@ -316,11 +320,19 @@ namespace QuantLib {
         return optimizationMethod_;
     }
 
-    inline DiscountFactor 
-    FittedBondDiscountCurve::FittingMethod::discount(const Array& x, Time t) const {
-        return discountFunction(x, t);
+    inline DiscountFactor FittedBondDiscountCurve::FittingMethod::discount(const Array& x, Time t) const {
+        if (t < minCutoffTime_) {
+            // flat fwd extrapolation before min cutoff time
+            return std::exp(std::log(discountFunction(x, minCutoffTime_)) / minCutoffTime_ * t);
+        } else if (t > maxCutoffTime_) {
+            // flat fwd extrapolation after max cutoff time
+            return std::exp(
+                (std::log(discountFunction(x, maxCutoffTime_ + 1E-4)) - std::log(discountFunction(x, maxCutoffTime_))) *
+                1E4 * t);
+        } else {
+            return discountFunction(x, t);
+        }
     }
-
 }
 
 #endif
