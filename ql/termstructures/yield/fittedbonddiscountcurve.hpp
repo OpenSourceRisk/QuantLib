@@ -286,7 +286,7 @@ namespace QuantLib {
 
     inline DiscountFactor FittedBondDiscountCurve::discountImpl(Time t) const {
         calculate();
-        return fittingMethod_->discountFunction(fittingMethod_->solution_, t);
+        return fittingMethod_->discount(fittingMethod_->solution_, t);
     }
 
     inline Integer
@@ -326,9 +326,10 @@ namespace QuantLib {
             return std::exp(std::log(discountFunction(x, minCutoffTime_)) / minCutoffTime_ * t);
         } else if (t > maxCutoffTime_) {
             // flat fwd extrapolation after max cutoff time
-            return std::exp(
-                (std::log(discountFunction(x, maxCutoffTime_ + 1E-4)) - std::log(discountFunction(x, maxCutoffTime_))) *
-                1E4 * t);
+            return discountFunction(x, maxCutoffTime_) *
+                   std::exp((std::log(discountFunction(x, maxCutoffTime_ + 1E-4)) -
+                             std::log(discountFunction(x, maxCutoffTime_))) *
+                            1E4 * (t - maxCutoffTime_));
         } else {
             return discountFunction(x, t);
         }
