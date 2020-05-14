@@ -426,8 +426,11 @@ namespace QuantLib {
         // date due to EOM adjustments (see the Schedule test suite
         // for an example).
         if (dates_.size() >= 2 && dates_[dates_.size()-2] >= dates_.back()) {
-            isRegular_[isRegular_.size()-2] =
-                (dates_[dates_.size()-2] == dates_.back());
+            // there might be two dates only, then isRegular_ has size one
+            if (isRegular_.size() >= 2) {
+                isRegular_[isRegular_.size() - 2] =
+                    (dates_[dates_.size() - 2] == dates_.back());
+            }
             dates_[dates_.size()-2] = dates_.back();
             dates_.pop_back();
             isRegular_.pop_back();
