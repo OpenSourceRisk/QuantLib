@@ -148,6 +148,15 @@ namespace QuantLib {
 
         arguments->type = type_;
 
+        // Attempt to populate the index and obsLag members of YoYInflationCapFloor::arguments.
+        if (ext::shared_ptr<YoYInflationCoupon> yoyCoupon = lastYoYInflationCoupon()) {
+            arguments->observationLag = yoyCoupon->observationLag();
+            if (ext::shared_ptr<YoYInflationIndex> yoyIndex = 
+                ext::dynamic_pointer_cast<YoYInflationIndex>(yoyCoupon->index())) {
+                arguments->index = yoyIndex;
+            }
+        }
+
         for (Size i=0; i<n; ++i) {
             ext::shared_ptr<YoYInflationCoupon> coupon =
             ext::dynamic_pointer_cast<YoYInflationCoupon>(
