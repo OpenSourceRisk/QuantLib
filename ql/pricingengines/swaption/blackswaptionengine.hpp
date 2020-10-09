@@ -295,9 +295,6 @@ namespace QuantLib {
         Time exerciseTime = vol_->timeFromReference(exerciseDate);
         results_.additionalResults["vega"] = Spec().vega(
             strike, atmForward, stdDev, exerciseTime, annuity, displacement);
-
-        results_.additionalResults["timeToExpiry"] = exerciseTime;
-        results_.additionalResults["impliedVolatility"] = stdDev / std::sqrt(exerciseTime);
     }
 
     }  // namespace detail
