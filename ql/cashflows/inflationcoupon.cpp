@@ -83,7 +83,7 @@ namespace QuantLib {
     Date InflationCoupon::fixingDate() const {
 
         // fixing calendar is usually the null calendar for inflation indices
-        return index_->fixingCalendar().advance(refPeriodEnd_-observationLag_,
+        return index_->fixingCalendar().advance(accrualEndDate_-observationLag_,
                         -static_cast<Integer>(fixingDays_), Days, ModifiedPreceding);
     }
 
