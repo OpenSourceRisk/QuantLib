@@ -64,7 +64,7 @@
    library a sessionId() function in namespace QuantLib, returning a
    different session id for each session.*/
 #ifndef QL_ENABLE_SESSIONS
-//#   define QL_ENABLE_SESSIONS
+#   define QL_ENABLE_SESSIONS
 #endif
 
 /* Define this to enable the thread-safe observer pattern. You should
