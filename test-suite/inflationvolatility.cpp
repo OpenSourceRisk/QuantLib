@@ -46,9 +46,9 @@
 #include <iostream>
 
 
-// anonymous local namespace for data
+// local namespace for data
 //*************************************************************************
-namespace {
+namespace inflation_volatility_test {
 
     using namespace std;
     using namespace QuantLib;
@@ -285,6 +285,8 @@ void InflationVolTest::testYoYPriceSurfaceToVol() {
     BOOST_TEST_MESSAGE("Testing conversion from YoY price surface "
                        "to YoY volatility surface...");
 
+    using namespace inflation_volatility_test;
+
     SavedSettings backup;
 
     setup();
@@ -298,7 +300,7 @@ void InflationVolTest::testYoYPriceSurfaceToVol() {
     ext::shared_ptr<YoYOptionletVolatilitySurface> pVS;
     Handle<YoYOptionletVolatilitySurface> hVS(pVS, false); // pVS does NOT own whatever it points to later, hence the handle does not either
     ext::shared_ptr<YoYInflationUnitDisplacedBlackCapFloorEngine>
-        yoyPricerUD(new YoYInflationUnitDisplacedBlackCapFloorEngine(yoyIndexEU,hVS)); //hVS
+        yoyPricerUD(new YoYInflationUnitDisplacedBlackCapFloorEngine(yoyIndexEU,hVS,nominalEUR)); //hVS
     // N.B. the vol gets set in the stripper ... else no point!
 
     // cap stripper
@@ -374,6 +376,8 @@ void InflationVolTest::testYoYPriceSurfaceToVol() {
 void InflationVolTest::testYoYPriceSurfaceToATM() {
     BOOST_TEST_MESSAGE("Testing conversion from YoY cap-floor surface "
                        "to YoY inflation term structure...");
+
+    using namespace inflation_volatility_test;
 
     SavedSettings backup;
 

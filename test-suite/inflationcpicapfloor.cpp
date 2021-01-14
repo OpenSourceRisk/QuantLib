@@ -47,15 +47,15 @@
 #include <ql/experimental/inflation/cpicapfloortermpricesurface.hpp>
 #include <ql/experimental/inflation/cpicapfloorengines.hpp>
 
+#include <iostream>
+
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 using namespace std;
 
-#include <iostream>
 
-
-namespace {
+namespace inflation_cpi_capfloor_test {
     struct Datum {
         Date date;
         Rate rate;
@@ -67,7 +67,8 @@ namespace {
         const ext::shared_ptr<I> &ii, const Period &observationLag,
         const Calendar &calendar,
         const BusinessDayConvention &bdc,
-        const DayCounter &dc) {
+        const DayCounter &dc,
+        const Handle<YieldTermStructure>& discountCurve) {
 
         std::vector<ext::shared_ptr<BootstrapHelper<T> > > instruments;
         for (Size i=0; i<N; i++) {
@@ -76,7 +77,7 @@ namespace {
                                 new SimpleQuote(iiData[i].rate/100.0)));
             ext::shared_ptr<BootstrapHelper<T> > anInstrument(new U(
                                 quote, observationLag, maturity,
-                                calendar, bdc, dc, ii));
+                                calendar, bdc, dc, ii, discountCurve));
             instruments.push_back(anInstrument);
         }
 
@@ -258,7 +259,8 @@ namespace {
             makeHelpers<ZeroInflationTermStructure,ZeroCouponInflationSwapHelper,
             ZeroInflationIndex>(zciisData, zciisDataLength, ii,
                                 observationLag,
-                                calendar, convention, dcZCIIS);
+                                calendar, convention, dcZCIIS,
+                                Handle<YieldTermStructure>(nominalTS));
 
             // we can use historical or first ZCIIS for this
             // we know historical is WAY off market-implied, so use market implied flat.
@@ -325,10 +327,11 @@ namespace {
 
 
 void InflationCPICapFloorTest::cpicapfloorpricesurface() {
-
-    // check inflation leg vs calculation directly from inflation TS
+    BOOST_TEST_MESSAGE("Checking CPI cap/floor against price surface...");
+    
+    using namespace inflation_cpi_capfloor_test;
+    
     CommonVars common;
-
 
     Real nominal = 1.0;
     InterpolatedCPICapFloorTermPriceSurface
@@ -392,6 +395,9 @@ void InflationCPICapFloorTest::cpicapfloorpricesurface() {
 
 
 void InflationCPICapFloorTest::cpicapfloorpricer() {
+    BOOST_TEST_MESSAGE("Checking CPI cap/floor pricer...");
+    
+    using namespace inflation_cpi_capfloor_test;
 
     CommonVars common;
     Real nominal = 1.0;

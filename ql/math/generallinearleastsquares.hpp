@@ -31,7 +31,6 @@
 #include <ql/math/matrixutilities/svd.hpp>
 #include <ql/math/array.hpp>
 #include <ql/math/functional.hpp>
-#include <boost/function.hpp>
 #include <boost/type_traits.hpp>
 #include <vector>
 

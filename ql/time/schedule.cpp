@@ -149,14 +149,18 @@ namespace QuantLib {
               case DateGeneration::Backward:
               case DateGeneration::Forward:
                 QL_REQUIRE(firstDate_ > effectiveDate &&
-                           firstDate_ < terminationDate,
+                           firstDate_ <= terminationDate,
                            "first date (" << firstDate_ <<
-                           ") out of effective-termination date range [" <<
-                           effectiveDate << ", " << terminationDate << ")");
+                           ") out of effective-termination date range (" <<
+                           effectiveDate << ", " << terminationDate << "]");
                 // we should ensure that the above condition is still
                 // verified after adjustment
                 break;
               case DateGeneration::ThirdWednesday:
+              case DateGeneration::ThirdThursday:
+              case DateGeneration::ThirdFriday:
+              case DateGeneration::MondayAfterThirdFriday:
+              case DateGeneration::TuesdayAfterThirdFriday:
                   QL_REQUIRE(IMM::isIMMdate(firstDate_, false),
                              "first date (" << firstDate_ <<
                              ") is not an IMM date");
@@ -177,15 +181,19 @@ namespace QuantLib {
             switch (*rule_) {
               case DateGeneration::Backward:
               case DateGeneration::Forward:
-                QL_REQUIRE(nextToLastDate_ > effectiveDate &&
+                QL_REQUIRE(nextToLastDate_ >= effectiveDate &&
                            nextToLastDate_ < terminationDate,
                            "next to last date (" << nextToLastDate_ <<
-                           ") out of effective-termination date range (" <<
-                           effectiveDate << ", " << terminationDate << "]");
+                           ") out of effective-termination date range [" <<
+                           effectiveDate << ", " << terminationDate << ")");
                 // we should ensure that the above condition is still
                 // verified after adjustment
                 break;
               case DateGeneration::ThirdWednesday:
+              case DateGeneration::ThirdThursday:
+              case DateGeneration::ThirdFriday:
+              case DateGeneration::MondayAfterThirdFriday:
+              case DateGeneration::TuesdayAfterThirdFriday:
                 QL_REQUIRE(IMM::isIMMdate(nextToLastDate_, false),
                            "next-to-last date (" << nextToLastDate_ <<
                            ") is not an IMM date");
@@ -270,6 +278,10 @@ namespace QuantLib {
           case DateGeneration::Twentieth:
           case DateGeneration::TwentiethIMM:
           case DateGeneration::ThirdWednesday:
+          case DateGeneration::ThirdThursday:
+          case DateGeneration::ThirdFriday:
+          case DateGeneration::MondayAfterThirdFriday:
+          case DateGeneration::TuesdayAfterThirdFriday:
           case DateGeneration::OldCDS:
           case DateGeneration::CDS:
           case DateGeneration::CDS2015:
@@ -381,6 +393,32 @@ namespace QuantLib {
                 dates_[i] = Date::nthWeekday(3, Wednesday,
                                              dates_[i].month(),
                                              dates_[i].year());
+        if (*rule_==DateGeneration::ThirdThursday)
+            for (Size i=1; i<dates_.size()-1; ++i)
+                dates_[i] = Date::nthWeekday(3, Thursday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+        if (*rule_==DateGeneration::ThirdFriday)
+            for (Size i=1; i<dates_.size()-1; ++i)
+                dates_[i] = Date::nthWeekday(3, Friday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+        if (*rule_==DateGeneration::MondayAfterThirdFriday) {
+            for (Size i=1; i<dates_.size()-1; ++i) {
+                Date tmp = Date::nthWeekday(3, Friday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+                dates_[i] = Date::nextWeekday(tmp, Monday);
+            }
+        }
+        if (*rule_==DateGeneration::TuesdayAfterThirdFriday) {
+            for (Size i=1; i<dates_.size()-1; ++i) {
+                Date tmp = Date::nthWeekday(3, Friday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+                dates_[i] = Date::nextWeekday(tmp, Tuesday);
+            }
+        }
 
         if (*endOfMonth_ && calendar_.isEndOfMonth(seed)) {
             // adjust to end of month
@@ -463,6 +501,39 @@ namespace QuantLib {
 
     }
 
+    Schedule Schedule::after(const Date& truncationDate) const {
+        Schedule result = *this;
+
+        QL_REQUIRE(truncationDate < result.dates_.back(),
+            "truncation date " << truncationDate <<
+            " must be before the last schedule date " <<
+            result.dates_.back());
+        if (truncationDate > result.dates_[0]) {
+            // remove earlier dates
+            while (result.dates_[0] < truncationDate) {
+                result.dates_.erase(result.dates_.begin());
+                if (!result.isRegular_.empty())
+                    result.isRegular_.erase(result.isRegular_.begin());
+            }
+
+            // add truncationDate if missing
+            if (truncationDate != result.dates_.front()) {
+                result.dates_.insert(result.dates_.begin(), truncationDate);
+                result.isRegular_.insert(result.isRegular_.begin(), false);
+                result.terminationDateConvention_ = Unadjusted;
+            }
+            else {
+                result.terminationDateConvention_ = convention_;
+            }
+
+            if (result.nextToLastDate_ <= truncationDate)
+                result.nextToLastDate_ = Date();
+            if (result.firstDate_ <= truncationDate)
+                result.firstDate_ = Date();
+        }
+
+        return result;
+    }
 
     Schedule Schedule::until(const Date& truncationDate) const {
         Schedule result = *this;

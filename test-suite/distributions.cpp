@@ -45,7 +45,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-namespace {
+namespace distributions_test {
 
     Real average = 1.0, sigma = 2.0;
 
@@ -222,6 +222,8 @@ void DistributionTest::testNormal() {
 
     BOOST_TEST_MESSAGE("Testing normal distributions...");
 
+    using namespace distributions_test;
+
     InverseCumulativeNormal invCumStandardNormal;
     Real check = invCumStandardNormal(0.5);
     if (check != 0.0e0) {
@@ -312,6 +314,8 @@ void DistributionTest::testNormal() {
 void DistributionTest::testBivariate() {
 
     BOOST_TEST_MESSAGE("Testing bivariate cumulative normal distribution...");
+
+    using namespace distributions_test;
 
     checkBivariateAtZero<BivariateCumulativeNormalDistributionDr78>(
                                                       "Drezner 1978", 1.0e-6);
@@ -441,6 +445,8 @@ void DistributionTest::testInverseCumulativePoisson() {
 void DistributionTest::testBivariateCumulativeStudent() {
     BOOST_TEST_MESSAGE(
         "Testing bivariate cumulative Student t distribution...");
+
+    using namespace distributions_test;
 
     Real xs[14] = { 0.00,  0.50,  1.00,  1.50,  2.00,  2.50, 3.00, 4.00,  5.00,  6.00,  7.00,  8.00, 9.00, 10.00 };
     Natural ns[20] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 60, 90, 120, 150, 300, 600 };
@@ -637,7 +643,7 @@ void DistributionTest::testBivariateCumulativeStudentVsBivariate() {
 }
     
 
-namespace {
+namespace distributions_test {
     class InverseNonCentralChiSquared {
       public:
         InverseNonCentralChiSquared(Real df, Real ncp)
@@ -654,6 +660,8 @@ namespace {
 void DistributionTest::testInvCDFviaStochasticCollocation() {
     BOOST_TEST_MESSAGE(
         "Testing inverse CDF based on stochastic collocation...");
+
+    using namespace distributions_test;
 
     const Real k = 3.0;
     const Real lambda = 1.0;
@@ -716,6 +724,43 @@ void DistributionTest::testInvCDFviaStochasticCollocation() {
     }
 }
 
+void DistributionTest::testSankaranApproximation() {
+    BOOST_TEST_MESSAGE("Testing Sankaran approximation for the "
+                       "non-central cumulative chi-square distribution...");
+
+    const Real dfs[] = {2,2,2,4,4};
+    const Real ncps[] = {1,2,3,1,2,3};
+
+    const Real tol = 0.01;
+    for (Size i=0; i < LENGTH(dfs); ++i) {
+        const Real df = dfs[i];
+
+        for (Size j=0; j < LENGTH(ncps); ++j) {
+            Real ncp = ncps[j];
+
+            const NonCentralCumulativeChiSquareDistribution d(df, ncp);
+            const NonCentralCumulativeChiSquareSankaranApprox sankaran(df, ncp);
+
+            for (Real x=0.25; x < 10; x+=0.1) {
+                const Real expected = d(x);
+                const Real calculated = sankaran(x);
+                const Real diff = std::fabs(expected - calculated);
+
+                if (diff > tol) {
+                    BOOST_ERROR("Failed to match accuracy of Sankaran approximation"""
+                           "\n    df        : " << df <<
+                           "\n    ncp       : " << ncp <<
+                           "\n    x         : " << x <<
+                           "\n    expected  : " << expected <<
+                           "\n    calculated: " << calculated <<
+                           "\n    diff      : " << diff <<
+                           "\n    tol       : " << tol);
+                }
+            }
+        }
+    }
+}
+
 test_suite* DistributionTest::suite(SpeedLevel speed) {
     test_suite* suite = BOOST_TEST_SUITE("Distribution tests");
 
@@ -729,6 +774,9 @@ test_suite* DistributionTest::suite(SpeedLevel speed) {
                           &DistributionTest::testBivariateCumulativeStudent));
     suite->add(QUANTLIB_TEST_CASE(
                    &DistributionTest::testInvCDFviaStochasticCollocation));
+
+    suite->add(QUANTLIB_TEST_CASE(
+                   &DistributionTest::testSankaranApproximation));
 
     if (speed <= Fast) {
         suite->add(QUANTLIB_TEST_CASE(
