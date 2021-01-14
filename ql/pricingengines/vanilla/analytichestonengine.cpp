@@ -46,9 +46,9 @@ namespace QuantLib {
         class integrand1 {
           private:
             const Real c_inf_;
-            const boost::function<Real(Real)> f_;
+            const ext::function<Real(Real)> f_;
           public:
-            integrand1(Real c_inf, const boost::function<Real(Real)>& f)
+            integrand1(Real c_inf, const ext::function<Real(Real)>& f)
             : c_inf_(c_inf), f_(f) {}
             Real operator()(Real x) const {
                 if ((1.0-x)*c_inf_ > QL_EPSILON)
@@ -61,9 +61,9 @@ namespace QuantLib {
         class integrand2 {
           private:
             const Real c_inf_;
-            const boost::function<Real(Real)> f_;
+            const ext::function<Real(Real)> f_;
           public:
-            integrand2(Real c_inf, const boost::function<Real(Real)>& f)
+            integrand2(Real c_inf, const ext::function<Real(Real)>& f)
             : c_inf_(c_inf), f_(f) {}
             Real operator()(Real x) const {
                 if (x*c_inf_ > QL_EPSILON) {
@@ -78,7 +78,7 @@ namespace QuantLib {
           private:
             const integrand2 int_;
           public:
-            integrand3(Real c_inf, const boost::function<Real(Real)>& f)
+            integrand3(Real c_inf, const ext::function<Real(Real)>& f)
             : int_(c_inf, f) {}
 
             Real operator()(Real x) const { return int_(1.0-x); }
@@ -529,7 +529,8 @@ namespace QuantLib {
             }
           }
           break;
-          case AndersenPiterbarg: {
+          case AndersenPiterbarg:
+          case AndersenPiterbargOptCV: {
             const Real c_inf =
                 std::sqrt(1.0-rho*rho)*(v0 + kappa*theta*term)/sigma;
 
@@ -541,8 +542,10 @@ namespace QuantLib {
             const Real uM = Integration::andersenPiterbargIntegrationLimit(
                 c_inf, epsilon, v0, term);
 
-            const Real vAvg
-                = (1-std::exp(-kappa*term))*(v0-theta)/(kappa*term) + theta;
+            const Real vAvg = (cpxLog == AndersenPiterbarg)
+                ? (1-std::exp(-kappa*term))*(v0-theta)/(kappa*term) + theta
+                : -8.0*std::log(enginePtr->chF(
+                        std::complex<Real>(0, -0.5), term).real())/term;
 
             const Real bsPrice
                 = BlackCalculator(Option::Call, strikePrice,
@@ -733,7 +736,7 @@ namespace QuantLib {
 
     Real AnalyticHestonEngine::Integration::calculate(
                                Real c_inf,
-                               const boost::function1<Real, Real>& f,
+                               const ext::function<Real(Real)>& f,
                                Real maxBound) const {
         Real retVal;
 

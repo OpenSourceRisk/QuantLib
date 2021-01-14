@@ -27,9 +27,7 @@
 
 #include <ql/math/distributions/normaldistribution.hpp>
 #include <ql/math/interpolations/lagrangeinterpolation.hpp>
-
-#include <boost/function.hpp>
-#include <functional>
+#include <ql/functional.hpp>
 
 namespace QuantLib {
     //! Stochastic collocation inverse cumulative distribution function
@@ -47,7 +45,7 @@ namespace QuantLib {
         typedef Real result_type;
 
         StochasticCollocationInvCDF(
-            const boost::function<Real(Real)>& invCDF,
+            const ext::function<Real(Real)>& invCDF,
             Size lagrangeOrder,
             Real pMax = Null<Real>(),
             Real pMin = Null<Real>());

@@ -26,7 +26,6 @@
 #include <ql/experimental/credit/randomdefaultlatentmodel.hpp>
 #include <ql/experimental/credit/inhomogeneouspooldef.hpp>
 #include <ql/experimental/credit/homogeneouspooldef.hpp>
-
 #include <ql/experimental/credit/gaussianlhplossmodel.hpp>
 #include <ql/termstructures/yield/flatforward.hpp>
 #include <ql/termstructures/credit/flathazardrate.hpp>
@@ -35,10 +34,8 @@
 #include <ql/time/daycounters/actualactual.hpp>
 #include <ql/quotes/simplequote.hpp>
 #include <ql/currencies/europe.hpp>
-
-#include <boost/bind.hpp>
+#include <ql/functional.hpp>
 #include <boost/preprocessor/iteration/local.hpp>
-
 #include <iomanip>
 #include <iostream>
 
@@ -48,7 +45,7 @@ using namespace boost::unit_test_framework;
 
 #ifndef QL_PATCH_SOLARIS
 
-namespace {
+namespace cdo_test {
 
     Real hwAttachment[] = { 0.00, 0.03, 0.06, 0.10 };
     Real hwDetachment[] = { 0.03, 0.06, 0.10, 1.00 };
@@ -102,6 +99,8 @@ void CdoTest::testHW(unsigned dataSet) {
 
     BOOST_TEST_MESSAGE ("Testing CDO premiums against Hull-White values"
                         " for data set " << dataSet << "...");
+
+    using namespace cdo_test;
 
     SavedSettings backup;
 
@@ -376,7 +375,7 @@ test_suite* CdoTest::suite(SpeedLevel speed) {
     #ifndef QL_PATCH_SOLARIS
     if (speed == Slow) {
         #define BOOST_PP_LOCAL_MACRO(n) \
-            suite->add(QUANTLIB_TEST_CASE(boost::bind(&CdoTest::testHW, n)));
+            suite->add(QUANTLIB_TEST_CASE(ext::bind(&CdoTest::testHW, n)));
 
         #define BOOST_PP_LOCAL_LIMITS (0, 4)
         #include BOOST_PP_LOCAL_ITERATE()

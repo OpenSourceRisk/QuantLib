@@ -17,17 +17,16 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file functional.hpp
+/*! \file ql/math/functional.hpp
     \brief functionals and combinators not included in the STL
 */
 
-#ifndef quantlib_functional_hpp
-#define quantlib_functional_hpp
+#ifndef quantlib_math_functional_hpp
+#define quantlib_math_functional_hpp
 
 #include <ql/types.hpp>
 #include <ql/utilities/null.hpp>
 #include <cmath>
-#include <functional>
 
 namespace QuantLib {
 
@@ -38,7 +37,7 @@ namespace QuantLib {
       public:
         typedef T argument_type;
         typedef U result_type;
-        constant(const U& u) : u_(u) {}
+        explicit constant(const U& u) : u_(u) {}
         U operator()(const T&) const { return u_; }
       private:
         U u_;
@@ -215,7 +214,7 @@ namespace QuantLib {
         typedef T second_argument_type;
         typedef bool result_type;
 
-        equal_within(const T& eps) : eps_(eps) {}
+        explicit equal_within(const T& eps) : eps_(eps) {}
         bool operator()(const T& a, const T& b) const {
             return std::fabs(a-b) <= eps_;
         }

@@ -33,6 +33,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
+#undef REPORT_FAILURE_1
 #define REPORT_FAILURE_1(greekName, payoff, exercise, s, q, r, today, v, \
                          intensity, meanLogJump, jumpVol, expected, \
                          calculated, error, tolerance) \
@@ -54,6 +55,7 @@ using namespace boost::unit_test_framework;
                << "    error:            " << error << "\n" \
                << "    tolerance:        "  << tolerance);
 
+#undef REPORT_FAILURE_2
 #define REPORT_FAILURE_2(greekName, payoff, exercise, s, q, r, today, v, \
                          intensity, gamma, expected, calculated, \
                          error, tolerance) \
@@ -422,12 +424,6 @@ void JumpDiffusionTest::testGreeks() {
                   payoff = ext::shared_ptr<StrikedTypePayoff>(new
                     CashOrNothingPayoff(types[i], strikes[j],
                     100.0));
-              } else if (kk==2) {
-                  payoff = ext::shared_ptr<StrikedTypePayoff>(new
-                    AssetOrNothingPayoff(types[i], strikes[j]));
-              } else if (kk==3) {
-                  payoff = ext::shared_ptr<StrikedTypePayoff>(new
-                    GapPayoff(types[i], strikes[j], 100.0));
               }
               EuropeanOption option(payoff, exercise);
               option.setPricingEngine(engine);
