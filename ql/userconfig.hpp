@@ -111,7 +111,12 @@
    Note: There is no support for thread safety and multiple sessions.
 */
 #ifndef QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
-//#   define QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
+#define QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
+#endif
+
+/* Define this to make LazyObject::calculate() thread-safe */
+#ifndef QL_ENABLE_LAZYOBJECT_THREAD_SAFE_CALCULATE
+#define QL_ENABLE_LAZYOBJECT_THREAD_SAFE_CALCULATE
 #endif
 
 #endif
