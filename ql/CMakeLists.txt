@@ -757,6 +757,7 @@ set(QuantLib_SRC
     quotes/impliedstddevquote.cpp
     quotes/lastfixingquote.cpp
     rebatedexercise.cpp
+    sessionid.cpp
     settings.cpp
     stochasticprocess.cpp
     termstructure.cpp
@@ -2245,6 +2246,8 @@ set(QuantLib_HDR
     volatilitymodel.hpp
 )
 
+find_package (Boost REQUIRED COMPONENTS thread system)
+
 get_quantlib_library_name(QL_OUTPUT_NAME)
 
 if(WIN32)
@@ -2257,6 +2260,9 @@ if(WIN32)
 else()
     add_library(${QL_OUTPUT_NAME} ${QuantLib_SRC})
 endif()
+
+target_link_libraries (${QL_OUTPUT_NAME} ${Boost_LIBRARIES})
+
 set(QL_LINK_LIBRARY ${QL_OUTPUT_NAME} PARENT_SCOPE)
 
 foreach(file ${QuantLib_HDR})
