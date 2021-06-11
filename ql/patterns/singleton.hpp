@@ -130,7 +130,7 @@ namespace QuantLib {
         static bool value() { return false; }
     };
 
-    template <class T, class B = B_True>
+    template <class T, class B = B_False>
     class Singleton : private boost::noncopyable {
       private:
     #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
