@@ -201,13 +201,17 @@ namespace QuantLib {
         // thread safe
         Integer id = B::value() ? 0 : sessionId();
         const std::map<Integer, ext::shared_ptr<T> >& i = instances_;
-        boost::upgrade_lock<boost::shared_mutex> sharedLock(mutex_);
-        typename std::map<Integer, ext::shared_ptr<T> >::const_iterator instance = i.find(id);
-        if(instance != i.end())
-            return *instance->second;
-        else
         {
-            boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(sharedLock);
+            boost::shared_lock<boost::shared_mutex> shared_lock(mutex_);
+            typename std::map<Integer, ext::shared_ptr<T> >::const_iterator instance = i.find(id);
+            if(instance != i.end())
+                return *instance->second;
+        }
+        {
+            boost::unique_lock<boost::shared_mutex> uniqueLock(mutex_);
+            typename std::map<Integer, ext::shared_ptr<T> >::const_iterator instance = i.find(id);
+            if(instance != i.end())
+                return *instance->second;
             ext::shared_ptr<T> tmp(new T);
             instances_[id] = tmp;
             return *tmp;
