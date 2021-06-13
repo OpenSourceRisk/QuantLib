@@ -25,12 +25,15 @@
 /*! \file singleton.hpp
     \brief basic support for the singleton pattern
            QRM: add thread safe singleton init for QL_ENABLE_SEESION
+                add option to have a unique singleton instance for all sessions
 */
 
 #ifndef quantlib_singleton_hpp
 #define quantlib_singleton_hpp
 
 #include <ql/qldefines.hpp>
+
+#include <type_traits>
 
 #ifdef QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
     #if defined(QL_ENABLE_SESSIONS)
@@ -119,18 +122,12 @@ namespace QuantLib {
         as a single implemementation point should synchronization
         features be added.
 
+        If B is true, the singleton instance will be unique for all sessions.
+
         \ingroup patterns
     */
 
-    struct B_True {
-        static bool value() { return true; }
-    };
-
-    struct B_False {
-        static bool value() { return false; }
-    };
-
-    template <class T, class B = B_False>
+    template <class T, class B = std::integral_constant<bool, false> >
     class Singleton : private boost::noncopyable {
       private:
     #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
@@ -199,7 +196,7 @@ namespace QuantLib {
 
         #if defined(QL_ENABLE_SESSIONS)
         // thread safe
-        Integer id = B::value() ? 0 : sessionId();
+        Integer id = B() ? 0 : sessionId();
         const std::map<Integer, ext::shared_ptr<T> >& i = instances_;
         {
             boost::shared_lock<boost::shared_mutex> shared_lock(mutex_);
