@@ -2731,6 +2731,7 @@
     <ClCompile Include="ql\position.cpp" />
     <ClCompile Include="ql\prices.cpp" />
     <ClCompile Include="ql\rebatedexercise.cpp" />
+    <ClCompile Include="ql\sessionid.cpp" />
     <ClCompile Include="ql\settings.cpp" />
     <ClCompile Include="ql\stochasticprocess.cpp" />
     <ClCompile Include="ql\termstructure.cpp" />
