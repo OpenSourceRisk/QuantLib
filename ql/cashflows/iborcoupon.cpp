@@ -30,12 +30,12 @@
 
 namespace QuantLib {
 
-    bool IborCoupon::constructorWasNotCalled_ = true;
+    thread_local bool IborCoupon::constructorWasNotCalled_ = true;
 
 #ifndef QL_USE_INDEXED_COUPON
-    bool IborCoupon::usingAtParCoupons_ = true;
+    thread_local bool IborCoupon::usingAtParCoupons_ = true;
 #else
-    bool IborCoupon::usingAtParCoupons_ = false;
+    thread_local bool IborCoupon::usingAtParCoupons_ = false;
 #endif
 
     void IborCoupon::createAtParCoupons() {
