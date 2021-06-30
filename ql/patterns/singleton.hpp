@@ -130,14 +130,10 @@ namespace QuantLib {
     template <class T, class B = std::integral_constant<bool, false> >
     class Singleton : private boost::noncopyable {
       private:
-    #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
+    #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
         static std::map<Integer, ext::shared_ptr<T> > instances_;
-    #endif
-
-    #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
+    #else
         static boost::atomic<T*> instance_;
-    #endif
-    #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
         static boost::mutex mutex_;
     #endif
     #if defined(QL_ENABLE_SESSIONS)
@@ -147,13 +143,21 @@ namespace QuantLib {
       public:
         //! access to the unique instance
         static T& instance();
+        //! clear stored instances
+        static void clearInstances() {
+    #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
+            instances_ = std::map<Integer, ext::shared_ptr<T> >();
+    #else
+            instance_.store(nullptr, boost::memory_order_release);
+    #endif
+        }
       protected:
       Singleton() {}
     };
 
     // static member definitions
 
-    #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
+    #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
       template <class T, class B>
       std::map<Integer, ext::shared_ptr<T> > Singleton<T, B>::instances_;
     #endif
@@ -173,10 +177,6 @@ namespace QuantLib {
 
     template <class T, class B>
     T& Singleton<T, B>::instance() {
-
-        #if (QL_MANAGED == 0) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-        static std::map<Integer, ext::shared_ptr<T> > instances_;
-        #endif
 
         // thread safe double checked locking pattern with atomic memory calls
         #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
