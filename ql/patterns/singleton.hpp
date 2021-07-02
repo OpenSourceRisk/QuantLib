@@ -131,7 +131,10 @@ namespace QuantLib {
     class Singleton : private boost::noncopyable {
       private:
     #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-        static std::map<Integer, ext::shared_ptr<T> > instances_;
+        static std::map<Integer, ext::shared_ptr<T> >& instances() {
+            static std::map<Integer, ext::shared_ptr<T> > instances_;
+            return instances_;
+        }
     #else
         static boost::atomic<T*> instance_;
         static boost::mutex mutex_;
@@ -146,7 +149,7 @@ namespace QuantLib {
         //! clear stored instances
         static void clearInstances() {
     #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-            instances_ = std::map<Integer, ext::shared_ptr<T> >();
+            instances() = std::map<Integer, ext::shared_ptr<T> >();
     #else
             instance_.store(nullptr, boost::memory_order_release);
     #endif
@@ -156,11 +159,6 @@ namespace QuantLib {
     };
 
     // static member definitions
-
-    #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-      template <class T, class B>
-      std::map<Integer, ext::shared_ptr<T> > Singleton<T, B>::instances_;
-    #endif
 
     #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
     template <class T, class B> boost::atomic<T*> Singleton<T, B>::instance_;
@@ -197,7 +195,7 @@ namespace QuantLib {
         #if defined(QL_ENABLE_SESSIONS)
         // thread safe
         Integer id = B() ? 0 : sessionId();
-        const std::map<Integer, ext::shared_ptr<T> >& i = instances_;
+        const std::map<Integer, ext::shared_ptr<T> >& i = instances();
         {
             boost::shared_lock<boost::shared_mutex> shared_lock(mutex_);
             typename std::map<Integer, ext::shared_ptr<T> >::const_iterator instance = i.find(id);
@@ -210,11 +208,11 @@ namespace QuantLib {
             if(instance != i.end())
                 return *instance->second;
             ext::shared_ptr<T> tmp(new T);
-            instances_[id] = tmp;
+            instances()[id] = tmp;
             return *tmp;
         }
         #else
-        ext::shared_ptr<T>& instance = instances_[0];
+        ext::shared_ptr<T>& instance = instances()[0];
         if (!instance)
             instance = ext::shared_ptr<T>(new T);
         return *instance;
