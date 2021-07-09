@@ -48,7 +48,6 @@
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
-using boost::assign::map_list_of;
 using std::map;
 
 void CreditDefaultSwapTest::testCachedValue() {

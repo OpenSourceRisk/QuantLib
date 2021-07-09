@@ -33,8 +33,6 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-using boost::assign::map_list_of;
-using boost::assign::list_of;
 using std::make_pair;
 using std::map;
 using std::pair;

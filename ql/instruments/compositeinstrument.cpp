@@ -74,7 +74,7 @@ namespace QuantLib {
 
         // Loop over each component's additional results and add them to additionalResults_.
         additionalResults_.clear();
-        for (const_iterator i = components_.begin(); i != components_.end(); ++i) {
+        for (auto i = components_.begin(); i != components_.end(); ++i) {
 
             // Keep track of component's index. Prepend it to additional results.
             Size cmpIdx = std::distance(components_.begin(), i) + 1;
@@ -84,8 +84,8 @@ namespace QuantLib {
 
             // Update the additionalResults_.
             const Results& cmpResults = i->first->additionalResults();
-            for (RIt it = cmpResults.begin(); it != cmpResults.end(); ++it) {
-                additionalResults_[prefix + it->first] = it->second;
+            for (const auto& cmpResult : cmpResults) {
+                additionalResults_[prefix + cmpResult.first] = cmpResult.second;
             }
             additionalResults_[prefix + "multiplier"] = i->second;
         }
