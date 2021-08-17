@@ -43,22 +43,18 @@ namespace QuantLib {
     */
     class YoYInflationCapFloorEngine : public YoYInflationCapFloor::engine {
       public:
-        YoYInflationCapFloorEngine(const ext::shared_ptr<YoYInflationIndex>&,
-                                   const Handle<YoYOptionletVolatilitySurface>& vol,
-                                   const Handle<YieldTermStructure>& nominalTermStructure);
-        /*! \deprecated Use the constructor with an explicit nominal curve.
-                        Deprecated in version 1.15.
-        */
-        QL_DEPRECATED
-        YoYInflationCapFloorEngine(const ext::shared_ptr<YoYInflationIndex>&,
-                                   const Handle<YoYOptionletVolatilitySurface>& vol);
+        YoYInflationCapFloorEngine(ext::shared_ptr<YoYInflationIndex>,
+                                   Handle<YoYOptionletVolatilitySurface> vol,
+                                   Handle<YieldTermStructure> nominalTermStructure);
 
         ext::shared_ptr<YoYInflationIndex> index() const { return index_;}
         Handle<YoYOptionletVolatilitySurface> volatility() const { return volatility_; }
+        Handle<YieldTermStructure> nominalTermStructure() const { return nominalTermStructure_; }
 
         void setVolatility(const Handle<YoYOptionletVolatilitySurface>& vol);
 
-        void calculate() const;
+        void calculate() const override;
+
       protected:
         //! descendents only need to implement this
         virtual Real optionletImpl(Option::Type type, Rate strike,
@@ -79,17 +75,9 @@ namespace QuantLib {
         YoYInflationBlackCapFloorEngine(const ext::shared_ptr<YoYInflationIndex>&,
                                         const Handle<YoYOptionletVolatilitySurface>& vol,
                                         const Handle<YieldTermStructure>& nominalTermStructure);
-        /*! \deprecated Use the constructor with an explicit nominal curve.
-                        Deprecated in version 1.15.
-        */
-        QL_DEPRECATED
-        YoYInflationBlackCapFloorEngine(const ext::shared_ptr<YoYInflationIndex>&,
-                                        const Handle<YoYOptionletVolatilitySurface>&);
-
       protected:
-        virtual Real optionletImpl(Option::Type, Real strike,
-                                   Real forward, Real stdDev,
-                                   Real d) const;
+        Real
+        optionletImpl(Option::Type, Real strike, Real forward, Real stdDev, Real d) const override;
     };
 
 
@@ -101,17 +89,9 @@ namespace QuantLib {
                     const ext::shared_ptr<YoYInflationIndex>&,
                     const Handle<YoYOptionletVolatilitySurface>& vol,
                     const Handle<YieldTermStructure>& nominalTermStructure);
-        /*! \deprecated Use the constructor with an explicit nominal curve.
-                        Deprecated in version 1.15.
-        */
-        QL_DEPRECATED
-        YoYInflationUnitDisplacedBlackCapFloorEngine(
-                    const ext::shared_ptr<YoYInflationIndex>&,
-                    const Handle<YoYOptionletVolatilitySurface>&);
       protected:
-        virtual Real optionletImpl(Option::Type, Real strike,
-                                   Real forward, Real stdDev,
-                                   Real d) const;
+        Real
+        optionletImpl(Option::Type, Real strike, Real forward, Real stdDev, Real d) const override;
     };
 
 
@@ -123,17 +103,9 @@ namespace QuantLib {
                     const ext::shared_ptr<YoYInflationIndex>&,
                     const Handle<YoYOptionletVolatilitySurface>& vol,
                     const Handle<YieldTermStructure>& nominalTermStructure);
-        /*! \deprecated Use the constructor with an explicit nominal curve.
-                        Deprecated in version 1.15.
-        */
-        QL_DEPRECATED
-        YoYInflationBachelierCapFloorEngine(
-                    const ext::shared_ptr<YoYInflationIndex>&,
-                    const Handle<YoYOptionletVolatilitySurface>&);
       protected:
-        virtual Real optionletImpl(Option::Type, Real strike,
-                                   Real forward, Real stdDev,
-                                   Real d) const;
+        Real
+        optionletImpl(Option::Type, Real strike, Real forward, Real stdDev, Real d) const override;
     };
 
 }

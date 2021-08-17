@@ -33,7 +33,7 @@
 #include <ql/math/interpolations/linearinterpolation.hpp>
 #include <ql/termstructures/volatility/equityfx/localvoltermstructure.hpp>
 
-#include <boost/tuple/tuple.hpp>
+#include <ql/tuple.hpp>
 #include <utility>
 
 namespace QuantLib {
@@ -64,18 +64,17 @@ namespace QuantLib {
 
         AndreasenHugeVolatilityInterpl(
             const CalibrationSet& calibrationSet,
-            const Handle<Quote>& spot,
-            const Handle<YieldTermStructure>& rTS,
-            const Handle<YieldTermStructure>& qTS,
+            Handle<Quote> spot,
+            Handle<YieldTermStructure> rTS,
+            Handle<YieldTermStructure> qTS,
             InterpolationType interpolationType = CubicSpline,
             CalibrationType calibrationType = Call,
             Size nGridPoints = 500,
             Real minStrike = Null<Real>(),
             Real maxStrike = Null<Real>(),
-            const ext::shared_ptr<OptimizationMethod>& optimizationMethod =
+            ext::shared_ptr<OptimizationMethod> optimizationMethod =
                 ext::shared_ptr<OptimizationMethod>(new LevenbergMarquardt),
-            const EndCriteria& endCriteria =
-                EndCriteria(500, 100, 1e-12, 1e-10, 1e-10));
+            const EndCriteria& endCriteria = EndCriteria(500, 100, 1e-12, 1e-10, 1e-10));
 
         Date maxDate() const;
         Real minStrike() const;
@@ -85,7 +84,7 @@ namespace QuantLib {
         const Handle<YieldTermStructure>& riskFreeRate() const;
 
         // returns min, max and average error in volatility units
-        boost::tuple<Real, Real, Real> calibrationError() const;
+        ext::tuple<Real, Real, Real> calibrationError() const;
 
         // returns the option price of the calibration type. In case
         // of CallPut it return the call option price
@@ -94,11 +93,11 @@ namespace QuantLib {
         Volatility localVol(Time t, Real strike) const;
 
       protected:
-        void performCalculations() const;
+        void performCalculations() const override;
 
       private:
         typedef std::map<Time,
-            boost::tuple<
+            ext::tuple<
                 Real,
                 ext::shared_ptr<Array>,
                 ext::shared_ptr<Interpolation> > > TimeValueCacheType;

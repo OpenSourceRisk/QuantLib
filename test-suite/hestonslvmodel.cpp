@@ -20,9 +20,6 @@
 
 #include "hestonslvmodel.hpp"
 #include "utilities.hpp"
-
-#include <iomanip>
-
 #include <ql/quotes/simplequote.hpp>
 #include <ql/time/calendars/target.hpp>
 #include <ql/time/daycounters/actualactual.hpp>
@@ -42,6 +39,7 @@
 #include <ql/math/optimization/levenbergmarquardt.hpp>
 #include <ql/models/equity/hestonmodel.hpp>
 #include <ql/models/equity/hestonmodelhelper.hpp>
+#include <ql/processes/hestonprocess.hpp>
 #include <ql/termstructures/yield/zerocurve.hpp>
 #include <ql/termstructures/volatility/equityfx/blackvariancesurface.hpp>
 #include <ql/termstructures/volatility/equityfx/noexceptlocalvolsurface.hpp>
@@ -87,10 +85,9 @@
 #include <ql/experimental/processes/hestonslvprocess.hpp>
 #include <ql/experimental/barrieroption/doublebarrieroption.hpp>
 #include <ql/experimental/barrieroption/analyticdoublebarrierbinaryengine.hpp>
-#include <ql/functional.hpp>
-
-#include <boost/assign/std/vector.hpp>
 #include <boost/math/special_functions/gamma.hpp>
+#include <iomanip>
+
 
 #if defined(__GNUC__) && (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ > 4))
 #pragma GCC diagnostic push
@@ -102,7 +99,6 @@
 #endif
 
 using namespace QuantLib;
-using namespace boost::assign;
 using boost::unit_test_framework::test_suite;
 
 namespace {
@@ -225,9 +221,9 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation() {
 		ext::make_shared<EuropeanExercise>(maturityDate));
     const Real strikes[] = { 50, 80, 100, 130, 150 };
 
-    for (Size i=0; i < LENGTH(strikes); ++i) {
+    for (double strike : strikes) {
         const ext::shared_ptr<StrikedTypePayoff> payoff(
-			ext::make_shared<PlainVanillaPayoff>(Option::Call, strikes[i]));
+            ext::make_shared<PlainVanillaPayoff>(Option::Call, strike));
 
         VanillaOption option(payoff, exercise);
         option.setPricingEngine(engine);
@@ -247,28 +243,22 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation() {
         if (std::fabs(expected - calcUniform) > tol) {
             BOOST_FAIL("failed to reproduce european option price "
                        << "with an uniform mesher"
-                       << "\n   strike:     " << strikes[i]
-                       << std::fixed << std::setprecision(8)
-                       << "\n   calculated: " << calcUniform
-                       << "\n   expected:   " << expected
+                       << "\n   strike:     " << strike << std::fixed << std::setprecision(8)
+                       << "\n   calculated: " << calcUniform << "\n   expected:   " << expected
                        << "\n   tolerance:  " << tol);
         }
         if (std::fabs(expected - calcConcentrated) > tol) {
             BOOST_FAIL("failed to reproduce european option price "
                        << "with a concentrated mesher"
-                       << "\n   strike:     " << strikes[i]
-                       << std::fixed << std::setprecision(8)
-                       << "\n   calculated: " << calcConcentrated
-                       << "\n   expected:   " << expected
+                       << "\n   strike:     " << strike << std::fixed << std::setprecision(8)
+                       << "\n   calculated: " << calcConcentrated << "\n   expected:   " << expected
                        << "\n   tolerance:  " << tol);
         }
         if (std::fabs(expected - calcShifted) > tol) {
             BOOST_FAIL("failed to reproduce european option price "
                        << "with a shifted mesher"
-                       << "\n   strike:     " << strikes[i]
-                       << std::fixed << std::setprecision(8)
-                       << "\n   calculated: " << calcShifted
-                       << "\n   expected:   " << expected
+                       << "\n   strike:     " << strike << std::fixed << std::setprecision(8)
+                       << "\n   calculated: " << calcShifted << "\n   expected:   " << expected
                        << "\n   tolerance:  " << tol);
         }
     }
@@ -665,10 +655,10 @@ namespace {
         const FdmLinearOpIterator endIter = layout->end();
         for (FdmLinearOpIterator iter = layout->begin(); iter != endIter;
               ++iter) {
-            if (!iter.coordinates()[1]) {
+            if (iter.coordinates()[1] == 0U) {
                 x.push_back(mesher->location(iter, 0));
             }
-            if (!iter.coordinates()[0]) {
+            if (iter.coordinates()[0] == 0U) {
                 y.push_back(mesher->location(iter, 1));
             }
         }
@@ -681,14 +671,10 @@ namespace {
         Time maturity, Real eps,
         const ext::shared_ptr<HestonModel>& model) {
 
-        using namespace ext::placeholders;
-
         const AnalyticPDFHestonEngine pdfEngine(model);
         const Real sInit = model->process()->s0()->value();
         const Real xMin = Brent().solve(
-            ext::bind(std::minus<Real>(),
-                ext::bind(&AnalyticPDFHestonEngine::cdf,
-                            &pdfEngine, _1, maturity), eps),
+                        [&](Real x){ return pdfEngine.cdf(x, maturity) - eps; },
                         sInit*1e-3, sInit, sInit*0.001, 1000*sInit);
 
         return xMin;
@@ -712,10 +698,10 @@ namespace {
         const Date todaysDate = Date(28, Dec, 2014);
         Settings::instance().evaluationDate() = todaysDate;
 
-        std::vector<Period> maturities;
-        maturities+=Period(1, Months),
-                    Period(3, Months), Period(6, Months), Period(9, Months),
-                    Period(1, Years), Period(2, Years), Period(3, Years);
+        std::vector<Period> maturities = {
+            Period(1, Months), Period(3, Months), Period(6, Months), Period(9, Months),
+            Period(1, Years), Period(2, Years), Period(3, Years)
+        };
 
         const Date maturityDate = todaysDate + maturities.back();
         const Time maturity = dc.yearFraction(todaysDate, maturityDate);
@@ -751,7 +737,7 @@ namespace {
         const FdmSquareRootFwdOp::TransformationType transformationType
             = testCase.trafoType;
         Real lowerBound, upperBound;
-        std::vector<boost::tuple<Real, Real, bool> > cPoints;
+        std::vector<ext::tuple<Real, Real, bool> > cPoints;
 
         const SquareRootProcessRNDCalculator rnd(v0, kappa, theta, sigma);
         switch (transformationType) {
@@ -764,9 +750,11 @@ namespace {
             const Real v0Density = 10.0;
             const Real upperBoundDensity = 100;
             const Real lowerBoundDensity = 1.0;
-            cPoints += boost::make_tuple(lowerBound, lowerBoundDensity, false),
-                       boost::make_tuple(v0Center, v0Density, true),
-                       boost::make_tuple(upperBound, upperBoundDensity, false);
+            cPoints = {
+                {lowerBound, lowerBoundDensity, false},
+                {v0Center, v0Density, true},
+                {upperBound, upperBoundDensity, false}
+            };
           }
         break;
         case FdmSquareRootFwdOp::Plain:
@@ -777,8 +765,10 @@ namespace {
             const Real v0Center = v0;
             const Real v0Density = 0.1;
             const Real lowerBoundDensity = 0.0001;
-            cPoints += boost::make_tuple(lowerBound, lowerBoundDensity, false),
-                       boost::make_tuple(v0Center, v0Density, true);
+            cPoints = {
+                {lowerBound, lowerBoundDensity, false},
+                {v0Center, v0Density, true}
+            };
           }
         break;
         case FdmSquareRootFwdOp::Power:
@@ -789,8 +779,10 @@ namespace {
             const Real v0Center = v0;
             const Real v0Density = 1.0;
             const Real lowerBoundDensity = 0.005;
-            cPoints += boost::make_tuple(lowerBound, lowerBoundDensity, false),
-                       boost::make_tuple(v0Center, v0Density, true);
+            cPoints = {
+                {lowerBound, lowerBoundDensity, false},
+                {v0Center, v0Density, true}
+            };
           }
         break;
         default:
@@ -830,11 +822,10 @@ namespace {
         const Real strikes[] = { 50, 80, 90, 100, 110, 120, 150, 200 };
 
         Time t=eT;
-        for (std::vector<Period>::const_iterator iter = maturities.begin();
-                iter != maturities.end(); ++iter) {
+        for (auto maturitie : maturities) {
 
             // calculate step size
-            const Date nextMaturityDate = todaysDate + *iter;
+            const Date nextMaturityDate = todaysDate + maturitie;
             const Time nextMaturityTime
                 = dc.yearFraction(todaysDate, nextMaturityDate);
 
@@ -846,11 +837,10 @@ namespace {
             }
 
             Real avg=0, min=QL_MAX_REAL, max=0;
-            for (Size i=0; i < LENGTH(strikes); ++i) {
-                const Real strike = strikes[i];
+            for (double strike : strikes) {
                 const ext::shared_ptr<StrikedTypePayoff> payoff(
-					ext::make_shared<PlainVanillaPayoff>((strike > s0) ? Option::Call :
-                                                           Option::Put, strike));
+                    ext::make_shared<PlainVanillaPayoff>((strike > s0) ? Option::Call : Option::Put,
+                                                         strike));
 
                 Array pd(p.size());
                 for (FdmLinearOpIterator iter = layout->begin();
@@ -899,7 +889,7 @@ namespace {
                 }
             }
 
-            avg/=LENGTH(strikes);
+            avg/=LENGTH(strikes); // NOLINT(bugprone-integer-division)
 
             if (avg > testCase.avgEps) {
                 BOOST_FAIL("failed to reproduce Heston SLV prices"
@@ -969,18 +959,18 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquation() {
         }
     };
 
-    for (Size i=0; i < LENGTH(testCases); ++i) {
-        hestonFokkerPlanckFwdEquationTest(testCases[i]);
+    for (const auto& testCase : testCases) {
+        hestonFokkerPlanckFwdEquationTest(testCase);
     }
 }
 
 
 namespace {
-    ext::shared_ptr<Matrix> createLocalVolMatrixFromProcess(
-        ext::shared_ptr<BlackScholesMertonProcess> lvProcess,
-        const std::vector<Real>& strikes,
-        const std::vector<Date>& dates,
-        std::vector<Time>& times) {
+    ext::shared_ptr<Matrix>
+    createLocalVolMatrixFromProcess(const ext::shared_ptr<BlackScholesMertonProcess>& lvProcess,
+                                    const std::vector<Real>& strikes,
+                                    const std::vector<Date>& dates,
+                                    std::vector<Time>& times) {
 
         const ext::shared_ptr<LocalVolTermStructure> localVol =
             lvProcess->localVolatility().currentLink();
@@ -1010,7 +1000,7 @@ namespace {
         return surface;
     }
 
-    boost::tuple<std::vector<Real>, std::vector<Date>,
+    ext::tuple<std::vector<Real>, std::vector<Date>,
                  ext::shared_ptr<BlackVarianceSurface> >
         createSmoothImpliedVol(const DayCounter& dc, const Calendar& cal) {
 
@@ -1018,15 +1008,15 @@ namespace {
 
         Integer times[] = { 13, 41, 75, 165, 256, 345, 524, 703 };
         std::vector<Date> dates;
-        for (Size i = 0; i < 8; ++i) {
-            Date date = todaysDate + times[i];
+        for (int time : times) {
+            Date date = todaysDate + time;
             dates.push_back(date);
         }
 
-        Real tmp[] = { 2.222222222, 11.11111111, 44.44444444, 75.55555556, 80, 84.44444444, 88.88888889, 93.33333333, 97.77777778, 100,
-                       102.2222222, 106.6666667, 111.1111111, 115.5555556, 120, 124.4444444, 166.6666667, 222.2222222, 444.4444444, 666.6666667
-             };
-        const std::vector<Real> surfaceStrikes(tmp, tmp+LENGTH(tmp));
+        const std::vector<Real> surfaceStrikes = {
+            2.222222222, 11.11111111, 44.44444444, 75.55555556, 80, 84.44444444, 88.88888889, 93.33333333, 97.77777778, 100,
+            102.2222222, 106.6666667, 111.1111111, 115.5555556, 120, 124.4444444, 166.6666667, 222.2222222, 444.4444444, 666.6666667
+        };
 
         Volatility v[] =
           { 1.015873, 1.015873, 0.915873, 0.89729, 0.796493, 0.730914, 0.631335, 0.568895,
@@ -1065,7 +1055,7 @@ namespace {
                                      BlackVarianceSurface::ConstantExtrapolation));
         volTS->setInterpolation<Bicubic>();
 
-        return boost::make_tuple(surfaceStrikes, dates, volTS);
+        return ext::make_tuple(surfaceStrikes, dates, volTS);
     }
 }
 
@@ -1116,10 +1106,9 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
     const Real lowerBound = rnd.stationary_invcdf(0.01);
 
     const Real beta = 10.0;
-    std::vector<boost::tuple<Real, Real, bool> > critPoints;
-    critPoints.push_back(boost::tuple<Real, Real, bool>(lowerBound, beta, true));
-    critPoints.push_back(boost::tuple<Real, Real, bool>(v0, beta/100, true));
-    critPoints.push_back(boost::tuple<Real, Real, bool>(upperBound, beta, true));
+    std::vector<ext::tuple<Real, Real, bool>> critPoints = {{lowerBound, beta, true},
+                                                            {v0, beta/100, true},
+                                                            {upperBound, beta, true}};
     const ext::shared_ptr<Fdm1dMesher> varianceMesher(
 		ext::make_shared<Concentrating1dMesher>(lowerBound, upperBound, vGrid, critPoints));
 
@@ -1130,12 +1119,12 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
     const ext::shared_ptr<FdmMesherComposite>
         mesher(ext::make_shared<FdmMesherComposite>(equityMesher, varianceMesher));
 
-    const boost::tuple<std::vector<Real>, std::vector<Date>,
+    const ext::tuple<std::vector<Real>, std::vector<Date>,
                  ext::shared_ptr<BlackVarianceSurface> > smoothSurface =
         createSmoothImpliedVol(dayCounter, calendar);
     const ext::shared_ptr<BlackScholesMertonProcess> lvProcess(
 		ext::make_shared<BlackScholesMertonProcess>(spot, qTS, rTS,
-            Handle<BlackVolTermStructure>(smoothSurface.get<2>())));
+        Handle<BlackVolTermStructure>(ext::get<2>(smoothSurface))));
 
     // step two days using non-correlated process
     const Time eT = 2.0/365;
@@ -1167,24 +1156,22 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
     const Time dt = (maturity-eT)/tGrid;
 
 
-    Real denseStrikes[] =
+    const std::vector<Real> denseStrikes =
         { 2.222222222, 11.11111111, 20, 25, 30, 35, 40,
           44.44444444, 50, 55, 60, 65, 70, 75.55555556,
           80, 84.44444444, 88.88888889, 93.33333333, 97.77777778, 100,
           102.2222222, 106.6666667, 111.1111111, 115.5555556, 120,
           124.4444444, 166.6666667, 222.2222222, 444.4444444, 666.6666667 };
 
-    const std::vector<Real> ds(denseStrikes, denseStrikes+LENGTH(denseStrikes));
-
-    Matrix surface(ds.size(), smoothSurface.get<1>().size());
+    Matrix surface(denseStrikes.size(), ext::get<1>(smoothSurface).size());
     std::vector<Time> times(surface.columns());
 
-    const std::vector<Date> dates = smoothSurface.get<1>();
+    const std::vector<Date>& dates = ext::get<1>(smoothSurface);
     ext::shared_ptr<Matrix> m = createLocalVolMatrixFromProcess(
-        lvProcess, ds, dates, times);
+        lvProcess, denseStrikes, dates, times);
 
     const ext::shared_ptr<FixedLocalVolSurface> leverage(
-		ext::make_shared<FixedLocalVolSurface>(todaysDate, dates, ds, m, dc));
+		ext::make_shared<FixedLocalVolSurface>(todaysDate, dates, denseStrikes, m, dc));
 
     const ext::shared_ptr<PricingEngine> lvEngine(
 		ext::make_shared<AnalyticEuropeanEngine>(lvProcess));
@@ -1266,14 +1253,14 @@ void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol() {
     const Handle<YieldTermStructure> qTS(
             flatRate(todaysDate, q, dayCounter));
 
-    boost::tuple<std::vector<Real>, std::vector<Date>,
+    ext::tuple<std::vector<Real>, std::vector<Date>,
             ext::shared_ptr<BlackVarianceSurface> > smoothImpliedVol =
             createSmoothImpliedVol(dayCounter, calendar);
 
-    const std::vector<Real>& strikes = smoothImpliedVol.get<0>();
-    const std::vector<Date>& dates = smoothImpliedVol.get<1>();
-    const Handle<BlackVolTermStructure> vTS = Handle<BlackVolTermStructure>(
-            createSmoothImpliedVol(dayCounter, calendar).get<2>());
+    const std::vector<Real>& strikes = ext::get<0>(smoothImpliedVol);
+    const std::vector<Date>& dates = ext::get<1>(smoothImpliedVol);
+    const Handle<BlackVolTermStructure> vTS =
+        Handle<BlackVolTermStructure>(ext::get<2>(smoothImpliedVol));
 
     const Size xGrid = 101;
     const Size tGrid = 51;
@@ -1442,26 +1429,24 @@ namespace {
         const Real strikes[] = { 50, 75, 80, 90, 100, 110, 125, 150 };
         const Size times[] = { 3, 6, 9, 12, 24, 36, 60 };
 
-        for (Size t=0; t < LENGTH(times); ++t) {
-            const Date expiry = todaysDate +  Period(times[t], Months);
+        for (unsigned long time : times) {
+            const Date expiry = todaysDate + Period(time, Months);
             const ext::shared_ptr<Exercise> exercise(
 				ext::make_shared<EuropeanExercise>(expiry));
 
             const ext::shared_ptr<PricingEngine> slvEngine(
-                (times[t] <= 3) ?
-				ext::make_shared<FdHestonVanillaEngine>(hestonModel.currentLink(),
-                        Size(std::max(101.0, 51*times[t]/12.0)), 401, 101, 0,
-                            FdmSchemeDesc::ModifiedCraigSneyd(), l)
-                : ext::make_shared<FdHestonVanillaEngine>(hestonModel.currentLink(),
-                        Size(std::max(51.0, 51*times[t]/12.0)), 201, 101, 0,
-                            FdmSchemeDesc::ModifiedCraigSneyd(), l));
+                (time <= 3) ?
+                    ext::make_shared<FdHestonVanillaEngine>(
+                        hestonModel.currentLink(), Size(std::max(101.0, 51 * time / 12.0)), 401,
+                        101, 0, FdmSchemeDesc::ModifiedCraigSneyd(), l) :
+                    ext::make_shared<FdHestonVanillaEngine>(
+                        hestonModel.currentLink(), Size(std::max(51.0, 51 * time / 12.0)), 201, 101,
+                        0, FdmSchemeDesc::ModifiedCraigSneyd(), l));
 
-            for (Size s=0; s < LENGTH(strikes); ++s) {
-                const Real strike = strikes[s];
-
+            for (double strike : strikes) {
                 const ext::shared_ptr<StrikedTypePayoff> payoff(
-					ext::make_shared<PlainVanillaPayoff>(
-                        (strike > s0) ? Option::Call : Option::Put, strike));
+                    ext::make_shared<PlainVanillaPayoff>((strike > s0) ? Option::Call : Option::Put,
+                                                         strike));
 
                 VanillaOption option(payoff, exercise);
 
@@ -1477,19 +1462,17 @@ namespace {
                         Handle<BlackVolTermStructure>(flatVol(lv,
                                                       dc))));
 
-                const Real tol = 0.0005;//testCase.eps;
+                const Real tol = 0.001;//testCase.eps;
                 if (std::fabs((calculated-expected)/vega) > tol) {
                     BOOST_FAIL("failed to reproduce round trip vola "
-                              << "\n   strike         " << strike
-                              << "\n   time           " << times[t]
-                              << "\n   expected NPV   " << expected
-                              << "\n   calculated NPV " << calculated
-                              << "\n   vega           " << vega
-                              << std::fixed << std::setprecision(5)
-                              << "\n   calculated:    " << lv + (calculated-expected)/vega
-                              << "\n   expected:      " << lv
-                              << "\n   diff  (in bp)  " << (calculated-expected)/vega*1e4
-                              << "\n   tolerance:     " << tol);
+                               << "\n   strike         " << strike << "\n   time           " << time
+                               << "\n   expected NPV   " << expected << "\n   calculated NPV "
+                               << calculated << "\n   vega           " << vega << std::fixed
+                               << std::setprecision(5)
+                               << "\n   calculated:    " << lv + (calculated - expected) / vega
+                               << "\n   expected:      " << lv << "\n   diff  (in bp)  "
+                               << (calculated - expected) / vega * 1e4
+                               << "\n   tolerance:     " << tol);
                 }
             }
         }
@@ -1566,7 +1549,7 @@ void HestonSLVModelTest::testLocalVolsvSLVPropDensity() {
         flatRate(todaysDate, q, dayCounter));
 
     const Handle<BlackVolTermStructure> vTS = Handle<BlackVolTermStructure>(
-        createSmoothImpliedVol(dayCounter, calendar).get<2>());
+        ext::get<2>(createSmoothImpliedVol(dayCounter, calendar)));
 
     // Heston parameter from implied calibration
     const Real kappa =  2.0;
@@ -1607,18 +1590,15 @@ void HestonSLVModelTest::testLocalVolsvSLVPropDensity() {
     const SquareRootProcessRNDCalculator squareRootRndCalculator(
         v0, kappa, theta, sigma);
 
-    for (std::list<HestonSLVFDMModel::LogEntry>::const_iterator iter
-             = logEntries.begin(); iter != logEntries.end(); ++iter) {
+    for (const auto& logEntrie : logEntries) {
 
-        const Time t = iter->t;
+        const Time t = logEntrie.t;
         if (t > 0.2) {
-            const Array x(
-                iter->mesher->getFdm1dMeshers().at(0)->locations().begin(),
-                iter->mesher->getFdm1dMeshers().at(0)->locations().end());
-            const std::vector<Real>& z
-                = iter->mesher->getFdm1dMeshers().at(1)->locations();
+            const Array x(logEntrie.mesher->getFdm1dMeshers().at(0)->locations().begin(),
+                          logEntrie.mesher->getFdm1dMeshers().at(0)->locations().end());
+            const std::vector<Real>& z = logEntrie.mesher->getFdm1dMeshers().at(1)->locations();
 
-            const ext::shared_ptr<Array>& prob = iter->prob;
+            const ext::shared_ptr<Array>& prob = logEntrie.prob;
 
             for (Size i=0; i < z.size(); ++i) {
                 const Real pCalc = DiscreteSimpsonIntegral()(
@@ -1689,10 +1669,9 @@ void HestonSLVModelTest::testBarrierPricingViaHestonLocalVol() {
     const ext::shared_ptr<PricingEngine> hestonEngine(
 		ext::make_shared<AnalyticHestonEngine>(hestonModel.currentLink(), 164));
 
-    for (Size i=0; i < LENGTH(strikeValues); ++i) {
-        for (Size j=0; j < LENGTH(maturities); ++j) {
-            const Real strike = strikeValues[i];
-            const Date exerciseDate = todaysDate+maturities[j];
+    for (double strike : strikeValues) {
+        for (auto maturitie : maturities) {
+            const Date exerciseDate = todaysDate + maturitie;
             const Time t = dc.yearFraction(todaysDate, exerciseDate);
 
             const Volatility impliedVol = surf->blackVol(t, strike, true);
@@ -1810,7 +1789,7 @@ void HestonSLVModelTest::testBarrierPricingMixedModels() {
 
     const Real localDeltaExpected =  -0.439068;
     const Real hestonDeltaExpected = -0.342059;
-    const Real tol = 0.0005;
+    const Real tol = 0.001;
     if (std::fabs(hestonDeltaExpected - hestonDeltaCalculated) > tol) {
         BOOST_ERROR("Heston Delta does not match"
                 << "\n calculated : " << hestonDeltaCalculated
@@ -1924,17 +1903,31 @@ void HestonSLVModelTest::testMonteCarloVsFdmPricing() {
     const ext::shared_ptr<Exercise> exercise
         = ext::make_shared<EuropeanExercise>(exerciseDate);
 
+    const ext::shared_ptr<HestonProcess> mixingProcess
+        = ext::shared_ptr<HestonProcess>(new HestonProcess(rTS, qTS, spot, v0, kappa, theta, sigma * 10, rho,
+                                                           HestonProcess::QuadraticExponentialMartingale));
+    const ext::shared_ptr<HestonModel> mixingModel
+        = ext::make_shared<HestonModel>(mixingProcess);
+
+    const ext::shared_ptr<PricingEngine> fdEngineWithMixingFactor
+        = ext::make_shared<FdHestonVanillaEngine>(
+            mixingModel, 51, 401, 101, 0,
+            FdmSchemeDesc::ModifiedCraigSneyd(), leverageFct, 0.1);
+
     const Real strikes[] = { s0, 1.1*s0 };
-    for (Size i=0; i < LENGTH(strikes); ++i) {
-        const Real strike = strikes[i];
-        const ext::shared_ptr<StrikedTypePayoff> payoff
-            = ext::make_shared<PlainVanillaPayoff>(Option::Call, strike);
+    for (double strike : strikes) {
+        const ext::shared_ptr<StrikedTypePayoff> payoff =
+            ext::make_shared<PlainVanillaPayoff>(Option::Call, strike);
 
         VanillaOption option(payoff, exercise);
 
         option.setPricingEngine(fdEngine);
 
         const Real priceFDM = option.NPV();
+
+        option.setPricingEngine(fdEngineWithMixingFactor);
+
+        const Real priceFDMWithMix = option.NPV();
 
         option.setPricingEngine(mcEngine);
 
@@ -1952,6 +1945,12 @@ void HestonSLVModelTest::testMonteCarloVsFdmPricing() {
                     << "\n MC Price : " << priceMC
                     << "\n MC Error : " << priceError
                     << "\n FDM Price: " << priceFDM);
+        }
+
+        if (priceFDM != priceFDMWithMix) {
+            BOOST_ERROR("Heston mixing FDM price does not match with non-mixing FDM"
+                        << "\n Mixing FDM Price : " << priceFDMWithMix
+                        << "\n Non Mixing FDM Price : " << priceFDM);
         }
     }
 }
@@ -1995,22 +1994,18 @@ void HestonSLVModelTest::testMonteCarloCalibration() {
     const Size xGrid = 400;
     const Size nSims[] = { 40000 };
 
-    for (Size m=0; m < LENGTH(nSims); ++m) {
-        const Size nSim = nSims[m];
-
+    for (unsigned long nSim : nSims) {
         const bool sobol = true;
 
         const ext::shared_ptr<LocalVolTermStructure> leverageFct =
             HestonSLVMCModel(
-                Handle<LocalVolTermStructure>(localVol),
-                Handle<HestonModel>(hestonModel),
-                sobol ? ext::shared_ptr<BrownianGeneratorFactory>(
-                            new SobolBrownianGeneratorFactory(
-                                SobolBrownianGenerator::Diagonal,
-                                1234ul, SobolRsg::JoeKuoD7))
-                      : ext::shared_ptr<BrownianGeneratorFactory>(
-                              new MTBrownianGeneratorFactory(1234ul)),
-                maturityDate, 91, xGrid, nSim).leverageFunction();
+                Handle<LocalVolTermStructure>(localVol), Handle<HestonModel>(hestonModel),
+                sobol ? ext::shared_ptr<BrownianGeneratorFactory>(new SobolBrownianGeneratorFactory(
+                            SobolBrownianGenerator::Diagonal, 1234UL, SobolRsg::JoeKuoD7)) :
+                        ext::shared_ptr<BrownianGeneratorFactory>(
+                            new MTBrownianGeneratorFactory(1234UL)),
+                maturityDate, 91, xGrid, nSim)
+                .leverageFunction();
 
         const ext::shared_ptr<PricingEngine> bsEngine(
             ext::make_shared<AnalyticEuropeanEngine>(
@@ -2026,10 +2021,9 @@ void HestonSLVModelTest::testMonteCarloCalibration() {
 
         Real qualityFactor = 0.0;
         Real maxQualityFactor = 0.0;
-        Size nValues = 0u;
+        Size nValues = 0U;
 
-        for (Size i=0; i < LENGTH(maturities); ++i) {
-            const Date maturity(maturities[i]);
+        for (auto maturity : maturities) {
             const Time maturityTime = dc.yearFraction(todaysDate, maturity);
 
             const ext::shared_ptr<PricingEngine> fdEngine
@@ -2041,11 +2035,10 @@ void HestonSLVModelTest::testMonteCarloCalibration() {
             const ext::shared_ptr<Exercise> exercise
                 = ext::make_shared<EuropeanExercise>(maturity);
 
-            for (Size j=0; j < LENGTH(strikes); ++j) {
-                const Real strike = strikes[j];
-                const ext::shared_ptr<StrikedTypePayoff> payoff
-                    = ext::make_shared<PlainVanillaPayoff>(
-                      strike < s0 ? Option::Put : Option::Call, strike);
+            for (double strike : strikes) {
+                const ext::shared_ptr<StrikedTypePayoff> payoff =
+                    ext::make_shared<PlainVanillaPayoff>(strike < s0 ? Option::Put : Option::Call,
+                                                         strike);
 
                 VanillaOption option(payoff, exercise);
 
@@ -2129,11 +2122,10 @@ void HestonSLVModelTest::testForwardSkewSLV() {
 
     const ext::shared_ptr<LocalVolTermStructure> leverageFctMC =
         HestonSLVMCModel(
-            localVol,
-            hestonModel,
-            ext::shared_ptr<BrownianGeneratorFactory>(
-                 new MTBrownianGeneratorFactory(1234ul)),
-            maturityDate, 182, xGrid, nSim).leverageFunction();
+            localVol, hestonModel,
+            ext::shared_ptr<BrownianGeneratorFactory>(new MTBrownianGeneratorFactory(1234UL)),
+            maturityDate, 182, xGrid, nSim)
+            .leverageFunction();
 
     const ext::shared_ptr<HestonSLVProcess> mcSlvProcess(
         ext::make_shared<HestonSLVProcess>(hestonProcess, leverageFctMC));
@@ -2158,9 +2150,7 @@ void HestonSLVModelTest::testForwardSkewSLV() {
     const Date resetDate = todaysDate + Period(12, Months);
     const Time resetTime = dc.yearFraction(todaysDate, resetDate);
     const Time maturityTime = dc.yearFraction(todaysDate, maturityDate);
-    std::vector<Time> mandatoryTimes;
-    mandatoryTimes.push_back(resetTime);
-    mandatoryTimes.push_back(maturityTime);
+    std::vector<Time> mandatoryTimes = {resetTime, maturityTime};
 
     const Size tSteps = 100;
     const TimeGrid grid(mandatoryTimes.begin(), mandatoryTimes.end(), tSteps);
@@ -2171,13 +2161,12 @@ void HestonSLVModelTest::testForwardSkewSLV() {
 
     const Size factors = mcSlvProcess->factors();
 
-    std::vector<ext::shared_ptr<MultiPathGenerator<rsg_type> > > pathGen;
-    pathGen.push_back(
+    std::vector<ext::shared_ptr<MultiPathGenerator<rsg_type> > > pathGen = {
         ext::make_shared<MultiPathGenerator<rsg_type> >(
-            mcSlvProcess, grid, rsg_type(factors, tSteps), false));
-    pathGen.push_back(
+            mcSlvProcess, grid, rsg_type(factors, tSteps), false),
         ext::make_shared<MultiPathGenerator<rsg_type> >(
-            fdmSlvProcess, grid, rsg_type(factors, tSteps), false));
+            fdmSlvProcess, grid, rsg_type(factors, tSteps), false)
+    };
 
     const Real strikes[] = {
         0.5, 0.7, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0
@@ -2249,7 +2238,7 @@ void HestonSLVModelTest::testForwardSkewSLV() {
                 QuantLib::detail::ImpliedVolatilityHelper::calculate(
                     *fwdOption, *fwdEngine, *vol, npv, 1e-8, 200, 1e-4, 2.0);
 
-            const Real tol = 0.001;
+            const Real tol = 0.002;
             const Volatility volError = std::fabs(implVol - expected[j]);
 
             if (volError > tol) {
@@ -2415,9 +2404,8 @@ void HestonSLVModelTest::testMoustacheGraph() {
         getFixedLocalVolFromHeston(hestonModel, timeGrid));
 
     const ext::shared_ptr<BrownianGeneratorFactory> sobolGeneratorFactory(
-        ext::make_shared<SobolBrownianGeneratorFactory>(
-            SobolBrownianGenerator::Diagonal,
-            1234ul, SobolRsg::JoeKuoD7));
+        ext::make_shared<SobolBrownianGeneratorFactory>(SobolBrownianGenerator::Diagonal, 1234UL,
+                                                        SobolRsg::JoeKuoD7));
 
     const Size xGrid = 100;
     const Size nSim  = 20000;
@@ -2480,50 +2468,144 @@ void HestonSLVModelTest::testMoustacheGraph() {
     }
 }
 
+void HestonSLVModelTest::testDiffusionAndDriftSlvProcess() {
+    BOOST_TEST_MESSAGE(
+        "Testing diffusion and drift of the SLV process...");
+
+    SavedSettings backup;
+
+    const Date todaysDate(6, June, 2020);
+    Settings::instance().evaluationDate() = todaysDate;
+
+    const DayCounter dc = Actual365Fixed();
+    const Date maturityDate = todaysDate + Period(6, Months);
+    const Time maturity = dc.yearFraction(todaysDate, maturityDate);
+
+    const Real s0 = 100;
+    const Handle<Quote> spot(ext::make_shared<SimpleQuote>(s0));
+    const Rate r = -0.005;
+    const Rate q =  0.04;
+
+    const Handle<YieldTermStructure> rTS(flatRate(todaysDate, r, dc));
+    const Handle<YieldTermStructure> qTS(flatRate(todaysDate, q, dc));
+
+    const ext::shared_ptr<LocalVolTermStructure> localVol =
+        getFixedLocalVolFromHeston(
+            ext::make_shared<HestonModel>(
+                ext::make_shared<HestonProcess>(
+                    rTS, qTS, spot, 0.1, 1.0, 0.13, 0.8, 0.4)),
+            ext::make_shared<TimeGrid>(maturity, 20));
+
+    const Real kappa =  2.5;
+    const Real theta =  1.0;
+    const Real rho   =  -0.75;
+    const Real sigma =  2.4;
+    const Real v0    =  1.0;
+
+    const ext::shared_ptr<HestonProcess> hestonProcess =
+        ext::make_shared<HestonProcess>(
+            rTS, qTS, spot, v0, kappa, theta, sigma, rho);
+
+    const Handle<HestonModel> hestonModel(
+        ext::make_shared<HestonModel>(hestonProcess));
+
+    const ext::shared_ptr<HestonSLVProcess> slvProcess =
+        ext::make_shared<HestonSLVProcess>(hestonProcess, localVol);
+
+    VanillaOption option(
+        ext::make_shared<PlainVanillaPayoff>(Option::Call, s0),
+        ext::make_shared<EuropeanExercise>(maturityDate));
+
+    option.setPricingEngine(
+        ext::make_shared<FdHestonVanillaEngine>(
+            hestonModel.currentLink(),
+            26, 201, 101, 0,
+            FdmSchemeDesc::ModifiedCraigSneyd(),
+            localVol));
+
+    const Real expected = option.NPV();
+
+    const Size nSims = 16733;
+    const Size nTimeSteps = 40;
+    const DiscountFactor df = rTS->discount(maturity);
+
+    SobolBrownianBridgeRsg rsg(2, nTimeSteps, SobolBrownianGenerator::Diagonal, 12345U,
+                               SobolRsg::JoeKuoD7);
+
+    Array x(2), xt(2), dw(2);
+    GeneralStatistics stats;
+
+    const Time dt = maturity/nTimeSteps;
+    const Real sqrtDt = std::sqrt(dt);
+
+    for (Size i=0; i < nSims; ++i) {
+        Time t = 0.0;
+        x[0] = s0; x[1] = v0;
+
+        const std::vector<Real> n = rsg.nextSequence().value;
+
+        for (Size j=0; j < nTimeSteps; ++j, t+=dt) {
+
+            dw[0] = n[j];
+            dw[1] = n[j+nTimeSteps];
+
+            // full truncation scheme
+            xt[0] = x[0];
+            xt[1] = (x[1] > 0)? x[1] : 0.0;
+
+            x = slvProcess->apply(x,
+                    slvProcess->diffusion(t, xt)*sqrtDt*dw
+                 + slvProcess->drift(t, xt)*dt);
+        }
+
+        stats.add(df*option.payoff()->operator()(x[0]));
+    }
+
+    const Real calculated = stats.mean();
+    const Real errorEstimate = stats.errorEstimate();
+
+    const Real diff = std::fabs(expected - calculated);
+
+    if (diff > 2.35*errorEstimate) {
+        BOOST_ERROR(
+            "Failed to reproduce call option price with HestonSLVProcess "
+            "diffusion and drift discretization scheme"
+            << "\n expected   : " << expected
+            << "\n calculated : " << calculated
+            << "\n error est. : " << errorEstimate
+            << "\n diff       : " << diff);
+    }
+}
 
 test_suite* HestonSLVModelTest::experimental(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE(
-        "Heston Stochastic Local Volatility tests");
+    auto* suite = BOOST_TEST_SUITE("Heston Stochastic Local Volatility tests");
 
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation));
+    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation));
     suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testSquareRootZeroFlowBC));
     suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testTransformedZeroFlowBC));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testSquareRootEvolveWithStationaryDensity));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testSquareRootLogEvolveWithStationaryDensity));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testSquareRootFokkerPlanckFwdEquation));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testBarrierPricingViaHestonLocalVol));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testMonteCarloVsFdmPricing));
-    suite->add(QUANTLIB_TEST_CASE(
-        &HestonSLVModelTest::testLocalVolsvSLVPropDensity));
+    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testSquareRootEvolveWithStationaryDensity));
+    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testSquareRootLogEvolveWithStationaryDensity));
+    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testSquareRootFokkerPlanckFwdEquation));
+    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testBarrierPricingViaHestonLocalVol));
+    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testLocalVolsvSLVPropDensity));
+    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testDiffusionAndDriftSlvProcess));
 
     if (speed <= Fast) {
-        suite->add(QUANTLIB_TEST_CASE(
-            &HestonSLVModelTest::testHestonFokkerPlanckFwdEquation));
+        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage));
+        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testMonteCarloVsFdmPricing));
     }
 
     if (speed == Slow) {
-        suite->add(QUANTLIB_TEST_CASE(
-            &HestonSLVModelTest::testMonteCarloCalibration));
-        suite->add(QUANTLIB_TEST_CASE(
-            &HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol));
-        suite->add(QUANTLIB_TEST_CASE(
-            &HestonSLVModelTest::testMoustacheGraph));
+        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testHestonFokkerPlanckFwdEquation));
+        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testMonteCarloCalibration));
+        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol));
+        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testMoustacheGraph));
     }
 
 //    these tests take very long
-//    suite->add(QUANTLIB_TEST_CASE(
-//        &HestonSLVModelTest::testForwardSkewSLV));
+//    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testForwardSkewSLV));
 //    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testFDMCalibration));
-//    suite->add(QUANTLIB_TEST_CASE(
-//        &HestonSLVModelTest::testBarrierPricingMixedModels));
+//    suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testBarrierPricingMixedModels));
 
     return suite;
 }

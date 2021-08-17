@@ -28,12 +28,14 @@
 class DayCounterTest {
    public:
     static void testActualActual();
+    static void testActualActualIsma();
     static void testActualActualWithSchedule();
     static void testActualActualWithAnnualSchedule();
     static void testActualActualWithSemiannualSchedule();
     static void testSimple();
     static void testOne();
     static void testBusiness252();
+    static void testThirty365();
     static void testThirty360_BondBasis();
     static void testThirty360_EurobondBasis();
     static void testThirty360_German();

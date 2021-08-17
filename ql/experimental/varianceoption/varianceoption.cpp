@@ -17,24 +17,22 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/math/comparison.hpp>
-#include <ql/experimental/varianceoption/varianceoption.hpp>
 #include <ql/event.hpp>
+#include <ql/experimental/varianceoption/varianceoption.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    VarianceOption::VarianceOption(
-                          const ext::shared_ptr<Payoff>& payoff,
-                          Real notional,
-                          const Date& startDate,
-                          const Date& maturityDate)
-    : payoff_(payoff), notional_(notional),
-      startDate_(startDate), maturityDate_(maturityDate) {}
+    VarianceOption::VarianceOption(ext::shared_ptr<Payoff> payoff,
+                                   Real notional,
+                                   const Date& startDate,
+                                   const Date& maturityDate)
+    : payoff_(std::move(payoff)), notional_(notional), startDate_(startDate),
+      maturityDate_(maturityDate) {}
 
     void VarianceOption::setupArguments(PricingEngine::arguments* args) const {
-        VarianceOption::arguments* arguments =
-            dynamic_cast<VarianceOption::arguments*>(args);
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        auto* arguments = dynamic_cast<VarianceOption::arguments*>(args);
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
 
         arguments->payoff = payoff_;
         arguments->notional = notional_;
@@ -45,8 +43,7 @@ namespace QuantLib {
     void VarianceOption::arguments::validate() const {
         QL_REQUIRE(payoff, "no strike given");
         QL_REQUIRE(notional != Null<Real>(), "no notional given");
-        QL_REQUIRE(notional > 0.0 || close_enough(notional, 0.0),
-                   "negative or null notional given");
+        QL_REQUIRE(notional > 0.0, "negative or null notional given");
         QL_REQUIRE(startDate != Date(), "null start date given");
         QL_REQUIRE(maturityDate != Date(), "null maturity date given");
     }

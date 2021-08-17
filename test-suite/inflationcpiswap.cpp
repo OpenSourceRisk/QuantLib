@@ -17,6 +17,8 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
  */
 
+#include "utilities.hpp"
+#include "inflationcpiswap.hpp"
 #include <ql/types.hpp>
 #include <ql/indexes/inflation/ukrpi.hpp>
 #include <ql/termstructures/bootstraphelper.hpp>
@@ -32,10 +34,6 @@
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/instruments/zerocouponinflationswap.hpp>
 #include <ql/pricingengines/bond/discountingbondengine.hpp>
-
-#include "utilities.hpp"
-
-#include "inflationcpiswap.hpp"
 #include <ql/cashflows/cpicoupon.hpp>
 #include <ql/cashflows/cpicouponpricer.hpp>
 #include <ql/instruments/cpiswap.hpp>
@@ -164,7 +162,7 @@ namespace inflation_cpi_swap_test {
                 { Date(25, February, 2010), 0.59955 },
                 { Date(18, March, 2010), 0.65361 },
                 { Date(25, May, 2010), 0.82830 },
-                //  { Date(17, June, 2010), 0.7 },  // can't boostrap with this data point
+                //  { Date(17, June, 2010), 0.7 },  // can't bootstrap with this data point
                 { Date(16, September, 2010), 0.78960 },
                 { Date(16, December, 2010), 0.93762 },
                 { Date(17, March, 2011), 1.12037 },
@@ -189,18 +187,15 @@ namespace inflation_cpi_swap_test {
                 { Date(25, November, 2069), 3.72677 },
                 { Date(27, November, 2079), 3.63082 }
             };
-            const Size nominalDataLength = 30-1;
 
             std::vector<Date> nomD;
             std::vector<Rate> nomR;
-            for (Size i = 0; i < nominalDataLength; i++) {
-                nomD.push_back(nominalData[i].date);
-                nomR.push_back(nominalData[i].rate/100.0);
+            for (auto& i : nominalData) {
+                nomD.push_back(i.date);
+                nomR.push_back(i.rate / 100.0);
             }
             ext::shared_ptr<YieldTermStructure> nominal =
-            ext::make_shared<InterpolatedZeroCurve<Linear>
-            >(nomD,nomR,dcNominal);
-
+                ext::make_shared<InterpolatedZeroCurve<Linear>>(nomD,nomR,dcNominal);
 
             nominalTS.linkTo(nominal);
 
@@ -249,7 +244,7 @@ namespace inflation_cpi_swap_test {
                                 new PiecewiseZeroInflationCurve<Linear>(
                                     evaluationDate, calendar, dcZCIIS, observationLag,
                                     ii->frequency(),ii->interpolated(), baseZeroRate,
-                                    Handle<YieldTermStructure>(nominalTS), helpers));
+                                    helpers));
             pCPIts->recalculate();
             cpiTS = ext::dynamic_pointer_cast<ZeroInflationTermStructure>(pCPIts);
 
@@ -328,7 +323,7 @@ void CPISwapTest::consistency() {
 
         ext::shared_ptr<CPICoupon>
         zic = ext::dynamic_pointer_cast<CPICoupon>(zisV.cpiLeg()[i]);
-        if (zic) {
+        if (zic != nullptr) {
             if (zic->fixingDate() < (common.evaluationDate - Period(1,Months))) {
                 fixedIndex->addFixing(zic->fixingDate(), cpiFix[i],true);
             }
@@ -339,9 +334,12 @@ void CPISwapTest::consistency() {
     // simple structure so simple pricing engine - most work done by index
     ext::shared_ptr<DiscountingSwapEngine>
         dse(new DiscountingSwapEngine(common.nominalTS));
+    ext::shared_ptr<CPICouponPricer> pricer =
+        ext::make_shared<CPICouponPricer>(common.nominalTS);
 
     zisV.setPricingEngine(dse);
-
+    setCouponPricer(zisV.cpiLeg(), pricer);
+    
     // get float+spread & fixed*inflation leg prices separately
     Real testInfLegNPV = 0.0;
     for(Size i=0;i<zisV.leg(0).size(); i++){
@@ -353,7 +351,7 @@ void CPISwapTest::consistency() {
 
         ext::shared_ptr<CPICoupon>
             zicV = ext::dynamic_pointer_cast<CPICoupon>(zisV.cpiLeg()[i]);
-        if (zicV) {
+        if (zicV != nullptr) {
             Real diff = fabs( zicV->rate() - (fixedRate*(zicV->indexFixing()/baseCPI)) );
             QL_REQUIRE(diff<1e-8,"failed "<<i<<"th coupon reconstruction as "
                        << (fixedRate*(zicV->indexFixing()/baseCPI)) << " vs rate = "
@@ -410,8 +408,7 @@ void CPISwapTest::zciisconsistency() {
     zciis.setPricingEngine(dse);
     QL_REQUIRE(fabs(zciis.NPV())<1e-3,"zciis does not reprice to zero");
 
-    std::vector<Date> oneDate;
-    oneDate.push_back(endDate);
+    std::vector<Date> oneDate = {endDate};
     Schedule schOneDate(oneDate, cal, paymentConvention);
 
     CPISwap::Type stype = CPISwap::Payer;
@@ -504,7 +501,7 @@ void CPISwapTest::cpibondconsistency() {
 
         ext::shared_ptr<CPICoupon>
         zic = ext::dynamic_pointer_cast<CPICoupon>(zisV.cpiLeg()[i]);
-        if (zic) {
+        if (zic != nullptr) {
             if (zic->fixingDate() < (common.evaluationDate - Period(1,Months))) {
                 fixedIndex->addFixing(zic->fixingDate(), cpiFix[i],true);
             }
@@ -515,8 +512,11 @@ void CPISwapTest::cpibondconsistency() {
     // simple structure so simple pricing engine - most work done by index
     ext::shared_ptr<DiscountingSwapEngine>
     dse(new DiscountingSwapEngine(common.nominalTS));
+    ext::shared_ptr<CPICouponPricer> pricer =
+        ext::make_shared<CPICouponPricer>(common.nominalTS);
 
     zisV.setPricingEngine(dse);
+    setCouponPricer(zisV.cpiLeg(), pricer);
 
     // now do the bond equivalent
     std::vector<Rate> fixedRates(1,fixedRate);
@@ -530,6 +530,7 @@ void CPISwapTest::cpibondconsistency() {
     ext::shared_ptr<DiscountingBondEngine>
     dbe(new DiscountingBondEngine(common.nominalTS));
     cpiB.setPricingEngine(dbe);
+    setCouponPricer(cpiB.cashflows(), pricer);
 
     QL_REQUIRE(fabs(cpiB.NPV() - zisV.legNPV(0))<1e-5,"cpi bond does not equal equivalent cpi swap leg");
     // remove circular refernce
@@ -538,7 +539,7 @@ void CPISwapTest::cpibondconsistency() {
 
 
 test_suite* CPISwapTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("CPISwap tests");
+    auto* suite = BOOST_TEST_SUITE("CPISwap tests");
 
     suite->add(QUANTLIB_TEST_CASE(&CPISwapTest::consistency));
     suite->add(QUANTLIB_TEST_CASE(&CPISwapTest::zciisconsistency));

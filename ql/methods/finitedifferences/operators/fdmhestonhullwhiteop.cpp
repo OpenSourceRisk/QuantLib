@@ -19,28 +19,24 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
 #include <ql/methods/finitedifferences/meshers/fdmmesher.hpp>
+#include <ql/methods/finitedifferences/operators/fdmhestonhullwhiteop.hpp>
 #include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
 #include <ql/methods/finitedifferences/operators/secondderivativeop.hpp>
-#include <ql/methods/finitedifferences/operators/secondderivativeop.hpp>
-#include <ql/methods/finitedifferences/operators/fdmhestonhullwhiteop.hpp>
 #include <ql/methods/finitedifferences/operators/secondordermixedderivativeop.hpp>
+#include <ql/models/shortrate/onefactormodels/hullwhite.hpp>
+#include <utility>
 
 namespace QuantLib {
 
     FdmHestonHullWhiteEquityPart::FdmHestonHullWhiteEquityPart(
         const ext::shared_ptr<FdmMesher>& mesher,
-        const ext::shared_ptr<HullWhite>& hwModel,
-        const ext::shared_ptr<YieldTermStructure>& qTS)
-    : x_(mesher->locations(2)),
-      varianceValues_(0.5*mesher->locations(1)),
-      dxMap_ (FirstDerivativeOp(0, mesher)),
-      dxxMap_(SecondDerivativeOp(0, mesher).mult(0.5*mesher->locations(1))),
-      mapT_   (0, mesher),
-      hwModel_(hwModel),
-      mesher_ (mesher),
-      qTS_(qTS) {
+        ext::shared_ptr<HullWhite> hwModel,
+        ext::shared_ptr<YieldTermStructure> qTS)
+    : x_(mesher->locations(2)), varianceValues_(0.5 * mesher->locations(1)),
+      dxMap_(FirstDerivativeOp(0, mesher)),
+      dxxMap_(SecondDerivativeOp(0, mesher).mult(0.5 * mesher->locations(1))), mapT_(0, mesher),
+      hwModel_(std::move(hwModel)), mesher_(mesher), qTS_(std::move(qTS)) {
 
         // on the boundary s_min and s_max the second derivative
         // d²V/dS² is zero and due to Ito's Lemma the variance term
@@ -73,28 +69,22 @@ namespace QuantLib {
         return mapT_;
     }
 
-    FdmHestonHullWhiteOp::FdmHestonHullWhiteOp(
-                    const ext::shared_ptr<FdmMesher>& mesher,
-                    const ext::shared_ptr<HestonProcess>& hestonProcess,
-                    const ext::shared_ptr<HullWhiteProcess>& hwProcess,
-                    Real equityShortRateCorrelation)
-    : v0_(hestonProcess->v0()),
-      kappa_(hestonProcess->kappa()),
-      theta_(hestonProcess->theta()),
-      sigma_(hestonProcess->sigma()),
-      rho_(hestonProcess->rho()),
-      hwModel_(ext::make_shared<HullWhite>(hestonProcess->riskFreeRate(),
-                             hwProcess->a(), hwProcess->sigma())),
-      hestonCorrMap_(SecondOrderMixedDerivativeOp(0, 1, mesher)
-                     .mult(rho_*sigma_*mesher->locations(1))),
-      equityIrCorrMap_(SecondOrderMixedDerivativeOp(0, 2, mesher)
-                       .mult(Sqrt(mesher->locations(1))
-                              * hwProcess->sigma()
-                              * equityShortRateCorrelation)),
-      dyMap_(SecondDerivativeOp(1u, mesher)
-              .mult(0.5*sigma_*sigma_*mesher->locations(1))
-            .add(FirstDerivativeOp(1, mesher)
-              .mult(kappa_*(theta_ - mesher->locations(1))))),
+    FdmHestonHullWhiteOp::FdmHestonHullWhiteOp(const ext::shared_ptr<FdmMesher>& mesher,
+                                               const ext::shared_ptr<HestonProcess>& hestonProcess,
+                                               const ext::shared_ptr<HullWhiteProcess>& hwProcess,
+                                               Real equityShortRateCorrelation)
+    : v0_(hestonProcess->v0()), kappa_(hestonProcess->kappa()), theta_(hestonProcess->theta()),
+      sigma_(hestonProcess->sigma()), rho_(hestonProcess->rho()),
+      hwModel_(ext::make_shared<HullWhite>(
+          hestonProcess->riskFreeRate(), hwProcess->a(), hwProcess->sigma())),
+      hestonCorrMap_(
+          SecondOrderMixedDerivativeOp(0, 1, mesher).mult(rho_ * sigma_ * mesher->locations(1))),
+      equityIrCorrMap_(
+          SecondOrderMixedDerivativeOp(0, 2, mesher)
+              .mult(Sqrt(mesher->locations(1)) * hwProcess->sigma() * equityShortRateCorrelation)),
+      dyMap_(SecondDerivativeOp(1U, mesher)
+                 .mult(0.5 * sigma_ * sigma_ * mesher->locations(1))
+                 .add(FirstDerivativeOp(1, mesher).mult(kappa_ * (theta_ - mesher->locations(1))))),
       dxMap_(mesher, hwModel_, hestonProcess->dividendYield().currentLink()),
       hullWhiteOp_(mesher, hwModel_, 2) {
 

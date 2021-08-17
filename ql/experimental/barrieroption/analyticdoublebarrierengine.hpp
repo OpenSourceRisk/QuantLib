@@ -48,10 +48,10 @@ namespace QuantLib {
     */
     class AnalyticDoubleBarrierEngine : public DoubleBarrierOption::engine {
       public:
-        AnalyticDoubleBarrierEngine(
-            const ext::shared_ptr<GeneralizedBlackScholesProcess>& process, 
-            int series = 5);
-        void calculate() const;
+        explicit AnalyticDoubleBarrierEngine(
+            ext::shared_ptr<GeneralizedBlackScholesProcess> process, int series = 5);
+        void calculate() const override;
+
       private:
         ext::shared_ptr<GeneralizedBlackScholesProcess> process_;
         CumulativeNormalDistribution f_;

@@ -48,13 +48,13 @@ namespace QuantLib {
       public:
         class arguments;
         class engine;
-        IrregularSwaption(const ext::shared_ptr<IrregularSwap>& swap,
+        IrregularSwaption(ext::shared_ptr<IrregularSwap> swap,
                           const ext::shared_ptr<Exercise>& exercise,
                           IrregularSettlement::Type delivery = IrregularSettlement::Physical);
         //! \name Instrument interface
         //@{
-        bool isExpired() const;
-        void setupArguments(PricingEngine::arguments*) const;
+        bool isExpired() const override;
+        void setupArguments(PricingEngine::arguments*) const override;
         //@}
         //! \name Inspectors
         //@{
@@ -83,10 +83,10 @@ namespace QuantLib {
     class IrregularSwaption::arguments : public IrregularSwap::arguments,
                                          public Option::arguments {
       public:
-        arguments() : settlementType(IrregularSettlement::Physical) {}
+        arguments() = default;
         ext::shared_ptr<IrregularSwap> swap;
-        IrregularSettlement::Type settlementType;
-        void validate() const;
+        IrregularSettlement::Type settlementType = IrregularSettlement::Physical;
+        void validate() const override;
     };
 
     //! base class for irregular-swaption engines

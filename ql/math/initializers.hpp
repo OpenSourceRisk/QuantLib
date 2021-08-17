@@ -31,7 +31,11 @@ namespace QuantLib {
 
 namespace initializers {
 
-class ArrayProxy {
+/*! \deprecated Use initializer lists instead.
+                Deprecated in version 1.22.
+*/
+class QL_DEPRECATED ArrayProxy {
+QL_DEPRECATED_DISABLE_WARNING
 public:
     ArrayProxy& operator,(const Real x) {
         QL_REQUIRE(a_.size() > idx_,
@@ -43,16 +47,21 @@ public:
 
 private:
     ArrayProxy(Array& a, const Real x) : a_(a) {
-        QL_REQUIRE(a_.size() > 0, "ArrayProxy: array has size 0");
+        QL_REQUIRE(!a_.empty(), "ArrayProxy: array has size 0");
         a_[0] = x;
         idx_ = 1;
     }
-    friend ArrayProxy operator<<(Array&, const Real);
+    friend ArrayProxy operator<<(Array&, Real);
     Size idx_;
     Array& a_;
+QL_DEPRECATED_ENABLE_WARNING
 };
 
-class MatrixProxy {
+/*! \deprecated Use initializer lists instead.
+                Deprecated in version 1.22.
+*/
+class QL_DEPRECATED MatrixProxy {
+QL_DEPRECATED_DISABLE_WARNING
 public:
     MatrixProxy& operator,(const Real x) {
         QL_REQUIRE(m_.rows() * m_.columns() > idx_,
@@ -69,22 +78,35 @@ private:
         *m_.begin() = x;
         idx_ = 1;
     }
-    friend MatrixProxy operator<<(Matrix&, const Real);
+    friend MatrixProxy operator<<(Matrix&, Real);
     Size idx_;
     Matrix& m_;
+QL_DEPRECATED_ENABLE_WARNING
 };
 
+QL_DEPRECATED_DISABLE_WARNING
+
+/*! \deprecated Use initializer lists instead.
+                Deprecated in version 1.22.
+*/
+QL_DEPRECATED
 inline ArrayProxy operator<<(Array& a, const Real x) {
-    return ArrayProxy(a, x);
+    return {a, x};
 }
 
+/*! \deprecated Use initializer lists instead.
+                Deprecated in version 1.22.
+*/
+QL_DEPRECATED
 inline MatrixProxy operator<<(Matrix& m, const Real x) {
-    return MatrixProxy(m, x);
+    return {m, x};
 }
+
+QL_DEPRECATED_ENABLE_WARNING
 
 } // namespace initializers
 
-using initializers::operator<<;
+using initializers::operator<<;   // NOLINT(misc-unused-using-decls)
 
 } // namespace QuantLib
 

@@ -18,10 +18,11 @@
  or FITNESS FOR A PARTICULAR PURPOSE. See the license for more details.
 */
 
-#include <ql/cashflows/cmscoupon.hpp>
-#include <ql/cashflows/cashflowvectors.hpp>
 #include <ql/cashflows/capflooredcoupon.hpp>
+#include <ql/cashflows/cashflowvectors.hpp>
+#include <ql/cashflows/cmscoupon.hpp>
 #include <ql/indexes/swapindex.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -45,20 +46,17 @@ namespace QuantLib {
       swapIndex_(swapIndex) {}
 
     void CmsCoupon::accept(AcyclicVisitor& v) {
-        Visitor<CmsCoupon>* v1 = dynamic_cast<Visitor<CmsCoupon>*>(&v);
-        if (v1 != 0)
+        auto* v1 = dynamic_cast<Visitor<CmsCoupon>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             FloatingRateCoupon::accept(v);
     }
 
 
-
-    CmsLeg::CmsLeg(const Schedule& schedule,
-                   const ext::shared_ptr<SwapIndex>& swapIndex)
-    : schedule_(schedule), swapIndex_(swapIndex),
-      paymentAdjustment_(Following),
-      inArrears_(false), zeroPayments_(false) {}
+    CmsLeg::CmsLeg(Schedule schedule, ext::shared_ptr<SwapIndex> swapIndex)
+    : schedule_(std::move(schedule)), swapIndex_(std::move(swapIndex)),
+      paymentAdjustment_(Following), inArrears_(false), zeroPayments_(false) {}
 
     CmsLeg& CmsLeg::withNotionals(Real notional) {
         notionals_ = std::vector<Real>(1, notional);
@@ -140,11 +138,31 @@ namespace QuantLib {
         return *this;
     }
 
+    CmsLeg& CmsLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+	}
+
+    CmsLeg& CmsLeg::withExCouponPeriod(
+                                const Period& period,
+                                const Calendar& cal,
+                                BusinessDayConvention convention,
+                                bool endOfMonth) {
+        exCouponPeriod_ = period;
+        exCouponCalendar_ = cal;
+        exCouponAdjustment_ = convention;
+        exCouponEndOfMonth_ = endOfMonth;
+        return *this;
+    }
+
     CmsLeg::operator Leg() const {
         return FloatingLeg<SwapIndex, CmsCoupon, CappedFlooredCmsCoupon>(
                          schedule_, notionals_, swapIndex_, paymentDayCounter_,
                          paymentAdjustment_, fixingDays_, gearings_, spreads_,
-                         caps_, floors_, inArrears_, zeroPayments_);
+                         caps_, floors_, inArrears_, zeroPayments_,
+                         0, Calendar(),
+                         exCouponPeriod_, exCouponCalendar_,
+                         exCouponAdjustment_, exCouponEndOfMonth_);
    }
 
 }

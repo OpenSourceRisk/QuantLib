@@ -86,6 +86,7 @@ namespace QuantLib {
         <li>Christmas' Eve, December 24th</li>
         <li>Christmas, December 25th</li>
         <li>Christmas Holiday, December 26th</li>
+        <li>New Year's Eve, December 31st</li>
         </ul>
 
         Holidays for the Euwax exchange
@@ -112,28 +113,28 @@ namespace QuantLib {
       private:
         class SettlementImpl : public Calendar::WesternImpl {
           public:
-            std::string name() const { return "German settlement"; }
-            bool isBusinessDay(const Date&) const;
+            std::string name() const override { return "German settlement"; }
+            bool isBusinessDay(const Date&) const override;
         };
         class FrankfurtStockExchangeImpl : public Calendar::WesternImpl {
           public:
-            std::string name() const { return "Frankfurt stock exchange"; }
-            bool isBusinessDay(const Date&) const;
+            std::string name() const override { return "Frankfurt stock exchange"; }
+            bool isBusinessDay(const Date&) const override;
         };
         class XetraImpl : public Calendar::WesternImpl {
           public:
-            std::string name() const { return "Xetra"; }
-            bool isBusinessDay(const Date&) const;
+            std::string name() const override { return "Xetra"; }
+            bool isBusinessDay(const Date&) const override;
         };
         class EurexImpl : public Calendar::WesternImpl {
           public:
-            std::string name() const { return "Eurex"; }
-            bool isBusinessDay(const Date&) const;
+            std::string name() const override { return "Eurex"; }
+            bool isBusinessDay(const Date&) const override;
         };
         class EuwaxImpl : public Calendar::WesternImpl {
         public:
-            std::string name() const { return "Euwax"; }
-            bool isBusinessDay(const Date&) const;
+          std::string name() const override { return "Euwax"; }
+          bool isBusinessDay(const Date&) const override;
         };
 
       public:

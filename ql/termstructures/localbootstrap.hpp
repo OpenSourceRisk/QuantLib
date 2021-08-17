@@ -49,12 +49,11 @@ namespace QuantLib {
                         helper_iterator rateHelpersStart,
                         helper_iterator rateHelpersEnd)
         : curve_(curve), initialIndex_(initialIndex),
-          rateHelpersStart_(rateHelpersStart), rateHelpersEnd_(rateHelpersEnd) {
-            localisation_ = std::distance(rateHelpersStart, rateHelpersEnd);
-        }
+          localisation_(std::distance(rateHelpersStart, rateHelpersEnd)),
+          rateHelpersStart_(rateHelpersStart), rateHelpersEnd_(rateHelpersEnd) {}
 
-        Real value(const Array& x) const;
-        Disposable<Array> values(const Array& x) const;
+        Real value(const Array& x) const override;
+        Disposable<Array> values(const Array& x) const override;
 
       private:
         Curve* curve_;
@@ -94,7 +93,7 @@ namespace QuantLib {
         void calculate() const;
 
       private:
-        mutable bool validCurve_;
+        mutable bool validCurve_ = false;
         Curve* ts_;
         Size localisation_;
         bool forcePositive_;
@@ -106,12 +105,9 @@ namespace QuantLib {
     // template definitions
 
     template <class Curve>
-    LocalBootstrap<Curve>::LocalBootstrap(Size localisation,
-                                          bool forcePositive,
-                                          Real accuracy)
-    : validCurve_(false), ts_(0), localisation_(localisation),
-      forcePositive_(forcePositive), accuracy_(accuracy)
-    {}
+    LocalBootstrap<Curve>::LocalBootstrap(Size localisation, bool forcePositive, Real accuracy)
+    : ts_(nullptr), localisation_(localisation), forcePositive_(forcePositive),
+      accuracy_(accuracy) {}
 
     template <class Curve>
     void LocalBootstrap<Curve>::setup(Curve* ts) {

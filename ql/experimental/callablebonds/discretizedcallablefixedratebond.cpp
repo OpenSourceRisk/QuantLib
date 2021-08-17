@@ -52,14 +52,13 @@ namespace QuantLib {
                 dayCounter.yearFraction(referenceDate,
                                         args.callabilityDates[i]);
 
-        // similar to the tree swaption engine, we collapse similar coupon
-        // and exercise dates to avoid mispricing. Delete if unnecessary.
-
-        for (Size i=0; i<callabilityTimes_.size(); i++) {
-            Time exerciseTime = callabilityTimes_[i];
-            for (Size j=0; j<couponTimes_.size(); j++) {
-                if (withinNextWeek(exerciseTime, couponTimes_[j]))
-                    couponTimes_[j] = exerciseTime;
+        // To avoid mispricing, we snap exercise dates to the closest coupon date.
+        for (double& exerciseTime : callabilityTimes_) {
+            for (double couponTime : couponTimes_) {
+                if (withinNextWeek(exerciseTime, couponTime)) {
+                    exerciseTime = couponTime;
+                    break;
+                }
             }
         }
     }

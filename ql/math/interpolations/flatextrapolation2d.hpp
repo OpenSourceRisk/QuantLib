@@ -25,6 +25,7 @@
 #define quantlib_flatextrapolation2D_hpp
 
 #include <ql/math/interpolations/interpolation2d.hpp>
+#include <utility>
 
 namespace QuantLib {
     
@@ -34,7 +35,7 @@ namespace QuantLib {
     */
     class FlatExtrapolator2D : public Interpolation2D {
       public:
-        FlatExtrapolator2D(ext::shared_ptr<Interpolation2D> decoratedInterpolation) {
+        FlatExtrapolator2D(const ext::shared_ptr<Interpolation2D>& decoratedInterpolation) {
             impl_ = ext::shared_ptr<Interpolation2D::Impl>(
                   new FlatExtrapolator2DImpl(decoratedInterpolation));
         }
@@ -42,44 +43,26 @@ namespace QuantLib {
        class FlatExtrapolator2DImpl: public Interpolation2D::Impl{
           public:
             FlatExtrapolator2DImpl(ext::shared_ptr<Interpolation2D> decoratedInterpolation)
-            :decoratedInterp_(decoratedInterpolation){
+            : decoratedInterp_(std::move(decoratedInterpolation)) {
                 calculate();
             }
-            Real xMin() const {
-                return decoratedInterp_->xMin();
-            }
-            Real xMax() const {
-                return decoratedInterp_->xMax();
-            }
-            std::vector<Real> xValues() const {
-                return decoratedInterp_->xValues();
-            }
-            Size locateX(Real x) const {
-                return decoratedInterp_->locateX(x);
-            }
-            Real yMin() const {
-                return decoratedInterp_->yMin();
-            }
-            Real yMax() const {
-                return decoratedInterp_->yMax();
-            }
-            std::vector<Real> yValues() const {
-                return decoratedInterp_->yValues();
-            }
-            Size locateY(Real y) const {
-                return decoratedInterp_->locateY(y);
-            }
-            const Matrix& zData() const {
-                return decoratedInterp_->zData();
-            }
-            bool isInRange(Real x, Real y) const {
+            Real xMin() const override { return decoratedInterp_->xMin(); }
+            Real xMax() const override { return decoratedInterp_->xMax(); }
+            std::vector<Real> xValues() const override { return decoratedInterp_->xValues(); }
+            Size locateX(Real x) const override { return decoratedInterp_->locateX(x); }
+            Real yMin() const override { return decoratedInterp_->yMin(); }
+            Real yMax() const override { return decoratedInterp_->yMax(); }
+            std::vector<Real> yValues() const override { return decoratedInterp_->yValues(); }
+            Size locateY(Real y) const override { return decoratedInterp_->locateY(y); }
+            const Matrix& zData() const override { return decoratedInterp_->zData(); }
+            bool isInRange(Real x, Real y) const override {
                 return decoratedInterp_->isInRange(x,y);
             }
             void update() {
                 decoratedInterp_->update();
             }
-            void calculate() {}
-            Real value(Real x, Real y) const {
+            void calculate() override {}
+            Real value(Real x, Real y) const override {
                 x = bindX(x);
                 y = bindY(y);
                 return (*decoratedInterp_)(x,y);

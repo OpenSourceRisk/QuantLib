@@ -27,7 +27,7 @@ namespace QuantLib {
                                          const Real atm,
                                          const bool deleteArbitragePoints) {
 
-        if (moneynessGrid.size() != 0) {
+        if (!moneynessGrid.empty()) {
             QL_REQUIRE(
                 section.volatilityType() == Normal || moneynessGrid[0] >= 0.0,
                 "moneyness grid should only contain non negative values ("
@@ -64,7 +64,7 @@ namespace QuantLib {
             0.04,   0.05,   0.075,  0.10,    0.15,    0.20
         };
 
-        if (moneynessGrid.size() == 0) {
+        if (moneynessGrid.empty()) {
             tmp = section.volatilityType() == Normal
                       ? std::vector<Real>(defaultMoneyNormal,
                                           defaultMoneyNormal + 27)
@@ -81,15 +81,12 @@ namespace QuantLib {
         }
 
         bool minStrikeAdded = false, maxStrikeAdded = false;
-        for (Size i = 0; i < tmp.size(); i++) {
-            Real k = section.volatilityType() == Normal
-                         ? f_ + tmp[i]
-                         : tmp[i] * (f_ + shift) - shift;
-            if ((section.volatilityType() == ShiftedLognormal &&
-                 tmp[i] <= QL_EPSILON) ||
+        for (double& i : tmp) {
+            Real k = section.volatilityType() == Normal ? f_ + i : i * (f_ + shift) - shift;
+            if ((section.volatilityType() == ShiftedLognormal && i <= QL_EPSILON) ||
                 (k >= section.minStrike() && k <= section.maxStrike())) {
                 if (!minStrikeAdded || !close(k, section.minStrike())) {
-                    m_.push_back(tmp[i]);
+                    m_.push_back(i);
                     k_.push_back(k);
                 }
                 if (close(k, section.maxStrike()))
@@ -196,13 +193,12 @@ namespace QuantLib {
 
     }
 
-    const std::pair<Real, Real> SmileSectionUtils::arbitragefreeRegion() const {
-        return std::pair<Real, Real>(k_[leftIndex_], k_[rightIndex_]);
+    std::pair<Real, Real> SmileSectionUtils::arbitragefreeRegion() const {
+        return {k_[leftIndex_], k_[rightIndex_]};
     }
 
-    const std::pair<Size, Size>
-    SmileSectionUtils::arbitragefreeIndices() const {
-        return std::pair<Size, Size>(leftIndex_, rightIndex_);
+    std::pair<Size, Size> SmileSectionUtils::arbitragefreeIndices() const {
+        return {leftIndex_, rightIndex_};
     }
 
     bool SmileSectionUtils::af(const Size i0, const Size i,
@@ -216,8 +212,6 @@ namespace QuantLib {
         if (i >= i1)
             return true;
         Real q2 = (c_[i + 1] - c_[i]) / (k_[i + 1] - k_[i]);
-        if (q1 <= q2 && q2 <= 0.0)
-            return true;
-        return false;
+        return q1 <= q2 && q2 <= 0.0;
     }
 }

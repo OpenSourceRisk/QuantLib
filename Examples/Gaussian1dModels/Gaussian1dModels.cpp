@@ -51,7 +51,8 @@ using namespace QuantLib;
 #if defined(QL_ENABLE_SESSIONS)
 namespace QuantLib {
 
-Integer sessionId() { return 0; }
+    ThreadKey sessionId() { return {}; }
+
 }
 #endif
 
@@ -69,9 +70,8 @@ void printBasket(
                  "===================="
                  "===================="
                  "==================" << std::endl;
-    for (Size j = 0; j < basket.size(); ++j) {
-        ext::shared_ptr<SwaptionHelper> helper =
-            ext::dynamic_pointer_cast<SwaptionHelper>(basket[j]);
+    for (const auto& j : basket) {
+        ext::shared_ptr<SwaptionHelper> helper = ext::dynamic_pointer_cast<SwaptionHelper>(j);
         Date endDate = helper->underlyingSwap()->fixedSchedule().dates().back();
         Real nominal = helper->underlyingSwap()->nominal();
         Real vol = helper->volatility()->value();
@@ -265,8 +265,8 @@ int main(int argc, char *argv[]) {
                "\nthe calibrating vanilla swaptions. The result of this is as "
                "follows:" << std::endl;
 
-        for (Size i = 0; i < basket.size(); ++i)
-            basket[i]->setPricingEngine(swaptionEngine);
+        for (auto& i : basket)
+            i->setPricingEngine(swaptionEngine);
 
         LevenbergMarquardt method;
         EndCriteria ec(1000, 10, 1E-8, 1E-8,
@@ -317,10 +317,10 @@ int main(int argc, char *argv[]) {
         std::cout << "\nLet's see how this affects the exotics npv. The "
                      "\nrecalibrated model is:" << std::endl;
 
-        for (Size i = 0; i < basket.size(); ++i)
-            basket[i]->setPricingEngine(swaptionEngine);
+        for (auto& i : basket)
+            i->setPricingEngine(swaptionEngine);
 
-        
+
         gsr->calibrateVolatilitiesIterative(basket, method, ec);
         
 
@@ -433,10 +433,10 @@ int main(int argc, char *argv[]) {
             << "\nThe npv of the call right is (after recalibrating the model)"
             << std::endl;
 
-        for (Size i = 0; i < basket.size(); i++)
-            basket[i]->setPricingEngine(swaptionEngine);
+        for (auto& i : basket)
+            i->setPricingEngine(swaptionEngine);
 
-        
+
         gsr->calibrateVolatilitiesIterative(basket, method, ec);
         Real npv3 = swaption3->NPV();
         
@@ -468,10 +468,10 @@ int main(int argc, char *argv[]) {
 
         std::cout << "\nThe npv becomes:" << std::endl;
 
-        for (Size i = 0; i < basket.size(); i++)
-            basket[i]->setPricingEngine(swaptionEngine);
+        for (auto& i : basket)
+            i->setPricingEngine(swaptionEngine);
 
-        
+
         gsr->calibrateVolatilitiesIterative(basket, method, ec);
         Real npv4 = swaption3->NPV();
         
@@ -540,8 +540,8 @@ int main(int argc, char *argv[]) {
         
         basket = swaption4->calibrationBasket(swapBase, *swaptionVol,
                                               BasketGeneratingEngine::Naive);
-        for (Size i = 0; i < basket.size(); ++i)
-            basket[i]->setPricingEngine(swaptionEngine);
+        for (auto& i : basket)
+            i->setPricingEngine(swaptionEngine);
         gsr->calibrateVolatilitiesIterative(basket, method, ec);
         
 
@@ -579,7 +579,7 @@ int main(int argc, char *argv[]) {
 
         std::vector<Date> markovStepDates(exerciseDates.begin(),
                                           exerciseDates.end());
-        std::vector<Date> cmsFixingDates(markovStepDates);
+        const std::vector<Date>& cmsFixingDates(markovStepDates);
         std::vector<Real> markovSigmas(markovStepDates.size() + 1, 0.01);
         std::vector<Period> tenors(cmsFixingDates.size(), 10 * Years);
         ext::shared_ptr<MarkovFunctional> markov =
@@ -636,10 +636,10 @@ int main(int argc, char *argv[]) {
                      "\ndepending on your machine, this may take a"
                      "\nwhile now..." << std::endl;
 
-        for (Size i = 0; i < basket.size(); ++i)
-            basket[i]->setPricingEngine(swaptionEngineMarkov);
+        for (auto& i : basket)
+            i->setPricingEngine(swaptionEngineMarkov);
 
-        
+
         markov->calibrate(basket, method, ec);
         
 

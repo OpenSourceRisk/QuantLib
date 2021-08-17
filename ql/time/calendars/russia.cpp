@@ -41,9 +41,9 @@ namespace QuantLib {
             QL_FAIL("unknown market");
         }
     }
-    
+
     namespace {
-        
+
         bool isExtraHolidaySettlementImpl(Day d, Month month, Year year) {
             switch (year) {
               case 2017:
@@ -88,7 +88,13 @@ namespace QuantLib {
         Year y = date.year();
         if (isWeekend(w)
             // New Year's holidays
-            || (d >= 1 && d <= 8 && m == January)
+            || (y <= 2005 && d <= 2 && m == January)
+            || (y >= 2005 && d <= 5 && m == January)
+            // in 2012, the 6th was also a holiday
+            || (y == 2012 && d == 6 && m == January)
+            // Christmas (possibly moved to Monday)
+            || ((d == 7 || ((d == 8 || d == 9) && w == Monday)) &&
+                m == January)
             // Defender of the Fatherland Day (possibly moved to Monday)
             || ((d == 23 || ((d == 24 || d == 25) && w == Monday)) &&
                 m == February)
@@ -107,11 +113,11 @@ namespace QuantLib {
             // Unity Day (possibly moved to Monday)
             || ((d == 4 || ((d == 5 || d == 6) && w == Monday)) &&
                 m == November))
-            return false;
-        
+            return false; // NOLINT(readability-simplify-boolean-expr)
+
         if (isExtraHolidaySettlementImpl(d,m,y))
             return false;
-      
+
         return true;
     }
 
@@ -144,7 +150,7 @@ namespace QuantLib {
                 return false;
             }
         }
-        
+
         bool isExtraHolidayExchangeImpl(Day d, Month month, Year year) {
             switch (year) {
               case 2012:

@@ -46,44 +46,50 @@ namespace QuantLib {
         class results;
         class engine;
         FloatFloatSwap(
-            const VanillaSwap::Type type, const Real nominal1,
-            const Real nominal2, const Schedule &schedule1,
-            const ext::shared_ptr<InterestRateIndex> &index1,
-            const DayCounter &dayCount1, const Schedule &schedule2,
-            const ext::shared_ptr<InterestRateIndex> &index2,
-            const DayCounter &dayCount2,
-            const bool intermediateCapitalExchange = false,
-            const bool finalCapitalExchange = false, const Real gearing1 = 1.0,
-            const Real spread1 = 0.0, const Real cappedRate1 = Null<Real>(),
-            const Real flooredRate1 = Null<Real>(), const Real gearing2 = 1.0,
-            const Real spread2 = 0.0, const Real cappedRate2 = Null<Real>(),
-            const Real flooredRate2 = Null<Real>(),
-            boost::optional<BusinessDayConvention> paymentConvention1 =
-                boost::none,
-            boost::optional<BusinessDayConvention> paymentConvention2 =
-                boost::none);
+            VanillaSwap::Type type,
+            Real nominal1,
+            Real nominal2,
+            const Schedule& schedule1,
+            ext::shared_ptr<InterestRateIndex> index1,
+            DayCounter dayCount1,
+            const Schedule& schedule2,
+            ext::shared_ptr<InterestRateIndex> index2,
+            DayCounter dayCount2,
+            bool intermediateCapitalExchange = false,
+            bool finalCapitalExchange = false,
+            Real gearing1 = 1.0,
+            Real spread1 = 0.0,
+            Real cappedRate1 = Null<Real>(),
+            Real flooredRate1 = Null<Real>(),
+            Real gearing2 = 1.0,
+            Real spread2 = 0.0,
+            Real cappedRate2 = Null<Real>(),
+            Real flooredRate2 = Null<Real>(),
+            const boost::optional<BusinessDayConvention>& paymentConvention1 = boost::none,
+            const boost::optional<BusinessDayConvention>& paymentConvention2 = boost::none);
 
         FloatFloatSwap(
-            const VanillaSwap::Type type, const std::vector<Real> &nominal1,
-            const std::vector<Real> &nominal2, const Schedule &schedule1,
-            const ext::shared_ptr<InterestRateIndex> &index1,
-            const DayCounter &dayCount1, const Schedule &schedule2,
-            const ext::shared_ptr<InterestRateIndex> &index2,
-            const DayCounter &dayCount2,
-            const bool intermediateCapitalExchange = false,
-            const bool finalCapitalExchange = false,
-            const std::vector<Real> &gearing1 = std::vector<Real>(),
-            const std::vector<Real> &spread1 = std::vector<Real>(),
-            const std::vector<Real> &cappedRate1 = std::vector<Real>(),
-            const std::vector<Real> &flooredRate1 = std::vector<Real>(),
-            const std::vector<Real> &gearing2 = std::vector<Real>(),
-            const std::vector<Real> &spread2 = std::vector<Real>(),
-            const std::vector<Real> &cappedRate2 = std::vector<Real>(),
-            const std::vector<Real> &flooredRate2 = std::vector<Real>(),
-            boost::optional<BusinessDayConvention> paymentConvention1 =
-                boost::none,
-            boost::optional<BusinessDayConvention> paymentConvention2 =
-                boost::none);
+            VanillaSwap::Type type,
+            std::vector<Real> nominal1,
+            std::vector<Real> nominal2,
+            Schedule schedule1,
+            ext::shared_ptr<InterestRateIndex> index1,
+            DayCounter dayCount1,
+            Schedule schedule2,
+            ext::shared_ptr<InterestRateIndex> index2,
+            DayCounter dayCount2,
+            bool intermediateCapitalExchange = false,
+            bool finalCapitalExchange = false,
+            std::vector<Real> gearing1 = std::vector<Real>(),
+            std::vector<Real> spread1 = std::vector<Real>(),
+            std::vector<Real> cappedRate1 = std::vector<Real>(),
+            std::vector<Real> flooredRate1 = std::vector<Real>(),
+            std::vector<Real> gearing2 = std::vector<Real>(),
+            std::vector<Real> spread2 = std::vector<Real>(),
+            std::vector<Real> cappedRate2 = std::vector<Real>(),
+            std::vector<Real> flooredRate2 = std::vector<Real>(),
+            const boost::optional<BusinessDayConvention>& paymentConvention1 = boost::none,
+            const boost::optional<BusinessDayConvention>& paymentConvention2 = boost::none);
 
         //! \name Inspectors
         //@{
@@ -97,16 +103,16 @@ namespace QuantLib {
         const ext::shared_ptr<InterestRateIndex> &index1() const;
         const ext::shared_ptr<InterestRateIndex> &index2() const;
 
-        const std::vector<Real> spread1() const;
-        const std::vector<Real> spread2() const;
+        std::vector<Real> spread1() const;
+        std::vector<Real> spread2() const;
 
-        const std::vector<Real> gearing1() const;
-        const std::vector<Real> gearing2() const;
+        std::vector<Real> gearing1() const;
+        std::vector<Real> gearing2() const;
 
-        const std::vector<Rate> cappedRate1() const;
-        const std::vector<Rate> flooredRate1() const;
-        const std::vector<Rate> cappedRate2() const;
-        const std::vector<Rate> flooredRate2() const;
+        std::vector<Rate> cappedRate1() const;
+        std::vector<Rate> flooredRate1() const;
+        std::vector<Rate> cappedRate2() const;
+        std::vector<Rate> flooredRate2() const;
 
         const DayCounter &dayCount1() const;
         const DayCounter &dayCount2() const;
@@ -122,13 +128,13 @@ namespace QuantLib {
         //@{
         //@}
         // other
-        void setupArguments(PricingEngine::arguments *args) const;
-        void fetchResults(const PricingEngine::results *) const;
+        void setupArguments(PricingEngine::arguments* args) const override;
+        void fetchResults(const PricingEngine::results*) const override;
 
       private:
         void init(boost::optional<BusinessDayConvention> paymentConvention1,
                   boost::optional<BusinessDayConvention> paymentConvention2);
-        void setupExpired() const;
+        void setupExpired() const override;
         VanillaSwap::Type type_;
         std::vector<Real> nominal1_, nominal2_;
         Schedule schedule1_, schedule2_;
@@ -145,8 +151,8 @@ namespace QuantLib {
     //! %Arguments for float float swap calculation
     class FloatFloatSwap::arguments : public Swap::arguments {
       public:
-        arguments() : type(VanillaSwap::Receiver) {}
-        VanillaSwap::Type type;
+        arguments() = default;
+        VanillaSwap::Type type = VanillaSwap::Receiver;
         std::vector<Real> nominal1, nominal2;
 
         std::vector<Date> leg1ResetDates, leg1FixingDates, leg1PayDates;
@@ -163,13 +169,13 @@ namespace QuantLib {
 
         std::vector<bool> leg1IsRedemptionFlow, leg2IsRedemptionFlow;
 
-        void validate() const;
+        void validate() const override;
     };
 
     //! %Results from float float swap calculation
     class FloatFloatSwap::results : public Swap::results {
       public:
-        void reset();
+        void reset() override;
     };
 
     class FloatFloatSwap::engine
@@ -206,37 +212,21 @@ namespace QuantLib {
         return index2_;
     }
 
-    inline const std::vector<Real> FloatFloatSwap::spread1() const {
-        return spread1_;
-    }
+    inline std::vector<Real> FloatFloatSwap::spread1() const { return spread1_; }
 
-    inline const std::vector<Real> FloatFloatSwap::spread2() const {
-        return spread2_;
-    }
+    inline std::vector<Real> FloatFloatSwap::spread2() const { return spread2_; }
 
-    inline const std::vector<Real> FloatFloatSwap::gearing1() const {
-        return gearing1_;
-    }
+    inline std::vector<Real> FloatFloatSwap::gearing1() const { return gearing1_; }
 
-    inline const std::vector<Real> FloatFloatSwap::gearing2() const {
-        return gearing2_;
-    }
+    inline std::vector<Real> FloatFloatSwap::gearing2() const { return gearing2_; }
 
-    inline const std::vector<Real> FloatFloatSwap::cappedRate1() const {
-        return cappedRate1_;
-    }
+    inline std::vector<Real> FloatFloatSwap::cappedRate1() const { return cappedRate1_; }
 
-    inline const std::vector<Real> FloatFloatSwap::cappedRate2() const {
-        return cappedRate2_;
-    }
+    inline std::vector<Real> FloatFloatSwap::cappedRate2() const { return cappedRate2_; }
 
-    inline const std::vector<Real> FloatFloatSwap::flooredRate1() const {
-        return flooredRate1_;
-    }
+    inline std::vector<Real> FloatFloatSwap::flooredRate1() const { return flooredRate1_; }
 
-    inline const std::vector<Real> FloatFloatSwap::flooredRate2() const {
-        return flooredRate2_;
-    }
+    inline std::vector<Real> FloatFloatSwap::flooredRate2() const { return flooredRate2_; }
 
     inline const DayCounter &FloatFloatSwap::dayCount1() const {
         return dayCount1_;

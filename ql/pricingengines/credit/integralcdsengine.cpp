@@ -19,21 +19,21 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/pricingengines/credit/integralcdsengine.hpp>
-#include <ql/instruments/claim.hpp>
-#include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/cashflows/fixedratecoupon.hpp>
+#include <ql/instruments/claim.hpp>
+#include <ql/pricingengines/credit/integralcdsengine.hpp>
+#include <ql/termstructures/yieldtermstructure.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    IntegralCdsEngine::IntegralCdsEngine(
-                   const Period& step,
-                   const Handle<DefaultProbabilityTermStructure>& probability,
-                   Real recoveryRate,
-                   const Handle<YieldTermStructure>& discountCurve,
-                   boost::optional<bool> includeSettlementDateFlows)
-    : integrationStep_(step), probability_(probability),
-      recoveryRate_(recoveryRate), discountCurve_(discountCurve),
+    IntegralCdsEngine::IntegralCdsEngine(const Period& step,
+                                         Handle<DefaultProbabilityTermStructure> probability,
+                                         Real recoveryRate,
+                                         Handle<YieldTermStructure> discountCurve,
+                                         const boost::optional<bool>& includeSettlementDateFlows)
+    : integrationStep_(step), probability_(std::move(probability)), recoveryRate_(recoveryRate),
+      discountCurve_(std::move(discountCurve)),
       includeSettlementDateFlows_(includeSettlementDateFlows) {
         registerWith(probability_);
         registerWith(discountCurve_);
@@ -184,6 +184,7 @@ namespace QuantLib {
             results_.couponLegBPS = Null<Rate>();
         }
 
+        // NOLINTNEXTLINE(readability-implicit-bool-conversion)
         if (arguments_.upfront && *arguments_.upfront != 0.0) {
             results_.upfrontBPS =
                 results_.upfrontNPV*basisPoint/(*arguments_.upfront);

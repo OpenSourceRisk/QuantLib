@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
  Copyright (C) 2015 Klaus Spanderen
 
  This file is part of QuantLib, a free-software/open-source library
@@ -19,37 +19,33 @@
 */
 
 
-#include <ql/timegrid.hpp>
-#include <ql/quotes/simplequote.hpp>
-#include <ql/models/equity/hestonmodel.hpp>
+#include <ql/experimental/finitedifferences/fdmhestonfwdop.hpp>
+#include <ql/experimental/models/hestonslvfdmmodel.hpp>
 #include <ql/math/distributions/normaldistribution.hpp>
 #include <ql/math/integrals/discreteintegrals.hpp>
 #include <ql/math/interpolations/bilinearinterpolation.hpp>
-#include <ql/termstructures/volatility/equityfx/localvoltermstructure.hpp>
-#include <ql/termstructures/volatility/equityfx/fixedlocalvolsurface.hpp>
-#include <ql/methods/finitedifferences/schemes/impliciteulerscheme.hpp>
-#include <ql/methods/finitedifferences/schemes/expliciteulerscheme.hpp>
-#include <ql/methods/finitedifferences/schemes/craigsneydscheme.hpp>
-#include <ql/methods/finitedifferences/schemes/modifiedcraigsneydscheme.hpp>
-#include <ql/methods/finitedifferences/schemes/douglasscheme.hpp>
-#include <ql/methods/finitedifferences/schemes/hundsdorferscheme.hpp>
-#include <ql/methods/finitedifferences/solvers/fdmbackwardsolver.hpp>
-#include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
-#include <ql/methods/finitedifferences/meshers/predefined1dmesher.hpp>
 #include <ql/methods/finitedifferences/meshers/concentrating1dmesher.hpp>
 #include <ql/methods/finitedifferences/meshers/fdmmeshercomposite.hpp>
+#include <ql/methods/finitedifferences/meshers/predefined1dmesher.hpp>
+#include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
+#include <ql/methods/finitedifferences/schemes/craigsneydscheme.hpp>
+#include <ql/methods/finitedifferences/schemes/douglasscheme.hpp>
+#include <ql/methods/finitedifferences/schemes/expliciteulerscheme.hpp>
+#include <ql/methods/finitedifferences/schemes/hundsdorferscheme.hpp>
+#include <ql/methods/finitedifferences/schemes/impliciteulerscheme.hpp>
+#include <ql/methods/finitedifferences/schemes/modifiedcraigsneydscheme.hpp>
+#include <ql/methods/finitedifferences/solvers/fdmbackwardsolver.hpp>
 #include <ql/methods/finitedifferences/utilities/fdmmesherintegral.hpp>
-#include <ql/experimental/models/hestonslvfdmmodel.hpp>
-#include <ql/experimental/finitedifferences/fdmhestonfwdop.hpp>
 #include <ql/methods/finitedifferences/utilities/localvolrndcalculator.hpp>
 #include <ql/methods/finitedifferences/utilities/squarerootprocessrndcalculator.hpp>
-
-#include <boost/scoped_ptr.hpp>
-#include <boost/assign/std/vector.hpp>
-
+#include <ql/models/equity/hestonmodel.hpp>
+#include <ql/quotes/simplequote.hpp>
+#include <ql/termstructures/volatility/equityfx/fixedlocalvolsurface.hpp>
+#include <ql/termstructures/volatility/equityfx/localvoltermstructure.hpp>
+#include <ql/timegrid.hpp>
 #include <functional>
-
-using namespace boost::assign;
+#include <memory>
+#include <utility>
 
 namespace QuantLib {
 
@@ -59,7 +55,7 @@ namespace QuantLib {
             Time t0, Time t1, Size vGrid,
             Real v0, const HestonSLVFokkerPlanckFdmParams& params) {
 
-            std::vector<boost::tuple<Real, Real, bool> > cPoints;
+            std::vector<ext::tuple<Real, Real, bool> > cPoints;
 
             const Real v0Density = params.v0Density;
             const Real upperBoundDensity = params.vUpperBoundDensity;
@@ -84,10 +80,11 @@ namespace QuantLib {
 
                     const Real v0Center = std::log(v0);
 
-                    cPoints +=
-                        boost::make_tuple(lowerBound, lowerBoundDensity, false),
-                        boost::make_tuple(v0Center, v0Density, true),
-                        boost::make_tuple(upperBound, upperBoundDensity, false);
+                    cPoints = {
+                        {lowerBound, lowerBoundDensity, false},
+                        {v0Center, v0Density, true},
+                        {upperBound, upperBoundDensity, false}
+                    };
 
                     return ext::make_shared<Concentrating1dMesher>(
                         lowerBound, upperBound, vGrid, cPoints, 1e-8);
@@ -97,10 +94,11 @@ namespace QuantLib {
                   {
                       const Real v0Center = v0;
 
-                      cPoints +=
-                          boost::make_tuple(lowerBound, lowerBoundDensity, false),
-                          boost::make_tuple(v0Center, v0Density, true),
-                          boost::make_tuple(upperBound, upperBoundDensity, false);
+                      cPoints = {
+                          {lowerBound, lowerBoundDensity, false},
+                          {v0Center, v0Density, true},
+                          {upperBound, upperBoundDensity, false}
+                      };
 
                       return ext::make_shared<Concentrating1dMesher>(
                           lowerBound, upperBound, vGrid, cPoints, 1e-8);
@@ -110,10 +108,11 @@ namespace QuantLib {
                 {
                     const Real v0Center = v0;
 
-                    cPoints +=
-                        boost::make_tuple(lowerBound, lowerBoundDensity, false),
-                        boost::make_tuple(v0Center, v0Density, true),
-                        boost::make_tuple(upperBound, upperBoundDensity, false);
+                    cPoints = {
+                        {lowerBound, lowerBoundDensity, false},
+                        {v0Center, v0Density, true},
+                        {upperBound, upperBoundDensity, false}
+                    };
 
                     return ext::make_shared<Concentrating1dMesher>(
                         lowerBound, upperBound, vGrid, cPoints, 1e-8);
@@ -209,7 +208,7 @@ namespace QuantLib {
 
         class FdmScheme {
           public:
-            virtual ~FdmScheme() {}
+            virtual ~FdmScheme() = default;
             virtual void step(Array& a, Time t) = 0;
             virtual void setStep(Time dt) = 0;
         };
@@ -220,15 +219,11 @@ namespace QuantLib {
             explicit FdmSchemeWrapper(T* scheme)
             : scheme_(scheme) { }
 
-            void step(Array& a, Time t) {
-                scheme_->step(a, t);
-            }
-            void setStep(Time dt) {
-                scheme_->setStep(dt);
-            }
+            void step(Array& a, Time t) override { scheme_->step(a, t); }
+            void setStep(Time dt) override { scheme_->setStep(dt); }
 
           private:
-            const boost::scoped_ptr<T> scheme_;
+            const std::unique_ptr<T> scheme_;
         };
 
         ext::shared_ptr<FdmScheme> fdmSchemeFactory(
@@ -267,19 +262,16 @@ namespace QuantLib {
         }
     }
 
-    HestonSLVFDMModel::HestonSLVFDMModel(
-        const Handle<LocalVolTermStructure>& localVol,
-        const Handle<HestonModel>& hestonModel,
-        const Date& endDate,
-        const HestonSLVFokkerPlanckFdmParams& params,
-        const bool logging,
-        const std::vector<Date>& mandatoryDates)
-    : localVol_(localVol),
-      hestonModel_(hestonModel),
-      endDate_(endDate),
-      params_(params),
-      mandatoryDates_(mandatoryDates),
-      logging_(logging) {
+    HestonSLVFDMModel::HestonSLVFDMModel(Handle<LocalVolTermStructure> localVol,
+                                         Handle<HestonModel> hestonModel,
+                                         const Date& endDate,
+                                         HestonSLVFokkerPlanckFdmParams params,
+                                         const bool logging,
+                                         std::vector<Date> mandatoryDates,
+                                         const Real mixingFactor)
+    : localVol_(std::move(localVol)), hestonModel_(std::move(hestonModel)), endDate_(endDate),
+      params_(std::move(params)), mandatoryDates_(std::move(mandatoryDates)),
+      mixingFactor_(mixingFactor), logging_(logging) {
 
         registerWith(localVol_);
         registerWith(hestonModel_);
@@ -316,7 +308,8 @@ namespace QuantLib {
         const Real kappa = hestonProcess->kappa();
         const Real theta = hestonProcess->theta();
         const Real sigma = hestonProcess->sigma();
-        const Real alpha = 2*kappa*theta/(sigma*sigma);
+        const Real mixedSigma = mixingFactor_ * sigma;
+        const Real alpha = 2*kappa*theta/(mixedSigma*mixedSigma);
 
         const Size xGrid = params_.xGrid;
         const Size vGrid = params_.vGrid;
@@ -346,9 +339,8 @@ namespace QuantLib {
             times.push_back(std::min(T, tIdx+=dt));
         }
 
-        for (Size i=0; i < mandatoryDates_.size(); ++i) {
-            times.push_back(
-                dc.yearFraction(referenceDate, mandatoryDates_[i]));
+        for (auto mandatoryDate : mandatoryDates_) {
+            times.push_back(dc.yearFraction(referenceDate, mandatoryDate));
         }
 
         const ext::shared_ptr<TimeGrid> timeGrid(
@@ -366,7 +358,7 @@ namespace QuantLib {
             = localVolRND.rescaleTimeSteps();
 
         const SquareRootProcessRNDCalculator squareRootRnd(
-            v0, kappa, theta, sigma);
+            v0, kappa, theta, mixedSigma);
 
         const FdmSquareRootFwdOp::TransformationType trafoType
           = params_.trafoType;
@@ -434,7 +426,7 @@ namespace QuantLib {
             new FixedLocalVolSurface(referenceDate, times, vStrikes, L, dc));
 
         ext::shared_ptr<FdmLinearOpComposite> hestonFwdOp(
-            new FdmHestonFwdOp(mesher, hestonProcess, trafoType, leverageFct));
+            new FdmHestonFwdOp(mesher, hestonProcess, trafoType, leverageFct, mixingFactor_));
 
         Array p = FdmHestonGreensFct(mesher, hestonProcess, trafoType, lv0)
             .get(timeGrid->at(1), params_.greensAlgorithm);

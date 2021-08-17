@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2011 Master IMAFA - Polytech'Nice Sophia - Université de Nice Sophia Antipolis
+ Copyright (C) 2011 Master IMAFA - Polytech'Nice Sophia - UniversitÃ© de Nice Sophia Antipolis
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -20,14 +20,15 @@
 #include <ql/experimental/exoticoptions/analyticwriterextensibleoptionengine.hpp>
 #include <ql/math/distributions/bivariatenormaldistribution.hpp>
 #include <ql/pricingengines/blackformula.hpp>
+#include <utility>
 
 using namespace std;
 
 namespace QuantLib {
 
     AnalyticWriterExtensibleOptionEngine::AnalyticWriterExtensibleOptionEngine(
-             const ext::shared_ptr<GeneralizedBlackScholesProcess>& process)
-    : process_(process) {
+        ext::shared_ptr<GeneralizedBlackScholesProcess> process)
+    : process_(std::move(process)) {
         registerWith(process_);
     }
 

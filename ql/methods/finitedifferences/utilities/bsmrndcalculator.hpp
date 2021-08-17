@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
  Copyright (C) 2015 Klaus Spanderen
 
  This file is part of QuantLib, a free-software/open-source library
@@ -34,18 +34,17 @@ namespace QuantLib {
 
     class BSMRNDCalculator : public RiskNeutralDensityCalculator {
     public:
-        explicit BSMRNDCalculator(
-            const ext::shared_ptr<GeneralizedBlackScholesProcess>& process);
+      explicit BSMRNDCalculator(ext::shared_ptr<GeneralizedBlackScholesProcess> process);
 
-        // x = ln(S)
-        Real pdf(Real x, Time t) const;
-        Real cdf(Real x, Time t) const;
-        Real invcdf(Real q, Time t) const;
+      // x = ln(S)
+      Real pdf(Real x, Time t) const override;
+      Real cdf(Real x, Time t) const override;
+      Real invcdf(Real q, Time t) const override;
 
     private:
-        std::pair<Real, Volatility> distributionParams(Real x, Time t) const;
+      std::pair<Real, Volatility> distributionParams(Real x, Time t) const;
 
-        const ext::shared_ptr<GeneralizedBlackScholesProcess> process_;
+      const ext::shared_ptr<GeneralizedBlackScholesProcess> process_;
     };
 }
 

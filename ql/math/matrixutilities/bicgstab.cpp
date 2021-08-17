@@ -24,15 +24,15 @@
 
 
 #include <ql/math/matrixutilities/bicgstab.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    BiCGstab::BiCGstab(const BiCGstab::MatrixMult& A,
-                       Size maxIter, Real relTol,
-                       const BiCGstab::MatrixMult& preConditioner)
-    : A_(A), M_(preConditioner),
-      maxIter_(maxIter), relTol_(relTol) {
-    }
+    BiCGstab::BiCGstab(BiCGstab::MatrixMult A,
+                       Size maxIter,
+                       Real relTol,
+                       BiCGstab::MatrixMult preConditioner)
+    : A_(std::move(A)), M_(std::move(preConditioner)), maxIter_(maxIter), relTol_(relTol) {}
 
     BiCGStabResult BiCGstab::solve(const Array& b, const Array& x0) const {
         Real bnorm2 = Norm2(b);
@@ -57,15 +57,14 @@ namespace QuantLib {
            if  (rho == 0.0 || omega == 0.0)
                break;
 
-           if (i) {
-              beta = (rho/rhoTld)*(alpha/omega);
-              p = r + beta*(p - omega*v);
-           }
-           else {
-              p = r;
+           if (i != 0U) {
+               beta = (rho / rhoTld) * (alpha / omega);
+               p = r + beta * (p - omega * v);
+           } else {
+               p = r;
            }
 
-           pTld = ((M_)? M_(p) : p);
+           pTld = (M_ == QL_NULL_FUNCTION ? p : M_(p));
            v     = A_(pTld);
 
            alpha = rho/DotProduct(rTld, v);
@@ -76,7 +75,7 @@ namespace QuantLib {
               break;
            }
 
-           sTld = ((M_) ? M_(s) : s);
+           sTld = (M_ == QL_NULL_FUNCTION ? s : M_(s));
            t = A_(sTld);
            omega = DotProduct(t,s)/DotProduct(t,t);
            x += alpha*pTld + omega*sTld;

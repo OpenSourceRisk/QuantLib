@@ -4,7 +4,7 @@
  Copyright (C) 2008 Andreas Gaida
  Copyright (C) 2008 Ralph Schreyer
  Copyright (C) 2008, 2014, 2015 Klaus Spanderen
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -25,24 +25,19 @@
 #include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
 #include <ql/methods/finitedifferences/operators/secondderivativeop.hpp>
 #include <ql/methods/finitedifferences/operators/secondordermixedderivativeop.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    FdmHestonEquityPart::FdmHestonEquityPart(
-        const ext::shared_ptr<FdmMesher>& mesher,
-        const ext::shared_ptr<YieldTermStructure>& rTS,
-        const ext::shared_ptr<YieldTermStructure>& qTS,
-        const ext::shared_ptr<FdmQuantoHelper>& quantoHelper,
-        const ext::shared_ptr<LocalVolTermStructure>& leverageFct)
-    : varianceValues_(0.5*mesher->locations(1)),
-      dxMap_ (FirstDerivativeOp(0, mesher)),
-      dxxMap_(SecondDerivativeOp(0, mesher).mult(0.5*mesher->locations(1))),
-      mapT_  (0, mesher),
-      mesher_(mesher),
-      rTS_(rTS),
-      qTS_(qTS),
-      quantoHelper_(quantoHelper),
-      leverageFct_(leverageFct) {
+    FdmHestonEquityPart::FdmHestonEquityPart(const ext::shared_ptr<FdmMesher>& mesher,
+                                             ext::shared_ptr<YieldTermStructure> rTS,
+                                             ext::shared_ptr<YieldTermStructure> qTS,
+                                             ext::shared_ptr<FdmQuantoHelper> quantoHelper,
+                                             ext::shared_ptr<LocalVolTermStructure> leverageFct)
+    : varianceValues_(0.5 * mesher->locations(1)), dxMap_(FirstDerivativeOp(0, mesher)),
+      dxxMap_(SecondDerivativeOp(0, mesher).mult(0.5 * mesher->locations(1))), mapT_(0, mesher),
+      mesher_(mesher), rTS_(std::move(rTS)), qTS_(std::move(qTS)),
+      quantoHelper_(std::move(quantoHelper)), leverageFct_(std::move(leverageFct)) {
 
         // on the boundary s_min and s_max the second derivative
         // d^2V/dS^2 is zero and due to Ito's Lemma the variance term
@@ -66,13 +61,12 @@ namespace QuantLib {
         L_ = getLeverageFctSlice(t1, t2);
         const Array Lsquare = L_*L_;
 
-        if (quantoHelper_) {
+        if (quantoHelper_ != nullptr) {
             mapT_.axpyb(r - q - varianceValues_*Lsquare
                 - quantoHelper_->quantoAdjustment(
                     volatilityValues_*L_, t1, t2),
                 dxMap_, dxxMap_.mult(Lsquare), Array(1, -0.5*r));
-        }
-        else {
+        } else {
             mapT_.axpyb(r - q - varianceValues_*Lsquare, dxMap_,
                         dxxMap_.mult(Lsquare), Array(1, -0.5*r));
         }
@@ -112,17 +106,15 @@ namespace QuantLib {
         return mapT_;
     }
 
-    FdmHestonVariancePart::FdmHestonVariancePart(
-        const ext::shared_ptr<FdmMesher>& mesher,
-        const ext::shared_ptr<YieldTermStructure>& rTS,
-        Real sigma, Real kappa, Real theta)
+    FdmHestonVariancePart::FdmHestonVariancePart(const ext::shared_ptr<FdmMesher>& mesher,
+                                                 ext::shared_ptr<YieldTermStructure> rTS,
+                                                 Real mixedSigma,
+                                                 Real kappa,
+                                                 Real theta)
     : dyMap_(SecondDerivativeOp(1, mesher)
-                .mult(0.5*sigma*sigma*mesher->locations(1))
-             .add(FirstDerivativeOp(1, mesher)
-                  .mult(kappa*(theta - mesher->locations(1))))),
-      mapT_(1, mesher),
-      rTS_(rTS) {
-    }
+                 .mult(0.5 * mixedSigma * mixedSigma * mesher->locations(1))
+                 .add(FirstDerivativeOp(1, mesher).mult(kappa * (theta - mesher->locations(1))))),
+      mapT_(1, mesher), rTS_(std::move(rTS)) {}
 
     void FdmHestonVariancePart::setTime(Time t1, Time t2) {
         const Rate r = rTS_->forwardRate(t1, t2, Continuous).rate();
@@ -137,12 +129,14 @@ namespace QuantLib {
         const ext::shared_ptr<FdmMesher>& mesher,
         const ext::shared_ptr<HestonProcess> & hestonProcess,
         const ext::shared_ptr<FdmQuantoHelper>& quantoHelper,
-        const ext::shared_ptr<LocalVolTermStructure>& leverageFct)
+        const ext::shared_ptr<LocalVolTermStructure>& leverageFct,
+        const Real mixingFactor)
     : correlationMap_(SecondOrderMixedDerivativeOp(0, 1, mesher)
                         .mult(hestonProcess->rho()*hestonProcess->sigma()
+                                *mixingFactor
                                 *mesher->locations(1))),
       dyMap_(mesher, hestonProcess->riskFreeRate().currentLink(),
-              hestonProcess->sigma(), 
+              hestonProcess->sigma()*mixingFactor,
               hestonProcess->kappa(), 
               hestonProcess->theta()),
       dxMap_(mesher,

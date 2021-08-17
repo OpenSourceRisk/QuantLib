@@ -41,6 +41,9 @@ namespace QuantLib {
         and A. Shapiro (2001): "Merrill Lynch Exponential Spline
         Model." Merrill Lynch Working Paper
 
+        \f$ \kappa \f$ can be passed a fixed value, in which case it
+        is excluded from optimization.
+
         \warning convergence may be slow
     */
     class ExponentialSplinesFitting
@@ -48,24 +51,36 @@ namespace QuantLib {
       public:
         ExponentialSplinesFitting(bool constrainAtZero = true,
                                   const Array& weights = Array(),
-                                  ext::shared_ptr<OptimizationMethod> optimizationMethod
-                                          = ext::shared_ptr<OptimizationMethod>(),
+                                  const ext::shared_ptr<OptimizationMethod>& optimizationMethod =
+                                      ext::shared_ptr<OptimizationMethod>(),
                                   const Array& l2 = Array(),
-                                  const Real minCutoffTime = 0.0,
-                                  const Real maxCutoffTime = QL_MAX_REAL);
+                                  Real minCutoffTime = 0.0,
+                                  Real maxCutoffTime = QL_MAX_REAL,
+                                  Size numCoeffs = 9,
+                                  Real fixedKappa = Null<Real>());
         ExponentialSplinesFitting(bool constrainAtZero,
                                   const Array& weights,
                                   const Array& l2,
-                                  const Real minCutoffTime = 0.0,
-                                  const Real maxCutoffTime = QL_MAX_REAL);
+                                  Real minCutoffTime = 0.0,
+                                  Real maxCutoffTime = QL_MAX_REAL,
+                                  Size numCoeffs = 9,
+                                  Real fixedKappa = Null<Real>());
+        ExponentialSplinesFitting(bool constrainAtZero, 
+                                  Size numCoeffs, 
+                                  Real fixedKappa, 
+                                  const Array& weights = Array() );
+
+
         #if defined(QL_USE_STD_UNIQUE_PTR)
-        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
-        #else
+        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const override;
+#else
         std::auto_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #endif
       private:
-        Size size() const;
-        DiscountFactor discountFunction(const Array& x, Time t) const;
+        Natural numCoeffs_;
+        Real fixedKappa_;
+        Size size() const override;
+        DiscountFactor discountFunction(const Array& x, Time t) const override;
     };
 
 
@@ -83,22 +98,23 @@ namespace QuantLib {
         : public FittedBondDiscountCurve::FittingMethod {
       public:
         NelsonSiegelFitting(const Array& weights = Array(),
-                            ext::shared_ptr<OptimizationMethod> optimizationMethod
-                                          = ext::shared_ptr<OptimizationMethod>(),
+                            const ext::shared_ptr<OptimizationMethod>& optimizationMethod =
+                                ext::shared_ptr<OptimizationMethod>(),
                             const Array& l2 = Array(),
-                            const Real minCutoffTime = 0.0,
-                            const Real maxCutoffTime = QL_MAX_REAL);
-        NelsonSiegelFitting(const Array& weights, const Array& l2,
-                            const Real minCutoffTime = 0.0,
-                            const Real maxCutoffTime = QL_MAX_REAL);
+                            Real minCutoffTime = 0.0,
+                            Real maxCutoffTime = QL_MAX_REAL);
+        NelsonSiegelFitting(const Array& weights,
+                            const Array& l2,
+                            Real minCutoffTime = 0.0,
+                            Real maxCutoffTime = QL_MAX_REAL);
         #if defined(QL_USE_STD_UNIQUE_PTR)
-        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
-        #else
+        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const override;
+#else
         std::auto_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #endif
       private:
-        Size size() const;
-        DiscountFactor discountFunction(const Array& x, Time t) const;
+        Size size() const override;
+        DiscountFactor discountFunction(const Array& x, Time t) const override;
     };
 
 
@@ -106,7 +122,7 @@ namespace QuantLib {
     /*! Fits a discount function to the form
         \f$ d(t) = \exp^{-r t}, \f$ where the zero rate \f$r\f$ is defined as
         \f[
-        r \equiv c_0 + (c_1 + c_2)(\frac {1 - exp^{-\kappa t}}{\kappa t})
+        r \equiv c_0 + (c_0 + c_1)(\frac {1 - exp^{-\kappa t}}{\kappa t})
         - c_2exp^{ - \kappa t}
         + c_3{(\frac{1 - exp^{-\kappa_1 t}}{\kappa_1 t} -exp^{-\kappa_1 t})}.
         \f]
@@ -118,22 +134,23 @@ namespace QuantLib {
         : public FittedBondDiscountCurve::FittingMethod {
       public:
         SvenssonFitting(const Array& weights = Array(),
-                        ext::shared_ptr<OptimizationMethod> optimizationMethod
-                               = ext::shared_ptr<OptimizationMethod>(),
+                        const ext::shared_ptr<OptimizationMethod>& optimizationMethod =
+                            ext::shared_ptr<OptimizationMethod>(),
                         const Array& l2 = Array(),
-                        const Real minCutoffTime = 0.0,
-                        const Real maxCutoffTime = QL_MAX_REAL);
-        SvenssonFitting(const Array& weights, const Array& l2,
-                        const Real minCutoffTime = 0.0,
-                        const Real maxCutoffTime = QL_MAX_REAL);
+                        Real minCutoffTime = 0.0,
+                        Real maxCutoffTime = QL_MAX_REAL);
+        SvenssonFitting(const Array& weights,
+                        const Array& l2,
+                        Real minCutoffTime = 0.0,
+                        Real maxCutoffTime = QL_MAX_REAL);
         #if defined(QL_USE_STD_UNIQUE_PTR)
-        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
-        #else
+        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const override;
+#else
         std::auto_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #endif
       private:
-        Size size() const;
-        DiscountFactor discountFunction(const Array& x, Time t) const;
+        Size size() const override;
+        DiscountFactor discountFunction(const Array& x, Time t) const override;
     };
 
 
@@ -162,27 +179,27 @@ namespace QuantLib {
         CubicBSplinesFitting(const std::vector<Time>& knotVector,
                              bool constrainAtZero = true,
                              const Array& weights = Array(),
-                             ext::shared_ptr<OptimizationMethod> optimizationMethod
-                                     = ext::shared_ptr<OptimizationMethod>(),
+                             const ext::shared_ptr<OptimizationMethod>& optimizationMethod =
+                                 ext::shared_ptr<OptimizationMethod>(),
                              const Array& l2 = Array(),
-                             const Real minCutoffTime = 0.0,
-                             const Real maxCutoffTime = QL_MAX_REAL);
+                             Real minCutoffTime = 0.0,
+                             Real maxCutoffTime = QL_MAX_REAL);
         CubicBSplinesFitting(const std::vector<Time>& knotVector,
                              bool constrainAtZero,
                              const Array& weights,
                              const Array& l2,
-                             const Real minCutoffTime = 0.0,
-                             const Real maxCutoffTime = QL_MAX_REAL);
+                             Real minCutoffTime = 0.0,
+                             Real maxCutoffTime = QL_MAX_REAL);
         //! cubic B-spline basis functions
         Real basisFunction(Integer i, Time t) const;
         #if defined(QL_USE_STD_UNIQUE_PTR)
-        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
-        #else
+        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const override;
+#else
         std::auto_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #endif
       private:
-        Size size() const;
-        DiscountFactor discountFunction(const Array& x, Time t) const;
+        Size size() const override;
+        DiscountFactor discountFunction(const Array& x, Time t) const override;
         BSpline splines_;
         Size size_;
         //! N_th basis function coefficient to solve for when d(0)=1
@@ -206,25 +223,25 @@ namespace QuantLib {
         SimplePolynomialFitting(Natural degree,
                                 bool constrainAtZero = true,
                                 const Array& weights = Array(),
-                                ext::shared_ptr<OptimizationMethod> optimizationMethod
-                                       = ext::shared_ptr<OptimizationMethod>(),
+                                const ext::shared_ptr<OptimizationMethod>& optimizationMethod =
+                                    ext::shared_ptr<OptimizationMethod>(),
                                 const Array& l2 = Array(),
-                                const Real minCutoffTime = 0.0,
-                                const Real maxCutoffTime = QL_MAX_REAL);
+                                Real minCutoffTime = 0.0,
+                                Real maxCutoffTime = QL_MAX_REAL);
         SimplePolynomialFitting(Natural degree,
                                 bool constrainAtZero,
                                 const Array& weights,
                                 const Array& l2,
-                                const Real minCutoffTime = 0.0,
-                                const Real maxCutoffTime = QL_MAX_REAL);
+                                Real minCutoffTime = 0.0,
+                                Real maxCutoffTime = QL_MAX_REAL);
         #if defined(QL_USE_STD_UNIQUE_PTR)
-        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
-        #else
+        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const override;
+#else
         std::auto_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #endif
       private:
-        Size size() const;
-        DiscountFactor discountFunction(const Array& x, Time t) const;
+        Size size() const override;
+        DiscountFactor discountFunction(const Array& x, Time t) const override;
         Size size_;
     };
 
@@ -235,26 +252,27 @@ namespace QuantLib {
     class SpreadFittingMethod
         : public FittedBondDiscountCurve::FittingMethod {
       public:
-         SpreadFittingMethod(ext::shared_ptr<FittingMethod> method,
-                             Handle<YieldTermStructure> discountCurve,
-                             const Real minCutoffTime = 0.0,
-                             const Real maxCutoffTime = QL_MAX_REAL);
-        #if defined(QL_USE_STD_UNIQUE_PTR)
-        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
-        #else
+        SpreadFittingMethod(const ext::shared_ptr<FittingMethod>& method,
+                            Handle<YieldTermStructure> discountCurve,
+                            Real minCutoffTime = 0.0,
+                            Real maxCutoffTime = QL_MAX_REAL);
+#if defined(QL_USE_STD_UNIQUE_PTR)
+        std::unique_ptr<FittedBondDiscountCurve::FittingMethod> clone() const override;
+#else
         std::auto_ptr<FittedBondDiscountCurve::FittingMethod> clone() const;
         #endif
     protected:
-        void init();
-      private:
-        Size size() const;
-        DiscountFactor discountFunction(const Array& x, Time t) const;
-        // underlying parametric method
-        ext::shared_ptr<FittingMethod> method_;
-        // adjustment in case underlying discount curve has different reference date
-        DiscountFactor rebase_;
-        // discount curve from on top of which the spread will be calculated
-        Handle<YieldTermStructure> discountingCurve_;
+      void init() override;
+
+    private:
+      Size size() const override;
+      DiscountFactor discountFunction(const Array& x, Time t) const override;
+      // underlying parametric method
+      ext::shared_ptr<FittingMethod> method_;
+      // adjustment in case underlying discount curve has different reference date
+      DiscountFactor rebase_;
+      // discount curve from on top of which the spread will be calculated
+      Handle<YieldTermStructure> discountingCurve_;
     };
 }
 

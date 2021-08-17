@@ -46,23 +46,20 @@ namespace QuantLib {
             of having any of its bonds with the given seniority,
             currency incurring in that particular event.  The second
             argument represents the history of past events.  Theres no
-            check on wether the event list makes sense, events can
+            check on whether the event list makes sense, events can
             occur several times and several of them can take place on
             the same date.
 
             To do: add settlement event access
         */
-        Issuer(const std::vector<key_curve_pair>& probabilities =
-                                                std::vector<key_curve_pair>(),
-               const DefaultEventSet& events = DefaultEventSet());
+        Issuer(std::vector<key_curve_pair> probabilities = std::vector<key_curve_pair>(),
+               DefaultEventSet events = DefaultEventSet());
 
-        Issuer(const std::vector<std::vector<
-                 ext::shared_ptr<DefaultType> > >& eventTypes,
+        Issuer(const std::vector<std::vector<ext::shared_ptr<DefaultType> > >& eventTypes,
                const std::vector<Currency>& currencies,
                const std::vector<Seniority>& seniorities,
-               const std::vector<Handle<DefaultProbabilityTermStructure> >&
-                   curves,
-               const DefaultEventSet& events = DefaultEventSet());
+               const std::vector<Handle<DefaultProbabilityTermStructure> >& curves,
+               DefaultEventSet events = DefaultEventSet());
 
         //! \name Inspectors
         //@{

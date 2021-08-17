@@ -26,9 +26,10 @@
 #ifndef quantlib_optimization_problem_h
 #define quantlib_optimization_problem_h
 
-#include <ql/math/optimization/method.hpp>
 #include <ql/math/optimization/constraint.hpp>
 #include <ql/math/optimization/costfunction.hpp>
+#include <ql/math/optimization/method.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -41,11 +42,9 @@ namespace QuantLib {
     class Problem {
       public:
         //! default constructor
-        Problem(CostFunction& costFunction,
-                Constraint& constraint,
-                const Array& initialValue = Array())
+        Problem(CostFunction& costFunction, Constraint& constraint, Array initialValue = Array())
         : costFunction_(costFunction), constraint_(constraint),
-          currentValue_(initialValue) {
+          currentValue_(std::move(initialValue)) {
             QL_REQUIRE(!constraint.empty(), "empty constraint given");
         }
 
@@ -107,7 +106,7 @@ namespace QuantLib {
         Constraint& constraint_;
         //! current value of the local minimum
         Array currentValue_;
-        //! function and gradient norm values at the curentValue_ (i.e. the last step)
+        //! function and gradient norm values at the currentValue_ (i.e. the last step)
         Real functionValue_, squaredNorm_;
         //! number of evaluation of cost function and its gradient
         Integer functionEvaluation_, gradientEvaluation_;

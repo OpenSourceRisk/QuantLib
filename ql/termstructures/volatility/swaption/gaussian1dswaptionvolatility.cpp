@@ -17,29 +17,29 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/termstructures/volatility/swaption/gaussian1dswaptionvolatility.hpp>
-#include <ql/termstructures/volatility/gaussian1dsmilesection.hpp>
 #include <ql/math/solvers1d/newtonsafe.hpp>
+#include <ql/termstructures/volatility/gaussian1dsmilesection.hpp>
+#include <ql/termstructures/volatility/swaption/gaussian1dswaptionvolatility.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-Gaussian1dSwaptionVolatility::Gaussian1dSwaptionVolatility(
-    const Calendar &cal, BusinessDayConvention bdc,
-    const ext::shared_ptr<SwapIndex> &indexBase,
-    const ext::shared_ptr<Gaussian1dModel> &model, const DayCounter &dc,
-    const ext::shared_ptr<Gaussian1dSwaptionEngine> swaptionEngine)
-    : SwaptionVolatilityStructure(model->termStructure()->referenceDate(), cal,
-                                  bdc, dc),
-      indexBase_(indexBase), model_(model), engine_(swaptionEngine),
+    Gaussian1dSwaptionVolatility::Gaussian1dSwaptionVolatility(
+        const Calendar& cal,
+        BusinessDayConvention bdc,
+        ext::shared_ptr<SwapIndex> indexBase,
+        const ext::shared_ptr<Gaussian1dModel>& model,
+        const DayCounter& dc,
+        ext::shared_ptr<Gaussian1dSwaptionEngine> swaptionEngine)
+    : SwaptionVolatilityStructure(model->termStructure()->referenceDate(), cal, bdc, dc),
+      indexBase_(std::move(indexBase)), model_(model), engine_(std::move(swaptionEngine)),
       maxSwapTenor_(100 * Years) {}
 
-ext::shared_ptr<SmileSection>
-Gaussian1dSwaptionVolatility::smileSectionImpl(const Date &d,
-                                               const Period &tenor) const {
-    ext::shared_ptr<SmileSection> tmp =
-        ext::make_shared<Gaussian1dSmileSection>(
+    ext::shared_ptr<SmileSection>
+    Gaussian1dSwaptionVolatility::smileSectionImpl(const Date& d, const Period& tenor) const {
+        ext::shared_ptr<SmileSection> tmp = ext::make_shared<Gaussian1dSmileSection>(
             d, indexBase_->clone(tenor), model_, this->dayCounter(), engine_);
-    return tmp;
+        return tmp;
 }
 
 ext::shared_ptr<SmileSection>

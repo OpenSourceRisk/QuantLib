@@ -30,7 +30,7 @@ namespace {
 
     class TestCaseCleaner {
       public:
-        TestCaseCleaner() {}
+        TestCaseCleaner() = default;
         ~TestCaseCleaner() {
             QL_TRACE_ON(std::cerr);
         }
@@ -58,7 +58,7 @@ namespace {
         #if defined(QL_ENABLE_TRACING)
         std::string expected = result;
         #else
-        std::string expected = "";
+        std::string expected;
         #endif
         if (output.str() != expected) {
             BOOST_FAIL("wrong trace:\n"
@@ -82,7 +82,7 @@ void TracingTest::testOutput() {
 
 
 test_suite* TracingTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Tracing tests");
+    auto* suite = BOOST_TEST_SUITE("Tracing tests");
 
     suite->add(QUANTLIB_TEST_CASE(&TracingTest::testOutput));
     return suite;

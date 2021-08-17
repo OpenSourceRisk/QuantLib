@@ -67,24 +67,25 @@ namespace QuantLib {
     */
     class CPICapFloorTermPriceSurface : public InflationTermStructure {
       public:
-        CPICapFloorTermPriceSurface(Real nominal,
-                                    Real baseRate,  // avoids an uncontrolled crash if index has no TS
-                                    const Period &observationLag,
-                                    const Calendar &cal, // calendar in index may not be useful
-                                    const BusinessDayConvention &bdc,
-                                    const DayCounter &dc,
-                                    const Handle<ZeroInflationIndex>& zii,
-                                    const Handle<YieldTermStructure>& yts,
-                                    const std::vector<Rate> &cStrikes,
-                                    const std::vector<Rate> &fStrikes,
-                                    const std::vector<Period> &cfMaturities,
-                                    const Matrix &cPrice,
-                                    const Matrix &fPrice);
+        CPICapFloorTermPriceSurface(
+            Real nominal,
+            Real baseRate, // avoids an uncontrolled crash if index has no TS
+            const Period& observationLag,
+            const Calendar& cal, // calendar in index may not be useful
+            const BusinessDayConvention& bdc,
+            const DayCounter& dc,
+            const Handle<ZeroInflationIndex>& zii,
+            Handle<YieldTermStructure> yts,
+            const std::vector<Rate>& cStrikes,
+            const std::vector<Rate>& fStrikes,
+            const std::vector<Period>& cfMaturities,
+            const Matrix& cPrice,
+            const Matrix& fPrice);
 
         //! \name InflationTermStructure interface
         //@{
-        Period observationLag() const;
-        Date baseDate() const;
+        Period observationLag() const override;
+        Date baseDate() const override;
         //@}
 
         //! is based on
@@ -123,7 +124,7 @@ namespace QuantLib {
         virtual Rate minStrike() const {return cfStrikes_.front();};
         virtual Rate maxStrike() const {return cfStrikes_.back();};
         virtual Date minDate() const {return referenceDate()+cfMaturities_.front();}// \TODO deal with index interpolation
-        virtual Date maxDate() const {return referenceDate()+cfMaturities_.back();}
+        Date maxDate() const override { return referenceDate() + cfMaturities_.back(); }
         //@}
 
 
@@ -140,6 +141,7 @@ namespace QuantLib {
 
 
         Handle<ZeroInflationIndex> zii_;
+        Handle<YieldTermStructure> nominalTS_;
         // data
         std::vector<Rate> cStrikes_;
         std::vector<Rate> fStrikes_;
@@ -189,9 +191,9 @@ namespace QuantLib {
 
             //! remember that the strikes use the quoting convention
             //@{
-            virtual Real price(const Date &d, Rate k) const;
-            virtual Real capPrice(const Date &d, Rate k) const;
-            virtual Real floorPrice(const Date &d, Rate k) const;
+            Real price(const Date& d, Rate k) const override;
+            Real capPrice(const Date& d, Rate k) const override;
+            Real floorPrice(const Date& d, Rate k) const override;
             //@}
 
         protected:
@@ -255,7 +257,7 @@ namespace QuantLib {
             Matrix(cfStrikes_.size(), cfMaturities_.size(), Null<Real>());
 
         Handle<ZeroInflationTermStructure> zts = zii_->zeroInflationTermStructure();
-        Handle<YieldTermStructure> yts = this->nominalTermStructure();
+        Handle<YieldTermStructure> yts = nominalTS_;
         QL_REQUIRE(!zts.empty(), "Zts is empty!!!");
         QL_REQUIRE(!yts.empty(), "Yts is empty!!!");
 

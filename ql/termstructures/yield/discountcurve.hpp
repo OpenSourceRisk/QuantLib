@@ -63,7 +63,7 @@ namespace QuantLib {
             const Interpolator& interpolator);
         //! \name TermStructure interface
         //@{
-        Date maxDate() const;
+        Date maxDate() const override;
         //@}
         //! \name other inspectors
         //@{
@@ -73,11 +73,10 @@ namespace QuantLib {
         const std::vector<DiscountFactor>& discounts() const;
         std::vector<std::pair<Date, Real> > nodes() const;
         //@}
+
       protected:
-        InterpolatedDiscountCurve(
+        explicit InterpolatedDiscountCurve(
             const DayCounter&,
-            const std::vector<Handle<Quote> >& jumps = std::vector<Handle<Quote> >(),
-            const std::vector<Date>& jumpDates = std::vector<Date>(),
             const Interpolator& interpolator = Interpolator());
         InterpolatedDiscountCurve(
             const Date& referenceDate,
@@ -92,9 +91,21 @@ namespace QuantLib {
             const std::vector<Handle<Quote> >& jumps = std::vector<Handle<Quote> >(),
             const std::vector<Date>& jumpDates = std::vector<Date>(),
             const Interpolator& interpolator = Interpolator());
+
+        /*! \deprecated Passing jumps without a reference date never worked correctly.
+                        Use one of the other constructors instead.
+                        Deprecated in version 1.19.
+        */
+        QL_DEPRECATED
+        InterpolatedDiscountCurve(
+            const DayCounter&,
+            const std::vector<Handle<Quote> >& jumps,
+            const std::vector<Date>& jumpDates = std::vector<Date>(),
+            const Interpolator& interpolator = Interpolator());
+
         //! \name YieldTermStructure implementation
         //@{
-        DiscountFactor discountImpl(Time) const;
+        DiscountFactor discountImpl(Time) const override;
         //@}
         mutable std::vector<Date> dates_;
       private:
@@ -171,10 +182,8 @@ namespace QuantLib {
     template <class T>
     InterpolatedDiscountCurve<T>::InterpolatedDiscountCurve(
                                     const DayCounter& dayCounter,
-                                    const std::vector<Handle<Quote> >& jumps,
-                                    const std::vector<Date>& jumpDates,
                                     const T& interpolator)
-    : YieldTermStructure(dayCounter, jumps, jumpDates),
+    : YieldTermStructure(dayCounter),
       InterpolatedCurve<T>(interpolator) {}
 
     template <class T>
@@ -197,6 +206,19 @@ namespace QuantLib {
                                     const T& interpolator)
     : YieldTermStructure(settlementDays, calendar, dayCounter, jumps, jumpDates),
       InterpolatedCurve<T>(interpolator) {}
+
+    QL_DEPRECATED_DISABLE_WARNING
+
+    template <class T>
+    InterpolatedDiscountCurve<T>::InterpolatedDiscountCurve(
+                                    const DayCounter& dayCounter,
+                                    const std::vector<Handle<Quote> >& jumps,
+                                    const std::vector<Date>& jumpDates,
+                                    const T& interpolator)
+    : YieldTermStructure(dayCounter, jumps, jumpDates),
+      InterpolatedCurve<T>(interpolator) {}
+
+    QL_DEPRECATED_ENABLE_WARNING
 
     template <class T>
     InterpolatedDiscountCurve<T>::InterpolatedDiscountCurve(

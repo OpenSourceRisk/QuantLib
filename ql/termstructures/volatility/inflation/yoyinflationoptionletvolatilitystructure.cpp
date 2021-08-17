@@ -21,9 +21,10 @@
  \brief yoy inflation volatility structures
  */
 
+#include <ql/quotes/simplequote.hpp>
 #include <ql/termstructures/inflationtermstructure.hpp>
 #include <ql/termstructures/volatility/inflation/yoyinflationoptionletvolatilitystructure.hpp>
-#include <ql/quotes/simplequote.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -124,7 +125,7 @@ namespace QuantLib {
         return volatility(maturityDate, strike, obsLag, extrapolate);
     }
 
-    Volatility YoYOptionletVolatilitySurface::volatility(const Time time, Rate strike) const {
+    Volatility YoYOptionletVolatilitySurface::volatility(Time time, Rate strike) const {
         return volatilityImpl(time, strike);
     }
 
@@ -198,26 +199,30 @@ namespace QuantLib {
                                     volType, displacement),
       volatility_(ext::make_shared<SimpleQuote>(v)), minStrike_(minStrike), maxStrike_(maxStrike) {}
 
-    ConstantYoYOptionletVolatility::
-    ConstantYoYOptionletVolatility(const Handle<Quote>& v,
-                                   Natural settlementDays,
-                                   const Calendar& cal,
-                                   BusinessDayConvention bdc,
-                                   const DayCounter& dc,
-                                   const Period &observationLag,
-                                   Frequency frequency,
-                                   bool indexIsInterpolated,
-                                   Rate minStrike,
-                                   Rate maxStrike,
-                                   VolatilityType volType,
-                                   Real displacement)
-    : YoYOptionletVolatilitySurface(settlementDays, cal, bdc, dc,
-                                    observationLag, frequency, indexIsInterpolated,
-                                    volType, displacement),
-      volatility_(v), minStrike_(minStrike), maxStrike_(maxStrike) {}
+    ConstantYoYOptionletVolatility::ConstantYoYOptionletVolatility(Handle<Quote> v,
+                                                                   Natural settlementDays,
+                                                                   const Calendar& cal,
+                                                                   BusinessDayConvention bdc,
+                                                                   const DayCounter& dc,
+                                                                   const Period& observationLag,
+                                                                   Frequency frequency,
+                                                                   bool indexIsInterpolated,
+                                                                   Rate minStrike,
+                                                                   Rate maxStrike,
+                                                                   VolatilityType volType,
+                                                                   Real displacement)
+    : YoYOptionletVolatilitySurface(settlementDays,
+                                    cal,
+                                    bdc,
+                                    dc,
+                                    observationLag,
+                                    frequency,
+                                    indexIsInterpolated,
+                                    volType,
+                                    displacement),
+      volatility_(std::move(v)), minStrike_(minStrike), maxStrike_(maxStrike) {}
 
-    Volatility ConstantYoYOptionletVolatility::volatilityImpl(const Time,
-                                                              Rate) const {
+    Volatility ConstantYoYOptionletVolatility::volatilityImpl(Time, Rate) const {
         return volatility_->value();
     }
 

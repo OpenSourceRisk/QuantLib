@@ -18,10 +18,11 @@
  */
 
 
-#include <ql/cashflows/inflationcouponpricer.hpp>
-#include <ql/cashflows/inflationcoupon.hpp>
 #include <ql/cashflows/capflooredinflationcoupon.hpp>
 #include <ql/cashflows/cashflowvectors.hpp>
+#include <ql/cashflows/inflationcoupon.hpp>
+#include <ql/cashflows/inflationcouponpricer.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -45,9 +46,8 @@ namespace QuantLib {
 
 
     void YoYInflationCoupon::accept(AcyclicVisitor& v) {
-        Visitor<YoYInflationCoupon>* v1 =
-        dynamic_cast<Visitor<YoYInflationCoupon>*>(&v);
-        if (v1 != 0)
+        auto* v1 = dynamic_cast<Visitor<YoYInflationCoupon>*>(&v);
+        if (v1 != nullptr)
             v1->visit(*this);
         else
             InflationCoupon::accept(v);
@@ -61,15 +61,12 @@ namespace QuantLib {
     }
 
 
-
-    yoyInflationLeg::
-    yoyInflationLeg(const Schedule& schedule, const Calendar& paymentCalendar,
-                    const ext::shared_ptr<YoYInflationIndex>& index,
-                    const Period& observationLag)
-    : schedule_(schedule), index_(index),
-      observationLag_(observationLag),
-      paymentAdjustment_(ModifiedFollowing),
-      paymentCalendar_(paymentCalendar) {}
+    yoyInflationLeg::yoyInflationLeg(Schedule schedule,
+                                     Calendar paymentCalendar,
+                                     ext::shared_ptr<YoYInflationIndex> index,
+                                     const Period& observationLag)
+    : schedule_(std::move(schedule)), index_(std::move(index)), observationLag_(observationLag),
+      paymentAdjustment_(ModifiedFollowing), paymentCalendar_(std::move(paymentCalendar)) {}
 
 
     yoyInflationLeg& yoyInflationLeg::withNotionals(Real notional) {
@@ -89,6 +86,11 @@ namespace QuantLib {
 
     yoyInflationLeg& yoyInflationLeg::withPaymentAdjustment(BusinessDayConvention convention) {
         paymentAdjustment_ = convention;
+        return *this;
+    }
+
+    yoyInflationLeg& yoyInflationLeg::withPaymentCalendar(const Calendar& paymentcalendar) {
+        paymentCalendar_ = paymentcalendar;
         return *this;
     }
 
@@ -142,10 +144,15 @@ namespace QuantLib {
         return *this;
     }
 
+    yoyInflationLeg& yoyInflationLeg::withRateCurve(const Handle<YieldTermStructure>& rateCurve) {
+        rateCurve_ = rateCurve;
+        return *this;
+    }
 
     yoyInflationLeg::operator Leg() const {
 
         Size n = schedule_.size()-1;
+        QL_REQUIRE(!paymentDayCounter_.empty(), "no payment daycounter given");
         QL_REQUIRE(!notionals_.empty(), "no notional given");
         QL_REQUIRE(notionals_.size() <= n,
                    "too many nominals (" << notionals_.size() <<
@@ -206,8 +213,8 @@ namespace QuantLib {
 
                     // in this case you can set a pricer
                     // straight away because it only provides computation - not data
-                    ext::shared_ptr<YoYInflationCouponPricer> pricer(
-                                            new YoYInflationCouponPricer);
+                    ext::shared_ptr<YoYInflationCouponPricer> pricer =
+                        ext::make_shared<YoYInflationCouponPricer>(rateCurve_);
                     coup->setPricer(pricer);
                     leg.push_back(ext::dynamic_pointer_cast<CashFlow>(coup));
 

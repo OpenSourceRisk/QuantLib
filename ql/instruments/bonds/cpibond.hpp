@@ -47,7 +47,7 @@ namespace QuantLib {
                 bool growthOnly,
                 Real baseCPI,
                 const Period& observationLag,
-                const ext::shared_ptr<ZeroInflationIndex>& cpiIndex,
+                ext::shared_ptr<ZeroInflationIndex> cpiIndex,
                 CPI::InterpolationType observationInterpolation,
                 const Schedule& schedule,
                 const std::vector<Rate>& coupons,
@@ -57,7 +57,7 @@ namespace QuantLib {
                 const Calendar& paymentCalendar = Calendar(),
                 const Period& exCouponPeriod = Period(),
                 const Calendar& exCouponCalendar = Calendar(),
-                const BusinessDayConvention exCouponConvention = Unadjusted,
+                BusinessDayConvention exCouponConvention = Unadjusted,
                 bool exCouponEndOfMonth = false);
 
         Frequency frequency() const { return frequency_; }

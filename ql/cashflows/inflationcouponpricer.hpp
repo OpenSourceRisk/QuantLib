@@ -53,26 +53,30 @@ namespace QuantLib {
     class InflationCouponPricer: public virtual Observer,
                                  public virtual Observable {
     public:
-        virtual ~InflationCouponPricer() {}
-        //! \name Interface
-        //@{
-        virtual Real swapletPrice() const = 0;
-        virtual Rate swapletRate() const = 0;
-        virtual Real capletPrice(Rate effectiveCap) const = 0;
-        virtual Rate capletRate(Rate effectiveCap) const = 0;
-        virtual Real floorletPrice(Rate effectiveFloor) const = 0;
-        virtual Rate floorletRate(Rate effectiveFloor) const = 0;
-        virtual void initialize(const InflationCoupon&) = 0;
-        //@}
+      ~InflationCouponPricer() override = default;
+      //! \name Interface
+      //@{
+      virtual Real swapletPrice() const = 0;
+      virtual Rate swapletRate() const = 0;
+      virtual Real capletPrice(Rate effectiveCap) const = 0;
+      virtual Rate capletRate(Rate effectiveCap) const = 0;
+      virtual Real floorletPrice(Rate effectiveFloor) const = 0;
+      virtual Rate floorletRate(Rate effectiveFloor) const = 0;
+      virtual void initialize(const InflationCoupon&) = 0;
+      //@}
 
-        //! \name Observer interface
-        //@{
-        virtual void update(){notifyObservers();}
-        //@}
+      //! \name Observer interface
+      //@{
+      void update() override { notifyObservers(); }
+      //@}
     protected:
         Handle<YieldTermStructure> rateCurve_;
         Date paymentDate_;
     };
+
+
+    void setCouponPricer(const Leg& leg,
+                         const ext::shared_ptr<InflationCouponPricer>&);
 
 
     //! base pricer for capped/floored YoY inflation coupons
@@ -81,17 +85,16 @@ namespace QuantLib {
     */
     class YoYInflationCouponPricer : public InflationCouponPricer {
       public:
-        YoYInflationCouponPricer();
-        /*! \deprecated Use the constructor also taking an explicit
-                        nominal term structure.
-                        Deprecated in version 1.15.
+        /*! \deprecated Use one of the other constructors.
+                        Deprecated in version 1.19.
         */
         QL_DEPRECATED
-        explicit YoYInflationCouponPricer(
-            const Handle<YoYOptionletVolatilitySurface>& capletVol);
-        YoYInflationCouponPricer(
-            const Handle<YoYOptionletVolatilitySurface>& capletVol,
-            const Handle<YieldTermStructure>& nominalTermStructure);
+        YoYInflationCouponPricer() = default;
+
+        explicit YoYInflationCouponPricer(Handle<YieldTermStructure> nominalTermStructure);
+
+        YoYInflationCouponPricer(Handle<YoYOptionletVolatilitySurface> capletVol,
+                                 Handle<YieldTermStructure> nominalTermStructure);
 
         virtual Handle<YoYOptionletVolatilitySurface> capletVolatility() const{
             return capletVol_;
@@ -106,13 +109,13 @@ namespace QuantLib {
 
         //! \name InflationCouponPricer interface
         //@{
-        virtual Real swapletPrice() const;
-        virtual Rate swapletRate() const;
-        virtual Real capletPrice(Rate effectiveCap) const;
-        virtual Rate capletRate(Rate effectiveCap) const;
-        virtual Real floorletPrice(Rate effectiveFloor) const;
-        virtual Rate floorletRate(Rate effectiveFloor) const;
-        virtual void initialize(const InflationCoupon&);
+        Real swapletPrice() const override;
+        Rate swapletRate() const override;
+        Real capletPrice(Rate effectiveCap) const override;
+        Rate capletRate(Rate effectiveCap) const override;
+        Real floorletPrice(Rate effectiveFloor) const override;
+        Rate floorletRate(Rate effectiveFloor) const override;
+        void initialize(const InflationCoupon&) override;
         //@}
 
       protected:
@@ -144,66 +147,72 @@ namespace QuantLib {
     //! Black-formula pricer for capped/floored yoy inflation coupons
     class BlackYoYInflationCouponPricer : public YoYInflationCouponPricer {
       public:
-        BlackYoYInflationCouponPricer() {}
-        /*! \deprecated Use the constructor also taking an explicit
-                        nominal term structure.
-                        Deprecated in version 1.15.
+        /*! \deprecated Use one of the other constructors.
+                        Deprecated in version 1.19.
         */
         QL_DEPRECATED
+        BlackYoYInflationCouponPricer()
+        : YoYInflationCouponPricer(Handle<YoYOptionletVolatilitySurface>(),
+                                   Handle<YieldTermStructure>()) {}
+
         explicit BlackYoYInflationCouponPricer(
-            const Handle<YoYOptionletVolatilitySurface>& capletVol)
-        : YoYInflationCouponPricer(capletVol, Handle<YieldTermStructure>()) {}
+            const Handle<YieldTermStructure>& nominalTermStructure)
+        : YoYInflationCouponPricer(nominalTermStructure) {}
+
         BlackYoYInflationCouponPricer(
             const Handle<YoYOptionletVolatilitySurface>& capletVol,
             const Handle<YieldTermStructure>& nominalTermStructure)
         : YoYInflationCouponPricer(capletVol, nominalTermStructure) {}
       protected:
-        Real optionletPriceImp(Option::Type, Real strike,
-                               Real forward, Real stdDev) const;
+        Real optionletPriceImp(Option::Type, Real strike, Real forward, Real stdDev) const override;
     };
 
 
     //! Unit-Displaced-Black-formula pricer for capped/floored yoy inflation coupons
     class UnitDisplacedBlackYoYInflationCouponPricer : public YoYInflationCouponPricer {
       public:
-        UnitDisplacedBlackYoYInflationCouponPricer() {}
-        /*! \deprecated Use the constructor also taking an explicit
-                        nominal term structure.
-                        Deprecated in version 1.15.
+        /*! \deprecated Use one of the other constructors.
+                        Deprecated in version 1.19.
         */
         QL_DEPRECATED
+        UnitDisplacedBlackYoYInflationCouponPricer()
+        : YoYInflationCouponPricer(Handle<YoYOptionletVolatilitySurface>(),
+                                   Handle<YieldTermStructure>()) {}
+
         explicit UnitDisplacedBlackYoYInflationCouponPricer(
-            const Handle<YoYOptionletVolatilitySurface>& capletVol)
-        : YoYInflationCouponPricer(capletVol, Handle<YieldTermStructure>()) {}
+            const Handle<YieldTermStructure>& nominalTermStructure)
+        : YoYInflationCouponPricer(nominalTermStructure) {}
+
         UnitDisplacedBlackYoYInflationCouponPricer(
             const Handle<YoYOptionletVolatilitySurface>& capletVol,
             const Handle<YieldTermStructure>& nominalTermStructure)
         : YoYInflationCouponPricer(capletVol, nominalTermStructure) {}
       protected:
-        Real optionletPriceImp(Option::Type, Real strike,
-                               Real forward, Real stdDev) const;
+        Real optionletPriceImp(Option::Type, Real strike, Real forward, Real stdDev) const override;
     };
 
 
     //! Bachelier-formula pricer for capped/floored yoy inflation coupons
     class BachelierYoYInflationCouponPricer : public YoYInflationCouponPricer {
       public:
-        BachelierYoYInflationCouponPricer() {}
-        /*! \deprecated Use the constructor also taking an explicit
-                        nominal term structure.
-                        Deprecated in version 1.15.
+        /*! \deprecated Use one of the other constructors.
+                        Deprecated in version 1.19.
         */
         QL_DEPRECATED
+        BachelierYoYInflationCouponPricer()
+        : YoYInflationCouponPricer(Handle<YoYOptionletVolatilitySurface>(),
+                                   Handle<YieldTermStructure>()) {}
+
         explicit BachelierYoYInflationCouponPricer(
-            const Handle<YoYOptionletVolatilitySurface>& capletVol)
-        : YoYInflationCouponPricer(capletVol, Handle<YieldTermStructure>()) {}
+            const Handle<YieldTermStructure>& nominalTermStructure)
+        : YoYInflationCouponPricer(nominalTermStructure) {}
+
         BachelierYoYInflationCouponPricer(
             const Handle<YoYOptionletVolatilitySurface>& capletVol,
             const Handle<YieldTermStructure>& nominalTermStructure)
         : YoYInflationCouponPricer(capletVol, nominalTermStructure) {}
       protected:
-        Real optionletPriceImp(Option::Type, Real strike,
-                               Real forward, Real stdDev) const;
+        Real optionletPriceImp(Option::Type, Real strike, Real forward, Real stdDev) const override;
     };
 
 }

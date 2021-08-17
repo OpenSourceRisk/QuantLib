@@ -52,7 +52,7 @@ namespace QuantLib {
      */
     class Basket : public LazyObject {
       public:
-        Basket() {}
+        Basket() = default;
         /*! Constructs a basket of simple collection of constant notional 
           positions subject to default risk only.
           
@@ -61,16 +61,14 @@ namespace QuantLib {
           are no constraints on forward baskets but models assigned
           should be consistent.)
         */
-        Basket(
-            const Date& refDate,
-            const std::vector<std::string>& names,
-            const std::vector<Real>& notionals,
-            const ext::shared_ptr<Pool> pool,
-            Real attachmentRatio = 0.0,
-            Real detachmentRatio = 1.0,
-            const ext::shared_ptr<Claim>& claim =
-                ext::shared_ptr<Claim>(new FaceValueClaim()));
-        void update() {
+        Basket(const Date& refDate,
+               const std::vector<std::string>& names,
+               std::vector<Real> notionals,
+               ext::shared_ptr<Pool> pool,
+               Real attachmentRatio = 0.0,
+               Real detachmentRatio = 1.0,
+               ext::shared_ptr<Claim> claim = ext::shared_ptr<Claim>(new FaceValueClaim()));
+        void update() override {
             computeBasket();
             LazyObject::update();
         }
@@ -279,7 +277,7 @@ namespace QuantLib {
         //@}
       private:
         // LazyObject interface
-         void performCalculations() const;
+        void performCalculations() const override;
 
         std::vector<Real> notionals_;
         ext::shared_ptr<Pool> pool_;

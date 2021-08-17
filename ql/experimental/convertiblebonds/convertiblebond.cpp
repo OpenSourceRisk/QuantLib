@@ -18,31 +18,29 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/experimental/convertiblebonds/convertiblebond.hpp>
-#include <ql/instruments/payoffs.hpp>
-#include <ql/cashflows/iborcoupon.hpp>
-#include <ql/cashflows/fixedratecoupon.hpp>
 #include <ql/cashflows/couponpricer.hpp>
+#include <ql/cashflows/fixedratecoupon.hpp>
+#include <ql/cashflows/iborcoupon.hpp>
 #include <ql/cashflows/simplecashflow.hpp>
 #include <ql/exercise.hpp>
-
+#include <ql/experimental/convertiblebonds/convertiblebond.hpp>
+#include <ql/instruments/payoffs.hpp>
 #include <ql/utilities/null_deleter.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    ConvertibleBond::ConvertibleBond(
-            const ext::shared_ptr<Exercise>&,
-            Real conversionRatio,
-            const DividendSchedule& dividends,
-            const CallabilitySchedule& callability,
-            const Handle<Quote>& creditSpread,
-            const Date& issueDate,
-            Natural settlementDays,
-            const Schedule& schedule,
-            Real)
-    : Bond(settlementDays, schedule.calendar(), issueDate),
-      conversionRatio_(conversionRatio), callability_(callability),
-      dividends_(dividends), creditSpread_(creditSpread) {
+    ConvertibleBond::ConvertibleBond(const ext::shared_ptr<Exercise>&,
+                                     Real conversionRatio,
+                                     DividendSchedule dividends,
+                                     const CallabilitySchedule& callability,
+                                     const Handle<Quote>& creditSpread,
+                                     const Date& issueDate,
+                                     Natural settlementDays,
+                                     const Schedule& schedule,
+                                     Real)
+    : Bond(settlementDays, schedule.calendar(), issueDate), conversionRatio_(conversionRatio),
+      callability_(callability), dividends_(std::move(dividends)), creditSpread_(creditSpread) {
 
         maturityDate_ = schedule.endDate();
 
@@ -103,7 +101,11 @@ namespace QuantLib {
                           const std::vector<Rate>& coupons,
                           const DayCounter& dayCounter,
                           const Schedule& schedule,
-                          Real redemption)
+                          Real redemption,
+                          const Period& exCouponPeriod,
+                          const Calendar& exCouponCalendar,
+                          const BusinessDayConvention exCouponConvention,
+                          bool exCouponEndOfMonth)
     : ConvertibleBond(exercise, conversionRatio, dividends, callability,
                       creditSpread, issueDate, settlementDays,
                       schedule, redemption) {
@@ -112,7 +114,11 @@ namespace QuantLib {
         cashflows_ = FixedRateLeg(schedule)
             .withNotionals(100.0)
             .withCouponRates(coupons, dayCounter)
-            .withPaymentAdjustment(schedule.businessDayConvention());
+            .withPaymentAdjustment(schedule.businessDayConvention())
+            .withExCouponPeriod(exCouponPeriod,
+                                exCouponCalendar,
+                                exCouponConvention,
+                                exCouponEndOfMonth);
 
         addRedemptionsToCashflows(std::vector<Real>(1, redemption));
 
@@ -139,7 +145,11 @@ namespace QuantLib {
                           const std::vector<Spread>& spreads,
                           const DayCounter& dayCounter,
                           const Schedule& schedule,
-                          Real redemption)
+                          Real redemption,
+                          const Period& exCouponPeriod,
+                          const Calendar& exCouponCalendar,
+                          const BusinessDayConvention exCouponConvention,
+                          bool exCouponEndOfMonth)
     : ConvertibleBond(exercise, conversionRatio, dividends, callability,
                       creditSpread, issueDate, settlementDays,
                       schedule, redemption) {
@@ -150,7 +160,11 @@ namespace QuantLib {
             .withNotionals(100.0)
             .withPaymentAdjustment(schedule.businessDayConvention())
             .withFixingDays(fixingDays)
-            .withSpreads(spreads);
+            .withSpreads(spreads)
+            .withExCouponPeriod(exCouponPeriod,
+                                exCouponCalendar,
+                                exCouponConvention,
+                                exCouponEndOfMonth);
 
         addRedemptionsToCashflows(std::vector<Real>(1, redemption));
 
@@ -165,33 +179,29 @@ namespace QuantLib {
         registerWith(index);
     }
 
-    ConvertibleBond::option::option(
-            const ConvertibleBond* bond,
-            const ext::shared_ptr<Exercise>& exercise,
-            Real conversionRatio,
-            const DividendSchedule& dividends,
-            const CallabilitySchedule& callability,
-            const Handle<Quote>& creditSpread,
-            const Leg& cashflows,
-            const DayCounter& dayCounter,
-            const Schedule& schedule,
-            const Date& issueDate,
-            Natural settlementDays,
-            Real redemption)
-    : OneAssetOption(ext::shared_ptr<StrikedTypePayoff>(new
-          PlainVanillaPayoff(Option::Call,
-                             (bond->notionals()[0])/100.0
-                             *redemption/conversionRatio)),
-                            exercise),
-      bond_(bond), conversionRatio_(conversionRatio),
-      callability_(callability), dividends_(dividends),
-      creditSpread_(creditSpread), cashflows_(cashflows),
-      dayCounter_(dayCounter), issueDate_(issueDate), schedule_(schedule),
-      settlementDays_(settlementDays), redemption_(redemption) {
+    ConvertibleBond::option::option(const ConvertibleBond* bond,
+                                    const ext::shared_ptr<Exercise>& exercise,
+                                    Real conversionRatio,
+                                    DividendSchedule dividends,
+                                    CallabilitySchedule callability,
+                                    Handle<Quote> creditSpread,
+                                    Leg cashflows,
+                                    DayCounter dayCounter,
+                                    Schedule schedule,
+                                    const Date& issueDate,
+                                    Natural settlementDays,
+                                    Real redemption)
+    : OneAssetOption(
+          ext::shared_ptr<StrikedTypePayoff>(new PlainVanillaPayoff(
+              Option::Call, (bond->notionals()[0]) / 100.0 * redemption / conversionRatio)),
+          exercise),
+      bond_(bond), conversionRatio_(conversionRatio), callability_(std::move(callability)),
+      dividends_(std::move(dividends)), creditSpread_(std::move(creditSpread)),
+      cashflows_(std::move(cashflows)), dayCounter_(std::move(dayCounter)), issueDate_(issueDate),
+      schedule_(std::move(schedule)), settlementDays_(settlementDays), redemption_(redemption) {
         registerWith(ext::shared_ptr<ConvertibleBond>(const_cast<ConvertibleBond*>(bond),
                                                         null_deleter()));
     }
-
 
 
     void ConvertibleBond::option::setupArguments(
@@ -199,9 +209,8 @@ namespace QuantLib {
 
         OneAssetOption::setupArguments(args);
 
-        ConvertibleBond::option::arguments* moreArgs =
-            dynamic_cast<ConvertibleBond::option::arguments*>(args);
-        QL_REQUIRE(moreArgs != 0, "wrong argument type");
+        auto* moreArgs = dynamic_cast<ConvertibleBond::option::arguments*>(args);
+        QL_REQUIRE(moreArgs != nullptr, "wrong argument type");
 
         moreArgs->conversionRatio = conversionRatio_;
 
@@ -228,7 +237,7 @@ namespace QuantLib {
                 ext::shared_ptr<SoftCallability> softCall =
                     ext::dynamic_pointer_cast<SoftCallability>(
                                                              callability_[i]);
-                if (softCall)
+                if (softCall != nullptr)
                     moreArgs->callabilityTriggers.push_back(
                                                          softCall->trigger());
                 else
@@ -249,10 +258,10 @@ namespace QuantLib {
 
         moreArgs->dividends.clear();
         moreArgs->dividendDates.clear();
-        for (Size i=0; i<dividends_.size(); i++) {
-            if (!dividends_[i]->hasOccurred(settlement, false)) {
-                moreArgs->dividends.push_back(dividends_[i]);
-                moreArgs->dividendDates.push_back(dividends_[i]->date());
+        for (const auto& dividend : dividends_) {
+            if (!dividend->hasOccurred(settlement, false)) {
+                moreArgs->dividends.push_back(dividend);
+                moreArgs->dividendDates.push_back(dividend->date());
             }
         }
 

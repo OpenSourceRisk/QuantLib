@@ -25,6 +25,7 @@
 #define quantlib_extended_cox_ingersoll_ross_hpp
 
 #include <ql/models/shortrate/onefactormodels/coxingersollross.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -51,18 +52,18 @@ namespace QuantLib {
                               Real x0 = 0.05,
                               bool withFellerConstraint = true);
 
-        ext::shared_ptr<Lattice> tree(const TimeGrid& grid) const;
+        ext::shared_ptr<Lattice> tree(const TimeGrid& grid) const override;
 
-        ext::shared_ptr<ShortRateDynamics> dynamics() const;
+        ext::shared_ptr<ShortRateDynamics> dynamics() const override;
 
         Real discountBondOption(Option::Type type,
                                 Real strike,
                                 Time maturity,
-                                Time bondMaturity) const;
+                                Time bondMaturity) const override;
 
       protected:
-        void generateArguments();
-        Real A(Time t, Time T) const;
+        void generateArguments() override;
+        Real A(Time t, Time T) const override;
 
       private:
         class Dynamics;
@@ -83,19 +84,12 @@ namespace QuantLib {
     class ExtendedCoxIngersollRoss::Dynamics
         : public CoxIngersollRoss::Dynamics {
       public:
-        Dynamics(const Parameter& phi,
-                 Real theta,
-                 Real k,
-                 Real sigma,
-                 Real x0)
-        : CoxIngersollRoss::Dynamics(theta, k, sigma, x0), phi_(phi) {}
+        Dynamics(Parameter phi, Real theta, Real k, Real sigma, Real x0)
+        : CoxIngersollRoss::Dynamics(theta, k, sigma, x0), phi_(std::move(phi)) {}
 
-        virtual Real variable(Time t, Rate r) const {
-            return std::sqrt(r - phi_(t));
-        }
-        virtual Real shortRate(Time t, Real y) const {
-            return y*y + phi_(t);
-        }
+        Real variable(Time t, Rate r) const override { return std::sqrt(r - phi_(t)); }
+        Real shortRate(Time t, Real y) const override { return y * y + phi_(t); }
+
       private:
         Parameter phi_;
     };
@@ -115,12 +109,11 @@ namespace QuantLib {
       private:
         class Impl : public Parameter::Impl {
           public:
-            Impl(const Handle<YieldTermStructure>& termStructure,
-                 Real theta, Real k, Real sigma, Real x0)
-            : termStructure_(termStructure),
-              theta_(theta), k_(k), sigma_(sigma), x0_(x0) {}
+            Impl(Handle<YieldTermStructure> termStructure, Real theta, Real k, Real sigma, Real x0)
+            : termStructure_(std::move(termStructure)), theta_(theta), k_(k), sigma_(sigma),
+              x0_(x0) {}
 
-            Real value(const Array&, Time t) const {
+            Real value(const Array&, Time t) const override {
                 Rate forwardRate =
                     termStructure_->forwardRate(t, t, Continuous, NoFrequency);
                 Real h = std::sqrt(k_*k_ + 2.0*sigma_*sigma_);
@@ -131,6 +124,7 @@ namespace QuantLib {
                     x0_*4.0*h*h*expth/(temp*temp);
                 return phi;
             }
+
           private:
             Handle<YieldTermStructure> termStructure_;
             Real theta_, k_, sigma_, x0_;

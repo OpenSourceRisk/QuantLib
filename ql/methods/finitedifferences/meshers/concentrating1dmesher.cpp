@@ -2,7 +2,7 @@
 
 /*
  Copyright (C) 2009 Ralph Schreyer
- Copyright (C) 2014 Johannes Goettker-Schnetmann
+ Copyright (C) 2014 Johannes Göttker-Schnetmann
  Copyright (C) 2014 Klaus Spanderen
  Copyright (C) 2015 Peter Caspers
 
@@ -34,7 +34,6 @@
 #include <ql/math/interpolations/linearinterpolation.hpp>
 #include <ql/math/ode/adaptiverungekutta.hpp>
 #include <ql/methods/finitedifferences/meshers/concentrating1dmesher.hpp>
-#include <ql/functional.hpp>
 #include <cmath>
 
 // asinh is missing in WIN32 (and possibly on other compilers)
@@ -77,10 +76,9 @@ namespace QuantLib {
                 if (!close(cPoint, start) && !close(cPoint, end)) {
                     const Real z0 = -c1 / (c2 - c1);
                     const Real u0 =
-                        std::max(
-                            std::min(static_cast<int>(z0 * (size - 1) + 0.5),
-                                static_cast<int>(size) - 2),
-                            1) /
+                        std::max(std::min(std::lround(z0 * (size - 1)),
+                                          static_cast<long>(size) - 2),
+                                 1L) /
                         ((Real)(size - 1));
                     u.push_back(u0);
                     z.push_back(z0);
@@ -121,10 +119,7 @@ namespace QuantLib {
           : rk_(tol), points_(points), betas_(betas) {}
 
             Real solve(Real a, Real y0, Real x0, Real x1) {
-                using namespace ext::placeholders;
-                AdaptiveRungeKutta<>::OdeFct1d odeFct(
-                    ext::bind(&OdeIntegrationFct::jac, this, a, _1, _2));
-
+                AdaptiveRungeKutta<>::OdeFct1d odeFct([&](Real x, Real y){ return jac(a, x, y); });
                 return rk_(odeFct, y0, x0, x1);
             }
 
@@ -150,18 +145,16 @@ namespace QuantLib {
 
     Concentrating1dMesher::Concentrating1dMesher(
         Real start, Real end, Size size,
-        const std::vector<boost::tuple<Real, Real, bool> >& cPoints,
+        const std::vector<ext::tuple<Real, Real, bool> >& cPoints,
         Real tol)
     : Fdm1dMesher(size) {
-        using namespace ext::placeholders;
 
         QL_REQUIRE(end > start, "end must be larger than start");
 
         std::vector<Real> points, betas;
-        for (std::vector<boost::tuple<Real, Real, bool> >::const_iterator
-                iter = cPoints.begin(); iter != cPoints.end(); ++iter) {
-            points.push_back(iter->get<0>());
-            betas.push_back(square<Real>()(iter->get<1>()*(end-start)));
+        for (const auto& cPoint : cPoints) {
+            points.push_back(ext::get<0>(cPoint));
+            betas.push_back(square<Real>()(ext::get<1>(cPoint) * (end - start)));
         }
 
         // get scaling factor a so that y(1) = end
@@ -174,9 +167,7 @@ namespace QuantLib {
 
         OdeIntegrationFct fct(points, betas, tol);
         const Real a = Brent().solve(
-            ext::bind(std::minus<Real>(),
-                ext::bind(&OdeIntegrationFct::solve,
-                            &fct, _1, start, 0.0, 1.0), end),
+            [&](Real x) { return fct.solve(x, start, 0.0, 1.0) - end; },
             tol, aInit, 0.1*aInit);
 
         // solve ODE for all grid points
@@ -200,21 +191,19 @@ namespace QuantLib {
         std::vector<std::pair<Real, Real> > w(1, std::make_pair(0.0, 0.0));
 
         for (Size i=0; i < points.size(); ++i) {
-            if (cPoints[i].get<2>() && points[i] > start && points[i] < end) {
+            if (ext::get<2>(cPoints[i]) && points[i] > start && points[i] < end) {
 
                 const Size j = std::distance(y.begin(),
                         std::lower_bound(y.begin(), y.end(), points[i]));
 
                 const Real e = Brent().solve(
-                    ext::bind(std::minus<Real>(),
-                        ext::bind(&LinearInterpolation::operator(),
-                                    odeSolution, _1, true), points[i]),
+                    [&](Real x){ return odeSolution(x, true) - points[i]; },
                     QL_EPSILON, x[j], 0.5/size);
 
-                w.push_back(std::make_pair(std::min(x[size-2], x[j]), e));
+                w.emplace_back(std::min(x[size - 2], x[j]), e);
             }
         }
-        w.push_back(std::make_pair(1.0, 1.0));
+        w.emplace_back(1.0, 1.0);
         std::sort(w.begin(), w.end());
         w.erase(std::unique(w.begin(), w.end(), equal_on_first), w.end());
 

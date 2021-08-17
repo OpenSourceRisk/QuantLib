@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
  Copyright (C) 2015 Klaus Spanderen
 
  This file is part of QuantLib, a free-software/open-source library
@@ -23,17 +23,16 @@
            Black-Scholes-Merton model with constant volatility
 */
 
-#include <ql/processes/blackscholesprocess.hpp>
 #include <ql/math/distributions/normaldistribution.hpp>
 #include <ql/methods/finitedifferences/utilities/bsmrndcalculator.hpp>
-
+#include <ql/processes/blackscholesprocess.hpp>
 #include <cmath>
+#include <utility>
 
 namespace QuantLib {
 
-    BSMRNDCalculator::BSMRNDCalculator(
-        const ext::shared_ptr<GeneralizedBlackScholesProcess>& process)
-    : process_(process) { }
+    BSMRNDCalculator::BSMRNDCalculator(ext::shared_ptr<GeneralizedBlackScholesProcess> process)
+    : process_(std::move(process)) {}
 
     std::pair<Real, Volatility>
     BSMRNDCalculator::distributionParams(Real x, Time t) const {

@@ -36,41 +36,30 @@ namespace QuantLib {
     class ZeroCouponInflationSwapHelper
     : public BootstrapHelper<ZeroInflationTermStructure> {
     public:
-        ZeroCouponInflationSwapHelper(
-            const Handle<Quote>& quote,
-            const Period& swapObsLag,   // lag on swap observation of index
-            const Date& maturity,
-            const Calendar& calendar,   // index may have null calendar as valid on every day
-            BusinessDayConvention paymentConvention,
-            const DayCounter& dayCounter,
-            const ext::shared_ptr<ZeroInflationIndex>& zii,
-            const Handle<YieldTermStructure>& nominalTermStructure,
-            const Date& start = Date());
-        /*! \deprecated Use the other constructor.
-                        Deprecated in version 1.15.
-        */
-        QL_DEPRECATED
-        ZeroCouponInflationSwapHelper(
-            const Handle<Quote>& quote,
-            const Period& swapObsLag,   // lag on swap observation of index
-            const Date& maturity,
-            const Calendar& calendar,   // index may have null calendar as valid on every day
-            BusinessDayConvention paymentConvention,
-            const DayCounter& dayCounter,
-            const ext::shared_ptr<ZeroInflationIndex>& zii);
+      ZeroCouponInflationSwapHelper(
+          const Handle<Quote>& quote,
+          const Period& swapObsLag, // lag on swap observation of index
+          const Date& maturity,
+          Calendar calendar, // index may have null calendar as valid on every day
+          BusinessDayConvention paymentConvention,
+          DayCounter dayCounter,
+          ext::shared_ptr<ZeroInflationIndex> zii,
+          Handle<YieldTermStructure> nominalTermStructure,
+          const Date& start = Date());
 
-        void setTermStructure(ZeroInflationTermStructure*);
-        Real impliedQuote() const;
-      protected:
-        Period swapObsLag_;
-        Date maturity_;
-        Calendar calendar_;
-        BusinessDayConvention paymentConvention_;
-        DayCounter dayCounter_;
-        ext::shared_ptr<ZeroInflationIndex> zii_;
-        ext::shared_ptr<ZeroCouponInflationSwap> zciis_;
-        Handle<YieldTermStructure> nominalTermStructure_;
-        Date start_;
+      void setTermStructure(ZeroInflationTermStructure*) override;
+      Real impliedQuote() const override;
+
+    protected:
+      Period swapObsLag_;
+      Date maturity_;
+      Calendar calendar_;
+      BusinessDayConvention paymentConvention_;
+      DayCounter dayCounter_;
+      ext::shared_ptr<ZeroInflationIndex> zii_;
+      ext::shared_ptr<ZeroCouponInflationSwap> zciis_;
+      Handle<YieldTermStructure> nominalTermStructure_;
+      Date start_;
     };
 
 
@@ -81,26 +70,16 @@ namespace QuantLib {
         YearOnYearInflationSwapHelper(const Handle<Quote>& quote,
                                       const Period& swapObsLag_,
                                       const Date& maturity,
-                                      const Calendar& calendar,
+                                      Calendar calendar,
                                       BusinessDayConvention paymentConvention,
-                                      const DayCounter& dayCounter,
-                                      const ext::shared_ptr<YoYInflationIndex>& yii,
-                                      const Handle<YieldTermStructure>& nominalTermStructure,
+                                      DayCounter dayCounter,
+                                      ext::shared_ptr<YoYInflationIndex> yii,
+                                      Handle<YieldTermStructure> nominalTermStructure,
                                       const Date& start = Date());
-        /*! \deprecated Use the other constructor.
-                        Deprecated in version 1.15.
-        */
-        QL_DEPRECATED
-        YearOnYearInflationSwapHelper(const Handle<Quote>& quote,
-                                      const Period& swapObsLag_,
-                                      const Date& maturity,
-                                      const Calendar& calendar,
-                                      BusinessDayConvention paymentConvention,
-                                      const DayCounter& dayCounter,
-                                      const ext::shared_ptr<YoYInflationIndex>& yii);
 
-        void setTermStructure(YoYInflationTermStructure*);
-        Real impliedQuote() const;
+        void setTermStructure(YoYInflationTermStructure*) override;
+        Real impliedQuote() const override;
+
       protected:
         Period swapObsLag_;
         Date maturity_;

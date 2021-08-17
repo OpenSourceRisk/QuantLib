@@ -25,9 +25,10 @@
 #ifndef quantlib_fd_shout_condition_hpp
 #define quantlib_fd_shout_condition_hpp
 
-#include <ql/methods/finitedifferences/fdtypedefs.hpp>
 #include <ql/discretizedasset.hpp>
 #include <ql/instruments/payoffs.hpp>
+#include <ql/methods/finitedifferences/fdtypedefs.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -37,42 +38,71 @@ namespace QuantLib {
         during the option's life. The minimum value is the option's
         intrinsic value at the shout time.
     */
-    class ShoutCondition : public StandardCurveDependentStepCondition {
+    class ShoutCondition : public StandardStepCondition {
       public:
+        ShoutCondition(const Array& intrinsicValues,
+                       Time resTime,
+                       Rate rate)
+        : resTime_(resTime), rate_(rate),
+          impl_(new ArrayImpl(intrinsicValues)) {}
+
+        /*! \deprecated Use the other constructor.
+                        Deprecated in version 1.19.
+        */
+        QL_DEPRECATED
         ShoutCondition(Option::Type type,
                        Real strike,
                        Time resTime,
-                       Rate rate);
-        ShoutCondition(const Array& intrinsicValues,
-                       Time resTime,
-                       Rate rate);
-        void applyTo(Array& a,
-                     Time t) const;
-      private:
-        virtual Real applyToValue(Real current,
-                                  Real intrinsic) const {
-            return std::max(current, disc_ * intrinsic );
+                       Rate rate)
+        : resTime_(resTime), rate_(rate),
+          impl_(new PayoffImpl(type, strike)) {}
+
+        void applyTo(Array& a, Time t) const override {
+            DiscountFactor B = std::exp(-rate_ * (t - resTime_));
+            //#pragma omp parallel for
+            for (Size i = 0; i < a.size(); i++) {
+                a[i] = std::max(a[i], B * impl_->getValue(a, i));
+            }
         }
+
+      private:
         Time resTime_;
         Rate rate_;
-        mutable DiscountFactor disc_;
+
+        // This part should be removed and the array-based implementation
+        // inlined once the payoff-based constructor is removed.
+
+        class Impl;
+
+        ext::shared_ptr<Impl> impl_;
+
+        class Impl {
+          public:
+            virtual ~Impl() = default;
+            virtual Real getValue(const Array &a,
+                                  int i) = 0;
+        };
+
+        class ArrayImpl : public Impl {
+          private:
+            Array intrinsicValues_;
+          public:
+            explicit ArrayImpl(Array a) : intrinsicValues_(std::move(a)) {}
+
+            Real getValue(const Array&, int i) override { return intrinsicValues_[i]; }
+        };
+
+        class PayoffImpl : public Impl {
+          private:
+            ext::shared_ptr<const Payoff> payoff_;
+          public:
+            PayoffImpl(Option::Type type, Real strike)
+            : payoff_(new PlainVanillaPayoff(type, strike)) {};
+
+            Real getValue(const Array& a, int i) override { return (*payoff_)(std::exp(a[i])); }
+        };
     };
 
-    inline ShoutCondition::ShoutCondition(Option::Type type,
-                                          Real strike, Time resTime,
-                                          Rate rate)
-    : StandardCurveDependentStepCondition(type, strike),
-      resTime_(resTime), rate_(rate) {}
-
-    inline ShoutCondition::ShoutCondition(const Array& intrinsicValues,
-                                          Time resTime, Rate rate)
-        : StandardCurveDependentStepCondition(intrinsicValues),
-          resTime_(resTime), rate_(rate) {}
-
-    inline void ShoutCondition::applyTo(Array& a, Time t) const {
-        disc_ = std::exp(-rate_ * (t - resTime_));
-        StandardCurveDependentStepCondition::applyTo(a, t);
-    }
 }
 
 

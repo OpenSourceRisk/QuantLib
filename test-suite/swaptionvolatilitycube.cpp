@@ -27,6 +27,7 @@
 #include <ql/termstructures/volatility/swaption/swaptionvolcube2.hpp>
 #include <ql/termstructures/volatility/swaption/swaptionvolcube1.hpp>
 #include <ql/termstructures/volatility/swaption/spreadedswaptionvol.hpp>
+#include <ql/termstructures/volatility/sabrsmilesection.hpp>
 #include <ql/utilities/dataformatters.hpp>
 
 using namespace QuantLib;
@@ -53,28 +54,22 @@ namespace swaption_volatility_cube_test {
         void makeAtmVolTest(const SwaptionVolatilityCube& volCube,
                             Real tolerance) {
 
-            for (Size i=0; i<atm.tenors.options.size(); i++) {
-              for (Size j=0; j<atm.tenors.swaps.size(); j++) {
-                Rate strike = volCube.atmStrike(atm.tenors.options[i],
-                                                atm.tenors.swaps[j]);
-                Volatility expVol =
-                    atmVolMatrix->volatility(atm.tenors.options[i],
-                                             atm.tenors.swaps[j],
-                                             strike, true);
-                Volatility actVol = volCube.volatility(atm.tenors.options[i],
-                                                       atm.tenors.swaps[j],
-                                                       strike, true);
-                Volatility error = std::abs(expVol-actVol);
-                if (error>tolerance)
-                  BOOST_ERROR("\nrecovery of atm vols failed:"
-                              "\nexpiry time = " << atm.tenors.options[i] <<
-                              "\nswap length = " << atm.tenors.swaps[j] <<
-                              "\n atm strike = " << io::rate(strike) <<
-                              "\n   exp. vol = " << io::volatility(expVol) <<
-                              "\n actual vol = " << io::volatility(actVol) <<
-                              "\n      error = " << io::volatility(error) <<
-                              "\n  tolerance = " << tolerance);
-              }
+            for (auto& option : atm.tenors.options) {
+                for (auto& swap : atm.tenors.swaps) {
+                    Rate strike = volCube.atmStrike(option, swap);
+                    Volatility expVol = atmVolMatrix->volatility(option, swap, strike, true);
+                    Volatility actVol = volCube.volatility(option, swap, strike, true);
+                    Volatility error = std::abs(expVol - actVol);
+                    if (error > tolerance)
+                        BOOST_ERROR("\nrecovery of atm vols failed:"
+                                    "\nexpiry time = "
+                                    << option << "\nswap length = " << swap
+                                    << "\n atm strike = " << io::rate(strike)
+                                    << "\n   exp. vol = " << io::volatility(expVol)
+                                    << "\n actual vol = " << io::volatility(actVol)
+                                    << "\n      error = " << io::volatility(error)
+                                    << "\n  tolerance = " << tolerance);
+                }
             }
         }
 
@@ -279,10 +274,11 @@ void SwaptionVolatilityCubeTest::testSpreadedCube() {
                 volCube->smileSection(vars.cube.tenors.options[i], vars.cube.tenors.swaps[j]);
             ext::shared_ptr<SmileSection> smileSectionBySpreadedCube =
                 spreadedVolCube->smileSection(vars.cube.tenors.options[i], vars.cube.tenors.swaps[j]);
-            for (Size k=0; k<strikes.size(); k++) {
-                Real strike = strikes[k];
-                Real diff = spreadedVolCube->volatility(vars.cube.tenors.options[i], vars.cube.tenors.swaps[j], strike)
-                            - volCube->volatility(vars.cube.tenors.options[i], vars.cube.tenors.swaps[j], strike);
+            for (double strike : strikes) {
+                Real diff = spreadedVolCube->volatility(vars.cube.tenors.options[i],
+                                                        vars.cube.tenors.swaps[j], strike) -
+                            volCube->volatility(vars.cube.tenors.options[i],
+                                                vars.cube.tenors.swaps[j], strike);
                 if (std::fabs(diff-spread->value())>1e-16)
                     BOOST_ERROR("\ndiff!=spread in volatility method:"
                                 "\nexpiry time = " << vars.cube.tenors.options[i] <<
@@ -300,7 +296,6 @@ void SwaptionVolatilityCubeTest::testSpreadedCube() {
                                 "\n atm strike = " << io::rate(strike) <<
                                 "\ndiff = " << diff <<
                                 "\nspread = " << spread->value());
-
             }
         }
     }
@@ -452,8 +447,114 @@ void SwaptionVolatilityCubeTest::testObservability() {
     Settings::instance().evaluationDate() = referenceDate;
 }
 
+void SwaptionVolatilityCubeTest::testSabrParameters() {
+    BOOST_TEST_MESSAGE("Testing interpolation of SABR smile sections...");
+
+    using namespace swaption_volatility_cube_test;
+
+    CommonVars vars;
+
+    std::vector<std::vector<Handle<Quote> > >
+        parametersGuess(vars.cube.tenors.options.size()*vars.cube.tenors.swaps.size());
+    for (Size i=0; i<vars.cube.tenors.options.size()*vars.cube.tenors.swaps.size(); i++) {
+        parametersGuess[i] = std::vector<Handle<Quote> >(4);
+        parametersGuess[i][0] =
+            Handle<Quote>(ext::shared_ptr<Quote>(new SimpleQuote(0.2)));
+        parametersGuess[i][1] =
+            Handle<Quote>(ext::shared_ptr<Quote>(new SimpleQuote(0.5)));
+        parametersGuess[i][2] =
+            Handle<Quote>(ext::shared_ptr<Quote>(new SimpleQuote(0.4)));
+        parametersGuess[i][3] =
+            Handle<Quote>(ext::shared_ptr<Quote>(new SimpleQuote(0.0)));
+    }
+    std::vector<bool> isParameterFixed(4, false);
+
+    SwaptionVolCube1 volCube(vars.atmVolMatrix,
+                             vars.cube.tenors.options,
+                             vars.cube.tenors.swaps,
+                             vars.cube.strikeSpreads,
+                             vars.cube.volSpreadsHandle,
+                             vars.swapIndexBase,
+                             vars.shortSwapIndexBase,
+                             vars.vegaWeighedSmileFit,
+                             parametersGuess,
+                             isParameterFixed,
+                             true);
+
+    SwaptionVolatilityStructure* volStructure = &volCube;
+    Real tolerance = 1.0e-4;
+
+    //Interpolating between two SmileSection objects
+
+    //First section: maturity = 10Y, tenor = 2Y
+    ext::shared_ptr<SmileSection> smileSection1 = volStructure->smileSection(Period(10,Years), Period(2,Years));
+
+    //Second section: maturity = 10Y, tenor = 4Y
+    ext::shared_ptr<SmileSection> smileSection2 = volStructure->smileSection(Period(10,Years), Period(4,Years));
+
+    //Third section in the middle: maturity = 10Y, tenor = 3Y
+    ext::shared_ptr<SmileSection> smileSection3 = volStructure->smileSection(Period(10,Years), Period(3,Years));
+
+    //test alpha interpolation
+    Real alpha1 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection1)->alpha();
+    Real alpha2 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection2)->alpha();
+    Real alpha3 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection3)->alpha();
+    Real alpha12 = 0.5*(alpha1+alpha2);
+    if (std::abs(alpha3 - alpha12) > tolerance) {
+             BOOST_ERROR("\nChecking interpolation of alpha parameters:"
+                         "\nexpected = " << alpha12 <<
+                         "\nobserved = " << alpha3);
+    }
+
+    //test beta interpolation
+     Real beta1 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection1)->beta();
+     Real beta2 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection2)->beta();
+     Real beta3 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection3)->beta();
+     Real beta12 = 0.5*(beta1+beta2);
+     if (std::abs(beta3 - beta12) > tolerance) {
+              BOOST_ERROR("\nChecking interpolation of beta parameters:"
+                          "\nexpected = " << beta12 <<
+                          "\nobserved = " << beta3);
+     }
+
+     //test rho interpolation
+       Real rho1 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection1)->rho();
+       Real rho2 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection2)->rho();
+       Real rho3 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection3)->rho();
+       Real rho12 = 0.5*(rho1+rho2);
+       if (std::abs(rho3 - rho12) > tolerance) {
+                BOOST_ERROR("\nChecking interpolation of rho parameters:"
+                            "\nexpected = " << rho12 <<
+                            "\nobserved = " << rho3);
+       }
+
+       //test nu interpolation
+         Real nu1 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection1)->nu();
+         Real nu2 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection2)->nu();
+         Real nu3 = ext::dynamic_pointer_cast<SabrSmileSection>(smileSection3)->nu();
+         Real nu12 = 0.5*(nu1+nu2);
+         if (std::abs(nu3 - nu12) > tolerance) {
+                  BOOST_ERROR("\nChecking interpolation of nu parameters:"
+                              "\nexpected = " << nu12 <<
+                              "\nobserved = " << nu3);
+         }
+
+         //test forward interpolation
+           Real forward1 = smileSection1->atmLevel();
+           Real forward2 = smileSection2->atmLevel();
+           Real forward3 = smileSection3->atmLevel();
+           Real forward12 = 0.5*(forward1+forward2);
+           if (std::abs(forward3 - forward12) > tolerance) {
+                    BOOST_ERROR("\nChecking interpolation of forward parameters:"
+                                "\nexpected = " << forward12 <<
+                                "\nobserved = " << forward3);
+           }
+
+}
+
+
 test_suite* SwaptionVolatilityCubeTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Swaption Volatility Cube tests");
+    auto* suite = BOOST_TEST_SUITE("Swaption Volatility Cube tests");
 
     // SwaptionVolCubeByLinear reproduces ATM vol with machine precision
     suite->add(QUANTLIB_TEST_CASE(&SwaptionVolatilityCubeTest::testAtmVols));
@@ -463,11 +564,13 @@ test_suite* SwaptionVolatilityCubeTest::suite() {
     // SwaptionVolCubeBySabr reproduces ATM vol with given tolerance
     // SwaptionVolCubeBySabr reproduces smile spreads with given tolerance
     suite->add(QUANTLIB_TEST_CASE(&SwaptionVolatilityCubeTest::testSabrVols));
-    suite->add(QUANTLIB_TEST_CASE(
-                              &SwaptionVolatilityCubeTest::testSpreadedCube));
+    suite->add(QUANTLIB_TEST_CASE(&SwaptionVolatilityCubeTest::testSpreadedCube));
+    suite->add(QUANTLIB_TEST_CASE(&SwaptionVolatilityCubeTest::testObservability));
+    suite->add(QUANTLIB_TEST_CASE(&SwaptionVolatilityCubeTest::testSabrParameters));
 
-    suite->add(QUANTLIB_TEST_CASE(
-                             &SwaptionVolatilityCubeTest::testObservability));
 
     return suite;
 }
+
+
+

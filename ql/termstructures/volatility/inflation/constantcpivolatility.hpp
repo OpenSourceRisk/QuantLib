@@ -34,27 +34,27 @@ namespace QuantLib {
         //! \name Constructor
         //@{
         //! calculate the reference date based on the global evaluation date
-        ConstantCPIVolatility(const Volatility v,
+        ConstantCPIVolatility(Volatility v,
                               Natural settlementDays,
                               const Calendar&,
                               BusinessDayConvention bdc,
                               const DayCounter& dc,
-                              const Period &observationLag,
+                              const Period& observationLag,
                               Frequency frequency,
                               bool indexIsInterpolated);
         //@}
 
         //! \name Limits
         //@{
-        virtual Date maxDate() const { return Date::maxDate(); }
+        Date maxDate() const override { return Date::maxDate(); }
         //! the minimum strike for which the term structure can return vols
-        virtual Real minStrike() const { return QL_MIN_REAL; }
+        Real minStrike() const override { return QL_MIN_REAL; }
         //! the maximum strike for which the term structure can return vols
-        virtual Real maxStrike() const { return QL_MAX_REAL; }
+        Real maxStrike() const override { return QL_MAX_REAL; }
         //@}
 
       private:
-        virtual Volatility volatilityImpl(Time length, Rate strike) const;
+        Volatility volatilityImpl(Time length, Rate strike) const override;
         Volatility volatility_;
     };
 

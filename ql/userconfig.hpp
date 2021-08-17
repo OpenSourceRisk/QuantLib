@@ -82,24 +82,33 @@
 #endif
 
 /* Define this to use standard smart pointers instead of Boost ones.
-   This requires you to set your compiler's standard to at least
-   C++11.  Note that std::shared_ptr does not check access and can
+   Note that std::shared_ptr does not check access and can
    cause segmentation faults. */
 #ifndef QL_USE_STD_SHARED_PTR
 //#    define QL_USE_STD_SHARED_PTR
 #endif
 
-/* Define this to replace std::auto_ptr with std::unique_ptr.
-   This requires you to set your compiler's standard to at least C++11. */
+/* Undefine this to use std::auto_ptr instead of std::unique_ptr. */
 #ifndef QL_USE_STD_UNIQUE_PTR
-//#    define QL_USE_STD_UNIQUE_PTR
+#    define QL_USE_STD_UNIQUE_PTR
 #endif
 
 /* Define this to use std::function and std::bind instead of
-   boost::function and boost::bind.  This requires you to set your
-   compiler's standard to at least C++11. */
+   boost::function and boost::bind. */
 #ifndef QL_USE_STD_FUNCTION
 //#    define QL_USE_STD_FUNCTION
+#endif
+
+/* Define this to use std::tuple instead of boost::tuple. */
+#ifndef QL_USE_STD_TUPLE
+//#    define QL_USE_STD_TUPLE
+#endif
+
+/* Define this if you want to use the Disposable class template.
+   This should be no longer necessary in C++11
+   and might interfere with compiler optimizations. */
+#ifndef QL_USE_DISPOSABLE
+//#    define QL_USE_DISPOSABLE
 #endif
 
 /* Define this to enable the parallel unit test runner */

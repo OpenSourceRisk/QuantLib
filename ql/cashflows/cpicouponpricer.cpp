@@ -18,21 +18,18 @@
  */
 
 #include <ql/cashflows/cpicouponpricer.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    CPICouponPricer::CPICouponPricer() {}
-
-    CPICouponPricer::CPICouponPricer(
-                       const Handle<CPIVolatilitySurface>& capletVol)
-    : capletVol_(capletVol) {
-        registerWith(capletVol_);
+    CPICouponPricer::CPICouponPricer(Handle<YieldTermStructure> nominalTermStructure)
+    : nominalTermStructure_(std::move(nominalTermStructure)) {
+        registerWith(nominalTermStructure_);
     }
 
-    CPICouponPricer::CPICouponPricer(
-                       const Handle<CPIVolatilitySurface>& capletVol,
-                       const Handle<YieldTermStructure>& nominalTermStructure)
-    : capletVol_(capletVol), nominalTermStructure_(nominalTermStructure) {
+    CPICouponPricer::CPICouponPricer(Handle<CPIVolatilitySurface> capletVol,
+                                     Handle<YieldTermStructure> nominalTermStructure)
+    : capletVol_(std::move(capletVol)), nominalTermStructure_(std::move(nominalTermStructure)) {
         registerWith(capletVol_);
         registerWith(nominalTermStructure_);
     }
@@ -160,14 +157,5 @@ namespace QuantLib {
         // with a different yield curve
         return gearing_ * adjustedFixing() + spread_;
     }
-
-
-    //=========================================================================
-    // vol-dependent pricers, note that these do not discount
-    //=========================================================================
-
-/*
-    NOT IMPLEMENTED
-*/
 
 }

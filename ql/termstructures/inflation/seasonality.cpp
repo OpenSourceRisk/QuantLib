@@ -32,10 +32,6 @@ namespace QuantLib {
 
 
     //Multiplicative Seasonality on price = on CPI/RPI/HICP/etc
-    //
-    MultiplicativePriceSeasonality::MultiplicativePriceSeasonality() {
-    }
-
 
     void MultiplicativePriceSeasonality::validate() const
     {
@@ -247,7 +243,7 @@ namespace QuantLib {
 
         }
 
-        if (!dir) // invers Factor required
+        if (dir == 0) // invers Factor required
         {
             seasonalCorrection = 1/seasonalCorrection;
         }

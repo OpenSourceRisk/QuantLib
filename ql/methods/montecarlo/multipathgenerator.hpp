@@ -30,6 +30,7 @@
 #include <ql/methods/montecarlo/multipath.hpp>
 #include <ql/methods/montecarlo/sample.hpp>
 #include <ql/stochasticprocess.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -68,13 +69,12 @@ namespace QuantLib {
     // template definitions
 
     template <class GSG>
-    MultiPathGenerator<GSG>::MultiPathGenerator(
-                   const ext::shared_ptr<StochasticProcess>& process,
-                   const TimeGrid& times,
-                   GSG generator,
-                   bool brownianBridge)
-    : brownianBridge_(brownianBridge), process_(process),
-      generator_(generator), next_(MultiPath(process->size(), times), 1.0) {
+    MultiPathGenerator<GSG>::MultiPathGenerator(const ext::shared_ptr<StochasticProcess>& process,
+                                                const TimeGrid& times,
+                                                GSG generator,
+                                                bool brownianBridge)
+    : brownianBridge_(brownianBridge), process_(process), generator_(std::move(generator)),
+      next_(MultiPath(process->size(), times), 1.0) {
 
         QL_REQUIRE(generator_.dimension() ==
                    process->factors()*(times.size()-1),

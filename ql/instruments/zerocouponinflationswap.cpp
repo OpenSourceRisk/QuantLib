@@ -18,10 +18,11 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
  */
 
-#include <ql/instruments/zerocouponinflationswap.hpp>
-#include <ql/indexes/inflationindex.hpp>
-#include <ql/cashflows/simplecashflow.hpp>
 #include <ql/cashflows/indexedcashflow.hpp>
+#include <ql/cashflows/simplecashflow.hpp>
+#include <ql/indexes/inflationindex.hpp>
+#include <ql/instruments/zerocouponinflationswap.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -33,24 +34,22 @@ namespace QuantLib {
     ZeroCouponInflationSwap::ZeroCouponInflationSwap(
         Type type,
         Real nominal,
-        const Date& startDate,  // start date of contract (only)
-        const Date& maturity,   // this is pre-adjustment!
-        const Calendar& fixCalendar,
+        const Date& startDate, // start date of contract (only)
+        const Date& maturity,  // this is pre-adjustment!
+        Calendar fixCalendar,
         BusinessDayConvention fixConvention,
-        const DayCounter& dayCounter,
+        DayCounter dayCounter,
         Rate fixedRate,
-        const ext::shared_ptr<ZeroInflationIndex> &infIndex,
+        const ext::shared_ptr<ZeroInflationIndex>& infIndex,
         const Period& observationLag,
         bool adjustInfObsDates,
         Calendar infCalendar,
         BusinessDayConvention infConvention)
-    : Swap(2), type_(type), nominal_(nominal),
-      startDate_(startDate), maturityDate_(maturity),
-      fixCalendar_(fixCalendar), fixConvention_(fixConvention),
-      fixedRate_(fixedRate), infIndex_(infIndex),
-      observationLag_(observationLag), adjustInfObsDates_(adjustInfObsDates),
-      infCalendar_(infCalendar), infConvention_(infConvention),
-      dayCounter_(dayCounter) {
+    : Swap(2), type_(type), nominal_(nominal), startDate_(startDate), maturityDate_(maturity),
+      fixCalendar_(std::move(fixCalendar)), fixConvention_(fixConvention), fixedRate_(fixedRate),
+      infIndex_(infIndex), observationLag_(observationLag), adjustInfObsDates_(adjustInfObsDates),
+      infCalendar_(std::move(infCalendar)), infConvention_(infConvention),
+      dayCounter_(std::move(dayCounter)) {
         // first check compatibility of index and swap definitions
         if (infIndex_->interpolated()) {
             Period pShift(infIndex_->frequency());
@@ -96,8 +95,8 @@ namespace QuantLib {
             new IndexedCashFlow(nominal,infIndex,baseDate_,obsDate_,infPayDate,growthOnly)));
 
         for (Size j=0; j<2; ++j) {
-            for (Leg::iterator i = legs_[j].begin(); i!= legs_[j].end(); ++i)
-                registerWith(*i);
+            for (auto& i : legs_[j])
+                registerWith(i);
         }
 
         switch (type_) {
@@ -112,9 +111,7 @@ namespace QuantLib {
             default:
                 QL_FAIL("Unknown zero-inflation-swap type");
         }
-
     }
-
 
 
     void ZeroCouponInflationSwap::setupArguments(PricingEngine::arguments* args) const {

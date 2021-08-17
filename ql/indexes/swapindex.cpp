@@ -16,30 +16,29 @@
  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the license for more details. */
 
-#include <ql/indexes/swapindex.hpp>
-#include <ql/instruments/makevanillaswap.hpp>
-#include <ql/instruments/makeois.hpp>
 #include <ql/indexes/iborindex.hpp>
+#include <ql/indexes/swapindex.hpp>
+#include <ql/instruments/makeois.hpp>
+#include <ql/instruments/makevanillaswap.hpp>
 #include <ql/time/schedule.hpp>
 #include <sstream>
+#include <utility>
 
 namespace QuantLib {
 
     SwapIndex::SwapIndex(const std::string& familyName,
                          const Period& tenor,
                          Natural settlementDays,
-                         Currency currency,
+                         const Currency& currency,
                          const Calendar& fixingCalendar,
                          const Period& fixedLegTenor,
                          BusinessDayConvention fixedLegConvention,
                          const DayCounter& fixedLegDayCounter,
-                         const ext::shared_ptr<IborIndex>& iborIndex)
-    : InterestRateIndex(familyName, tenor, settlementDays,
-                        currency, fixingCalendar, fixedLegDayCounter),
-      tenor_(tenor), iborIndex_(iborIndex),
-      fixedLegTenor_(fixedLegTenor),
-      fixedLegConvention_(fixedLegConvention),
-      exogenousDiscount_(false),
+                         ext::shared_ptr<IborIndex> iborIndex)
+    : InterestRateIndex(
+          familyName, tenor, settlementDays, currency, fixingCalendar, fixedLegDayCounter),
+      tenor_(tenor), iborIndex_(std::move(iborIndex)), fixedLegTenor_(fixedLegTenor),
+      fixedLegConvention_(fixedLegConvention), exogenousDiscount_(false),
       discount_(Handle<YieldTermStructure>()) {
         registerWith(iborIndex_);
     }
@@ -47,20 +46,18 @@ namespace QuantLib {
     SwapIndex::SwapIndex(const std::string& familyName,
                          const Period& tenor,
                          Natural settlementDays,
-                         Currency currency,
+                         const Currency& currency,
                          const Calendar& fixingCalendar,
                          const Period& fixedLegTenor,
                          BusinessDayConvention fixedLegConvention,
                          const DayCounter& fixedLegDayCounter,
-                         const ext::shared_ptr<IborIndex>& iborIndex,
-                         const Handle<YieldTermStructure>& discount)
-    : InterestRateIndex(familyName, tenor, settlementDays,
-                        currency, fixingCalendar, fixedLegDayCounter),
-      tenor_(tenor), iborIndex_(iborIndex),
-      fixedLegTenor_(fixedLegTenor),
-      fixedLegConvention_(fixedLegConvention),
-      exogenousDiscount_(true),
-      discount_(discount) {
+                         ext::shared_ptr<IborIndex> iborIndex,
+                         Handle<YieldTermStructure> discount)
+    : InterestRateIndex(
+          familyName, tenor, settlementDays, currency, fixingCalendar, fixedLegDayCounter),
+      tenor_(tenor), iborIndex_(std::move(iborIndex)), fixedLegTenor_(fixedLegTenor),
+      fixedLegConvention_(fixedLegConvention), exogenousDiscount_(true),
+      discount_(std::move(discount)) {
         registerWith(iborIndex_);
         registerWith(discount_);
     }
@@ -186,17 +183,25 @@ namespace QuantLib {
     }
 
     OvernightIndexedSwapIndex::OvernightIndexedSwapIndex(
-                            const std::string& familyName,
-                            const Period& tenor,
-                            Natural settlementDays,
-                            Currency currency,
-                            const ext::shared_ptr<OvernightIndex>& overnightIndex,
-                            bool telescopicValueDates)
-    : SwapIndex(familyName, tenor, settlementDays,
-                currency, overnightIndex->fixingCalendar(),
-                1*Years, ModifiedFollowing, overnightIndex->dayCounter(),
+        const std::string& familyName,
+        const Period& tenor,
+        Natural settlementDays,
+        const Currency& currency,
+        const ext::shared_ptr<OvernightIndex>& overnightIndex,
+        bool telescopicValueDates,
+        RateAveraging::Type averagingMethod)
+    : SwapIndex(familyName,
+                tenor,
+                settlementDays,
+                currency,
+                overnightIndex->fixingCalendar(),
+                1 * Years,
+                ModifiedFollowing,
+                overnightIndex->dayCounter(),
                 overnightIndex),
-      overnightIndex_(overnightIndex), telescopicValueDates_(telescopicValueDates) {}
+      overnightIndex_(overnightIndex), 
+      telescopicValueDates_(telescopicValueDates), 
+      averagingMethod_(averagingMethod) {}
 
 
     ext::shared_ptr<OvernightIndexedSwap>
@@ -210,7 +215,8 @@ namespace QuantLib {
             lastSwap_ = MakeOIS(tenor_, overnightIndex_, fixedRate)
                 .withEffectiveDate(valueDate(fixingDate))
                 .withFixedLegDayCount(dayCounter_)
-                .withTelescopicValueDates(telescopicValueDates_);
+                .withTelescopicValueDates(telescopicValueDates_)
+                .withAveragingMethod(averagingMethod_);
             lastFixingDate_ = fixingDate;
         }
         return lastSwap_;

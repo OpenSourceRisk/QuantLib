@@ -51,7 +51,7 @@ namespace QuantLib {
     */
       public:
         CurveState(const std::vector<Time>& rateTimes);
-        virtual ~CurveState() {}
+        virtual ~CurveState() = default;
 
         //! \name Inspectors
         //@{
@@ -89,25 +89,24 @@ namespace QuantLib {
         std::vector<Time> rateTimes_, rateTaus_;
     };
 
-    void forwardsFromDiscountRatios(const Size firstValidIndex,
+    void forwardsFromDiscountRatios(Size firstValidIndex,
                                     const std::vector<DiscountFactor>& ds,
                                     const std::vector<Time>& taus,
                                     std::vector<Rate>& fwds);
 
-    void coterminalFromDiscountRatios(const Size firstValidIndex,
+    void coterminalFromDiscountRatios(Size firstValidIndex,
                                       const std::vector<DiscountFactor>& ds,
                                       const std::vector<Time>& taus,
                                       std::vector<Rate>& cotSwapRates,
                                       std::vector<Real>& cotSwapAnnuities);
 
-    void constantMaturityFromDiscountRatios(// Size i, // to be added later
-                                            const Size spanningForwards,
-                                            const Size firstValidIndex,
-                                            const std::vector<DiscountFactor>& ds,
-                                            const std::vector<Time>& taus,
-                                            std::vector<Rate>& cotSwapRates,
-                                            std::vector<Real>& cotSwapAnnuities);
-
+    void constantMaturityFromDiscountRatios( // Size i, // to be added later
+        Size spanningForwards,
+        Size firstValidIndex,
+        const std::vector<DiscountFactor>& ds,
+        const std::vector<Time>& taus,
+        std::vector<Rate>& cotSwapRates,
+        std::vector<Real>& cotSwapAnnuities);
 }
 
 #endif

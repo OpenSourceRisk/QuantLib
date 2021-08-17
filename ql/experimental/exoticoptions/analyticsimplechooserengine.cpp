@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2010 Master IMAFA - Polytech'Nice Sophia - Université de Nice Sophia Antipolis
+ Copyright (C) 2010 Master IMAFA - Polytech'Nice Sophia - UniversitÃ© de Nice Sophia Antipolis
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -17,16 +17,17 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/experimental/exoticoptions/analyticsimplechooserengine.hpp>
-#include <ql/math/distributions/normaldistribution.hpp>
-#include <ql/instruments/payoffs.hpp>
 #include <ql/exercise.hpp>
+#include <ql/experimental/exoticoptions/analyticsimplechooserengine.hpp>
+#include <ql/instruments/payoffs.hpp>
+#include <ql/math/distributions/normaldistribution.hpp>
+#include <utility>
 
 namespace QuantLib {
 
     AnalyticSimpleChooserEngine::AnalyticSimpleChooserEngine(
-             const ext::shared_ptr<GeneralizedBlackScholesProcess>& process)
-    : process_(process) {
+        ext::shared_ptr<GeneralizedBlackScholesProcess> process)
+    : process_(std::move(process)) {
         registerWith(process_);
     }
 

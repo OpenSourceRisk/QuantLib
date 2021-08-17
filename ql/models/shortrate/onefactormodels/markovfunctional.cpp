@@ -17,45 +17,43 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/models/shortrate/onefactormodels/markovfunctional.hpp>
-#include <ql/termstructures/volatility/smilesectionutils.hpp>
+#include <ql/math/integrals/gaussianquadratures.hpp>
 #include <ql/math/interpolations/cubicinterpolation.hpp>
 #include <ql/math/solvers1d/brent.hpp>
-#include <ql/math/integrals/gaussianquadratures.hpp>
-#include <ql/termstructures/volatility/smilesection.hpp>
-#include <ql/termstructures/volatility/sabrinterpolatedsmilesection.hpp>
-#include <ql/termstructures/volatility/kahalesmilesection.hpp>
+#include <ql/models/shortrate/onefactormodels/markovfunctional.hpp>
 #include <ql/termstructures/volatility/atmadjustedsmilesection.hpp>
 #include <ql/termstructures/volatility/atmsmilesection.hpp>
+#include <ql/termstructures/volatility/kahalesmilesection.hpp>
+#include <ql/termstructures/volatility/sabrinterpolatedsmilesection.hpp>
+#include <ql/termstructures/volatility/smilesection.hpp>
+#include <ql/termstructures/volatility/smilesectionutils.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    MarkovFunctional::MarkovFunctional(
-        const Handle<YieldTermStructure> &termStructure, const Real reversion,
-        const std::vector<Date> &volstepdates,
-        const std::vector<Real> &volatilities,
-        const Handle<SwaptionVolatilityStructure> &swaptionVol,
-        const std::vector<Date> &swaptionExpiries,
-        const std::vector<Period> &swaptionTenors,
-        const ext::shared_ptr<SwapIndex> &swapIndexBase,
-        const MarkovFunctional::ModelSettings &modelSettings)
-        : Gaussian1dModel(termStructure), CalibratedModel(1),
-          modelSettings_(modelSettings), capletCalibrated_(false),
-          reversion_(ConstantParameter(reversion, NoConstraint())),
-          sigma_(arguments_[0]), volstepdates_(volstepdates),
-          volatilities_(volatilities), swaptionVol_(swaptionVol),
-          capletVol_(Handle<OptionletVolatilityStructure>()),
-          swaptionExpiries_(swaptionExpiries),
-          capletExpiries_(std::vector<Date>()), swaptionTenors_(swaptionTenors),
-          swapIndexBase_(swapIndexBase),
-          iborIndex_(swapIndexBase->iborIndex()) {
+    MarkovFunctional::MarkovFunctional(const Handle<YieldTermStructure>& termStructure,
+                                       const Real reversion,
+                                       std::vector<Date> volstepdates,
+                                       std::vector<Real> volatilities,
+                                       const Handle<SwaptionVolatilityStructure>& swaptionVol,
+                                       const std::vector<Date>& swaptionExpiries,
+                                       const std::vector<Period>& swaptionTenors,
+                                       const ext::shared_ptr<SwapIndex>& swapIndexBase,
+                                       MarkovFunctional::ModelSettings modelSettings)
+    : Gaussian1dModel(termStructure), CalibratedModel(1), modelSettings_(std::move(modelSettings)),
+      capletCalibrated_(false), reversion_(ConstantParameter(reversion, NoConstraint())),
+      sigma_(arguments_[0]), volstepdates_(std::move(volstepdates)),
+      volatilities_(std::move(volatilities)), swaptionVol_(swaptionVol),
+      capletVol_(Handle<OptionletVolatilityStructure>()), swaptionExpiries_(swaptionExpiries),
+      capletExpiries_(std::vector<Date>()), swaptionTenors_(swaptionTenors),
+      swapIndexBase_(swapIndexBase), iborIndex_(swapIndexBase->iborIndex()) {
 
         QL_REQUIRE(swaptionExpiries.size() == swaptionTenors.size(),
                    "number of swaption expiries ("
                        << swaptionExpiries.size()
                        << ") is differnt from number of swaption tenors ("
                        << swaptionTenors.size() << ")");
-        QL_REQUIRE(swaptionExpiries.size() >= 1,
+        QL_REQUIRE(!swaptionExpiries.empty(),
                    "need at least one swaption expiry to calibrate numeraire");
         QL_REQUIRE(!termStructure.empty(),
                    "yield term structure handle is empty");
@@ -65,25 +63,23 @@ namespace QuantLib {
         initialize();
     }
 
-    MarkovFunctional::MarkovFunctional(
-        const Handle<YieldTermStructure> &termStructure, const Real reversion,
-        const std::vector<Date> &volstepdates,
-        const std::vector<Real> &volatilities,
-        const Handle<OptionletVolatilityStructure> &capletVol,
-        const std::vector<Date> &capletExpiries,
-        const ext::shared_ptr<IborIndex> &iborIndex,
-        const MarkovFunctional::ModelSettings &modelSettings)
-        : Gaussian1dModel(termStructure), CalibratedModel(1),
-          modelSettings_(modelSettings), capletCalibrated_(true),
-          reversion_(ConstantParameter(reversion, NoConstraint())),
-          sigma_(arguments_[0]), volstepdates_(volstepdates),
-          volatilities_(volatilities),
-          swaptionVol_(Handle<SwaptionVolatilityStructure>()),
-          capletVol_(capletVol), swaptionExpiries_(std::vector<Date>()),
-          capletExpiries_(capletExpiries),
-          swaptionTenors_(std::vector<Period>()), iborIndex_(iborIndex) {
+    MarkovFunctional::MarkovFunctional(const Handle<YieldTermStructure>& termStructure,
+                                       const Real reversion,
+                                       std::vector<Date> volstepdates,
+                                       std::vector<Real> volatilities,
+                                       const Handle<OptionletVolatilityStructure>& capletVol,
+                                       const std::vector<Date>& capletExpiries,
+                                       ext::shared_ptr<IborIndex> iborIndex,
+                                       MarkovFunctional::ModelSettings modelSettings)
+    : Gaussian1dModel(termStructure), CalibratedModel(1), modelSettings_(std::move(modelSettings)),
+      capletCalibrated_(true), reversion_(ConstantParameter(reversion, NoConstraint())),
+      sigma_(arguments_[0]), volstepdates_(std::move(volstepdates)),
+      volatilities_(std::move(volatilities)), swaptionVol_(Handle<SwaptionVolatilityStructure>()),
+      capletVol_(capletVol), swaptionExpiries_(std::vector<Date>()),
+      capletExpiries_(capletExpiries), swaptionTenors_(std::vector<Period>()),
+      iborIndex_(std::move(iborIndex)) {
 
-        QL_REQUIRE(capletExpiries.size() >= 1,
+        QL_REQUIRE(!capletExpiries.empty(),
                    "need at least one caplet expiry to calibrate numeraire");
         QL_REQUIRE(!termStructure.empty(),
                    "yield term structure handle is empty");
@@ -101,8 +97,7 @@ namespace QuantLib {
     void MarkovFunctional::updateTimes1() const {
         volsteptimes_.clear();
         int j = 0;
-        for (std::vector<Date>::const_iterator i = volstepdates_.begin();
-             i != volstepdates_.end(); ++i, ++j) {
+        for (auto i = volstepdates_.begin(); i != volstepdates_.end(); ++i, ++j) {
             volsteptimes_.push_back(termStructure()->timeFromReference(*i));
             volsteptimesArray_[j] = volsteptimes_[j];
             if (j == 0)
@@ -123,12 +118,10 @@ namespace QuantLib {
         times_.push_back(0.0);
         modelOutputs_.expiries_.clear();
         modelOutputs_.tenors_.clear();
-        for (std::map<Date, CalibrationPoint>::iterator k =
-                 calibrationPoints_.begin();
-             k != calibrationPoints_.end(); ++k) {
-            times_.push_back(termStructure()->timeFromReference(k->first));
-            modelOutputs_.expiries_.push_back(k->first);
-            modelOutputs_.tenors_.push_back(k->second.tenor_);
+        for (auto& calibrationPoint : calibrationPoints_) {
+            times_.push_back(termStructure()->timeFromReference(calibrationPoint.first));
+            modelOutputs_.expiries_.push_back(calibrationPoint.first);
+            modelOutputs_.tenors_.push_back(calibrationPoint.second.tenor_);
         }
         times_.push_back(numeraireTime_);
         QL_REQUIRE(volatilities_.size() == volsteptimes_.size() + 1,
@@ -161,8 +154,8 @@ namespace QuantLib {
         updateTimes1();
 
         if (capletCalibrated_) {
-            for (std::vector<Date>::const_iterator i = capletExpiries_.begin(); i != capletExpiries_.end(); ++i) {
-                makeCapletCalibrationPoint(*i);
+            for (auto capletExpirie : capletExpiries_) {
+                makeCapletCalibrationPoint(capletExpirie);
             }
         } else {
             std::vector<Date>::const_iterator i;
@@ -178,9 +171,8 @@ namespace QuantLib {
         do {
             Date numeraireKnown = numeraireDate_;
             done = true;
-            for (std::map<Date, CalibrationPoint>::reverse_iterator i =
-                     calibrationPoints_.rbegin();
-                 i != calibrationPoints_.rend() && done; ++i) {
+            for (auto i = calibrationPoints_.rbegin(); i != calibrationPoints_.rend() && done;
+                 ++i) {
                 if (i->second.paymentDates_.back() > numeraireDate_) {
                     numeraireDate_ = i->second.paymentDates_.back();
                     numeraireKnown = i->second.paymentDates_.back();
@@ -268,7 +260,7 @@ namespace QuantLib {
         ext::shared_ptr<VanillaSwap> underlying = underlyingSwap(swapIndexBase_, expiry, tenor);
 
         Schedule sched = underlying->fixedSchedule();
-        Calendar cal = sched.calendar();
+        const Calendar& cal = sched.calendar();
         BusinessDayConvention bdc = underlying->paymentConvention();
 
         for (unsigned int k = 1; k < sched.size(); k++) {
@@ -312,9 +304,7 @@ namespace QuantLib {
 
         Size pointIndex = 0;
 
-        for (std::map<Date, CalibrationPoint>::reverse_iterator i =
-                 calibrationPoints_.rbegin();
-             i != calibrationPoints_.rend(); ++i) {
+        for (auto i = calibrationPoints_.rbegin(); i != calibrationPoints_.rend(); ++i) {
 
             ext::shared_ptr<SmileSection> smileSection;
             if (i->second.isCaplet_) {
@@ -353,7 +343,7 @@ namespace QuantLib {
                 forcedRightIndex = forcedArbitrageIndices_[pointIndex].second;
             }
 
-            if (modelSettings_.adjustments_ & ModelSettings::KahaleSmile) {
+            if ((modelSettings_.adjustments_ & ModelSettings::KahaleSmile) != 0) {
 
                 i->second.smileSection_ = ext::make_shared<KahaleSmileSection>(
                     
@@ -374,7 +364,7 @@ namespace QuantLib {
 
             } else {
 
-                if (modelSettings_.adjustments_ & ModelSettings::SabrSmile) {
+                if ((modelSettings_.adjustments_ & ModelSettings::SabrSmile) != 0) {
 
                     SmileSectionUtils ssutils(
                         *i->second.rawSmileSection_,
@@ -391,9 +381,9 @@ namespace QuantLib {
                         "for sabr calibration at least 4 points are needed (is "
                             << k.size() << ")");
                     std::vector<Real> v;
-                    for (Size j = 0; j < k.size(); j++) {
-                        v.push_back(
-                            i->second.rawSmileSection_->volatility(k[j]));
+                    v.reserve(k.size());
+                    for (double j : k) {
+                        v.push_back(i->second.rawSmileSection_->volatility(j));
                     }
 
                     // TODO should we fix beta to avoid numerical instabilities
@@ -427,14 +417,13 @@ namespace QuantLib {
                         ext::dynamic_pointer_cast<KahaleSmileSection>(
                             i->second.smileSection_)->coreIndices());
 
-                } else if (modelSettings_.adjustments_ & ModelSettings::CustomSmile) {
+                } else if ((modelSettings_.adjustments_ & ModelSettings::CustomSmile) != 0) {
 
                     // Custom smile section is af by assumption
                     i->second.smileSection_ =
                         modelSettings_.customSmileFactory_->smileSection(
                             i->second.rawSmileSection_, i->second.atm_);
-                    arbitrageIndices_.push_back(
-                        std::make_pair(Null<Size>(), Null<Size>()));
+                    arbitrageIndices_.emplace_back(Null<Size>(), Null<Size>());
                 } else { // no smile pretreatment
 
                     i->second.smileSection_ = i->second.rawSmileSection_;
@@ -471,12 +460,10 @@ namespace QuantLib {
 
         int idx = times_.size() - 2;
 
-        for (std::map<Date, CalibrationPoint>::reverse_iterator
-                 i = calibrationPoints_.rbegin();
-             i != calibrationPoints_.rend(); ++i, --idx) {
+        for (auto i = calibrationPoints_.rbegin(); i != calibrationPoints_.rend(); ++i, --idx) {
 
             ext::shared_ptr<CustomSmileSection> mfSec;
-            if (modelSettings_.adjustments_ & ModelSettings::CustomSmile) {
+            if ((modelSettings_.adjustments_ & ModelSettings::CustomSmile) != 0) {
                 mfSec = ext::dynamic_pointer_cast<CustomSmileSection>(
                     i->second.smileSection_);
                 QL_REQUIRE(mfSec,
@@ -513,8 +500,8 @@ namespace QuantLib {
             Real digital = 0.0, swapRate, swapRate0;
 
             for (int c = 0;
-                 c == 0 || (c == 1 && (modelSettings_.adjustments_ &
-                                       ModelSettings::AdjustDigitals));
+                 c == 0 ||
+                 (c == 1 && ((modelSettings_.adjustments_ & ModelSettings::AdjustDigitals) != 0));
                  c++) {
 
                 if (c == 1) {
@@ -573,8 +560,7 @@ namespace QuantLib {
                     digital += integral * numeraire0 * digitalsCorrectionFactor;
 
                     bool check = true;
-                    if (modelSettings_.adjustments_ &
-                        ModelSettings::CustomSmile) {
+                    if ((modelSettings_.adjustments_ & ModelSettings::CustomSmile) != 0) {
                         swapRate = mfSec->inverseDigitalCall(
                             digital, i->second.annuity_);
                     } else if (digital >= i->second.minRateDigital_) {
@@ -610,7 +596,7 @@ namespace QuantLib {
                 }
             }
 
-            if (modelSettings_.adjustments_ & ModelSettings::AdjustYts) {
+            if ((modelSettings_.adjustments_ & ModelSettings::AdjustYts) != 0) {
                 numeraire_[idx]->update();
                 Real modelDeflatedZerobond = deflatedZerobond(times_[idx], 0.0);
                 Real marketDeflatedZerobond =
@@ -663,31 +649,27 @@ namespace QuantLib {
             modelOutputs_.marketRawCallPremium_.clear();
             modelOutputs_.marketRawPutPremium_.clear();
 
-            for (std::map<Date, CalibrationPoint>::iterator i =
-                     calibrationPoints_.begin();
-                 i != calibrationPoints_.end(); ++i) {
-                modelOutputs_.atm_.push_back(i->second.atm_);
-                modelOutputs_.annuity_.push_back(i->second.annuity_);
-                ext::shared_ptr<SmileSection> sec = i->second.smileSection_;
-                ext::shared_ptr<SmileSection> rawSec =
-                    i->second.rawSmileSection_;
-                SmileSectionUtils ssutils(
-                    *sec, modelSettings_.smileMoneynessCheckpoints_,
-                    i->second.atm_);
+            for (auto& calibrationPoint : calibrationPoints_) {
+                modelOutputs_.atm_.push_back(calibrationPoint.second.atm_);
+                modelOutputs_.annuity_.push_back(calibrationPoint.second.annuity_);
+                ext::shared_ptr<SmileSection> sec = calibrationPoint.second.smileSection_;
+                ext::shared_ptr<SmileSection> rawSec = calibrationPoint.second.rawSmileSection_;
+                SmileSectionUtils ssutils(*sec, modelSettings_.smileMoneynessCheckpoints_,
+                                          calibrationPoint.second.atm_);
                 Real shift = sec->shift();
                 std::vector<Real> money = ssutils.moneyGrid();
                 std::vector<Real> strikes, marketCall, marketPut, modelCall,
                     modelPut, marketVega, marketRawCall, marketRawPut;
                 for (Size j = 0; j < money.size(); j++) {
-                    strikes.push_back(
-                        sec->volatilityType() == Normal
-                            ? i->second.atm_ + money[j]
-                            : money[j] * (i->second.atm_ + shift) - shift);
+                    strikes.push_back(sec->volatilityType() == Normal ?
+                                          calibrationPoint.second.atm_ + money[j] :
+                                          money[j] * (calibrationPoint.second.atm_ + shift) -
+                                              shift);
                     try {
                         marketRawCall.push_back(rawSec->optionPrice(
-                            strikes[j], Option::Call, i->second.annuity_));
+                            strikes[j], Option::Call, calibrationPoint.second.annuity_));
                         marketRawPut.push_back(rawSec->optionPrice(
-                            strikes[j], Option::Put, i->second.annuity_));
+                            strikes[j], Option::Put, calibrationPoint.second.annuity_));
                     }
                     catch (Error&) {
                         // the smile section might not be able to output an
@@ -695,26 +677,25 @@ namespace QuantLib {
                         marketRawCall.push_back(0.0);
                         marketRawPut.push_back(0.0);
                     }
-                    marketCall.push_back(sec->optionPrice(
-                        strikes[j], Option::Call, i->second.annuity_));
-                    marketPut.push_back(sec->optionPrice(
-                        strikes[j], Option::Put, i->second.annuity_));
+                    marketCall.push_back(sec->optionPrice(strikes[j], Option::Call,
+                                                          calibrationPoint.second.annuity_));
+                    marketPut.push_back(sec->optionPrice(strikes[j], Option::Put,
+                                                         calibrationPoint.second.annuity_));
                     modelCall.push_back(
-                        i->second.isCaplet_
-                            ? capletPriceInternal(Option::Call, i->first, strikes[j],
-                                             Null<Date>(), 0.0, true)
-                            : swaptionPriceInternal(Option::Call, i->first,
-                                               i->second.tenor_, strikes[j],
-                                               Null<Date>(), 0.0, true));
+                        calibrationPoint.second.isCaplet_ ?
+                            capletPriceInternal(Option::Call, calibrationPoint.first, strikes[j],
+                                                Null<Date>(), 0.0, true) :
+                            swaptionPriceInternal(Option::Call, calibrationPoint.first,
+                                                  calibrationPoint.second.tenor_, strikes[j],
+                                                  Null<Date>(), 0.0, true));
                     modelPut.push_back(
-                        i->second.isCaplet_
-                            ? capletPriceInternal(Option::Put, i->first, strikes[j],
-                                             Null<Date>(), 0.0, true)
-                            : swaptionPriceInternal(Option::Put, i->first,
-                                               i->second.tenor_, strikes[j],
-                                               Null<Date>(), 0.0, true));
-                    marketVega.push_back(
-                        sec->vega(strikes[j], i->second.annuity_));
+                        calibrationPoint.second.isCaplet_ ?
+                            capletPriceInternal(Option::Put, calibrationPoint.first, strikes[j],
+                                                Null<Date>(), 0.0, true) :
+                            swaptionPriceInternal(Option::Put, calibrationPoint.first,
+                                                  calibrationPoint.second.tenor_, strikes[j],
+                                                  Null<Date>(), 0.0, true));
+                    marketVega.push_back(sec->vega(strikes[j], calibrationPoint.second.annuity_));
                 }
                 modelOutputs_.smileStrikes_.push_back(strikes);
                 modelOutputs_.marketCallPremium_.push_back(marketCall);
@@ -732,8 +713,7 @@ namespace QuantLib {
         return modelOutputs_;
     }
 
-    const Disposable<Array>
-    MarkovFunctional::numeraireArray(const Time t, const Array &y) const {
+    Disposable<Array> MarkovFunctional::numeraireArray(const Time t, const Array& y) const {
 
         calculate();
         Array res(y.size(), termStructure()->discount(numeraireTime_, true));
@@ -772,16 +752,14 @@ namespace QuantLib {
         return res;
     }
 
-    const Disposable<Array>
-    MarkovFunctional::zerobondArray(const Time T, const Time t,
-                                    const Array &y) const {
+    Disposable<Array>
+    MarkovFunctional::zerobondArray(const Time T, const Time t, const Array& y) const {
 
         return deflatedZerobondArray(T, t, y) * numeraireArray(t, y);
     }
 
-    const Disposable<Array>
-    MarkovFunctional::deflatedZerobondArray(const Time T, const Time t,
-                                            const Array &y) const {
+    Disposable<Array>
+    MarkovFunctional::deflatedZerobondArray(const Time T, const Time t, const Array& y) const {
 
         calculate();
 
@@ -888,42 +866,38 @@ namespace QuantLib {
         out << "Digital gap          : " << m.settings_.digitalGap_
             << std::endl;
         out << "Adjustments          : "
+            << ((m.settings_.adjustments_ & MarkovFunctional::ModelSettings::AdjustDigitals) != 0 ?
+                    "Digitals " :
+                    "")
+            << ((m.settings_.adjustments_ & MarkovFunctional::ModelSettings::AdjustYts) != 0 ?
+                    "Yts " :
+                    "")
             << ((m.settings_.adjustments_ &
-                        MarkovFunctional::ModelSettings::AdjustDigitals)
-                    ? "Digitals "
-                    : "")
+                 MarkovFunctional::ModelSettings::ExtrapolatePayoffFlat) != 0 ?
+                    "FlatPayoffExt " :
+                    "")
             << ((m.settings_.adjustments_ &
-                        MarkovFunctional::ModelSettings::AdjustYts)
-                                  ? "Yts "
-                                  : "")
+                 MarkovFunctional::ModelSettings::NoPayoffExtrapolation) != 0 ?
+                    "NoPayoffExt " :
+                    "")
+            << ((m.settings_.adjustments_ & MarkovFunctional::ModelSettings::KahaleSmile) != 0 ?
+                    "Kahale " :
+                    "")
             << ((m.settings_.adjustments_ &
-                        MarkovFunctional::ModelSettings::ExtrapolatePayoffFlat)
-                    ? "FlatPayoffExt "
-                    : "")
+                 MarkovFunctional::ModelSettings::SmileExponentialExtrapolation) != 0 ?
+                    "SmileExp " :
+                    "")
+            << ((m.settings_.adjustments_ & MarkovFunctional::ModelSettings::KahaleInterpolation) !=
+                        0 ?
+                    "KahaleInt " :
+                    "")
             << ((m.settings_.adjustments_ &
-                        MarkovFunctional::ModelSettings::NoPayoffExtrapolation)
-                    ? "NoPayoffExt "
-                    : "")
-            << ((m.settings_.adjustments_ &
-                        MarkovFunctional::ModelSettings::KahaleSmile)
-                    ? "Kahale "
-                    : "")
-            << ((m.settings_.adjustments_ & MarkovFunctional::ModelSettings::
-                                                SmileExponentialExtrapolation)
-                    ? "SmileExp "
-                    : "")
-            << ((m.settings_.adjustments_ &
-                        MarkovFunctional::ModelSettings::KahaleInterpolation)
-                    ? "KahaleInt "
-                    : "")
-            << ((m.settings_.adjustments_ & MarkovFunctional::ModelSettings::
-                                                   SmileDeleteArbitragePoints)
-                    ? "SmileDelArb "
-                    : "")
-            << ((m.settings_.adjustments_ &
-                        MarkovFunctional::ModelSettings::SabrSmile)
-                    ? "Sabr"
-                    : "")
+                 MarkovFunctional::ModelSettings::SmileDeleteArbitragePoints) != 0 ?
+                    "SmileDelArb " :
+                    "")
+            << ((m.settings_.adjustments_ & MarkovFunctional::ModelSettings::SabrSmile) != 0 ?
+                    "Sabr" :
+                    "")
             << std::endl;
         out << "Smile moneyness checkpoints: ";
         for (Size i = 0; i < m.settings_.smileMoneynessCheckpoints_.size(); i++)
@@ -934,13 +908,12 @@ namespace QuantLib {
 
         QL_REQUIRE(!m.dirty_, "model outputs are dirty");
 
-        if (m.expiries_.size() == 0)
+        if (m.expiries_.empty())
             return out; // no trace information was collected so no output
         out << std::endl;
         out << "Messages:" << std::endl;
-        for (std::vector<std::string>::const_iterator i = m.messages_.begin();
-             i != m.messages_.end(); ++i)
-            out << (*i) << std::endl;
+        for (const auto& message : m.messages_)
+            out << message << std::endl;
         out << std::endl << std::setprecision(16);
         out << "Yield termstructure fit:" << std::endl;
         out << "expiry;tenor;atm;annuity;digitalAdj;ytsAdj;marketzerorate;"
@@ -1059,10 +1032,14 @@ namespace QuantLib {
         return annuity;
     }
 
-    Real MarkovFunctional::swaptionPriceInternal(
-        const Option::Type &type, const Date &expiry, const Period &tenor,
-        const Rate strike, const Date &referenceDate, const Real y,
-        const bool zeroFixingDays, ext::shared_ptr<SwapIndex> swapIdx) const {
+    Real MarkovFunctional::swaptionPriceInternal(const Option::Type& type,
+                                                 const Date& expiry,
+                                                 const Period& tenor,
+                                                 const Rate strike,
+                                                 const Date& referenceDate,
+                                                 const Real y,
+                                                 const bool zeroFixingDays,
+                                                 const ext::shared_ptr<SwapIndex>& swapIdx) const {
 
         calculate();
 

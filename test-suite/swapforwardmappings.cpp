@@ -50,9 +50,6 @@ using namespace boost::unit_test_framework;
 using std::fabs;
 using std::sqrt;
 
-#define BEGIN(x) (x+0)
-#define END(x) (x+LENGTH(x))
-
 namespace {
 
     class MarketModelData{
@@ -63,8 +60,9 @@ namespace {
         const std::vector<Volatility>& volatilities(){return volatilities_;}
         const std::vector<Rate>& displacements(){return displacements_;}
         const std::vector<DiscountFactor>& discountFactors(){return discountFactors_;}
-        Size nbRates() {return nbRates_;}
-    private:
+        Size nbRates() const { return nbRates_; }
+
+      private:
         std::vector<Time> rateTimes_, accruals_;
         std::vector<Rate> forwards_;
         std::vector<Spread> displacements_;
@@ -147,11 +145,10 @@ namespace {
             volatilities_[i] =   mktVols[i];//.0;
     }
 
-    const ext::shared_ptr<SequenceStatisticsInc> simulate(
-        const std::vector<Real>& todaysDiscounts,
-        const ext::shared_ptr<MarketModelEvolver>& evolver,
-        const MarketModelMultiProduct& product)
-    {
+    ext::shared_ptr<SequenceStatisticsInc>
+    simulate(const std::vector<Real>& todaysDiscounts,
+             const ext::shared_ptr<MarketModelEvolver>& evolver,
+             const MarketModelMultiProduct& product) {
         Size paths_;
 #ifdef _DEBUG
         paths_ = 127;// //
@@ -173,9 +170,9 @@ namespace {
         const std::vector<Time>& rateTimes, Real strike ){
             std::vector<Time> paymentTimes(rateTimes.begin(), rateTimes.end()-1);
             std::vector<ext::shared_ptr<StrikedTypePayoff> > payoffs(paymentTimes.size());
-            for (Size i = 0; i < payoffs.size(); ++i){
-                payoffs[i] = ext::shared_ptr<StrikedTypePayoff>(new
-                    PlainVanillaPayoff(Option::Call, strike));
+            for (auto& payoff : payoffs) {
+                payoff = ext::shared_ptr<StrikedTypePayoff>(
+                    new PlainVanillaPayoff(Option::Call, strike));
             }
             return MultiStepCoterminalSwaptions (rateTimes,
                 paymentTimes, payoffs);
@@ -311,7 +308,7 @@ void SwapForwardMappingsTest::testForwardCoterminalMappings() {
     MultiStepCoterminalSwaptions product
         = makeMultiStepCoterminalSwaptions(rateTimes, strike);
 
-    const EvolutionDescription evolution = product.evolution();
+    const EvolutionDescription& evolution = product.evolution();
     const Size numberOfFactors = nbRates;
     Spread displacement = marketData.displacements().front();
     Matrix jacobian =
@@ -393,7 +390,7 @@ void SwapForwardMappingsTest::testSwaptionImpliedVolatility()
             PlainVanillaPayoff(Option::Call, strike));
         MultiStepSwaption product(rateTimes, startIndex, endIndex,payoff );
 
-        const EvolutionDescription evolution = product.evolution();
+        const EvolutionDescription& evolution = product.evolution();
         const Size numberOfFactors = nbRates;
         Spread displacement = marketData.displacements().front();
         Matrix jacobian =
@@ -453,7 +450,7 @@ void SwapForwardMappingsTest::testSwaptionImpliedVolatility()
 
 
 test_suite* SwapForwardMappingsTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("swap-forward mappings tests");
+    auto* suite = BOOST_TEST_SUITE("swap-forward mappings tests");
 
 
     suite->add(QUANTLIB_TEST_CASE(

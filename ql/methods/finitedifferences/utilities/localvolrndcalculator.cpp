@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
  Copyright (C) 2015 Klaus Spanderen
 
  This file is part of QuantLib, a free-software/open-source library
@@ -22,77 +22,60 @@
     \brief local volatility risk neutral terminal density calculation
 */
 
-#include <ql/quote.hpp>
-#include <ql/timegrid.hpp>
 #include <ql/math/distributions/normaldistribution.hpp>
 #include <ql/math/integrals/discreteintegrals.hpp>
 #include <ql/math/integrals/gausslobattointegral.hpp>
 #include <ql/math/interpolations/cubicinterpolation.hpp>
-#include <ql/termstructures/yieldtermstructure.hpp>
-#include <ql/termstructures/volatility/equityfx/localvoltermstructure.hpp>
 #include <ql/methods/finitedifferences/meshers/concentrating1dmesher.hpp>
-#include <ql/methods/finitedifferences/meshers/predefined1dmesher.hpp>
 #include <ql/methods/finitedifferences/meshers/fdmmeshercomposite.hpp>
-#include <ql/methods/finitedifferences/schemes/douglasscheme.hpp>
+#include <ql/methods/finitedifferences/meshers/predefined1dmesher.hpp>
 #include <ql/methods/finitedifferences/operators/fdmlocalvolfwdop.hpp>
+#include <ql/methods/finitedifferences/schemes/douglasscheme.hpp>
 #include <ql/methods/finitedifferences/utilities/localvolrndcalculator.hpp>
-#include <ql/functional.hpp>
+#include <ql/quote.hpp>
+#include <ql/termstructures/volatility/equityfx/localvoltermstructure.hpp>
+#include <ql/termstructures/yieldtermstructure.hpp>
+#include <ql/timegrid.hpp>
+#include <utility>
 
 
 namespace QuantLib {
     LocalVolRNDCalculator::LocalVolRNDCalculator(
-        const ext::shared_ptr<Quote>& spot,
-        const ext::shared_ptr<YieldTermStructure>& rTS,
-        const ext::shared_ptr<YieldTermStructure>& qTS,
+        ext::shared_ptr<Quote> spot,
+        ext::shared_ptr<YieldTermStructure> rTS,
+        ext::shared_ptr<YieldTermStructure> qTS,
         const ext::shared_ptr<LocalVolTermStructure>& localVol,
-        Size xGrid, Size tGrid,
+        Size xGrid,
+        Size tGrid,
         Real x0Density,
         Real eps,
         Size maxIter,
         Time gaussianStepSize)
-    : xGrid_   (xGrid),
-      tGrid_   (tGrid),
-      x0Density_(x0Density),
-      localVolProbEps_(eps),
-      maxIter_ (maxIter),
-      gaussianStepSize_(gaussianStepSize),
-      spot_       (spot),
-      localVol_(localVol),
-      rTS_     (rTS),
-      qTS_     (qTS),
-      timeGrid_(new TimeGrid(localVol->maxTime(), tGrid)),
-      xm_      (tGrid),
-      pm_      (new Matrix(tGrid, xGrid)) {
+    : xGrid_(xGrid), tGrid_(tGrid), x0Density_(x0Density), localVolProbEps_(eps), maxIter_(maxIter),
+      gaussianStepSize_(gaussianStepSize), spot_(std::move(spot)), localVol_(localVol),
+      rTS_(std::move(rTS)), qTS_(std::move(qTS)),
+      timeGrid_(new TimeGrid(localVol->maxTime(), tGrid)), xm_(tGrid),
+      pm_(new Matrix(tGrid, xGrid)) {
         registerWith(spot_);
         registerWith(rTS_);
         registerWith(qTS_);
         registerWith(localVol_);
     }
 
-    LocalVolRNDCalculator::LocalVolRNDCalculator(
-        const ext::shared_ptr<Quote>& spot,
-        const ext::shared_ptr<YieldTermStructure>& rTS,
-        const ext::shared_ptr<YieldTermStructure>& qTS,
-        const ext::shared_ptr<LocalVolTermStructure>& localVol,
-        const ext::shared_ptr<TimeGrid>& timeGrid,
-        Size xGrid,
-        Real x0Density,
-        Real eps,
-        Size maxIter,
-        Time gaussianStepSize)
-    : xGrid_   (xGrid),
-      tGrid_   (timeGrid->size()-1),
-      x0Density_(x0Density),
-      localVolProbEps_(eps),
-      maxIter_ (maxIter),
-      gaussianStepSize_(gaussianStepSize),
-      spot_    (spot),
-      localVol_(localVol),
-      rTS_     (rTS),
-      qTS_     (qTS),
-      timeGrid_(timeGrid),
-      xm_      (tGrid_),
-      pm_      (new Matrix(tGrid_, xGrid_)) {
+    LocalVolRNDCalculator::LocalVolRNDCalculator(ext::shared_ptr<Quote> spot,
+                                                 ext::shared_ptr<YieldTermStructure> rTS,
+                                                 ext::shared_ptr<YieldTermStructure> qTS,
+                                                 ext::shared_ptr<LocalVolTermStructure> localVol,
+                                                 const ext::shared_ptr<TimeGrid>& timeGrid,
+                                                 Size xGrid,
+                                                 Real x0Density,
+                                                 Real eps,
+                                                 Size maxIter,
+                                                 Time gaussianStepSize)
+    : xGrid_(xGrid), tGrid_(timeGrid->size() - 1), x0Density_(x0Density), localVolProbEps_(eps),
+      maxIter_(maxIter), gaussianStepSize_(gaussianStepSize), spot_(std::move(spot)),
+      localVol_(std::move(localVol)), rTS_(std::move(rTS)), qTS_(std::move(qTS)),
+      timeGrid_(timeGrid), xm_(tGrid_), pm_(new Matrix(tGrid_, xGrid_)) {
         registerWith(spot_);
         registerWith(rTS_);
         registerWith(qTS_);
@@ -142,8 +125,6 @@ namespace QuantLib {
     }
 
     Real LocalVolRNDCalculator::cdf(Real x, Time t) const {
-        using namespace ext::placeholders;
-
         calculate();
 
         // get the left side of the integral
@@ -162,14 +143,15 @@ namespace QuantLib {
         // left or right hand integral
         if (x > 0.5*(xr+xl)) {
             while (pdf(xr, t) > 0.01*localVolProbEps_) xr*=1.1;
+
             return 1.0-GaussLobattoIntegral(maxIter_, 0.1*localVolProbEps_)(
-                ext::bind(&LocalVolRNDCalculator::pdf, this, _1, t), x, xr);
+                [&](Real _x){ return pdf(_x, t); }, x, xr);
         }
         else {
             while (pdf(xl, t) > 0.01*localVolProbEps_) xl*=0.9;
 
             return GaussLobattoIntegral(maxIter_, 0.1*localVolProbEps_)(
-                ext::bind(&LocalVolRNDCalculator::pdf, this, _1, t), xl, x);
+                [&](Real _x){ return pdf(_x, t); }, xl, x);
         }
     }
 
@@ -177,10 +159,13 @@ namespace QuantLib {
         calculate();
 
         const Time closeGridTime(timeGrid_->closestTime(t));
+
         if (closeGridTime == 0.0) {
+            const Real stepSize = 0.02*(
+                    xm_[0]->locations().back() - xm_[0]->locations().front());
             return RiskNeutralDensityCalculator::InvCDFHelper(
-                this, std::log(spot_->value()), 0.1*localVolProbEps_, maxIter_)
-                .inverseCDF(p, t);
+                this, std::log(spot_->value()),
+                0.1*localVolProbEps_, maxIter_, stepSize).inverseCDF(p, t);
         }
         else {
             Array xp(xGrid_);
@@ -188,12 +173,14 @@ namespace QuantLib {
 
             const Array x(xm_[idx]->locations().begin(),
                           xm_[idx]->locations().end());
+            const Real stepSize = 0.005*(x.back() - x.front());
+
             std::transform(x.begin(), x.end(), pm_->row_begin(idx), xp.begin(),
                            std::multiplies<Real>());
 
             const Real xm = DiscreteSimpsonIntegral()(x, xp);
             return RiskNeutralDensityCalculator::InvCDFHelper(
-                this, xm, 0.1*localVolProbEps_, maxIter_).inverseCDF(p, t);
+                this, xm, 0.1*localVolProbEps_, maxIter_, stepSize).inverseCDF(p, t);
         }
     }
 
@@ -231,6 +218,7 @@ namespace QuantLib {
 
         const Volatility stdDevOfFirstStep = vol * std::sqrt(sT);
         const Real normInvEps = InverseCumulativeNormal()(1 - localVolProbEps_);
+
         Real sLowerBound = xm - normInvEps * stdDevOfFirstStep;
         Real sUpperBound = xm + normInvEps * stdDevOfFirstStep;
 
@@ -287,18 +275,12 @@ namespace QuantLib {
                 const Real vm = DiscreteSimpsonIntegral()(x, vols)
                     /(x.back() - x.front());
 
-                const Size scalingSteps
-                    = std::max(3, Integer(0.01*timeGrid_->size()));
-
-                const Real scalingFactor
-                    = std::sqrt(timeGrid_->at(
-                        std::min(timeGrid_->size()-1, i+scalingSteps)))
-                     * vm;
+                const Real scalingFactor = vm*std::sqrt(0.5*timeGrid_->back());
 
                 if (maxLeftValue > localVolProbEps_)
-                    sLowerBound -= scalingFactor*xm;
+                    sLowerBound -= scalingFactor*(oldUpperBound-oldLowerBound);
                 if (maxRightValue > localVolProbEps_)
-                    sUpperBound += scalingFactor*xm;
+                    sUpperBound += scalingFactor*(oldUpperBound-oldLowerBound);
 
                 mesher = ext::shared_ptr<Fdm1dMesher>(
                     new Concentrating1dMesher(sLowerBound, sUpperBound, xGrid_,

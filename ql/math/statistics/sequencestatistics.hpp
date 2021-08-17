@@ -141,7 +141,7 @@ namespace QuantLib {
         }
         //@}
       protected:
-        Size dimension_;
+        Size dimension_ = 0;
         std::vector<statistics_type> stats_;
         mutable std::vector<Real> results_;
         Matrix quadraticSum_;
@@ -157,19 +157,18 @@ namespace QuantLib {
     // inline definitions
 
     template <class Stat>
-    inline GenericSequenceStatistics<Stat>::GenericSequenceStatistics(Size dimension)
-    : dimension_(0) {
+    inline GenericSequenceStatistics<Stat>::GenericSequenceStatistics(Size dimension) {
         reset(dimension);
     }
 
     template <class Stat>
     inline Size GenericSequenceStatistics<Stat>::samples() const {
-        return (stats_.size() == 0) ? 0 : stats_[0].samples();
+        return (stats_.empty()) ? 0 : stats_[0].samples();
     }
 
     template <class Stat>
     inline Real GenericSequenceStatistics<Stat>::weightSum() const {
-        return (stats_.size() == 0) ? 0.0 : stats_[0].weightSum();
+        return (stats_.empty()) ? 0.0 : stats_[0].weightSum();
     }
 
 

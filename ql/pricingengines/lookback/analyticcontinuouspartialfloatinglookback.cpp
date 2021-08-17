@@ -18,15 +18,16 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/pricingengines/lookback/analyticcontinuouspartialfloatinglookback.hpp>
 #include <ql/exercise.hpp>
+#include <ql/pricingengines/lookback/analyticcontinuouspartialfloatinglookback.hpp>
+#include <utility>
 
 namespace QuantLib {
 
     AnalyticContinuousPartialFloatingLookbackEngine::
-    AnalyticContinuousPartialFloatingLookbackEngine(
-             const ext::shared_ptr<GeneralizedBlackScholesProcess>& process)
-    : process_(process) {
+        AnalyticContinuousPartialFloatingLookbackEngine(
+            ext::shared_ptr<GeneralizedBlackScholesProcess> process)
+    : process_(std::move(process)) {
         registerWith(process_);
     }
 
@@ -115,7 +116,7 @@ namespace QuantLib {
         {
             e1 = (carry + vol * vol / 2) * (residualTime() - lookbackPeriodEndTime()) / (vol * std::sqrt(residualTime() - lookbackPeriodEndTime()));
             e2 = e1 - vol * std::sqrt(residualTime() - lookbackPeriodEndTime());
-        } 
+        }
 
         Real f1 = (ls + (carry + vol * vol / 2) * lookbackPeriodEndTime()) / (vol * std::sqrt(lookbackPeriodEndTime()));
         Real f2 = f1 - vol * std::sqrt(lookbackPeriodEndTime());

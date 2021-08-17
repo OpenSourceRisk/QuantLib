@@ -55,16 +55,17 @@ namespace QuantLib {
         //@}
         //! \name Observable interface
         //@{
-        void deepUpdate();
+        void deepUpdate() override;
         //@}
         //! \name Instrument interface
         //@{
-        bool isExpired() const;
-        void setupArguments(PricingEngine::arguments*) const;
-        void fetchResults(const PricingEngine::results*) const;
+        bool isExpired() const override;
+        void setupArguments(PricingEngine::arguments*) const override;
+        void fetchResults(const PricingEngine::results*) const override;
         //@}
         //! \name Additional interface
         //@{
+        Size numberOfLegs() const;
         Date startDate() const;
         Date maturityDate() const;
         Real legBPS(Size j) const {
@@ -115,7 +116,7 @@ namespace QuantLib {
         //@}
         //! \name Instrument interface
         //@{
-        void setupExpired() const;
+        void setupExpired() const override;
         //@}
         // data members
         std::vector<Leg> legs_;
@@ -131,7 +132,7 @@ namespace QuantLib {
       public:
         std::vector<Leg> legs;
         std::vector<Real> payer;
-        void validate() const;
+        void validate() const override;
     };
 
     class Swap::results : public Instrument::results {
@@ -140,7 +141,7 @@ namespace QuantLib {
         std::vector<Real> legBPS;
         std::vector<DiscountFactor> startDiscounts, endDiscounts;
         DiscountFactor npvDateDiscount;
-        void reset();
+        void reset() override;
     };
 
     class Swap::engine : public GenericEngine<Swap::arguments,

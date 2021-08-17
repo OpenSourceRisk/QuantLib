@@ -52,7 +52,7 @@ namespace QuantLib {
                                       VolatilityType volType = ShiftedLognormal,
                                       Real displacement = 0.0);
 
-        virtual ~YoYOptionletVolatilitySurface() {}
+        ~YoYOptionletVolatilitySurface() override = default;
 
         //! \name Volatility (only)
         //@{
@@ -72,7 +72,7 @@ namespace QuantLib {
                               bool extrapolate = false) const;
         /*! Returns the volatility for a given time and strike rate. No adjustments
           due to lags and interpolation are applied to the input time. */
-        Volatility volatility(const Time time, Rate strike) const;
+        Volatility volatility(Time time, Rate strike) const;
 
         //! Returns the volatility type
         virtual VolatilityType volatilityType() const { return volType_; }
@@ -115,9 +115,9 @@ namespace QuantLib {
         //! \name Limits
         //@{
         //! the minimum strike for which the term structure can return vols
-        virtual Real minStrike() const = 0;
+        Real minStrike() const override = 0;
         //! the maximum strike for which the term structure can return vols
-        virtual Real maxStrike() const = 0;
+        Real maxStrike() const override = 0;
         //@}
 
         // acts as zero time value for boostrapping
@@ -154,28 +154,29 @@ namespace QuantLib {
     class ConstantYoYOptionletVolatility
     : public YoYOptionletVolatilitySurface {
     public:
-        //! \name Constructor
+        //! \name Constructors
         //@{
         //! calculate the reference date based on the global evaluation date
-        ConstantYoYOptionletVolatility(const Volatility v,
+        ConstantYoYOptionletVolatility(Volatility v,
                                        Natural settlementDays,
                                        const Calendar&,
                                        BusinessDayConvention bdc,
                                        const DayCounter& dc,
-                                       const Period &observationLag,
+                                       const Period& observationLag,
                                        Frequency frequency,
                                        bool indexIsInterpolated,
-                                       Rate minStrike = -1.0,  // -100%
+                                       Rate minStrike = -1.0,   // -100%
                                        Rate maxStrike = 100.0, // +10,000%
                                        VolatilityType volType = ShiftedLognormal,
                                        Real displacement = 0.0);
+
         // costructor taking a quote
-        ConstantYoYOptionletVolatility(const Handle<Quote>& v,
+        ConstantYoYOptionletVolatility(Handle<Quote> v,
                                        Natural settlementDays,
                                        const Calendar&,
                                        BusinessDayConvention bdc,
                                        const DayCounter& dc,
-                                       const Period &observationLag,
+                                       const Period& observationLag,
                                        Frequency frequency,
                                        bool indexIsInterpolated,
                                        Rate minStrike = -1.0,  // -100%
@@ -183,23 +184,21 @@ namespace QuantLib {
                                        VolatilityType volType = ShiftedLognormal,
                                        Real displacement = 0.0);
         //@}
-        virtual ~ConstantYoYOptionletVolatility() {}
 
         //! \name Limits
         //@{
-        virtual Date maxDate() const { return Date::maxDate(); }
+        Date maxDate() const override { return Date::maxDate(); }
         //! the minimum strike for which the term structure can return vols
-        virtual Real minStrike() const { return minStrike_; }
+        Real minStrike() const override { return minStrike_; }
         //! the maximum strike for which the term structure can return vols
-        virtual Real maxStrike() const { return maxStrike_; }
+        Real maxStrike() const override { return maxStrike_; }
         //@}
-
     protected:
         //! implements the actual volatility calculation in derived classes
-        virtual Volatility volatilityImpl(Time length, Rate strike) const;
+      Volatility volatilityImpl(Time length, Rate strike) const override;
 
-        Handle<Quote> volatility_;
-        Rate minStrike_, maxStrike_;
+      Handle<Quote> volatility_;
+      Rate minStrike_, maxStrike_;
     };
 
 

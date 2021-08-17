@@ -66,7 +66,7 @@ using namespace QuantLib;
 #if defined(QL_ENABLE_SESSIONS)
 namespace QuantLib {
 
-    Integer sessionId() { return 0; }
+    ThreadKey sessionId() { return {}; }
 
 }
 #endif
@@ -155,7 +155,7 @@ class ReplicationPathPricer : public PathPricer<Path> {
 
     }
     // The value() method encapsulates the pricing code
-    Real operator()(const Path& path) const;
+    Real operator()(const Path& path) const override;
 
   private:
     Option::Type type_;

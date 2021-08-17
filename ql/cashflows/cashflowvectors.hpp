@@ -100,8 +100,8 @@ namespace QuantLib {
         Leg leg; leg.reserve(n);
 
         // the following is not always correct
-        Calendar calendar = schedule.calendar();
-        
+        const Calendar& calendar = schedule.calendar();
+
         if (paymentCalendar.empty()) {
             paymentCalendar = calendar;
         }
@@ -195,7 +195,8 @@ namespace QuantLib {
                         bool isPutATMIncluded,
                         const std::vector<Rate>& putDigitalPayoffs,
                         const ext::shared_ptr<DigitalReplication>& replication,
-                        bool nakedOption = false) {
+                        bool nakedOption = false,
+                        Calendar paymentCalendar = Calendar()) {
         Size n = schedule.size()-1;
         QL_REQUIRE(!nominals.empty(), "no notional given");
         QL_REQUIRE(nominals.size() <= n,
@@ -218,6 +219,9 @@ namespace QuantLib {
 
         // the following is not always correct
         Calendar calendar = schedule.calendar();
+        if (paymentCalendar.empty()) {
+            paymentCalendar = calendar;
+        }
 
         Date refStart, start, refEnd, end;
         Date paymentDate;
@@ -225,7 +229,7 @@ namespace QuantLib {
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule.date(i);
             refEnd   =   end = schedule.date(i+1);
-            paymentDate = calendar.adjust(end, paymentAdj);
+            paymentDate = paymentCalendar.adjust(end, paymentAdj);
             if (i==0 && (schedule.hasIsRegular() && schedule.hasTenor() && !schedule.isRegular(i+1))) {
                 BusinessDayConvention bdc = schedule.businessDayConvention();
                 refStart = calendar.adjust(end - schedule.tenor(), bdc);

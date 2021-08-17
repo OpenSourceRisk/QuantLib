@@ -71,6 +71,8 @@ namespace QuantLib {
 
         MakeOIS &withTelescopicValueDates(bool telescopicValueDates);
 
+        MakeOIS& withAveragingMethod(RateAveraging::Type averagingMethod);
+
         MakeOIS& withPricingEngine(
                               const ext::shared_ptr<PricingEngine>& engine);
       private:
@@ -100,6 +102,7 @@ namespace QuantLib {
         ext::shared_ptr<PricingEngine> engine_;
 
         bool telescopicValueDates_;
+        RateAveraging::Type averagingMethod_;
     };
 
 }
