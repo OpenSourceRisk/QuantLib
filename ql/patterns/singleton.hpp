@@ -96,6 +96,8 @@
 
 namespace QuantLib {
 
+    typedef Integer ThreadKey;
+
     #if defined(QL_ENABLE_SESSIONS)
     // definition must be provided by the user
     Integer sessionId();
