@@ -46,7 +46,7 @@ namespace QuantLib {
     : Coupon(paymentDate, nominal, startDate, endDate, refPeriodStart, refPeriodEnd, exCouponDate),
       index_(index), dayCounter_(std::move(dayCounter)),
       fixingDays_(fixingDays == Null<Natural>() ? index->fixingDays() : fixingDays),
-      gearing_(gearing), spread_(spread), isInArrears_(isInArrears) {
+      gearing_(gearing), spread_(spread), isInArrears_(isInArrears), cache_(boost::make_shared<FrcCache>()) {
         QL_REQUIRE(gearing_!=0, "Null gearing not allowed");
 
         if (dayCounter_.empty())
