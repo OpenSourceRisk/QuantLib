@@ -36,6 +36,15 @@
 
 namespace QuantLib {
 
+    class FrcCache {
+    public:
+        FrcCache() : initialised(false) {}
+        Date d1, d2, d3;
+        Real t1, t2, t3;
+        Real r0;
+        bool initialised;
+    };
+    
     class InterestRateIndex;
     class YieldTermStructure;
     class FloatingRateCouponPricer;
@@ -105,7 +114,10 @@ namespace QuantLib {
 
         virtual void setPricer(const ext::shared_ptr<FloatingRateCouponPricer>&);
         ext::shared_ptr<FloatingRateCouponPricer> pricer() const;
-      protected:
+
+        ext::shared_ptr<FrcCache> getCache() { return cache_; }
+
+    protected:
         //! convexity adjustment for the given index fixing
         Rate convexityAdjustmentImpl(Rate fixing) const;
         ext::shared_ptr<InterestRateIndex> index_;
@@ -115,6 +127,7 @@ namespace QuantLib {
         Spread spread_;
         bool isInArrears_;
         ext::shared_ptr<FloatingRateCouponPricer> pricer_;
+        ext::shared_ptr<FrcCache> cache_;
     };
 
     // inline definitions
