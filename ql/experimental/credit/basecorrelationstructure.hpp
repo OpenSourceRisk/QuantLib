@@ -24,8 +24,10 @@
 #include <ql/utilities/dataformatters.hpp>
 #include <ql/math/interpolations/bilinearinterpolation.hpp>
 #include <ql/math/interpolations/bicubicsplineinterpolation.hpp>
-
 #include <ql/experimental/credit/correlationstructure.hpp>
+#include <ql/time/dategenerationrule.hpp>
+#include <ql/time/schedule.hpp>
+#include <boost/optional/optional.hpp>
 
 namespace QuantLib {
 
@@ -64,7 +66,9 @@ namespace QuantLib {
             const std::vector<Period>& tenors,// sorted
             const std::vector<Real>& lossLevel,//sorted
             const std::vector<std::vector<Handle<Quote> > >& correls,
-            const DayCounter& dc = DayCounter()
+            const DayCounter& dc = DayCounter(),
+            const Date& startDate = Date(),
+            boost::optional<DateGeneration::Rule> rule = boost::none
             )
         : CorrelationTermStructure(settlementDays, cal, bdc, dc),
           correlHandles_(correls),
@@ -75,13 +79,38 @@ namespace QuantLib {
           lossLevel_(lossLevel),
           trancheTimes_(tenors.size(), 0.) {
               checkTrancheTenors();
-               
-              for(Size i=0; i<tenors_.size(); i++)
-                  trancheDates_.push_back(
-                      calendar().advance(referenceDate(),
-                                         tenors_[i],
-                                         businessDayConvention())
-                                          );
+
+              // Reference date to which the tenors are applied to get the base correlation maturities.
+              // Generally, for index tranches, the index start date would be supplied as the startDate ctor argument 
+              // and a CDS date generation rule provided to arrive at the appropriate maturity.
+              const Date& refDate = referenceDate();
+              Date start = startDate == Date() ? refDate : startDate;
+              Calendar cldr = calendar();
+              BusinessDayConvention bdconv = businessDayConvention();
+
+              for (Size i = 0; i < tenors_.size(); i++) {
+
+                  Date d;
+                  if (rule) {
+                      d = start + tenors_[i];
+                      Schedule schedule = MakeSchedule()
+                          .from(start)
+                          .to(d)
+                          .withFrequency(Quarterly)
+                          .withCalendar(cldr)
+                          .withConvention(bdconv)
+                          .withTerminationDateConvention(Unadjusted)
+                          .withRule(*rule);
+                      d = cldr.adjust(schedule.dates().back(), bdconv);
+                  } else {
+                      d = cldr.advance(start, tenors_[i], bdconv);
+                  }
+
+                  QL_REQUIRE(d > refDate, "The tranche date " << io::iso_date(d) << " should be greater than " <<
+                      "the reference date " << io::iso_date(refDate) << ".");
+
+                  trancheDates_.push_back(d);
+              }
 
               initializeTrancheTimes();
               checkInputs(correlations_.rows(), correlations_.columns());

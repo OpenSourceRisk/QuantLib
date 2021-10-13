@@ -62,14 +62,15 @@ namespace QuantLib {
         return arguments_.swap->type();
     }
 
+    // NOLINTNEXTLINE(readability-const-return-type)
     const Date Gaussian1dFloatFloatSwaptionEngine::underlyingLastDate() const {
         Date l1 = arguments_.leg1PayDates.back();
         Date l2 = arguments_.leg2PayDates.back();
         return l2 >= l1 ? l2 : l1;
     }
 
-    const Disposable<Array>
-    Gaussian1dFloatFloatSwaptionEngine::initialGuess(const Date &expiry) const {
+    // NOLINTNEXTLINE(readability-const-return-type)
+    const Disposable<Array> Gaussian1dFloatFloatSwaptionEngine::initialGuess(const Date &expiry) const {
 
         Size idx1 =
             std::upper_bound(arguments_.leg1ResetDates.begin(),
@@ -101,9 +102,11 @@ namespace QuantLib {
     }
 
     // calculate npv and underlying npv as of expiry date
-    const std::pair<Real, Real> Gaussian1dFloatFloatSwaptionEngine::npvs(
-        const Date &expiry, const Real y, const bool includeExerciseOnExpiry,
-        const bool considerProbabilities) const {
+    std::pair<Real, Real>
+    Gaussian1dFloatFloatSwaptionEngine::npvs(const Date& expiry,
+                                             const Real y,
+                                             const bool includeExerciseOnExpiry,
+                                             const bool considerProbabilities) const {
 
         // pricing
 
@@ -121,16 +124,14 @@ namespace QuantLib {
                       arguments_.leg2FixingDates.end());
         std::sort(events.begin(), events.end());
 
-        std::vector<Date>::iterator it =
-            std::unique(events.begin(), events.end());
+        auto it = std::unique(events.begin(), events.end());
         events.resize(std::distance(events.begin(), it));
 
         // only events on or after expiry are of interest by definition of the
         // deal part that is exericsed into.
 
-        std::vector<Date>::iterator filit =
-            std::upper_bound(events.begin(), events.end(),
-                             expiry - (includeExerciseOnExpiry ? 1 : 0));
+        auto filit = std::upper_bound(events.begin(), events.end(),
+                                      expiry - (includeExerciseOnExpiry ? 1 : 0));
         events.erase(events.begin(), filit);
 
         int idx = events.size() - 1;
@@ -165,12 +166,10 @@ namespace QuantLib {
                 npvp1.push_back(npvTmp1);
             }
         }
-        // end probabkility computation
+        // end probability computation
 
         Date event1 = Null<Date>(), event0;
         Time event1Time = Null<Real>(), event0Time;
-
-        bool isExercise, isLeg1Fixing, isLeg2Fixing;
 
         ext::shared_ptr<IborIndex> ibor1 =
             ext::dynamic_pointer_cast<IborIndex>(arguments_.index1);
@@ -185,9 +184,9 @@ namespace QuantLib {
         ext::shared_ptr<SwapSpreadIndex> cmsspread2 =
             ext::dynamic_pointer_cast<SwapSpreadIndex>(arguments_.index2);
 
-        QL_REQUIRE(ibor1 != NULL || cms1 != NULL || cmsspread1 != NULL,
+        QL_REQUIRE(ibor1 != nullptr || cms1 != nullptr || cmsspread1 != nullptr,
                    "index1 must be ibor or swap or swap spread index");
-        QL_REQUIRE(ibor2 != NULL || cms2 != NULL || cmsspread2 != NULL,
+        QL_REQUIRE(ibor2 != nullptr || cms2 != nullptr || cmsspread2 != nullptr,
                    "index2 must be ibor or swap or swap spread index");
 
         do {
@@ -206,26 +205,17 @@ namespace QuantLib {
                               // earliest event date
             }
 
-            if (std::find(arguments_.exercise->dates().begin(),
-                          arguments_.exercise->dates().end(),
-                          event0) != arguments_.exercise->dates().end())
-                isExercise = true;
-            else
-                isExercise = false;
+            bool isExercise =
+                std::find(arguments_.exercise->dates().begin(), arguments_.exercise->dates().end(),
+                          event0) != arguments_.exercise->dates().end();
 
-            if (std::find(arguments_.leg1FixingDates.begin(),
-                          arguments_.leg1FixingDates.end(),
-                          event0) != arguments_.leg1FixingDates.end())
-                isLeg1Fixing = true;
-            else
-                isLeg1Fixing = false;
+            bool isLeg1Fixing =
+                std::find(arguments_.leg1FixingDates.begin(), arguments_.leg1FixingDates.end(),
+                          event0) != arguments_.leg1FixingDates.end();
 
-            if (std::find(arguments_.leg2FixingDates.begin(),
-                          arguments_.leg2FixingDates.end(),
-                          event0) != arguments_.leg2FixingDates.end())
-                isLeg2Fixing = true;
-            else
-                isLeg2Fixing = false;
+            bool isLeg2Fixing =
+                std::find(arguments_.leg2FixingDates.begin(), arguments_.leg2FixingDates.end(),
+                          event0) != arguments_.leg2FixingDates.end();
 
             event0Time = std::max(
                 model_->termStructure()->timeFromReference(event0), 0.0);
@@ -468,17 +458,17 @@ namespace QuantLib {
                                 amount = arguments_.leg1Coupons[j];
                             } else {
                                 Real estFixing = 0.0;
-                                if(ibor1 != NULL) {
+                                if (ibor1 != nullptr) {
                                     estFixing = model_->forwardRate(
                                         arguments_.leg1FixingDates[j], event0,
                                         zk, ibor1);
                                 }
-                                if(cms1 != NULL) {
+                                if (cms1 != nullptr) {
                                     estFixing = model_->swapRate(
                                         arguments_.leg1FixingDates[j],
                                         cms1->tenor(), event0, zk, cms1);
                                 }
-                                if (cmsspread1 != NULL)
+                                if (cmsspread1 != nullptr)
                                     estFixing =
                                         cmsspread1->gearing1() *
                                             model_->swapRate(
@@ -552,11 +542,11 @@ namespace QuantLib {
                                 amount = arguments_.leg2Coupons[j];
                             } else {
                                 Real estFixing = 0.0;
-                                if(ibor2 != NULL)
+                                if (ibor2 != nullptr)
                                     estFixing = model_->forwardRate(arguments_.leg2FixingDates[j],event0,zk,ibor2);
-                                if(cms2 != NULL)
+                                if (cms2 != nullptr)
                                     estFixing = model_->swapRate(arguments_.leg2FixingDates[j],cms2->tenor(),event0,zk,cms2);
-                                if (cmsspread2 != NULL)
+                                if (cmsspread2 != nullptr)
                                     estFixing =
                                         cmsspread2->gearing1() *
                                             model_->swapRate(
@@ -612,7 +602,7 @@ namespace QuantLib {
                         Real rebate = 0.0;
                         Real zSpreadDf = 1.0;
                         Date rebateDate = event0;
-                        if (rebatedExercise_ != NULL) {
+                        if (rebatedExercise_ != nullptr) {
                             rebate = rebatedExercise_->rebate(j);
                             rebateDate = rebatedExercise_->rebatePaymentDate(j);
                             zSpreadDf =

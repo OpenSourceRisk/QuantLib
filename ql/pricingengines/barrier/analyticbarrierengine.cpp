@@ -21,14 +21,15 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/pricingengines/barrier/analyticbarrierengine.hpp>
 #include <ql/exercise.hpp>
+#include <ql/pricingengines/barrier/analyticbarrierengine.hpp>
+#include <utility>
 
 namespace QuantLib {
 
     AnalyticBarrierEngine::AnalyticBarrierEngine(
-            const ext::shared_ptr<GeneralizedBlackScholesProcess>& process)
-    : process_(process) {
+        ext::shared_ptr<GeneralizedBlackScholesProcess> process)
+    : process_(std::move(process)) {
         registerWith(process_);
     }
 
@@ -47,6 +48,12 @@ namespace QuantLib {
 
         Barrier::Type barrierType = arguments_.barrierType;
 
+        results_.additionalResults["volatility"] = volatility();
+        results_.additionalResults["spot"] = spot;
+        results_.additionalResults["dividendDiscount"] = dividendDiscount();
+        results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount();
+        results_.additionalResults["strike"] = strike;
+        
         switch (payoff->optionType()) {
           case Option::Call:
             switch (barrierType) {

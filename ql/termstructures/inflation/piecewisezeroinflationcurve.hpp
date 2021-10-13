@@ -26,9 +26,10 @@
 #ifndef quantlib_piecewise_zero_inflation_curve_hpp
 #define quantlib_piecewise_zero_inflation_curve_hpp
 
-#include <ql/termstructures/iterativebootstrap.hpp>
-#include <ql/termstructures/inflation/inflationtraits.hpp>
 #include <ql/patterns/lazyobject.hpp>
+#include <ql/termstructures/inflation/inflationtraits.hpp>
+#include <ql/termstructures/iterativebootstrap.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -46,8 +47,37 @@ namespace QuantLib {
       public:
         typedef Traits traits_type;
         typedef Interpolator interpolator_type;
+
         //! \name Constructors
         //@{
+        PiecewiseZeroInflationCurve(
+            const Date& referenceDate,
+            const Calendar& calendar,
+            const DayCounter& dayCounter,
+            const Period& lag,
+            Frequency frequency,
+            bool indexIsInterpolated,
+            Rate baseZeroRate,
+            std::vector<ext::shared_ptr<typename Traits::helper> > instruments,
+            Real accuracy = 1.0e-12,
+            const Interpolator& i = Interpolator())
+        : base_curve(referenceDate,
+                     calendar,
+                     dayCounter,
+                     lag,
+                     frequency,
+                     indexIsInterpolated,
+                     baseZeroRate,
+                     i),
+          instruments_(std::move(instruments)), accuracy_(accuracy) {
+            bootstrap_.setup(this);
+        }
+
+        /*! \deprecated Use the constructor not taking a yield
+                        term structure.
+                        Deprecated in version 1.19.
+        */
+        QL_DEPRECATED
         PiecewiseZeroInflationCurve(
                const Date& referenceDate,
                const Calendar& calendar,
@@ -68,10 +98,11 @@ namespace QuantLib {
             bootstrap_.setup(this);
         }
         //@}
+
         //! \name Inflation interface
         //@{
-        Date baseDate() const;
-        Date maxDate() const;
+        Date baseDate() const override;
+        Date maxDate() const override;
         //@
         //! \name Inspectors
         //@{
@@ -82,11 +113,11 @@ namespace QuantLib {
         //@}
         //! \name Observer interface
         //@{
-        void update();
+        void update() override;
         //@}
       private:
         // methods
-        void performCalculations() const;
+        void performCalculations() const override;
         // data members
         std::vector<ext::shared_ptr<typename Traits::helper> > instruments_;
         Real accuracy_;

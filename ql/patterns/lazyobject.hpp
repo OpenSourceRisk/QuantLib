@@ -33,11 +33,11 @@ namespace QuantLib {
     class LazyObject : public virtual Observable,
                        public virtual Observer {
       public:
-        LazyObject();
-        virtual ~LazyObject() {}
+        LazyObject() = default;
+        ~LazyObject() override = default;
         //! \name Observer interface
         //@{
-        void update();
+        void update() override;
         //@}
         /*! \name Calculations
             These methods do not modify the structure of the object
@@ -83,6 +83,8 @@ namespace QuantLib {
                      behavior.
         */
         void alwaysForwardNotifications();
+        /*! Returns true if the object is calculated, false otherwise */
+        bool isCalculated() const;
       protected:
         /*! This method performs all needed calculations by calling
             the <i><b>performCalculations</b></i> method.
@@ -106,14 +108,11 @@ namespace QuantLib {
         */
         virtual void performCalculations() const = 0;
         //@}
-        mutable bool calculated_, frozen_, alwaysForward_;
+        mutable bool calculated_ = false, frozen_ = false, alwaysForward_ = false;
     };
 
 
     // inline definitions
-
-    inline LazyObject::LazyObject()
-    : calculated_(false), frozen_(false), alwaysForward_(false) {}
 
     inline void LazyObject::update() {
         // forwards notifications only the first time
@@ -173,6 +172,10 @@ namespace QuantLib {
                 throw;
             }
         }
+    }
+
+    inline bool LazyObject::isCalculated() const {
+        return calculated_;
     }
 
 }

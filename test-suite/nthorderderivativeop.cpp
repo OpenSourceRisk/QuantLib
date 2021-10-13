@@ -17,28 +17,27 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include "utilities.hpp"
 #include "nthorderderivativeop.hpp"
-
+#include "utilities.hpp"
 #include <ql/math/comparison.hpp>
-#include <ql/pricingengines/blackformula.hpp>
 #include <ql/math/initializers.hpp>
-#include <ql/math/richardsonextrapolation.hpp>
-#include <ql/math/matrixutilities/bicgstab.hpp>
 #include <ql/math/integrals/gausslobattointegral.hpp>
-#include <ql/math/optimization/levenbergmarquardt.hpp>
 #include <ql/math/interpolations/cubicinterpolation.hpp>
-#include <ql/methods/finitedifferences/meshers/uniform1dmesher.hpp>
+#include <ql/math/matrixutilities/bicgstab.hpp>
+#include <ql/math/optimization/levenbergmarquardt.hpp>
+#include <ql/math/richardsonextrapolation.hpp>
 #include <ql/methods/finitedifferences/meshers/concentrating1dmesher.hpp>
-#include <ql/methods/finitedifferences/meshers/predefined1dmesher.hpp>
 #include <ql/methods/finitedifferences/meshers/fdmmeshercomposite.hpp>
-#include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
+#include <ql/methods/finitedifferences/meshers/predefined1dmesher.hpp>
+#include <ql/methods/finitedifferences/meshers/uniform1dmesher.hpp>
 #include <ql/methods/finitedifferences/operators/fdmlinearopcomposite.hpp>
+#include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
 #include <ql/methods/finitedifferences/operators/nthorderderivativeop.hpp>
 #include <ql/methods/finitedifferences/operators/secondderivativeop.hpp>
 #include <ql/methods/finitedifferences/solvers/fdmbackwardsolver.hpp>
-#include <ql/functional.hpp>
+#include <ql/pricingengines/blackformula.hpp>
 #include <numeric>
+#include <utility>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -399,42 +398,32 @@ namespace {
           preconditioner_(SecondDerivativeOp(direction, mesher)
               .mult(Array(mesher->layout()->size(), vol2_))) { }
 
-        Size size() const { return 1; }
-        void setTime(Time t1, Time t2) { }
+        Size size() const override { return 1; }
+        void setTime(Time t1, Time t2) override {}
 
-        Disposable<Array> apply(const Array& r) const {
-            return vol2_*map_->apply(r);
-        }
+        Disposable<Array> apply(const Array& r) const override { return vol2_ * map_->apply(r); }
 
-        Disposable<Array> apply_mixed(const Array& r) const {
+        Disposable<Array> apply_mixed(const Array& r) const override {
             Array retVal(r.size(), 0.0);
             return retVal;
         }
 
-        Disposable<Array> apply_direction(
-            Size direction, const Array& r) const {
+        Disposable<Array> apply_direction(Size direction, const Array& r) const override {
             if (direction == direction_)
                 return apply(r);
             else
                 return apply_mixed(r);
         }
 
-        Disposable<Array> solve_splitting(
-            Size direction, const Array& r, Real dt) const {
+        Disposable<Array> solve_splitting(Size direction, const Array& r, Real dt) const override {
 
-            using namespace ext::placeholders;
             if (direction == direction_) {
                 BiCGStabResult result =
                     QuantLib::BiCGstab(
-                        ext::function<Disposable<Array>(const Array&)>(
-                            ext::bind(
-                                &FdmHeatEquationOp::solve_apply,
-                                this, _1, -dt)),
+                        [&](const Array& a){ return solve_apply(a, -dt); },
                         std::max(Size(10), r.size()), 1e-14,
-                        ext::function<Disposable<Array>(const Array&)>(
-                            ext::bind(&FdmLinearOpComposite::preconditioner,
-                                        this, _1, dt))
-                    ).solve(r, r);
+                        [&](const Array& a){ return preconditioner(a, dt); })
+                        .solve(r, r);
 
                 return result.x;
             }
@@ -444,7 +433,7 @@ namespace {
             }
         }
 
-        Disposable<Array> preconditioner(const Array& r, Real dt) const  {
+        Disposable<Array> preconditioner(const Array& r, Real dt) const override {
             return preconditioner_.solve_splitting(r, dt, 1.0);
         }
 
@@ -463,11 +452,11 @@ namespace {
 
     class AvgPayoffFct {
       public:
-        AvgPayoffFct(const ext::shared_ptr<PlainVanillaPayoff>& payoff,
-                     Volatility vol, Time T, Real growthFactor)
-        : payoff_(payoff),
-          vol2_(0.5*vol*vol*T),
-          growthFactor_(growthFactor) { }
+        AvgPayoffFct(ext::shared_ptr<PlainVanillaPayoff> payoff,
+                     Volatility vol,
+                     Time T,
+                     Real growthFactor)
+        : payoff_(std::move(payoff)), vol2_(0.5 * vol * vol * T), growthFactor_(growthFactor) {}
 
         Real operator()(Real x) const {
             return (*payoff_)(std::exp(x - vol2_)*growthFactor_);
@@ -524,8 +513,8 @@ namespace {
 
                     const Real offset = (specialPoint - 0.5*d) - loc[i];
 
-                    for (Size l = 0; l < loc.size(); ++l)
-                        loc[l] += offset;
+                    for (double& l : loc)
+                        l += offset;
 
                     break;
                 }
@@ -589,11 +578,10 @@ namespace {
 
     class FdmMispricingCostFunction : public CostFunction {
       public:
-        FdmMispricingCostFunction(
-            const GridSetup& setup, const Array& strikes)
-        : setup_(setup), strikes_(strikes) { }
+        FdmMispricingCostFunction(const GridSetup& setup, Array strikes)
+        : setup_(setup), strikes_(std::move(strikes)) {}
 
-        Disposable<Array> values(const Array& x) const {
+        Disposable<Array> values(const Array& x) const override {
             const GridSetup g = {
                 x[0], x[1],
                 setup_.cellAvg, setup_.midPoint,
@@ -621,15 +609,13 @@ void NthOrderDerivativeOpTest::testHigerOrderBSOptionPricing() {
 
     SavedSettings backup;
 
-    Array strikes(8);
-    strikes << 50, 75, 90, 100, 110, 125, 150, 200;
+    Array strikes = { 50, 75, 90, 100, 110, 125, 150, 200 };
 
     const GridSetup initSetup = {
         5.2, 0.1, true, false, 5, 31, 51, FdmSchemeDesc::Douglas()
     };
 
-    Array initialValues(2);
-    initialValues << initSetup.alpha, initSetup.density;
+    Array initialValues = { initSetup.alpha, initSetup.density };
 
     FdmMispricingCostFunction costFct(initSetup, strikes);
     NoConstraint noConstraint;
@@ -664,8 +650,7 @@ void NthOrderDerivativeOpTest::testHigerOrderBSOptionPricing() {
 namespace {
     Real priceQuality(Real h) {
 
-        Array strikes(1);
-        strikes << 100;
+        Array strikes = { 100 };
 
         const Size yGrid = Size(1/h);
         const GridSetup setup = {
@@ -701,7 +686,7 @@ void NthOrderDerivativeOpTest::testHigerOrderAndRichardsonExtrapolationg() {
 #endif
 
 test_suite* NthOrderDerivativeOpTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("NthOrderDerivativeOp tests");
+    auto* suite = BOOST_TEST_SUITE("NthOrderDerivativeOp tests");
 
 #ifndef QL_NO_UBLAS_SUPPORT
 

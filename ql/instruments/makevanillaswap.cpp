@@ -32,6 +32,7 @@
 #include <ql/currencies/asia.hpp>
 #include <ql/currencies/europe.hpp>
 #include <ql/currencies/oceania.hpp>
+#include <ql/utilities/null.hpp>
 
 namespace QuantLib {
 
@@ -41,7 +42,7 @@ namespace QuantLib {
                                      const Period& forwardStart)
     : swapTenor_(swapTenor), iborIndex_(index),
       fixedRate_(fixedRate), forwardStart_(forwardStart),
-      settlementDays_(iborIndex_->fixingDays()),
+      settlementDays_(Null<Natural>()),
       fixedCalendar_(index->fixingCalendar()),
       floatCalendar_(index->fixingCalendar()),
       type_(VanillaSwap::Payer), nominal_(1.0),
@@ -72,15 +73,25 @@ namespace QuantLib {
             // if the evaluation date is not a business day
             // then move to the next business day
             refDate = floatCalendar_.adjust(refDate);
-            Date spotDate = floatCalendar_.advance(refDate,
-                                                   settlementDays_*Days);
+            // use index valueDate interface wherever possible to estimate spot date.
+            // Unless we pass an explicit settlementDays_ which does not match the index-defined number of fixing days.
+            Date spotDate;
+            if (settlementDays_ == Null<Natural>()) {
+                // ref date can be a holiday for the fixing calendar, so we adjust this before callaing valueDate()
+                // since this method requires the argument to be a business day
+                spotDate =
+                    iborIndex_->valueDate(iborIndex_->fixingCalendar().adjust(refDate, Following));
+            }
+            else
+                spotDate = floatCalendar_.advance(refDate, settlementDays_ * Days);
             startDate = spotDate+forwardStart_;
             if (forwardStart_.length()<0)
                 startDate = floatCalendar_.adjust(startDate,
                                                   Preceding);
-            else
+            else if (forwardStart_.length()>0)
                 startDate = floatCalendar_.adjust(startDate,
                                                   Following);
+            // no explicit date adjustment needed for forwardStart_.length()==0 (already handled by spotDate arithmetic above)
         }
 
         Date endDate = terminationDate_;
@@ -149,13 +160,13 @@ namespace QuantLib {
 
         Rate usedFixedRate = fixedRate_;
         if (fixedRate_ == Null<Rate>()) {
-            VanillaSwap temp(type_, nominal_,
+            VanillaSwap temp(type_, 100.00,
                              fixedSchedule,
                              0.0, // fixed rate
                              fixedDayCount,
                              floatSchedule, iborIndex_,
                              floatSpread_, floatDayCount_);
-            if (engine_ == 0) {
+            if (engine_ == nullptr) {
                 Handle<YieldTermStructure> disc =
                                         iborIndex_->forwardingTermStructure();
                 QL_REQUIRE(!disc.empty(),
@@ -178,7 +189,7 @@ namespace QuantLib {
                         floatSchedule,
                         iborIndex_, floatSpread_, floatDayCount_));
 
-        if (engine_ == 0) {
+        if (engine_ == nullptr) {
             Handle<YieldTermStructure> disc =
                                     iborIndex_->forwardingTermStructure();
             bool includeSettlementDateFlows = false;

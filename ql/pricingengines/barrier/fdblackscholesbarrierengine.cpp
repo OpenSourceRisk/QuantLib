@@ -19,30 +19,34 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/pricingengines/barrier/fdblackscholesbarrierengine.hpp>
 #include <ql/exercise.hpp>
 #include <ql/math/distributions/normaldistribution.hpp>
-#include <ql/methods/finitedifferences/utilities/fdmdividendhandler.hpp>
-#include <ql/methods/finitedifferences/solvers/fdmblackscholessolver.hpp>
-#include <ql/methods/finitedifferences/utilities/fdmdirichletboundary.hpp>
-#include <ql/methods/finitedifferences/utilities/fdminnervaluecalculator.hpp>
-#include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
-#include <ql/methods/finitedifferences/meshers/fdmmeshercomposite.hpp>
 #include <ql/methods/finitedifferences/meshers/fdmblackscholesmesher.hpp>
+#include <ql/methods/finitedifferences/meshers/fdmmeshercomposite.hpp>
+#include <ql/methods/finitedifferences/operators/fdmlinearoplayout.hpp>
+#include <ql/methods/finitedifferences/solvers/fdmblackscholessolver.hpp>
 #include <ql/methods/finitedifferences/stepconditions/fdmstepconditioncomposite.hpp>
+#include <ql/methods/finitedifferences/utilities/fdmdirichletboundary.hpp>
+#include <ql/methods/finitedifferences/utilities/fdmdividendhandler.hpp>
+#include <ql/methods/finitedifferences/utilities/fdminnervaluecalculator.hpp>
+#include <ql/pricingengines/barrier/fdblackscholesbarrierengine.hpp>
 #include <ql/pricingengines/barrier/fdblackscholesrebateengine.hpp>
 #include <ql/pricingengines/vanilla/fdblackscholesvanillaengine.hpp>
+#include <utility>
 
 namespace QuantLib {
 
     FdBlackScholesBarrierEngine::FdBlackScholesBarrierEngine(
-            const ext::shared_ptr<GeneralizedBlackScholesProcess>& process,
-            Size tGrid, Size xGrid, Size dampingSteps, 
-            const FdmSchemeDesc& schemeDesc,
-            bool localVol, Real illegalLocalVolOverwrite)
-    : process_(process), tGrid_(tGrid), xGrid_(xGrid),
-      dampingSteps_(dampingSteps), schemeDesc_(schemeDesc),
-      localVol_(localVol), illegalLocalVolOverwrite_(illegalLocalVolOverwrite){
+        ext::shared_ptr<GeneralizedBlackScholesProcess> process,
+        Size tGrid,
+        Size xGrid,
+        Size dampingSteps,
+        const FdmSchemeDesc& schemeDesc,
+        bool localVol,
+        Real illegalLocalVolOverwrite)
+    : process_(std::move(process)), tGrid_(tGrid), xGrid_(xGrid), dampingSteps_(dampingSteps),
+      schemeDesc_(schemeDesc), localVol_(localVol),
+      illegalLocalVolOverwrite_(illegalLocalVolOverwrite) {
 
         registerWith(process_);
     }
@@ -133,6 +137,11 @@ namespace QuantLib {
         results_.gamma = solver->gammaAt(spot);
         results_.theta = solver->thetaAt(spot);
 
+        results_.additionalResults["solverValue"] = results_.value;
+        results_.additionalResults["solverDelta"] = results_.delta;
+        results_.additionalResults["solverGamma"] = results_.gamma;
+        results_.additionalResults["solverTheta"] = results_.theta;
+        
         // 6. Calculate vanilla option and rebate for in-barriers
         if (   arguments_.barrierType == Barrier::DownIn
             || arguments_.barrierType == Barrier::UpIn) {
@@ -179,6 +188,26 @@ namespace QuantLib {
                                                     - results_.gamma;
             results_.theta = vanillaOption->theta() + rebateOption->theta()
                                                     - results_.theta;
+
+            results_.additionalResults["vanillaOptionValue"] = vanillaOption->NPV();
+            results_.additionalResults["vanillaOptionDelta"] = vanillaOption->delta();
+            results_.additionalResults["vanillaOptionGamma"] = vanillaOption->gamma();
+            results_.additionalResults["vanillaOptionTheta"] = vanillaOption->theta();
+            
+            results_.additionalResults["rebateOptionValue"] = rebateOption->NPV();
+            results_.additionalResults["rebateOptionDelta"] = rebateOption->delta();
+            results_.additionalResults["rebateOptionGamma"] = rebateOption->gamma();
+            results_.additionalResults["rebateOptionTheta"] = rebateOption->theta();
         }
+        results_.additionalResults["delta"] = results_.delta;
+        results_.additionalResults["gamma"] = results_.gamma;
+        results_.additionalResults["theta"] = results_.theta;
+
+        Real strike = payoff->strike();
+        Real vol = process_->blackVolatility()->blackVol(arguments_.exercise->lastDate(), strike);
+        results_.additionalResults["spot"] = process_->x0();
+        results_.additionalResults["strike"] = payoff->strike();
+        results_.additionalResults["barrier"] = arguments_.barrier;
+        results_.additionalResults["vol"] = vol;
     }
 }

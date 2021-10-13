@@ -68,10 +68,11 @@ namespace QuantLib {
         Spread fairSpread() const;
         //@}
         // other
-        void setupArguments(PricingEngine::arguments* args) const;
-        void fetchResults(const PricingEngine::results*) const;
+        void setupArguments(PricingEngine::arguments* args) const override;
+        void fetchResults(const PricingEngine::results*) const override;
+
       private:
-        void setupExpired() const;
+        void setupExpired() const override;
         Type type_;
 
         // results
@@ -83,9 +84,9 @@ namespace QuantLib {
     //! %Arguments for irregular-swap calculation
     class IrregularSwap::arguments : public Swap::arguments {
       public:
-        arguments() : type(Receiver){}
-        Type type;
-        
+        arguments() = default;
+        Type type = Receiver;
+
 
         std::vector<Date> fixedResetDates;
         std::vector<Date> fixedPayDates;
@@ -100,7 +101,7 @@ namespace QuantLib {
         std::vector<Spread> floatingSpreads;
         std::vector<Real> floatingCoupons;
 
-        void validate() const;
+        void validate() const override;
     };
 
     //! %Results from irregular-swap calculation
@@ -108,7 +109,7 @@ namespace QuantLib {
       public:
         Rate fairRate;
         Spread fairSpread;
-        void reset();
+        void reset() override;
     };
 
     class IrregularSwap::engine : public GenericEngine<IrregularSwap::arguments,

@@ -17,8 +17,9 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/instruments/nonstandardswaption.hpp>
 #include <ql/exercise.hpp>
+#include <ql/instruments/nonstandardswaption.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -33,12 +34,12 @@ namespace QuantLib {
         registerWith(swap_);
     }
 
-    NonstandardSwaption::NonstandardSwaption(
-        const ext::shared_ptr<NonstandardSwap>& swap,
-        const ext::shared_ptr<Exercise>& exercise, Settlement::Type delivery,
-        Settlement::Method settlementMethod)
-        : Option(ext::shared_ptr<Payoff>(), exercise), swap_(swap),
-          settlementType_(delivery), settlementMethod_(settlementMethod) {
+    NonstandardSwaption::NonstandardSwaption(ext::shared_ptr<NonstandardSwap> swap,
+                                             const ext::shared_ptr<Exercise>& exercise,
+                                             Settlement::Type delivery,
+                                             Settlement::Method settlementMethod)
+    : Option(ext::shared_ptr<Payoff>(), exercise), swap_(std::move(swap)),
+      settlementType_(delivery), settlementMethod_(settlementMethod) {
         registerWith(swap_);
         registerWithObservables(swap_);
     }
@@ -53,10 +54,9 @@ namespace QuantLib {
 
         swap_->setupArguments(args);
 
-        NonstandardSwaption::arguments *arguments =
-            dynamic_cast<NonstandardSwaption::arguments *>(args);
+        auto* arguments = dynamic_cast<NonstandardSwaption::arguments*>(args);
 
-        QL_REQUIRE(arguments != 0, "argument types do not match");
+        QL_REQUIRE(arguments != nullptr, "argument types do not match");
 
         arguments->swap = swap_;
         arguments->exercise = exercise_;
@@ -75,8 +75,8 @@ namespace QuantLib {
 
     Disposable<std::vector<ext::shared_ptr<BlackCalibrationHelper> > >
     NonstandardSwaption::calibrationBasket(
-        ext::shared_ptr<SwapIndex> standardSwapBase,
-        ext::shared_ptr<SwaptionVolatilityStructure> swaptionVolatility,
+        const ext::shared_ptr<SwapIndex>& standardSwapBase,
+        const ext::shared_ptr<SwaptionVolatilityStructure>& swaptionVolatility,
         const BasketGeneratingEngine::CalibrationBasketType basketType) const {
 
         ext::shared_ptr<BasketGeneratingEngine> engine =

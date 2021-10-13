@@ -2,7 +2,7 @@
 
 /*
  Copyright (C) 2006, 2008 Ferdinando Ametrano
- Copyright (C) 2006 François du Vignaud
+ Copyright (C) 2006 FranÃ§ois du Vignaud
  Copyright (C) 2007 Cristina Duminuco
 
  This file is part of QuantLib, a free-software/open-source library
@@ -375,7 +375,7 @@ void SwaptionVolatilityMatrixTest::testSwaptionVolMatrixCoherence() {
 }
 
 test_suite* SwaptionVolatilityMatrixTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Swaption Volatility Matrix tests");
+    auto* suite = BOOST_TEST_SUITE("Swaption Volatility Matrix tests");
 
     suite->add(QUANTLIB_TEST_CASE(
               &SwaptionVolatilityMatrixTest::testSwaptionVolMatrixCoherence));

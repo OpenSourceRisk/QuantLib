@@ -21,11 +21,12 @@
 #ifndef quantlib_tap_correlations_hpp
 #define quantlib_tap_correlations_hpp
 
-#include <ql/types.hpp>
-#include <ql/utilities/disposable.hpp>
+#include <ql/functional.hpp>
 #include <ql/math/matrix.hpp>
 #include <ql/math/optimization/costfunction.hpp>
-#include <ql/functional.hpp>
+#include <ql/types.hpp>
+#include <ql/utilities/disposable.hpp>
+#include <utility>
 #include <vector>
 
 namespace QuantLib {
@@ -67,7 +68,7 @@ namespace QuantLib {
 
     //! Returns the rank reduced Triangular Angles Parametrized correlation matrix
     /*! The matrix \f$ m \f$ is filled with values corresponding to angles
-        corresponding  to the 3D spherical spiral paramterized by
+        corresponding  to the 3D spherical spiral parameterized by
         \f$ alpha \f$, \f$ t0 \f$, \f$ epsilon \f$ values. See equation (32) in
         "Parameterizing correlations: a geometric interpretation"
         by Francesco Rapisarda, Damiano Brigo, Fabio Mercurio
@@ -86,23 +87,21 @@ namespace QuantLib {
 
     // the same function with parameters packed in an Array
     Disposable<Matrix>
-    triangularAnglesParametrizationRankThreeVectorial(const Array& paramters,
+    triangularAnglesParametrizationRankThreeVectorial(const Array& parameters,
                                                       Size nbRows);
 
     // Cost function associated with Frobenius norm.
     // <http://en.wikipedia.org/wiki/Matrix_norm>
     class FrobeniusCostFunction : public CostFunction{
       public:
-        FrobeniusCostFunction(
-            const Matrix& target,
-            const ext::function<Disposable<Matrix>(const Array&,
-                                                     Size,
-                                                     Size)>& f,
-                                                     Size matrixSize,
-                                                     Size rank)
-        : target_(target), f_(f), matrixSize_(matrixSize), rank_(rank) {}
-        Real value (const Array &x) const;
-        Disposable<Array> values (const Array &x) const;
+        FrobeniusCostFunction(Matrix target,
+                              ext::function<Disposable<Matrix>(const Array&, Size, Size)> f,
+                              Size matrixSize,
+                              Size rank)
+        : target_(std::move(target)), f_(std::move(f)), matrixSize_(matrixSize), rank_(rank) {}
+        Real value(const Array& x) const override;
+        Disposable<Array> values(const Array& x) const override;
+
       private:
         Matrix target_;
         ext::function<Disposable<Matrix>(const Array&, Size, Size)> f_;

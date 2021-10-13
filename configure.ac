@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([QuantLib], [1.18],
+AC_INIT([QuantLib], [1.22],
         [quantlib-dev@lists.sourceforge.net],
         [QuantLib])
 AC_PREREQ(2.62)
@@ -365,8 +365,7 @@ AC_ARG_ENABLE([std-pointers],
               AC_HELP_STRING([--enable-std-pointers],
                              [If enabled, std::shared_ptr and related
                               classes and functions will be used instead
-                              of boost::shared_ptr; this requires you to set
-                              your compiler's standard to at least C++11.
+                              of boost::shared_ptr.
                               If disabled (the default) the Boost facilities
                               are used.
                               Note that std::shared_ptr does not check
@@ -382,14 +381,11 @@ AC_MSG_RESULT([$ql_use_std_pointers])
 AC_MSG_CHECKING([whether to enable std::unique_ptr instead of std::auto_ptr])
 AC_ARG_ENABLE([std-unique-ptr],
               AC_HELP_STRING([--enable-std-unique-ptr],
-                             [If enabled, std::unique_ptr will be used
-                              instead of the deprecated std::auto_ptr;
-                              this requires you to set your compiler's
-                              standard to at least C++11.  If disabled
-                              (the default), std::auto_ptr will still
-                              be used.]),
+                             [If enabled (the default), std::unique_ptr will
+                              be used instead of the deprecated std::auto_ptr.
+                              If disabled, std::auto_ptr will still be used.]),
               [ql_use_unique_ptr=$enableval],
-              [ql_use_unique_ptr=no])
+              [ql_use_unique_ptr=yes])
 if test "$ql_use_unique_ptr" = "yes" ; then
    AC_DEFINE([QL_USE_STD_UNIQUE_PTR],[1],
              [Define this if you want to replace std::auto_ptr with std::unique_ptr.])
@@ -400,10 +396,9 @@ AC_MSG_CHECKING([whether to enable std::function])
 AC_ARG_ENABLE([std-function],
               AC_HELP_STRING([--enable-std-function],
                              [If enabled, std::function and std::bind will be
-                              used instead of boost::function and boost::bind;
-                              this requires you to set your compiler's standard
-                              to at least C++11. If disabled (the default) the
-                              Boost facilities are used.]),
+                              used instead of boost::function and boost::bind.
+                              If disabled (the default) the Boost facilities
+                              are used.]),
               [ql_use_std_function=$enableval],
               [ql_use_std_function=no])
 if test "$ql_use_std_function" = "yes" ; then
@@ -412,11 +407,28 @@ if test "$ql_use_std_function" = "yes" ; then
 fi
 AC_MSG_RESULT([$ql_use_std_function])
 
+
+AC_MSG_CHECKING([whether to enable std::tuple])
+AC_ARG_ENABLE([std-tuple],
+              AC_HELP_STRING([--enable-std-tuple],
+                             [If enabled, std::tuple and related functions
+                              will be used instead of boost::tuple.
+                              If disabled (the default) the Boost facilities
+                              are used.]),
+              [ql_use_std_tuple=$enableval],
+              [ql_use_std_tuple=no])
+if test "$ql_use_std_tuple" = "yes" ; then
+   AC_DEFINE([QL_USE_STD_TUPLE],[1],
+             [Define this if you want to use std::tuple.])
+fi
+AC_MSG_RESULT([$ql_use_std_pointers])
+
 AC_MSG_CHECKING([whether to enable available std classes])
 AC_ARG_ENABLE([std-classes],
               AC_HELP_STRING([--enable-std-classes],
                              [This is a shortcut for --enable-std-pointers
-                              --enable-std-unique-ptr --enable-std-function.
+                              --enable-std-unique-ptr --enable-std-function
+                              --enable-std-tuple.
                               If enabled, this supersedes any --disable
                               option passed for the above.]),
               [ql_use_std_classes=$enableval],
@@ -428,8 +440,28 @@ if test "$ql_use_std_classes" = "yes" ; then
              [Define this if you want to replace std::auto_ptr with std::unique_ptr.])
    AC_DEFINE([QL_USE_STD_FUNCTION],[1],
              [Define this if you want to use std::function and std::bind.])
+   AC_DEFINE([QL_USE_STD_TUPLE],[1],
+             [Define this if you want to use std::tuple.])
 fi
 AC_MSG_RESULT([$ql_use_std_classes])
+
+
+AC_MSG_CHECKING([whether to enable the Disposable class template])
+AC_ARG_ENABLE([disposable],
+              AC_HELP_STRING([--enable-disposable],
+                             [If enabled, the Disposable class template will be used;
+                              this should be no longer necessary in C++11
+                              and might interfere with compiler optimizations.
+                              If disabled (the default) the class will only
+                              be an alias for the underlying type.]),
+              [ql_use_disposable=$enableval],
+              [ql_use_disposable=no])
+if test "$ql_use_disposable" = "yes" ; then
+   AC_DEFINE([QL_USE_DISPOSABLE],[1],
+             [Define this if you want to use the Disposable class template.])
+fi
+AC_MSG_RESULT([$ql_use_disposable])
+
 
 # manual configurations for specific hosts
 case $host in
@@ -452,6 +484,7 @@ AC_CONFIG_FILES([
     ql/currencies/Makefile
     ql/experimental/Makefile
     ql/experimental/amortizingbonds/Makefile
+    ql/experimental/asian/Makefile
     ql/experimental/averageois/Makefile
     ql/experimental/barrieroption/Makefile
     ql/experimental/basismodels/Makefile
@@ -463,7 +496,7 @@ AC_CONFIG_FILES([
     ql/experimental/credit/Makefile
     ql/experimental/exoticoptions/Makefile
     ql/experimental/finitedifferences/Makefile
-    ql/experimental/futures/Makefile
+    ql/experimental/forward/Makefile
     ql/experimental/fx/Makefile
     ql/experimental/inflation/Makefile
     ql/experimental/lattices/Makefile

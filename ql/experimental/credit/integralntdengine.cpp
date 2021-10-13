@@ -45,11 +45,9 @@ namespace QuantLib {
         */
         bool basketIsHomogeneous = true;// hardcoded by now
 
-        for (Size i = 0; i < arguments_.premiumLeg.size(); i++) {
-            ext::shared_ptr<FixedRateCoupon> coupon =
-                ext::dynamic_pointer_cast<FixedRateCoupon>(
-                    arguments_.premiumLeg[i]);
-            Date d = arguments_.premiumLeg[i]->date();
+        for (auto& i : arguments_.premiumLeg) {
+            ext::shared_ptr<FixedRateCoupon> coupon = ext::dynamic_pointer_cast<FixedRateCoupon>(i);
+            Date d = i->date();
             if (d > discountCurve_->referenceDate()) {
                 /*
                 std::vector<Probability> probsTriggering =
@@ -58,7 +56,7 @@ namespace QuantLib {
                 Probability defaultProb = 
                     std::accumulate(probsTriggering.begin(), 
                     probsTriggering.end(), Real(0.));
-                // OVERKILL???? 1-probAtleastNevents is enough
+                // OVERKILL???? 1-probAtLeastNEvents is enough
 
 */
                 // prob of contract not having been triggered by date of payment
@@ -66,10 +64,9 @@ namespace QuantLib {
                     1. - arguments_.basket->probAtLeastNEvents(
                         arguments_.ntdOrder, d);
 
-                results_.premiumValue += arguments_.premiumLeg[i]->amount()
-                    * discountCurve_->discount(d)
-                    * probNonTriggered;
-                 ////   * (1.0 - defaultProb);
+                results_.premiumValue +=
+                    i->amount() * discountCurve_->discount(d) * probNonTriggered;
+                ////   * (1.0 - defaultProb);
 
                 if (coupon->accrualStartDate() >= 
                     discountCurve_->referenceDate())

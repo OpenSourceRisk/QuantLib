@@ -122,7 +122,7 @@ namespace QuantLib {
                 registerWith(oas_);
         }
 
-        void calculate() const;
+        void calculate() const override;
 
         Handle<YieldTermStructure> discountingCurve() const {
             return discountCurve_.empty() ? model_->termStructure()
@@ -130,10 +130,10 @@ namespace QuantLib {
         }
 
       protected:
-        Real underlyingNpv(const Date &expiry, const Real y) const;
-        VanillaSwap::Type underlyingType() const;
-        const Date underlyingLastDate() const;
-        const Disposable<Array> initialGuess(const Date &expiry) const;
+        Real underlyingNpv(const Date& expiry, Real y) const override;
+        VanillaSwap::Type underlyingType() const override;
+        const Date underlyingLastDate() const override;
+        const Disposable<Array> initialGuess(const Date& expiry) const override;
 
       private:
         const int integrationPoints_;
@@ -144,10 +144,10 @@ namespace QuantLib {
         const bool includeTodaysExercise_;
         const Probabilities probabilities_;
 
-        const std::pair<Real, Real>
-        npvs(const Date &expiry, const Real y,
-             const bool includeExerciseOnxpiry,
-             const bool considerProbabilities=false) const;
+        std::pair<Real, Real> npvs(const Date& expiry,
+                                   Real y,
+                                   bool includeExerciseOnxpiry,
+                                   bool considerProbabilities = false) const;
 
         mutable ext::shared_ptr<RebatedExercise> rebatedExercise_;
     };

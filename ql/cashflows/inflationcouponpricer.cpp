@@ -18,23 +18,32 @@
  */
 
 #include <ql/cashflows/inflationcouponpricer.hpp>
-#include <ql/termstructures/volatility/inflation/yoyinflationoptionletvolatilitystructure.hpp>
 #include <ql/pricingengines/blackformula.hpp>
+#include <ql/termstructures/volatility/inflation/yoyinflationoptionletvolatilitystructure.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    YoYInflationCouponPricer::YoYInflationCouponPricer() {}
+    void setCouponPricer(const Leg& leg,
+                         const ext::shared_ptr<InflationCouponPricer>& p) {
+        for (const auto& i : leg) {
+            ext::shared_ptr<InflationCoupon> c = ext::dynamic_pointer_cast<InflationCoupon>(i);
+            if (c != nullptr)
+                c->setPricer(p);
+        }
+    }
+
 
     YoYInflationCouponPricer::YoYInflationCouponPricer(
-                       const Handle<YoYOptionletVolatilitySurface>& capletVol)
-    : capletVol_(capletVol) {
-        registerWith(capletVol_);
+        Handle<YieldTermStructure> nominalTermStructure)
+    : nominalTermStructure_(std::move(nominalTermStructure)) {
+        registerWith(nominalTermStructure_);
     }
 
     YoYInflationCouponPricer::YoYInflationCouponPricer(
-                       const Handle<YoYOptionletVolatilitySurface>& capletVol,
-                       const Handle<YieldTermStructure>& nominalTermStructure)
-    : capletVol_(capletVol), nominalTermStructure_(nominalTermStructure) {
+        Handle<YoYOptionletVolatilitySurface> capletVol,
+        Handle<YieldTermStructure> nominalTermStructure)
+    : capletVol_(std::move(capletVol)), nominalTermStructure_(std::move(nominalTermStructure)) {
         registerWith(capletVol_);
         registerWith(nominalTermStructure_);
     }
@@ -206,7 +215,5 @@ namespace QuantLib {
                                      forward,
                                      stdDev);
     }
-
-
 
 }

@@ -24,6 +24,7 @@ FOR A PARTICULAR PURPOSE.  See the license for more details.
 #include <ql/experimental/math/multidimintegrator.hpp>
 #include <ql/experimental/math/multidimquadrature.hpp>
 #include <ql/math/integrals/trapezoidintegral.hpp>
+#include <ql/patterns/singleton.hpp>
 #include <ql/functional.hpp>
 
 
@@ -36,7 +37,7 @@ using namespace std;
 #if defined(QL_ENABLE_SESSIONS)
 namespace QuantLib {
 
-    Integer sessionId() { return 0; }
+    ThreadKey sessionId() { return {}; }
 
 }
 #endif
@@ -45,13 +46,16 @@ namespace QuantLib {
 struct integrand {
     Real operator()(const std::vector<Real>& arg) const {
         Real sum = 1.;
-        for(Size i=0; i<arg.size(); i++) 
-            sum *= std::exp(-arg[i]*arg[i]) * std::cos(arg[i]);
+        for (double i : arg)
+            sum *= std::exp(-i * i) * std::cos(i);
         return sum;
     }
 };
 
 int main() {
+
+  try {
+
     std::cout << std::endl;
 
     /* 
@@ -94,4 +98,12 @@ int main() {
          << endl;
 
     return 0;
+
+  } catch (std::exception& e) {
+      std::cerr << e.what() << std::endl;
+      return 1;
+  } catch (...) {
+      std::cerr << "unknown error" << std::endl;
+      return 1;
+  }
 }

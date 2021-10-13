@@ -61,7 +61,7 @@ namespace QuantLib {
             Integer jj = -1;
             while (jj < ii) {
                 for (Integer k=jj+1; k<n; ++k) {
-                    if(levii[k]) {
+                    if (levii[k] != 0) {
                         jj = k;
                         break;
                     }
@@ -80,8 +80,8 @@ namespace QuantLib {
                         nonZeros.push_back(jj);
                         nonZeroEntries.push_back(entry);
                     }
-                    std::set<Integer>::const_iterator iter=uBandSet.begin();
-                    std::set<Integer>::const_iterator end =uBandSet.end();
+                    auto iter = uBandSet.begin();
+                    auto end = uBandSet.end();
                     for (; iter != end; ++iter) {
                         const Real entry = U_(jj,jj+*iter);
                         if(entry > QL_EPSILON || entry < -1.0*QL_EPSILON) {
@@ -123,9 +123,8 @@ namespace QuantLib {
             }
             std::vector<Integer> leviiNonZeroEntries;
             leviiNonZeroEntries.reserve(levii.size());
-            for (Size i=0; i<levii.size(); ++i) {
-                const Integer entry = levii[i];
-                if(entry > QL_EPSILON || entry < -1.0*QL_EPSILON) {
+            for (int entry : levii) {
+                if (entry > QL_EPSILON || entry < -1.0 * QL_EPSILON) {
                     leviiNonZeroEntries.push_back(entry);
                 }
             }

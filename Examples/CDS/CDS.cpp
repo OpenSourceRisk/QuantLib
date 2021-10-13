@@ -52,7 +52,7 @@ using namespace QuantLib;
 #if defined(QL_ENABLE_SESSIONS)
 namespace QuantLib {
 
-    Integer sessionId() { return 0; }
+    ThreadKey sessionId() { return {}; }
 }
 #endif
 
@@ -86,6 +86,7 @@ void example01() {
     */
 
     // market
+    Natural settlementDays = 1;
     Real recovery_rate = 0.5;
     Real quoted_spreads[] = { 0.0150, 0.0150, 0.0150, 0.0150 };
     vector<Period> tenors;
@@ -93,10 +94,12 @@ void example01() {
     tenors.push_back(6 * Months);
     tenors.push_back(1 * Years);
     tenors.push_back(2 * Years);
+
+    Date settlementDate = calendar.advance(todaysDate, settlementDays, Days);
     vector<Date> maturities;
     for (Size i = 0; i < 4; i++) {
         maturities.push_back(
-            calendar.adjust(todaysDate + tenors[i], Following));
+            calendar.adjust(settlementDate + tenors[i], Following));
     }
 
     std::vector<ext::shared_ptr<DefaultProbabilityHelper> > instruments;
@@ -104,10 +107,9 @@ void example01() {
         instruments.push_back(ext::shared_ptr<DefaultProbabilityHelper>(
             new SpreadCdsHelper(Handle<Quote>(ext::shared_ptr<Quote>(
                                     new SimpleQuote(quoted_spreads[i]))),
-                                tenors[i], 0, calendar, Quarterly, Following,
+                                tenors[i], settlementDays, calendar, Quarterly, Following,
                                 DateGeneration::TwentiethIMM, Actual365Fixed(),
                                 recovery_rate, tsCurve)));
-
     }
 
     // Bootstrap hazard rates
@@ -117,9 +119,8 @@ void example01() {
     vector<pair<Date, Real> > hr_curve_data = hazardRateStructure->nodes();
 
     cout << "Calibrated hazard rate values: " << endl;
-    for (Size i = 0; i < hr_curve_data.size(); i++) {
-        cout << "hazard rate on " << hr_curve_data[i].first << " is "
-             << hr_curve_data[i].second << endl;
+    for (auto& i : hr_curve_data) {
+        cout << "hazard rate on " << i.first << " is " << i.second << endl;
     }
     cout << endl;
 
@@ -142,7 +143,7 @@ void example01() {
         new MidPointCdsEngine(probability, recovery_rate, tsCurve));
 
     Schedule cdsSchedule = MakeSchedule()
-                               .from(todaysDate)
+                               .from(settlementDate)
                                .to(maturities[0])
                                .withFrequency(Quarterly)
                                .withCalendar(calendar)
@@ -152,7 +153,7 @@ void example01() {
                              cdsSchedule, Following, Actual365Fixed());
 
     cdsSchedule = MakeSchedule()
-                      .from(todaysDate)
+                      .from(settlementDate)
                       .to(maturities[1])
                       .withFrequency(Quarterly)
                       .withCalendar(calendar)
@@ -162,7 +163,7 @@ void example01() {
                              cdsSchedule, Following, Actual365Fixed());
 
     cdsSchedule = MakeSchedule()
-                      .from(todaysDate)
+                      .from(settlementDate)
                       .to(maturities[2])
                       .withFrequency(Quarterly)
                       .withCalendar(calendar)
@@ -172,7 +173,7 @@ void example01() {
                              cdsSchedule, Following, Actual365Fixed());
 
     cdsSchedule = MakeSchedule()
-                      .from(todaysDate)
+                      .from(settlementDate)
                       .to(maturities[3])
                       .withFrequency(Quarterly)
                       .withCalendar(calendar)
@@ -343,8 +344,8 @@ std::copy(cdsSchedule.begin(), cdsSchedule.end(),
 
     // output rate curve
     std::cout << "ISDA rate curve: " << std::endl;
-    for(Size i=0;i<isdaRateHelper.size(); i++) {
-        Date d = isdaRateHelper[i]->latestDate();
+    for (auto& i : isdaRateHelper) {
+        Date d = i->latestDate();
         std::cout << d << "\t" << setprecision(6) <<
             rateTs->zeroRate(d,Actual365Fixed(),Continuous).rate() << "\t" <<
             rateTs->discount(d) << std::endl;
@@ -393,14 +394,13 @@ std::copy(cdsSchedule.begin(), cdsSchedule.end(),
         0, WeekendsOnly(), isdaCdsHelper, Actual365Fixed()));
 
     std::cout << "ISDA credit curve: " << std::endl;
-    for(Size i=0;i<isdaCdsHelper.size();i++) {
-        Date d = isdaCdsHelper[i]->latestDate();
+    for (auto& i : isdaCdsHelper) {
+        Date d = i->latestDate();
         Real pd = defaultTs->defaultProbability(d);
         Real t = defaultTs->timeFromReference(d);
         std::cout << d << ";" << pd << ";" << 1.0 - pd << ";" <<
             -std::log(1.0-pd)/t << std::endl;
     }
-
 
 
     // // set up sample CDS trade
@@ -611,8 +611,8 @@ void example03() {
     // check the curves
     std::cout << "ISDA yield curve:" << std::endl;
     std::cout << "date;time;zeroyield" << std::endl;
-    for (Size i = 0; i < isdaYieldHelpers.size(); i++) {
-        Date d = isdaYieldHelpers[i]->latestDate();
+    for (auto& isdaYieldHelper : isdaYieldHelpers) {
+        Date d = isdaYieldHelper->latestDate();
         Real t = isdaYts->timeFromReference(d);
         std::cout << d << ";" << t << ";"
                   << isdaYts->zeroRate(d, Actual365Fixed(), Continuous).rate()
@@ -621,8 +621,8 @@ void example03() {
 
     std::cout << "ISDA credit curve:" << std::endl;
     std::cout << "date;time;survivalprob" << std::endl;
-    for (Size i = 0; i < isdaCdsHelpers.size(); i++) {
-        Date d = isdaCdsHelpers[i]->latestDate();
+    for (auto& isdaCdsHelper : isdaCdsHelpers) {
+        Date d = isdaCdsHelper->latestDate();
         Real t = isdaCts->timeFromReference(d);
         std::cout << d << ";" << t << ";" << isdaCts->survivalProbability(d)
                   << std::endl;

@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2015 Johannes Goettker-Schnetmann
+ Copyright (C) 2015 Johannes Göttker-Schnetmann
  Copyright (C) 2015 Klaus Spanderen
 
  This file is part of QuantLib, a free-software/open-source library
@@ -35,19 +35,18 @@ namespace QuantLib {
       public:
         explicit HestonBlackVolSurface(
             const Handle<HestonModel>& hestonModel,
-            const AnalyticHestonEngine::ComplexLogFormula cpxLogFormula
-                = AnalyticHestonEngine::Gatheral,
-            const AnalyticHestonEngine::Integration& integration =
+            AnalyticHestonEngine::ComplexLogFormula cpxLogFormula = AnalyticHestonEngine::Gatheral,
+            AnalyticHestonEngine::Integration integration =
                 AnalyticHestonEngine::Integration::gaussLaguerre(164));
 
-        DayCounter dayCounter() const;
-        Date maxDate() const;
-        Real minStrike() const;
-        Real maxStrike() const;
+        DayCounter dayCounter() const override;
+        Date maxDate() const override;
+        Real minStrike() const override;
+        Real maxStrike() const override;
 
       protected:
-        Real blackVarianceImpl(Time t, Real strike) const;
-        Volatility blackVolImpl(Time t, Real strike) const;
+        Real blackVarianceImpl(Time t, Real strike) const override;
+        Volatility blackVolImpl(Time t, Real strike) const override;
 
       private:
         const Handle<HestonModel> hestonModel_;

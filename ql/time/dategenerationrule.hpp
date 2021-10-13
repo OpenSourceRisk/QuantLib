@@ -77,6 +77,9 @@ namespace QuantLib {
                                         date are taken to be on the tuesday after 
                                         the third friday of their month (with forward 
                                         calculation.) */
+            LastWednesday,          /*!< All dates but effective date and termination
+                                         date are taken to be on the last Wednesday 
+                                         of their month. */
         };
     };
 

@@ -43,9 +43,9 @@ namespace QuantLib {
       public:
         FdmNdimSolver(const FdmSolverDesc& solverDesc,
                       const FdmSchemeDesc& schemeDesc,
-                      const ext::shared_ptr<FdmLinearOpComposite>& op);
+                      ext::shared_ptr<FdmLinearOpComposite> op);
 
-        void performCalculations() const;
+        void performCalculations() const override;
 
         Real interpolateAt(const std::vector<Real>& x) const;
         Real thetaAt(const std::vector<Real>& x) const;
@@ -72,22 +72,18 @@ namespace QuantLib {
     };
 
 
-    template <Size N> inline
-    FdmNdimSolver<N>::FdmNdimSolver(
-                        const FdmSolverDesc& solverDesc,
-                        const FdmSchemeDesc& schemeDesc,
-                        const ext::shared_ptr<FdmLinearOpComposite>& op)
-    : solverDesc_(solverDesc),
-      schemeDesc_(schemeDesc),
-      op_(op),
+    template <Size N>
+    inline FdmNdimSolver<N>::FdmNdimSolver(const FdmSolverDesc& solverDesc,
+                                           const FdmSchemeDesc& schemeDesc,
+                                           ext::shared_ptr<FdmLinearOpComposite> op)
+    : solverDesc_(solverDesc), schemeDesc_(schemeDesc), op_(std::move(op)),
       thetaCondition_(new FdmSnapshotCondition(
-        0.99*std::min(1.0/365.0,
-                solverDesc.condition->stoppingTimes().empty()
-                ? solverDesc.maturity :
-                  solverDesc.condition->stoppingTimes().front()))),
-      conditions_(FdmStepConditionComposite::joinConditions(thetaCondition_,
-                                                        solverDesc.condition)),
-      x_            (solverDesc.mesher->layout()->dim().size()),
+          0.99 * std::min(1.0 / 365.0,
+                          solverDesc.condition->stoppingTimes().empty() ?
+                              solverDesc.maturity :
+                              solverDesc.condition->stoppingTimes().front()))),
+      conditions_(FdmStepConditionComposite::joinConditions(thetaCondition_, solverDesc.condition)),
+      x_(solverDesc.mesher->layout()->dim().size()),
       initialValues_(solverDesc.mesher->layout()->size()),
       extrapolation_(std::vector<bool>(N, false)) {
 
@@ -110,7 +106,7 @@ namespace QuantLib {
 
             const std::vector<Size>& c = iter.coordinates();
             for (Size i=0; i < N; ++i) {
-                if (!(std::accumulate(c.begin(), c.end(), 0)-c[i])) {
+                if ((std::accumulate(c.begin(), c.end(), 0UL) - c[i]) == 0U) {
                     x_[i].push_back(mesher->location(iter, i));
                 }
             }

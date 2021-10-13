@@ -17,27 +17,29 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+#include <ql/event.hpp>
 #include <ql/instruments/forward.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
-#include <ql/event.hpp>
+#include <utility>
+
 
 namespace QuantLib {
 
-    Forward::Forward(const DayCounter& dayCounter,
-                     const Calendar& calendar,
+    Forward::Forward(DayCounter dayCounter,
+                     Calendar calendar,
                      BusinessDayConvention businessDayConvention,
                      Natural settlementDays,
-                     const ext::shared_ptr<Payoff>& payoff,
+                     ext::shared_ptr<Payoff> payoff,
                      const Date& valueDate,
                      const Date& maturityDate,
-                     const Handle<YieldTermStructure>& discountCurve)
-    : dayCounter_(dayCounter), calendar_(calendar),
-      businessDayConvention_(businessDayConvention),
-      settlementDays_(settlementDays), payoff_(payoff), valueDate_(valueDate),
-      maturityDate_(maturityDate), discountCurve_(discountCurve) {
+                     Handle<YieldTermStructure> discountCurve)
+    : dayCounter_(std::move(dayCounter)), calendar_(std::move(calendar)),
+      businessDayConvention_(businessDayConvention), settlementDays_(settlementDays),
+      payoff_(std::move(payoff)), valueDate_(valueDate), maturityDate_(maturityDate),
+      discountCurve_(std::move(discountCurve)) {
 
-        maturityDate_ = calendar_.adjust(maturityDate_,
-                                         businessDayConvention_);
+
+        maturityDate_ = calendar_.adjust(maturityDate_, businessDayConvention_);
 
         registerWith(Settings::instance().evaluationDate());
         registerWith(discountCurve_);
@@ -45,22 +47,19 @@ namespace QuantLib {
 
 
     Date Forward::settlementDate() const {
-        Date d = calendar_.advance(Settings::instance().evaluationDate(),
-                                   settlementDays_, Days);
-        return std::max(d,valueDate_);
+        Date d = calendar_.advance(Settings::instance().evaluationDate(), settlementDays_, Days);
+        return std::max(d, valueDate_);
     }
 
 
     bool Forward::isExpired() const {
-        return detail::simple_event(maturityDate_)
-               .hasOccurred(settlementDate());
+        return detail::simple_event(maturityDate_).hasOccurred(settlementDate());
     }
 
 
     Real Forward::forwardValue() const {
         calculate();
-        return (underlyingSpotValue_ - underlyingIncome_ )/
-               discountCurve_->discount(maturityDate_);
+        return (underlyingSpotValue_ - underlyingIncome_) / discountCurve_->discount(maturityDate_);
     }
 
 
@@ -68,26 +67,23 @@ namespace QuantLib {
                                        Real forwardValue,
                                        Date settlementDate,
                                        Compounding comp,
-                                       DayCounter dayCounter) {
+                                       const DayCounter& dayCounter) {
 
-        Time t = dayCounter.yearFraction(settlementDate,maturityDate_) ;
-        Real compoundingFactor = forwardValue/
-            (underlyingSpotValue-spotIncome(incomeDiscountCurve_)) ;
-        return InterestRate::impliedRate(compoundingFactor,
-                                         dayCounter, comp, Annual,
-                                         t);
+        Time t = dayCounter.yearFraction(settlementDate, maturityDate_);
+        Real compoundingFactor =
+            forwardValue / (underlyingSpotValue - spotIncome(incomeDiscountCurve_));
+        return InterestRate::impliedRate(compoundingFactor, dayCounter, comp, Annual, t);
     }
 
 
     void Forward::performCalculations() const {
 
-        QL_REQUIRE(!discountCurve_.empty(),
-                   "null term structure set to Forward");
+        QL_REQUIRE(!discountCurve_.empty(), "null term structure set to Forward");
 
         ext::shared_ptr<ForwardTypePayoff> ftpayoff =
             ext::dynamic_pointer_cast<ForwardTypePayoff>(payoff_);
         Real fwdValue = forwardValue();
-        NPV_ = (*ftpayoff)(fwdValue) * discountCurve_->discount(maturityDate_);
+        NPV_ = (*ftpayoff)(fwdValue)*discountCurve_->discount(maturityDate_);
     }
 
 }

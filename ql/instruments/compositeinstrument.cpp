@@ -18,12 +18,13 @@
 */
 
 #include <ql/instruments/compositeinstrument.hpp>
+#include <sstream>
 
 namespace QuantLib {
 
     void CompositeInstrument::add(
            const ext::shared_ptr<Instrument>& instrument, Real multiplier) {
-        components_.push_back(std::make_pair(instrument,multiplier));
+        components_.emplace_back(instrument, multiplier);
         registerWith(instrument);
         update();
         // When we ask for the NPV of an expired composite, the
@@ -43,8 +44,8 @@ namespace QuantLib {
     }
 
     bool CompositeInstrument::isExpired() const {
-        for (const_iterator i=components_.begin(); i!=components_.end(); ++i) {
-            if (!i->first->isExpired())
+        for (const auto& component : components_) {
+            if (!component.first->isExpired())
                 return false;
         }
         return true;
@@ -52,9 +53,10 @@ namespace QuantLib {
 
     void CompositeInstrument::performCalculations() const {
         NPV_ = 0.0;
-        for (const_iterator i=components_.begin(); i!=components_.end(); ++i) {
-            NPV_ += i->second * i->first->NPV();
+        for (const auto& component : components_) {
+            NPV_ += component.second * component.first->NPV();
         }
+        updateAdditionalResults();
     }
 
     void CompositeInstrument::deepUpdate() {
@@ -62,6 +64,31 @@ namespace QuantLib {
             i->first->deepUpdate();
         }
         update();
+    }
+
+    void CompositeInstrument::updateAdditionalResults() const {
+
+        using std::string;
+        typedef std::map<string, boost::any> Results;
+        typedef Results::const_iterator RIt;
+
+        // Loop over each component's additional results and add them to additionalResults_.
+        additionalResults_.clear();
+        for (const_iterator i = components_.begin(); i != components_.end(); ++i) {
+
+            // Keep track of component's index. Prepend it to additional results.
+            Size cmpIdx = std::distance(components_.begin(), i) + 1;
+            std::stringstream ss;
+            ss << cmpIdx << "_";
+            string prefix = ss.str();
+
+            // Update the additionalResults_.
+            const Results& cmpResults = i->first->additionalResults();
+            for (RIt it = cmpResults.begin(); it != cmpResults.end(); ++it) {
+                additionalResults_[prefix + it->first] = it->second;
+            }
+            additionalResults_[prefix + "multiplier"] = i->second;
+        }
     }
 
 }

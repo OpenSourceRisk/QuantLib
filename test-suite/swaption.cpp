@@ -6,6 +6,7 @@
  Copyright (C) 2006 Marco Bianchetti
  Copyright (C) 2006 Cristina Duminuco
  Copyright (C) 2007, 2008 StatPro Italia srl
+ Copyright (C) 2020 Marcin Rybacki
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -69,11 +70,13 @@ namespace swaption_test {
         SavedSettings backup;
 
         // utilities
-        ext::shared_ptr<Swaption>
-        makeSwaption(const ext::shared_ptr<VanillaSwap>& swap, const Date& exercise,
-                     Volatility volatility, Settlement::Type settlementType = Settlement::Physical,
-                     Settlement::Method settlementMethod = Settlement::PhysicalOTC,
-                     BlackSwaptionEngine::CashAnnuityModel model = BlackSwaptionEngine::SwapRate) {
+        ext::shared_ptr<Swaption> makeSwaption(
+            const ext::shared_ptr<VanillaSwap>& swap,
+            const Date& exercise,
+            Volatility volatility,
+            Settlement::Type settlementType = Settlement::Physical,
+            Settlement::Method settlementMethod = Settlement::PhysicalOTC,
+            BlackSwaptionEngine::CashAnnuityModel model = BlackSwaptionEngine::SwapRate) const {
             Handle<Quote> vol(ext::shared_ptr<Quote>(
                                                 new SimpleQuote(volatility)));
             ext::shared_ptr<PricingEngine> engine(new BlackSwaptionEngine(
@@ -88,9 +91,9 @@ namespace swaption_test {
             return result;
         }
 
-        ext::shared_ptr<PricingEngine>
-        makeEngine(Volatility volatility,
-                   BlackSwaptionEngine::CashAnnuityModel model = BlackSwaptionEngine::SwapRate) {
+        ext::shared_ptr<PricingEngine> makeEngine(
+            Volatility volatility,
+            BlackSwaptionEngine::CashAnnuityModel model = BlackSwaptionEngine::SwapRate) const {
             Handle<Quote> h(ext::shared_ptr<Quote>(new SimpleQuote(volatility)));
             return ext::shared_ptr<PricingEngine>(
                 new BlackSwaptionEngine(termStructure, h, Actual365Fixed(), 0.0, model));
@@ -127,11 +130,10 @@ void SwaptionTest::testStrikeDependency() {
 
     Rate strikes[] = { 0.03, 0.04, 0.05, 0.06, 0.07 };
 
-    for (Size i=0; i<LENGTH(exercises); i++) {
-        for (Size j=0; j<LENGTH(lengths); j++) {
-            for (Size k=0; k<LENGTH(type); k++) {
-                Date exerciseDate = vars.calendar.advance(vars.today,
-                                                          exercises[i]);
+    for (auto& exercise : exercises) {
+        for (auto& length : lengths) {
+            for (auto& k : type) {
+                Date exerciseDate = vars.calendar.advance(vars.today, exercise);
                 Date startDate =
                     vars.calendar.advance(exerciseDate,
                                           vars.settlementDays,Days);
@@ -139,14 +141,14 @@ void SwaptionTest::testStrikeDependency() {
                 std::vector<Real> values;
                 std::vector<Real> values_cash;
                 Volatility vol = 0.20;
-                for (Size l=0; l<LENGTH(strikes); l++) {
+                for (double strike : strikes) {
                     ext::shared_ptr<VanillaSwap> swap =
-                        MakeVanillaSwap(lengths[j], vars.index, strikes[l])
-                                .withEffectiveDate(startDate)
-                                .withFixedLegTenor(1*Years)
-                                .withFixedLegDayCount(vars.fixedDayCount)
-                                .withFloatingLegSpread(0.0)
-                                .withType(type[k]);
+                        MakeVanillaSwap(length, vars.index, strike)
+                            .withEffectiveDate(startDate)
+                            .withFixedLegTenor(1 * Years)
+                            .withFixedLegDayCount(vars.fixedDayCount)
+                            .withFloatingLegSpread(0.0)
+                            .withType(k);
                     ext::shared_ptr<Swaption> swaption =
                         vars.makeSwaption(swap,exerciseDate,vol);
                     // FLOATING_POINT_EXCEPTION
@@ -157,63 +159,58 @@ void SwaptionTest::testStrikeDependency() {
                     values_cash.push_back(swaption_cash->NPV());
                 }
                 // and check that they go the right way
-                if (type[k]==VanillaSwap::Payer) {
-                    std::vector<Real>::iterator it =
-                        std::adjacent_find(values.begin(), values.end(),
-                                           std::less<Real>());
+                if (k == VanillaSwap::Payer) {
+                    auto it = std::adjacent_find(values.begin(), values.end(), std::less<Real>());
                     if (it != values.end()) {
                         Size n = it - values.begin();
                         BOOST_ERROR("NPV of Payer swaption with delivery settlement"
-                                    "is increasing with the strike:" <<
-                                    "\noption tenor: " << exercises[i] <<
-                                    "\noption date:  " << exerciseDate <<
-                                    "\nvolatility:   " << io::rate(vol) <<
-                                    "\nswap tenor:   " << lengths[j] <<
-                                    "\nvalue:        " << values[n  ] <<" at strike: " << io::rate(strikes[n  ]) <<
-                                    "\nvalue:        " << values[n+1] << " at strike: " << io::rate(strikes[n+1]));
+                                    "is increasing with the strike:"
+                                    << "\noption tenor: " << exercise << "\noption date:  "
+                                    << exerciseDate << "\nvolatility:   " << io::rate(vol)
+                                    << "\nswap tenor:   " << length << "\nvalue:        "
+                                    << values[n] << " at strike: " << io::rate(strikes[n])
+                                    << "\nvalue:        " << values[n + 1]
+                                    << " at strike: " << io::rate(strikes[n + 1]));
                     }
-                    std::vector<Real>::iterator it_cash =
-                        std::adjacent_find(values_cash.begin(), values_cash.end(),
-                                           std::less<Real>());
+                    auto it_cash = std::adjacent_find(values_cash.begin(), values_cash.end(),
+                                                      std::less<Real>());
                     if (it_cash != values_cash.end()) {
                         Size n = it_cash - values_cash.begin();
                         BOOST_ERROR("NPV of Payer swaption with cash settlement"
-                                    "is increasing with the strike:" <<
-                                    "\noption tenor: " << exercises[i] <<
-                                    "\noption date:  " << exerciseDate <<
-                                    "\nvolatility:   " << io::rate(vol) <<
-                                    "\nswap tenor:   " << lengths[j] <<
-                                    "\nvalue:        " << values_cash[n  ] << " at strike: " << io::rate(strikes[n  ]) <<
-                                    "\nvalue:        " << values_cash[n+1] << " at strike: " << io::rate(strikes[n+1]));
+                                    "is increasing with the strike:"
+                                    << "\noption tenor: " << exercise << "\noption date:  "
+                                    << exerciseDate << "\nvolatility:   " << io::rate(vol)
+                                    << "\nswap tenor:   " << length << "\nvalue:        "
+                                    << values_cash[n] << " at strike: " << io::rate(strikes[n])
+                                    << "\nvalue:        " << values_cash[n + 1]
+                                    << " at strike: " << io::rate(strikes[n + 1]));
                     }
                 } else {
-                    std::vector<Real>::iterator it =
-                        std::adjacent_find(values.begin(), values.end(),
-                                           std::greater<Real>());
+                    auto it =
+                        std::adjacent_find(values.begin(), values.end(), std::greater<Real>());
                     if (it != values.end()) {
                         Size n = it - values.begin();
                         BOOST_ERROR("NPV of Receiver swaption with delivery settlement"
-                                    "is increasing with the strike:" <<
-                                    "\noption tenor: " << exercises[i] <<
-                                    "\noption date:  " << exerciseDate <<
-                                    "\nvolatility:   " << io::rate(vol) <<
-                                    "\nswap tenor:   " << lengths[j] <<
-                                    "\nvalue:        " << values[n  ] << " at strike: " << io::rate(strikes[n  ]) <<
-                                    "\nvalue:        " << values[n+1] << " at strike: " << io::rate(strikes[n+1]));
+                                    "is increasing with the strike:"
+                                    << "\noption tenor: " << exercise << "\noption date:  "
+                                    << exerciseDate << "\nvolatility:   " << io::rate(vol)
+                                    << "\nswap tenor:   " << length << "\nvalue:        "
+                                    << values[n] << " at strike: " << io::rate(strikes[n])
+                                    << "\nvalue:        " << values[n + 1]
+                                    << " at strike: " << io::rate(strikes[n + 1]));
                     }
-                    std::vector<Real>::iterator it_cash =
-                        std::adjacent_find(values_cash.begin(), values_cash.end(),
-                                           std::greater<Real>());
+                    auto it_cash = std::adjacent_find(values_cash.begin(), values_cash.end(),
+                                                      std::greater<Real>());
                     if (it_cash != values_cash.end()) {
                         Size n = it_cash - values_cash.begin();
                         BOOST_ERROR("NPV of Receiver swaption with cash settlement"
-                                    "is increasing with the strike:" <<
-                                    "\noption tenor: " << exercises[i] <<
-                                    "\noption date:  " << exerciseDate <<
-                                    "\nvolatility:   " << io::rate(vol) <<
-                                    "\nswap tenor:   " << lengths[j] <<
-                                    "\nvalue:        " << values_cash[n  ] << " at strike: " << io::rate(strikes[n  ]) <<
-                                    "\nvalue:        " << values_cash[n+1] << " at strike: " << io::rate(strikes[n+1]));
+                                    "is increasing with the strike:"
+                                    << "\noption tenor: " << exercise << "\noption date:  "
+                                    << exerciseDate << "\nvolatility:   " << io::rate(vol)
+                                    << "\nswap tenor:   " << length << "\nvalue:        "
+                                    << values_cash[n] << " at strike: " << io::rate(strikes[n])
+                                    << "\nvalue:        " << values_cash[n + 1]
+                                    << " at strike: " << io::rate(strikes[n + 1]));
                     }
                 }
             }
@@ -231,25 +228,24 @@ void SwaptionTest::testSpreadDependency() {
 
     Spread spreads[] = { -0.002, -0.001, 0.0, 0.001, 0.002 };
 
-    for (Size i=0; i<LENGTH(exercises); i++) {
-        for (Size j=0; j<LENGTH(lengths); j++) {
-            for (Size k=0; k<LENGTH(type); k++) {
-                Date exerciseDate = vars.calendar.advance(vars.today,
-                                                          exercises[i]);
+    for (auto exercise : exercises) {
+        for (auto& length : lengths) {
+            for (auto& k : type) {
+                Date exerciseDate = vars.calendar.advance(vars.today, exercise);
                 Date startDate =
                     vars.calendar.advance(exerciseDate,
                                           vars.settlementDays,Days);
                 // store the results for different rates...
                 std::vector<Real> values;
                 std::vector<Real> values_cash;
-                for (Size l=0; l<LENGTH(spreads); l++) {
+                for (double spread : spreads) {
                     ext::shared_ptr<VanillaSwap> swap =
-                        MakeVanillaSwap(lengths[j], vars.index, 0.06)
-                                .withFixedLegTenor(1*Years)
-                                .withFixedLegDayCount(vars.fixedDayCount)
-                                .withEffectiveDate(startDate)
-                                .withFloatingLegSpread(spreads[l])
-                                .withType(type[k]);
+                        MakeVanillaSwap(length, vars.index, 0.06)
+                            .withFixedLegTenor(1 * Years)
+                            .withFixedLegDayCount(vars.fixedDayCount)
+                            .withEffectiveDate(startDate)
+                            .withFloatingLegSpread(spread)
+                            .withType(k);
                     ext::shared_ptr<Swaption> swaption =
                         vars.makeSwaption(swap,exerciseDate,0.20);
                     // FLOATING_POINT_EXCEPTION
@@ -260,55 +256,52 @@ void SwaptionTest::testSpreadDependency() {
                     values_cash.push_back(swaption_cash->NPV());
                 }
                 // and check that they go the right way
-                if (type[k]==VanillaSwap::Payer) {
-                    std::vector<Real>::iterator it =
-                        std::adjacent_find(values.begin(), values.end(),
-                                           std::greater<Real>());
+                if (k == VanillaSwap::Payer) {
+                    auto it =
+                        std::adjacent_find(values.begin(), values.end(), std::greater<Real>());
                     if (it != values.end()) {
                         Size n = it - values.begin();
-                        BOOST_ERROR("NPV is decreasing with the spread " <<
-                            "in a payer swaption (physical delivered):" <<
-                            "\nexercise date: " << exerciseDate <<
-                            "\nlength:        " << lengths[j] <<
-                            "\nvalue:         " << values[n  ] << " for spread: " << io::rate(spreads[n]) <<
-                            "\nvalue:         " << values[n+1] << " for spread: " << io::rate(spreads[n+1]));
+                        BOOST_ERROR("NPV is decreasing with the spread "
+                                    << "in a payer swaption (physical delivered):"
+                                    << "\nexercise date: " << exerciseDate << "\nlength:        "
+                                    << length << "\nvalue:         " << values[n] << " for spread: "
+                                    << io::rate(spreads[n]) << "\nvalue:         " << values[n + 1]
+                                    << " for spread: " << io::rate(spreads[n + 1]));
                     }
-                    std::vector<Real>::iterator it_cash =
-                        std::adjacent_find(values_cash.begin(), values_cash.end(),
-                                           std::greater<Real>());
+                    auto it_cash = std::adjacent_find(values_cash.begin(), values_cash.end(),
+                                                      std::greater<Real>());
                     if (it_cash != values_cash.end()) {
                         Size n = it_cash - values_cash.begin();
-                        BOOST_ERROR("NPV is decreasing with the spread " <<
-                            "in a payer swaption (cash delivered):" <<
-                            "\nexercise date: " << exerciseDate <<
-                            "\nlength: " << lengths[j] <<
-                            "\nvalue:  " << values_cash[n  ] << " for spread: " << io::rate(spreads[n]) <<
-                            "\nvalue:  " << values_cash[n+1] << " for spread: " << io::rate(spreads[n+1]));
+                        BOOST_ERROR("NPV is decreasing with the spread "
+                                    << "in a payer swaption (cash delivered):"
+                                    << "\nexercise date: " << exerciseDate << "\nlength: " << length
+                                    << "\nvalue:  " << values_cash[n] << " for spread: "
+                                    << io::rate(spreads[n]) << "\nvalue:  " << values_cash[n + 1]
+                                    << " for spread: " << io::rate(spreads[n + 1]));
                     }
                 } else {
-                    std::vector<Real>::iterator it =
-                        std::adjacent_find(values.begin(), values.end(),
-                                           std::less<Real>());
+                    auto it = std::adjacent_find(values.begin(), values.end(), std::less<Real>());
                     if (it != values.end()) {
                         Size n = it - values.begin();
-                        BOOST_ERROR("NPV is increasing with the spread " <<
-                            "in a receiver swaption (physical delivered):"
-                            "\nexercise date: " << exerciseDate <<
-                            "\nlength: " << lengths[j] <<
-                            "\nvalue:  " << values[n  ] << " for spread: " << io::rate(spreads[n]) <<
-                            "\nvalue:  " << values[n+1] << " for spread: " << io::rate(spreads[n+1]));
+                        BOOST_ERROR("NPV is increasing with the spread "
+                                    << "in a receiver swaption (physical delivered):"
+                                       "\nexercise date: "
+                                    << exerciseDate << "\nlength: " << length << "\nvalue:  "
+                                    << values[n] << " for spread: " << io::rate(spreads[n])
+                                    << "\nvalue:  " << values[n + 1]
+                                    << " for spread: " << io::rate(spreads[n + 1]));
                     }
-                    std::vector<Real>::iterator it_cash =
-                        std::adjacent_find(values_cash.begin(), values_cash.end(),
-                                           std::less<Real>());
+                    auto it_cash = std::adjacent_find(values_cash.begin(), values_cash.end(),
+                                                      std::less<Real>());
                     if (it_cash != values_cash.end()) {
                         Size n = it_cash - values_cash.begin();
-                        BOOST_ERROR("NPV is increasing with the spread " <<
-                            "in a receiver swaption (cash delivered):"
-                            "\nexercise date: " << exerciseDate <<
-                            "\nlength: " << lengths[j] <<
-                            "\nvalue:  " << values_cash[n  ] << " for spread: " << io::rate(spreads[n]) <<
-                            "\nvalue:  " << values_cash[n+1] << " for spread: " << io::rate(spreads[n+1]));
+                        BOOST_ERROR("NPV is increasing with the spread "
+                                    << "in a receiver swaption (cash delivered):"
+                                       "\nexercise date: "
+                                    << exerciseDate << "\nlength: " << length << "\nvalue:  "
+                                    << values_cash[n] << " for spread: " << io::rate(spreads[n])
+                                    << "\nvalue:  " << values_cash[n + 1]
+                                    << " for spread: " << io::rate(spreads[n + 1]));
                     }
                 }
             }
@@ -326,33 +319,30 @@ void SwaptionTest::testSpreadTreatment() {
 
     Spread spreads[] = { -0.002, -0.001, 0.0, 0.001, 0.002 };
 
-    for (Size i=0; i<LENGTH(exercises); i++) {
-        for (Size j=0; j<LENGTH(lengths); j++) {
-            for (Size k=0; k<LENGTH(type); k++) {
-                Date exerciseDate = vars.calendar.advance(vars.today,
-                                                          exercises[i]);
+    for (auto exercise : exercises) {
+        for (auto& length : lengths) {
+            for (auto& k : type) {
+                Date exerciseDate = vars.calendar.advance(vars.today, exercise);
                 Date startDate =
                     vars.calendar.advance(exerciseDate,
                                           vars.settlementDays,Days);
-                for (Size l=0; l<LENGTH(spreads); l++) {
+                for (double spread : spreads) {
                     ext::shared_ptr<VanillaSwap> swap =
-                        MakeVanillaSwap(lengths[j], vars.index, 0.06)
-                                .withFixedLegTenor(1*Years)
-                                .withFixedLegDayCount(vars.fixedDayCount)
-                                .withEffectiveDate(startDate)
-                                .withFloatingLegSpread(spreads[l])
-                                .withType(type[k]);
+                        MakeVanillaSwap(length, vars.index, 0.06)
+                            .withFixedLegTenor(1 * Years)
+                            .withFixedLegDayCount(vars.fixedDayCount)
+                            .withEffectiveDate(startDate)
+                            .withFloatingLegSpread(spread)
+                            .withType(k);
                     // FLOATING_POINT_EXCEPTION
-                    Spread correction = spreads[l] *
-                                        swap->floatingLegBPS() /
-                                        swap->fixedLegBPS();
+                    Spread correction = spread * swap->floatingLegBPS() / swap->fixedLegBPS();
                     ext::shared_ptr<VanillaSwap> equivalentSwap =
-                        MakeVanillaSwap(lengths[j], vars.index, 0.06+correction)
-                                .withFixedLegTenor(1*Years)
-                                .withFixedLegDayCount(vars.fixedDayCount)
-                                .withEffectiveDate(startDate)
-                                .withFloatingLegSpread(0.0)
-                                .withType(type[k]);
+                        MakeVanillaSwap(length, vars.index, 0.06 + correction)
+                            .withFixedLegTenor(1 * Years)
+                            .withFixedLegDayCount(vars.fixedDayCount)
+                            .withEffectiveDate(startDate)
+                            .withFloatingLegSpread(0.0)
+                            .withType(k);
                     ext::shared_ptr<Swaption> swaption1 =
                         vars.makeSwaption(swap,exerciseDate,0.20);
                     ext::shared_ptr<Swaption> swaption2 =
@@ -364,24 +354,20 @@ void SwaptionTest::testSpreadTreatment() {
                         vars.makeSwaption(equivalentSwap,exerciseDate,0.20,
                                           Settlement::Cash, Settlement::ParYieldCurve);
                     if (std::fabs(swaption1->NPV()-swaption2->NPV()) > 1.0e-6)
-                        BOOST_ERROR("wrong spread treatment:" <<
-                            "\nexercise: " << exerciseDate <<
-                            "\nlength:   " << lengths[j] <<
-                            "\ntype      " << type[k] <<
-                            "\nspread:   " << io::rate(spreads[l]) <<
-                            "\noriginal swaption value:   " << swaption1->NPV() <<
-                            "\nequivalent swaption value: " << swaption2->NPV());
+                        BOOST_ERROR("wrong spread treatment:"
+                                    << "\nexercise: " << exerciseDate << "\nlength:   " << length
+                                    << "\ntype      " << k << "\nspread:   " << io::rate(spread)
+                                    << "\noriginal swaption value:   " << swaption1->NPV()
+                                    << "\nequivalent swaption value: " << swaption2->NPV());
 
                     if (std::fabs(swaption1_cash->NPV()-swaption2_cash->NPV()) > 1.0e-6)
-                        BOOST_ERROR("wrong spread treatment:" <<
-                            "\nexercise date: " << exerciseDate <<
-                            "\nlength: " << lengths[j] <<
-                            "\npay " << (type[k] ? "fixed" : "floating") <<
-                            "\nspread: " << io::rate(spreads[l]) <<
-                            "\nvalue of original swaption:   "  << swaption1_cash->NPV() <<
-                            "\nvalue of equivalent swaption: "  << swaption2_cash->NPV());
+                        BOOST_ERROR("wrong spread treatment:"
+                                    << "\nexercise date: " << exerciseDate << "\nlength: " << length
+                                    << "\npay " << (k ? "fixed" : "floating")
+                                    << "\nspread: " << io::rate(spread)
+                                    << "\nvalue of original swaption:   " << swaption1_cash->NPV()
+                                    << "\nvalue of equivalent swaption: " << swaption2_cash->NPV());
                 }
-
             }
         }
     }
@@ -438,31 +424,28 @@ void SwaptionTest::testVega() {
     Rate strikes[] = { 0.03, 0.04, 0.05, 0.06, 0.07 };
     Volatility vols[] = { 0.01, 0.20, 0.30, 0.70, 0.90 };
     Volatility shift = 1e-8;
-    for (Size i=0; i<LENGTH(exercises); i++) {
-        Date exerciseDate = vars.calendar.advance(vars.today, exercises[i]);
+    for (auto& exercise : exercises) {
+        Date exerciseDate = vars.calendar.advance(vars.today, exercise);
         Date startDate = vars.calendar.advance(exerciseDate,
                                            vars.settlementDays*Days);
-        for (Size j=0; j<LENGTH(lengths); j++) {
-            for (Size t=0; t<LENGTH(strikes); t++) {
+        for (auto& length : lengths) {
+            for (double strike : strikes) {
                 for (Size h=0; h<LENGTH(type); h++) {
                     ext::shared_ptr<VanillaSwap> swap =
-                        MakeVanillaSwap(lengths[j], vars.index, strikes[t])
-                                .withEffectiveDate(startDate)
-                                .withFixedLegTenor(1*Years)
-                                .withFixedLegDayCount(vars.fixedDayCount)
-                                .withFloatingLegSpread(0.0)
-                                .withType(type[h]);
-                    for (Size u=0; u<LENGTH(vols); u++) {
+                        MakeVanillaSwap(length, vars.index, strike)
+                            .withEffectiveDate(startDate)
+                            .withFixedLegTenor(1 * Years)
+                            .withFixedLegDayCount(vars.fixedDayCount)
+                            .withFloatingLegSpread(0.0)
+                            .withType(type[h]);
+                    for (double vol : vols) {
                         ext::shared_ptr<Swaption> swaption =
-                            vars.makeSwaption(swap, exerciseDate,
-                                              vols[u], types[h], methods[h]);
+                            vars.makeSwaption(swap, exerciseDate, vol, types[h], methods[h]);
                         // FLOATING_POINT_EXCEPTION
-                        ext::shared_ptr<Swaption> swaption1 =
-                            vars.makeSwaption(swap, exerciseDate,
-                                              vols[u]-shift, types[h], methods[h]);
-                        ext::shared_ptr<Swaption> swaption2 =
-                            vars.makeSwaption(swap, exerciseDate,
-                                              vols[u]+shift, types[h], methods[h]);
+                        ext::shared_ptr<Swaption> swaption1 = vars.makeSwaption(
+                            swap, exerciseDate, vol - shift, types[h], methods[h]);
+                        ext::shared_ptr<Swaption> swaption2 = vars.makeSwaption(
+                            swap, exerciseDate, vol + shift, types[h], methods[h]);
 
                         Real swaptionNPV = swaption->NPV();
                         Real numericalVegaPerPoint =
@@ -476,19 +459,20 @@ void SwaptionTest::testVega() {
                             discrepancy /= numericalVegaPerPoint;
                             Real tolerance = 0.015;
                             if (discrepancy > tolerance)
-                                BOOST_FAIL("failed to compute swaption vega:" <<
-                                    "\n  option tenor:    " << exercises[i] <<
-                                    "\n  volatility:      " << io::rate(vols[u]) <<
-                                    "\n  option type:     " << swaption->type() <<
-                                    "\n  swap tenor:      " << lengths[j] <<
-                                    "\n  strike:          " << io::rate(strikes[t]) <<
-                                    "\n  settlement:      " << types[h] <<
-                                    "\n  nominal:         " << swaption->underlyingSwap()->nominal() <<
-                                    "\n  npv:             " << swaptionNPV <<
-                                    "\n  calculated vega: " << analyticalVegaPerPoint <<
-                                    "\n  expected vega:   " << numericalVegaPerPoint <<
-                                    "\n  discrepancy:     " << io::rate(discrepancy) <<
-                                    "\n  tolerance:       " << io::rate(tolerance));
+                                BOOST_FAIL("failed to compute swaption vega:"
+                                           << "\n  option tenor:    " << exercise
+                                           << "\n  volatility:      " << io::rate(vol)
+                                           << "\n  option type:     " << swaption->type()
+                                           << "\n  swap tenor:      " << length
+                                           << "\n  strike:          " << io::rate(strike)
+                                           << "\n  settlement:      " << types[h]
+                                           << "\n  nominal:         "
+                                           << swaption->underlyingSwap()->nominal()
+                                           << "\n  npv:             " << swaptionNPV
+                                           << "\n  calculated vega: " << analyticalVegaPerPoint
+                                           << "\n  expected vega:   " << numericalVegaPerPoint
+                                           << "\n  discrepancy:     " << io::rate(discrepancy)
+                                           << "\n  tolerance:       " << io::rate(tolerance));
                         }
                     }
                 }
@@ -509,15 +493,13 @@ void SwaptionTest::testCashSettledSwaptions() {
 
     Rate strike = 0.05;
 
-    for (Size i=0; i<LENGTH(exercises); i++) {
-        for (Size j=0; j<LENGTH(lengths); j++) {
+    for (auto exercise : exercises) {
+        for (auto length : lengths) {
 
-            Date exerciseDate = vars.calendar.advance(vars.today,exercises[i]);
+            Date exerciseDate = vars.calendar.advance(vars.today, exercise);
             Date startDate = vars.calendar.advance(exerciseDate,
                                                    vars.settlementDays,Days);
-            Date maturity =
-                vars.calendar.advance(startDate,lengths[j],
-                                      vars.floatingConvention);
+            Date maturity = vars.calendar.advance(startDate, length, vars.floatingConvention);
             Schedule floatSchedule(startDate, maturity, vars.floatingTenor,
                                    vars.calendar,vars.floatingConvention,
                                    vars.floatingConvention,
@@ -709,132 +691,92 @@ void SwaptionTest::testCashSettledSwaptions() {
             Real annuity_ratio_u365 =  cashannuity_u365 / annuity_u365;
 
             if (std::fabs(annuity_ratio_u360-npv_ratio_u360)>1e-10 ) {
-                BOOST_ERROR("\n" <<
-                            "    The npv's ratio must be equal to " <<
-                            " annuities ratio" << "\n"
-                            "    Swaption " <<
-                            exercises[i].units() << "y x " << lengths[j].units() << "y" <<
-                            " (underlying swap fixed leg Unadjusted, 30/360)" << "\n" <<
-                            "    Today           : " <<
-                            vars.today << "\n" <<
-                            "    Settlement date : " <<
-                            vars.settlement << "\n" <<
-                            "    Exercise date   : " <<
-                            exerciseDate << "\n"   <<
-                            "    Swap start date : " <<
-                            startDate << "\n"   <<
-                            "    Swap end date   : " <<
-                            maturity <<     "\n"   <<
-                            "    physical delivered swaption npv : " <<
-                            value_p_u360 << "\t\t\t" <<
-                            "    annuity : " <<
-                            annuity_u360 << "\n" <<
-                            "    cash delivered swaption npv :     " <<
-                            value_c_u360 << "\t\t\t" <<
-                            "    annuity : " <<
-                            cashannuity_u360 << "\n" <<
-                            "    npv ratio : " <<
-                            npv_ratio_u360 << "\n" <<
-                            "    annuity ratio : " <<
-                            annuity_ratio_u360 << "\n" <<
-                            "    difference : " <<
-                            (annuity_ratio_u360-npv_ratio_u360) );
+                BOOST_ERROR("\n"
+                            << "    The npv's ratio must be equal to "
+                            << " annuities ratio"
+                            << "\n"
+                               "    Swaption "
+                            << exercises[i].units() << "y x " << length.units() << "y"
+                            << " (underlying swap fixed leg Unadjusted, 30/360)"
+                            << "\n"
+                            << "    Today           : " << vars.today << "\n"
+                            << "    Settlement date : " << vars.settlement << "\n"
+                            << "    Exercise date   : " << exerciseDate << "\n"
+                            << "    Swap start date : " << startDate << "\n"
+                            << "    Swap end date   : " << maturity << "\n"
+                            << "    physical delivered swaption npv : " << value_p_u360 << "\t\t\t"
+                            << "    annuity : " << annuity_u360 << "\n"
+                            << "    cash delivered swaption npv :     " << value_c_u360 << "\t\t\t"
+                            << "    annuity : " << cashannuity_u360 << "\n"
+                            << "    npv ratio : " << npv_ratio_u360 << "\n"
+                            << "    annuity ratio : " << annuity_ratio_u360 << "\n"
+                            << "    difference : " << (annuity_ratio_u360 - npv_ratio_u360));
             }
             if (std::fabs(annuity_ratio_a365-npv_ratio_a365)>1e-10) {
-                BOOST_ERROR("\n" <<
-                            "    The npv's ratio must be equal to " <<
-                            " annuities ratio" << "\n"
-                            "    Swaption " <<
-                            exercises[i].units() << "y x " << lengths[j].units() << "y" <<
-                            " (underlying swap fixed leg Modified Following, act/365" << "\n" <<
-                            "    Today           : " <<
-                            vars.today << "\n" <<
-                            "    Settlement date : " <<
-                            vars.settlement << "\n" <<
-                            "    Exercise date   : " <<
-                            exerciseDate <<  "\n"  <<
-                            "    Swap start date : " <<
-                            startDate << "\n"   <<
-                            "    Swap end date   : " <<
-                            maturity <<     "\n"   <<
-                            "    physical delivered swaption npv : "  <<
-                            value_p_a365 << "\t\t\t" <<
-                            "    annuity : " <<
-                            annuity_a365 << "\n" <<
-                            "    cash delivered swaption npv :     "  <<
-                            value_c_a365 << "\t\t\t" <<
-                            "    annuity : " <<
-                            cashannuity_a365 << "\n" <<
-                            "    npv ratio : " <<
-                            npv_ratio_a365 << "\n" <<
-                            "    annuity ratio : " <<
-                            annuity_ratio_a365 << "\n" <<
-                            "    difference : " <<
-                            (annuity_ratio_a365-npv_ratio_a365) );
+                BOOST_ERROR("\n"
+                            << "    The npv's ratio must be equal to "
+                            << " annuities ratio"
+                            << "\n"
+                               "    Swaption "
+                            << exercises[i].units() << "y x " << length.units() << "y"
+                            << " (underlying swap fixed leg Modified Following, act/365"
+                            << "\n"
+                            << "    Today           : " << vars.today << "\n"
+                            << "    Settlement date : " << vars.settlement << "\n"
+                            << "    Exercise date   : " << exerciseDate << "\n"
+                            << "    Swap start date : " << startDate << "\n"
+                            << "    Swap end date   : " << maturity << "\n"
+                            << "    physical delivered swaption npv : " << value_p_a365 << "\t\t\t"
+                            << "    annuity : " << annuity_a365 << "\n"
+                            << "    cash delivered swaption npv :     " << value_c_a365 << "\t\t\t"
+                            << "    annuity : " << cashannuity_a365 << "\n"
+                            << "    npv ratio : " << npv_ratio_a365 << "\n"
+                            << "    annuity ratio : " << annuity_ratio_a365 << "\n"
+                            << "    difference : " << (annuity_ratio_a365 - npv_ratio_a365));
                 }
             if (std::fabs(annuity_ratio_a360-npv_ratio_a360)>1e-10) {
-                BOOST_ERROR("\n" <<
-                            "    The npv's ratio must be equal to " <<
-                            " annuities ratio" << "\n"
-                            "    Swaption " <<
-                            exercises[i].units() << "y x " << lengths[j].units() << "y" <<
-                            " (underlying swap fixed leg Unadjusted, 30/360)" << "\n" <<
-                            "    Today           : " <<
-                            vars.today << "\n" <<
-                            "    Settlement date : " <<
-                            vars.settlement << "\n" <<
-                            "    Exercise date   : " <<
-                            exerciseDate << "\n"   <<
-                            "    Swap start date : " <<
-                            startDate << "\n"   <<
-                            "    Swap end date   : " <<
-                            maturity <<     "\n"   <<
-                            "    physical delivered swaption npv : " <<
-                            value_p_a360 << "\t\t\t" <<
-                            "    annuity : " <<
-                            annuity_a360 << "\n" <<
-                            "    cash delivered swaption npv :     " <<
-                            value_c_a360 << "\t\t\t" <<
-                            "    annuity : " <<
-                            cashannuity_a360 << "\n" <<
-                            "    npv ratio : " <<
-                            npv_ratio_a360 << "\n" <<
-                            "    annuity ratio : " <<
-                            annuity_ratio_a360 << "\n" <<
-                            "    difference : " <<
-                            (annuity_ratio_a360-npv_ratio_a360) );
+                BOOST_ERROR("\n"
+                            << "    The npv's ratio must be equal to "
+                            << " annuities ratio"
+                            << "\n"
+                               "    Swaption "
+                            << exercises[i].units() << "y x " << length.units() << "y"
+                            << " (underlying swap fixed leg Unadjusted, 30/360)"
+                            << "\n"
+                            << "    Today           : " << vars.today << "\n"
+                            << "    Settlement date : " << vars.settlement << "\n"
+                            << "    Exercise date   : " << exerciseDate << "\n"
+                            << "    Swap start date : " << startDate << "\n"
+                            << "    Swap end date   : " << maturity << "\n"
+                            << "    physical delivered swaption npv : " << value_p_a360 << "\t\t\t"
+                            << "    annuity : " << annuity_a360 << "\n"
+                            << "    cash delivered swaption npv :     " << value_c_a360 << "\t\t\t"
+                            << "    annuity : " << cashannuity_a360 << "\n"
+                            << "    npv ratio : " << npv_ratio_a360 << "\n"
+                            << "    annuity ratio : " << annuity_ratio_a360 << "\n"
+                            << "    difference : " << (annuity_ratio_a360 - npv_ratio_a360));
             }
             if (std::fabs(annuity_ratio_u365-npv_ratio_u365)>1e-10) {
-                BOOST_ERROR("\n" <<
-                            "    The npv's ratio must be equal to " <<
-                            " annuities ratio" << "\n"
-                            "    Swaption " <<
-                            exercises[i].units() << "y x " << lengths[j].units() << "y" <<
-                            " (underlying swap fixed leg Unadjusted, act/365)" << "\n" <<
-                            "    Today           : " <<
-                            vars.today << "\n" <<
-                            "    Settlement date : " <<
-                            vars.settlement << "\n" <<
-                            "    Exercise date   : " <<
-                            exerciseDate << "\n"   <<
-                            "    Swap start date : " <<
-                            startDate << "\n"   <<
-                            "    Swap end date   : " <<
-                            maturity <<     "\n"   <<
-                            "    physical delivered swaption npv : " <<
-                            value_p_u365 << "\t\t\t" <<
-                            "    annuity : " <<
-                            annuity_u365 << "\n" <<
-                            "    cash delivered swaption npv :     " <<
-                            value_c_u365 << "\t\t\t" <<
-                            "    annuity : " <<
-                            cashannuity_u365 << "\n" <<
-                            "    npv ratio : " <<
-                            npv_ratio_u365 << "\n" <<
-                            "    annuity ratio : " <<
-                            annuity_ratio_u365 << "\n" <<
-                            "    difference : " <<
-                            (annuity_ratio_u365-npv_ratio_u365) );
+                BOOST_ERROR("\n"
+                            << "    The npv's ratio must be equal to "
+                            << " annuities ratio"
+                            << "\n"
+                               "    Swaption "
+                            << exercises[i].units() << "y x " << length.units() << "y"
+                            << " (underlying swap fixed leg Unadjusted, act/365)"
+                            << "\n"
+                            << "    Today           : " << vars.today << "\n"
+                            << "    Settlement date : " << vars.settlement << "\n"
+                            << "    Exercise date   : " << exerciseDate << "\n"
+                            << "    Swap start date : " << startDate << "\n"
+                            << "    Swap end date   : " << maturity << "\n"
+                            << "    physical delivered swaption npv : " << value_p_u365 << "\t\t\t"
+                            << "    annuity : " << annuity_u365 << "\n"
+                            << "    cash delivered swaption npv :     " << value_c_u365 << "\t\t\t"
+                            << "    annuity : " << cashannuity_u365 << "\n"
+                            << "    npv ratio : " << npv_ratio_u365 << "\n"
+                            << "    annuity ratio : " << annuity_ratio_u365 << "\n"
+                            << "    difference : " << (annuity_ratio_u365 - npv_ratio_u365));
             }
         }
     }
@@ -859,28 +801,26 @@ void SwaptionTest::testImpliedVolatility() {
     Rate strikes[] = { 0.02, 0.03, 0.04, 0.05, 0.06, 0.07 };
     Volatility vols[] = { 0.01, 0.05, 0.10, 0.20, 0.30, 0.70, 0.90 };
 
-    for (Size i=0; i<LENGTH(exercises); i++) {
-        for (Size j=0; j<LENGTH(lengths); j++) {
-            Date exerciseDate = vars.calendar.advance(vars.today,exercises[i]);
+    for (auto& exercise : exercises) {
+        for (auto& length : lengths) {
+            Date exerciseDate = vars.calendar.advance(vars.today, exercise);
             Date startDate = vars.calendar.advance(exerciseDate,
                                                    vars.settlementDays, Days);
 
-            for (Size t=0; t<LENGTH(strikes); t++) {
-                for (Size k=0; k<LENGTH(type); k++) {
+            for (double& strike : strikes) {
+                for (auto& k : type) {
                     ext::shared_ptr<VanillaSwap> swap =
-                        MakeVanillaSwap(lengths[j], vars.index, strikes[t])
-                                .withEffectiveDate(startDate)
-                                .withFixedLegTenor(1*Years)
-                                .withFixedLegDayCount(vars.fixedDayCount)
-                                .withFloatingLegSpread(0.0)
-                                .withType(type[k]);
+                        MakeVanillaSwap(length, vars.index, strike)
+                            .withEffectiveDate(startDate)
+                            .withFixedLegTenor(1 * Years)
+                            .withFixedLegDayCount(vars.fixedDayCount)
+                            .withFloatingLegSpread(0.0)
+                            .withType(k);
                     for (Size h=0; h<LENGTH(types); h++) {
-                        for (Size u=0; u<LENGTH(vols); u++) {
+                        for (double vol : vols) {
                             ext::shared_ptr<Swaption> swaption =
-                                vars.makeSwaption(
-                                    swap, exerciseDate, vols[u], types[h],
-                                    methods[h],
-                                    BlackSwaptionEngine::DiscountCurve);
+                                vars.makeSwaption(swap, exerciseDate, vol, types[h], methods[h],
+                                                  BlackSwaptionEngine::DiscountCurve);
                             // Black price
                             Real value = swaption->NPV();
                             Volatility implVol = 0.0;
@@ -904,31 +844,31 @@ void SwaptionTest::testImpliedVolatility() {
                                     continue;
                                 }
                                 // otherwise, report error
-                                BOOST_ERROR("implied vol failure: " <<
-                                            exercises[i] << "x" << lengths[j] << " " << type[k] <<
-                                            "\nsettlement: " << types[h] <<
-                                            "\nstrike      " << strikes[t] <<
-                                            "\natm level:  " << io::rate(swap->fairRate()) <<
-                                            "\nvol:        " << io::volatility(vols[u]) <<
-                                            "\nprice:      " << value <<
-                                            "\n" << e.what());
+                                BOOST_ERROR("implied vol failure: "
+                                            << exercise << "x" << length << " " << k
+                                            << "\nsettlement: " << types[h] << "\nstrike      "
+                                            << strike
+                                            << "\natm level:  " << io::rate(swap->fairRate())
+                                            << "\nvol:        " << io::volatility(vol)
+                                            << "\nprice:      " << value << "\n"
+                                            << e.what());
                             }
-                            if (std::fabs(implVol-vols[u]) > tolerance) {
+                            if (std::fabs(implVol - vol) > tolerance) {
                                 // the difference might not matter
                                 swaption->setPricingEngine(vars.makeEngine(implVol, BlackSwaptionEngine::DiscountCurve));
                                 Real value2 = swaption->NPV();
                                 if (std::fabs(value-value2) > tolerance) {
-                                    BOOST_ERROR("implied vol failure: " <<
-                                        exercises[i] << "x" << lengths[j] << " " << type[k] <<
-                                        "\nsettlement:    " << types[h] <<
-                                        "\nstrike         " << strikes[t] <<
-                                        "\natm level:     " << io::rate(swap->fairRate()) <<
-                                        "\nvol:           " << io::volatility(vols[u]) <<
-                                        "\nprice:         " << value <<
-                                        "\nimplied vol:   " << io::volatility(implVol) <<
-                                        "\nimplied price: " << value2);
+                                    BOOST_ERROR("implied vol failure: "
+                                                << exercise << "x" << length << " " << k
+                                                << "\nsettlement:    " << types[h]
+                                                << "\nstrike         " << strike
+                                                << "\natm level:     " << io::rate(swap->fairRate())
+                                                << "\nvol:           " << io::volatility(vol)
+                                                << "\nprice:         " << value
+                                                << "\nimplied vol:   " << io::volatility(implVol)
+                                                << "\nimplied price: " << value2);
                                 }
-                             }
+                            }
                         }
                     }
                 }
@@ -937,24 +877,152 @@ void SwaptionTest::testImpliedVolatility() {
     }
 }
 
+template <typename Engine>
+ext::shared_ptr<Engine> makeConstVolEngine(
+    const Handle<YieldTermStructure> &discountCurve,
+    Volatility volatility)
+{
+    Handle<Quote> h(ext::make_shared<SimpleQuote>(volatility));
+    return ext::make_shared<Engine>(discountCurve, h);
+}
 
-test_suite* SwaptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Swaption tests");
-    // FLOATING_POINT_EXCEPTION
+template <typename Engine>
+void checkSwaptionDelta(bool useBachelierVol)
+{
+    using namespace swaption_test;
+
+    CommonVars vars;
+    Date today = vars.today;
+    Calendar calendar = vars.calendar;
+
+    const Real bump = 1.e-4;
+    const Real epsilon = 1.e-10;
+    
+    RelinkableHandle<YieldTermStructure> projectionCurveHandle;
+    
+    const Real projectionRate = 0.01;
+    RelinkableHandle<Quote> projectionQuoteHandle;
+
+    ext::shared_ptr<YieldTermStructure> projectionCurve = ext::make_shared<FlatForward>(
+        today, projectionQuoteHandle, Actual365Fixed());
+    projectionCurveHandle.linkTo(projectionCurve);
+
+    Handle<YieldTermStructure> discountHandle(ext::make_shared<FlatForward>(
+            today, 
+            Handle<Quote>(ext::make_shared<SimpleQuote>(0.0085)), 
+            Actual365Fixed()));
+    ext::shared_ptr<DiscountingSwapEngine> swapEngine = ext::make_shared<DiscountingSwapEngine>(
+        discountHandle);
+    
+    ext::shared_ptr<IborIndex> idx = ext::make_shared<Euribor6M>(projectionCurveHandle);
+    
+    Settlement::Type types[] = { Settlement::Physical, Settlement::Cash };
+    Settlement::Method methods[] = { Settlement::PhysicalOTC, Settlement::CollateralizedCashPrice};
+    
+    Rate strikes[] = { 0.03, 0.04, 0.05, 0.06, 0.07 };
+    Volatility vols[] = { 0.0, 0.10, 0.20, 0.30, 0.70, 0.90 };
+
+    for (double vol : vols) {
+        for (auto exercise : exercises) {
+            for (auto& length : lengths) {
+                for (double& strike : strikes) {
+                    for (Size h=0; h<LENGTH(type); h++) {
+                        Volatility volatility = useBachelierVol ? vol / 100.0 : vol;
+                        ext::shared_ptr<Engine> swaptionEngine = makeConstVolEngine<Engine>(
+                            discountHandle, volatility);
+
+                        Date exerciseDate = calendar.advance(today, exercise);
+                        Date startDate = calendar.advance(exerciseDate, 2*Days);
+                        projectionQuoteHandle.linkTo(ext::make_shared<SimpleQuote>(projectionRate));
+
+                        ext::shared_ptr<VanillaSwap> underlying =
+                            MakeVanillaSwap(length, idx, strike)
+                                .withEffectiveDate(startDate)
+                                .withFixedLegTenor(1 * Years)
+                                .withFixedLegDayCount(Thirty360())
+                                .withFloatingLegSpread(0.0)
+                                .withType(type[h]);
+                        underlying->setPricingEngine(swapEngine);
+                        
+                        Real fairRate = underlying->fairRate();
+
+                        ext::shared_ptr<Swaption> swaption = ext::make_shared<Swaption>(
+                            underlying, 
+                            ext::make_shared<EuropeanExercise>(exerciseDate), 
+                            types[h], 
+                            methods[h]);
+                        swaption->setPricingEngine(swaptionEngine);
+
+                        Real value = swaption->NPV();
+                        Real delta = swaption->result<Real>("delta") * bump;
+
+                        projectionQuoteHandle.linkTo(ext::make_shared<SimpleQuote>(
+                            projectionRate + bump));
+    
+                        Real bumpedFairRate = underlying->fairRate();
+                        Real bumpedValue = swaption->NPV();
+                        Real bumpedDelta = swaption->result<Real>("delta") * bump;
+
+                        Real deltaBump = bumpedFairRate - fairRate;
+                        Real approxDelta = (bumpedValue - value) / deltaBump * bump;
+    
+                        Real lowerBound = std::min(delta, bumpedDelta) - epsilon;
+                        Real upperBound = std::max(delta, bumpedDelta) + epsilon;
+
+                        /*! Based on the Mean Value Theorem, the below inequality
+                            should hold for any function that is monotonic in the
+                            area of the bump.
+                        */
+                        bool checkIsCorrect = (lowerBound < approxDelta) && (approxDelta < upperBound);
+                        
+                        if (!checkIsCorrect)
+                            BOOST_FAIL(
+                                "failed to compute swaption delta:"
+                                << "\n  option tenor:     " << exerciseDate
+                                << "\n  volatility:       " << io::rate(volatility)
+                                << "\n  option type:      " << swaption->type()
+                                << "\n  swap tenor:       " << length << "\n  strike:           "
+                                << strike << "\n  settlement:       " << types[h]
+                                << "\n  method:           " << methods[h]
+                                << "\n  nominal:          " << swaption->underlyingSwap()->nominal()
+                                << "\n  npv:              " << value << "\n  calculated delta: "
+                                << delta << "\n  expected delta:   " << approxDelta);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void SwaptionTest::testSwaptionDeltaInBlackModel() {
+
+    BOOST_TEST_MESSAGE("Testing swaption delta in Black model...");
+
+    checkSwaptionDelta<BlackSwaptionEngine>(false);
+}
+
+void SwaptionTest::testSwaptionDeltaInBachelierModel() {
+
+    BOOST_TEST_MESSAGE("Testing swaption delta in Bachelier model...");
+
+    checkSwaptionDelta<BachelierSwaptionEngine>(true);
+}
+
+test_suite* SwaptionTest::suite(SpeedLevel speed) {
+    auto* suite = BOOST_TEST_SUITE("Swaption tests");
+
     suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testCashSettledSwaptions));
-    // FLOATING_POINT_EXCEPTION
     suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testStrikeDependency));
-    // FLOATING_POINT_EXCEPTION
     suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testSpreadDependency));
-    // FLOATING_POINT_EXCEPTION
     suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testSpreadTreatment));
-    // FLOATING_POINT_EXCEPTION
     suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testCachedValue));
-    // FLOATING_POINT_EXCEPTION
-    suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testImpliedVolatility));
-
-    // FLOATING_POINT_EXCEPTION
     suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testVega));
+    suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testSwaptionDeltaInBlackModel));
+    suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testSwaptionDeltaInBachelierModel));   
+
+    if (speed <= Fast) {
+        suite->add(QUANTLIB_TEST_CASE(&SwaptionTest::testImpliedVolatility));
+    };
 
     return suite;
 }

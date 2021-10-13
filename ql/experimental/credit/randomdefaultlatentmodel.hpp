@@ -21,22 +21,21 @@
 #ifndef quantlib_randomdefault_latent_model_hpp
 #define quantlib_randomdefault_latent_model_hpp
 
+#include <ql/experimental/credit/basket.hpp>
+#include <ql/experimental/credit/constantlosslatentmodel.hpp>
+#include <ql/experimental/credit/defaultlossmodel.hpp>
+#include <ql/experimental/math/gaussiancopulapolicy.hpp>
+#include <ql/experimental/math/latentmodel.hpp>
+#include <ql/experimental/math/tcopulapolicy.hpp>
 #include <ql/math/beta.hpp>
+#include <ql/math/functional.hpp>
+#include <ql/math/randomnumbers/mt19937uniformrng.hpp>
+#include <ql/math/randomnumbers/sobolrsg.hpp>
+#include <ql/math/solvers1d/brent.hpp>
 #include <ql/math/statistics/histogram.hpp>
 #include <ql/math/statistics/riskstatistics.hpp>
-#include <ql/math/solvers1d/brent.hpp>
-#include <ql/math/randomnumbers/sobolrsg.hpp>
-#include <ql/math/functional.hpp>
-#include <ql/experimental/credit/basket.hpp>
-#include <ql/experimental/credit/defaultlossmodel.hpp>
-
-#include <ql/experimental/math/latentmodel.hpp>
-#include <ql/experimental/credit/constantlosslatentmodel.hpp>
-
-#include <ql/experimental/math/gaussiancopulapolicy.hpp>
-#include <ql/experimental/math/tcopulapolicy.hpp>
-
-#include <ql/math/randomnumbers/mt19937uniformrng.hpp>
+#include <ql/tuple.hpp>
+#include <utility>
 
 /* Intended to replace
     ql\experimental\credit\randomdefaultmodel.Xpp
@@ -103,22 +102,19 @@ namespace QuantLib {
         typedef typename LatentModel<copulaPolicy>::template FactorSampler<USNG>
             copulaRNG_type;
     protected:
-        RandomLM(Size numFactors,
-            Size numLMVars,
-            const copulaPolicy& copula,
-            Size nSims,
-            BigNatural seed)
-        : seed_(seed), numFactors_(numFactors), numLMVars_(numLMVars),
-          nSims_(nSims), copula_(copula) {}
+      RandomLM(Size numFactors, Size numLMVars, copulaPolicy copula, Size nSims, BigNatural seed)
+      : seed_(seed), numFactors_(numFactors), numLMVars_(numLMVars), nSims_(nSims),
+        copula_(std::move(copula)) {}
 
-        void update() {
-            simsBuffer_.clear();
-            // tell basket to notify instruments, etc, we are invalid
-            if(!basket_.empty()) basket_->notifyObservers();
-            LazyObject::update();
+      void update() override {
+          simsBuffer_.clear();
+          // tell basket to notify instruments, etc, we are invalid
+          if (!basket_.empty())
+              basket_->notifyObservers();
+          LazyObject::update();
         }
 
-        void performCalculations() const {
+        void performCalculations() const override {
             static_cast<const derivedRandomLM<copulaPolicy, USNG>* >(
                 this)->initDates();//in update?
             copulasRng_ = ext::make_shared<copulaRNG_type>(copula_, seed_);
@@ -127,7 +123,7 @@ namespace QuantLib {
 
         void performSimulations() const {
             // Next sequence should determine the event and push it into buffer
-            for(Size i=nSims_; i; i--) {
+            for (Size i = nSims_; i != 0U; i--) {
                 const std::vector<Real>& sample =
                     copulasRng_->nextSequence().value;
                 static_cast<const derivedRandomLM<copulaPolicy, USNG>* >(
@@ -162,7 +158,7 @@ namespace QuantLib {
         /*! Returns the probaility of having a given or larger number of
         defaults in the basket portfolio at a given time.
         */
-        virtual Probability probAtLeastNEvents(Size n, const Date& d) const;
+        Probability probAtLeastNEvents(Size n, const Date& d) const override;
         /*! Order of results refers to the simulated (super)pool not the
         basket's pool.
         Notice that this statistic suffers from heavy dispersion. To see
@@ -174,28 +170,25 @@ namespace QuantLib {
         Chen, Z., Glasserman, P. 'Fast pricing of basket default swaps' in
         Operations Research Vol. 56, No. 2, March/April 2008, pp. 286-303
         */
-        virtual Disposable<std::vector<Probability> > probsBeingNthEvent(Size n,
-            const Date& d) const;
+        Disposable<std::vector<Probability> > probsBeingNthEvent(Size n,
+                                                                 const Date& d) const override;
         //! Pearsons' default probability correlation.
-        virtual Real defaultCorrelation(const Date& d, Size iName,
-            Size jName) const;
-        virtual Real expectedTrancheLoss(const Date& d) const;
+        Real defaultCorrelation(const Date& d, Size iName, Size jName) const override;
+        Real expectedTrancheLoss(const Date& d) const override;
         virtual std::pair<Real, Real> expectedTrancheLossInterval(const Date& d,
             Probability confidencePerc) const;
-        virtual Disposable<std::map<Real, Probability> >
-            lossDistribution(const Date& d) const;
+        Disposable<std::map<Real, Probability> > lossDistribution(const Date& d) const override;
         virtual Histogram computeHistogram(const Date& d) const;
-        virtual Real expectedShortfall(const Date& d, Real percent) const;
-        virtual Real percentile(const Date& d, Real percentile) const;
+        Real expectedShortfall(const Date& d, Real percent) const override;
+        Real percentile(const Date& d, Real percentile) const override;
         /*! Returns the VaR value for a given percentile and the 95 confidence
         interval of that value. */
-        virtual boost::tuples::tuple<Real, Real, Real> percentileAndInterval(
+        virtual ext::tuple<Real, Real, Real> percentileAndInterval(
             const Date& d, Real percentile) const;
         /*! Distributes the total VaR amount along the portfolio counterparties.
             The passed loss amount is in loss units.
         */
-        virtual Disposable<std::vector<Real> > splitVaRLevel(const Date& date,
-            Real loss) const;
+        Disposable<std::vector<Real> > splitVaRLevel(const Date& date, Real loss) const override;
         /*! Distributes the total VaR amount along the portfolio
             counterparties.
 
@@ -208,7 +201,8 @@ namespace QuantLib {
             const Date& date, Real loss, Probability confInterval) const;
         //@}
     public:
-        virtual ~RandomLM() {}
+      ~RandomLM() override = default;
+
     private:
         BigNatural seed_;
     protected:
@@ -534,7 +528,7 @@ namespace QuantLib {
     template<template <class, class> class D, class C, class URNG>
     Real RandomLM<D, C, URNG>::percentile(const Date& d, Real perc) const {
         // need to specify return type in tuples' get is parametric
-        return percentileAndInterval(d, perc).template get<0>();
+        return ext::get<0>(percentileAndInterval(d, perc));
     }
 
 
@@ -545,7 +539,7 @@ namespace QuantLib {
     of the stimator just computed. See the reference for a discussion.
     */
     template<template <class, class> class D, class C, class URNG>
-    boost::tuples::tuple<Real, Real, Real> // disposable?
+    ext::tuple<Real, Real, Real> // disposable?
         RandomLM<D, C, URNG>::percentileAndInterval(const Date& d,
             Real percentile) const {
 
@@ -624,8 +618,7 @@ namespace QuantLib {
         lowerPercentile = rankLosses[r];
         upperPercentile = rankLosses[s];
 
-        return boost::tuples::tuple<Real, Real, Real>(quantileValue,
-            lowerPercentile, upperPercentile);
+        return {quantileValue, lowerPercentile, upperPercentile};
     }
 
 
@@ -755,7 +748,7 @@ namespace QuantLib {
     context of default
     See default transition models for another instance of this inversion.
     Alternatively use the faster trick (flat HR) mentioned in the code or make
-    the algorithm parametric on the type of interpolation in the DefautlTS
+    the algorithm parametric on the type of interpolation in the default TS.
     */
     namespace detail {// not template dependent .....move it
         //! Utility for the numerical time solver
@@ -763,8 +756,8 @@ namespace QuantLib {
           public:
             /* See a faster algorithm (neeeds to locate the points) in
             D.O'KANE p.249 sect 13.5 */
-            Root(const Handle<DefaultProbabilityTermStructure> dts, Real pd)
-                : dts_(dts), pd_(pd), curveRef_(dts->referenceDate()) {}
+            Root(const Handle<DefaultProbabilityTermStructure>& dts, Real pd)
+            : dts_(dts), pd_(pd), curveRef_(dts->referenceDate()) {}
             /* The cast I am forcing here comes from the requirement of 1D
             solvers to take in a target (cost) function of Real domain. It could
             be possible to change the template arg F in the 1D solvers to a
@@ -828,27 +821,22 @@ namespace QuantLib {
         Real accuracy_;
     public:
         // \todo: Allow a constructor building its own default latent model.
-        RandomDefaultLM(
-            const ext::shared_ptr<DefaultLatentModel<copulaPolicy> >& model,
-            const std::vector<Real>& recoveries = std::vector<Real>(),
-            Size nSims = 0,// stats will crash on div by zero, FIX ME.
-            Real accuracy = 1.e-6,
-            BigNatural seed = 2863311530UL)
-        : RandomLM< ::QuantLib::RandomDefaultLM, copulaPolicy, USNG>
-            (model->numFactors(), model->size(), model->copula(),
-                nSims, seed ),
-          model_(model),
-          recoveries_(recoveries.size()==0 ? std::vector<Real>(model->size(),
-            0.) : recoveries),
-          accuracy_(accuracy)
-        {
-            // redundant through basket?
-            this->registerWith(Settings::instance().evaluationDate());
-            this->registerWith(model_);
+      explicit RandomDefaultLM(const ext::shared_ptr<DefaultLatentModel<copulaPolicy> >& model,
+                               const std::vector<Real>& recoveries = std::vector<Real>(),
+                               Size nSims = 0, // stats will crash on div by zero, FIX ME.
+                               Real accuracy = 1.e-6,
+                               BigNatural seed = 2863311530UL)
+      : RandomLM< ::QuantLib::RandomDefaultLM, copulaPolicy, USNG>(
+            model->numFactors(), model->size(), model->copula(), nSims, seed),
+        model_(model),
+        recoveries_(recoveries.empty() ? std::vector<Real>(model->size(), 0.) : recoveries),
+        accuracy_(accuracy) {
+          // redundant through basket?
+          this->registerWith(Settings::instance().evaluationDate());
+          this->registerWith(model_);
         }
-        RandomDefaultLM(
-            const ext::shared_ptr<ConstantLossLatentmodel<copulaPolicy> >&
-                model,
+        explicit RandomDefaultLM(
+            const ext::shared_ptr<ConstantLossLatentmodel<copulaPolicy> >& model,
             Size nSims = 0,// stats will crash on div by zero, FIX ME.
             Real accuracy = 1.e-6,
             BigNatural seed = 2863311530UL)
@@ -895,12 +883,11 @@ namespace QuantLib {
         Real getEventRecovery(const defaultSimEvent& evt) const {
             return recoveries_[evt.nameIdx];
         }
-        Real expectedRecovery(const Date&, Size iName,
-                    const DefaultProbKey&) const {
+        Real expectedRecovery(const Date&, Size iName, const DefaultProbKey&) const override {
             // deterministic
             return recoveries_[iName];
         }
-    protected:
+
         Real latentVarValue(const std::vector<Real>& factorsSample,
             Size iVar) const {
             return model_->latentVarValue(factorsSample, iVar);
@@ -909,20 +896,21 @@ namespace QuantLib {
         //invoking duck typing on the variable name or a handle to the basket)
         Size basketSize() const { return model_->size(); }
     private:
-        void resetModel() /*const*/ {
-            /* Explore: might save recalculation if the basket is the same
-            (some situations, like BC or control variates) in that case do not
-            update, only reset the model's basket.
-            */
-            model_->resetBasket(this->basket_.currentLink());
+      void resetModel() override /*const*/ {
+          /* Explore: might save recalculation if the basket is the same
+          (some situations, like BC or control variates) in that case do not
+          update, only reset the model's basket.
+          */
+          model_->resetBasket(this->basket_.currentLink());
 
-            QL_REQUIRE(this->basket_->size() == model_->size(),
-                "Incompatible basket and model sizes.");
-            QL_REQUIRE(recoveries_.size() == this->basket_->size(),
-                "Incompatible basket and recovery sizes.");
-            // invalidate current calculations if any and notify observers
-            LazyObject::update();
-        }
+          QL_REQUIRE(this->basket_->size() == model_->size(),
+                     "Incompatible basket and model sizes.");
+          QL_REQUIRE(recoveries_.size() == this->basket_->size(),
+                     "Incompatible basket and recovery sizes.");
+          // invalidate current calculations if any and notify observers
+          // NOLINTNEXTLINE(bugprone-parent-virtual-call)
+          LazyObject::update();
+      }
         // This one and the buffer might be moved to the parent, only some
         //   dates might be specific to a particular model.
         // Default probabilities for each name at the time of the maximun

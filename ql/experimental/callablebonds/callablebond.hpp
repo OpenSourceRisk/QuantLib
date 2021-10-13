@@ -123,15 +123,13 @@ namespace QuantLib {
                                 Frequency frequency,
                                 Real bump=2e-4);
         //@}
-        virtual void setupArguments(PricingEngine::arguments*) const {}
 
       protected:
         CallableBond(Natural settlementDays,
                      const Schedule& schedule,
-                     const DayCounter& paymentDayCounter,
+                     DayCounter paymentDayCounter,
                      const Date& issueDate = Date(),
-                     const CallabilitySchedule& putCallSchedule
-                                                     = CallabilitySchedule());
+                     CallabilitySchedule putCallSchedule = CallabilitySchedule());
 
         DayCounter paymentDayCounter_;
         Frequency frequency_;
@@ -171,7 +169,7 @@ namespace QuantLib {
 
     class CallableBond::arguments : public Bond::arguments {
       public:
-        arguments() {}
+        arguments() = default;
         std::vector<Date> couponDates;
         std::vector<Real> couponAmounts;
         //! redemption = face amount * redemption / 100.
@@ -187,7 +185,7 @@ namespace QuantLib {
         //! componded rate added to the model. Currently only applied
         //! by the TreeCallableFixedRateBondEngine
         Real spread;
-        void validate() const;
+        void validate() const override;
     };
 
     //! results for a callable bond calculation
@@ -219,9 +217,13 @@ namespace QuantLib {
                               Real redemption = 100.0,
                               const Date& issueDate = Date(),
                               const CallabilitySchedule& putCallSchedule
-                                                      = CallabilitySchedule());
+                                                      = CallabilitySchedule(),
+                              const Period& exCouponPeriod = Period(),
+                              const Calendar& exCouponCalendar = Calendar(),
+                              BusinessDayConvention exCouponConvention = Unadjusted,
+                              bool exCouponEndOfMonth = false);
 
-        virtual void setupArguments(PricingEngine::arguments* args) const;
+        void setupArguments(PricingEngine::arguments* args) const override;
 
       private:
         //! accrued interest used internally, where includeToday = false

@@ -42,12 +42,11 @@ namespace QuantLib {
                   BusinessDayConvention convention,
                   bool endOfMonth,
                   const DayCounter& dayCounter,
-                  const Handle<YieldTermStructure>& h =
-                                    Handle<YieldTermStructure>());
+                  Handle<YieldTermStructure> h = Handle<YieldTermStructure>());
         //! \name InterestRateIndex interface
         //@{
-        Date maturityDate(const Date& valueDate) const;
-        Rate forecastFixing(const Date& fixingDate) const;
+        Date maturityDate(const Date& valueDate) const override;
+        Rate forecastFixing(const Date& fixingDate) const override;
         // @}
         //! \name Inspectors
         //@{
@@ -63,10 +62,6 @@ namespace QuantLib {
                         const Handle<YieldTermStructure>& forwarding) const;
         // @}
       protected:
-        BusinessDayConvention convention_;
-        Handle<YieldTermStructure> termStructure_;
-        bool endOfMonth_;
-      private:
         // overload to avoid date/time (re)calculation
         /* This can be called with cached coupon dates (and it does
            give quite a performance boost to coupon calculations) but
@@ -79,10 +74,13 @@ namespace QuantLib {
            public, but before doing that I'd think hard whether we
            have any other way to get the same results.
         */
-        Rate forecastFixing(const Date& valueDate,
+        virtual Rate forecastFixing(const Date& valueDate,
                             const Date& endDate,
                             Time t) const;
         friend class IborCoupon;
+        BusinessDayConvention convention_;
+        Handle<YieldTermStructure> termStructure_;
+        bool endOfMonth_;
     };
 
 
@@ -96,8 +94,7 @@ namespace QuantLib {
                        const Handle<YieldTermStructure>& h =
                                     Handle<YieldTermStructure>());
         //! returns a copy of itself linked to a different forwarding curve
-        ext::shared_ptr<IborIndex> clone(
-                                   const Handle<YieldTermStructure>& h) const;
+        ext::shared_ptr<IborIndex> clone(const Handle<YieldTermStructure>& h) const override;
     };
 
 

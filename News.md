@@ -1,128 +1,121 @@
-Changes for QuantLib 1.18:
+Changes for QuantLib 1.22:
 ==========================
 
-QuantLib 1.18 includes 34 pull requests from several contributors.
+QuantLib 1.22 includes 54 pull requests from several contributors.
 
 The most notable changes are included below.
 A detailed list of changes is available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib/milestone/14?closed=1>.
+<https://github.com/lballabio/QuantLib/milestone/18?closed=1>.
 
 Portability
 -----------
 
-- As announced in the past release, support of Visual C++ 2010 is
-  dropped.  Also, we'll probably deprecate Visual C++ 2012 in the next
-  release in order to drop it around the end of 2020.
+- As previously announced, this release drops support for Visual
+  C++ 2012.  VC++ 2013 or later is now required.
 
-Build
------
+- The `Date` and `Array` classes are now visualized more clearly in
+  the Visual Studio debugger (thanks to Francois Botha).
 
-- Cmake now installs headers with the correct folder hierarchy (thanks
-  to Cheng Li).
+Language standard
+-----------------
 
-- The `--enable-unity-build` flag passed to configure now also causes
-  the test suite to be built as a single source file.
+- QuantLib now uses the C++11 standard and no longer compiles in C++03
+  mode.  As before, it can be compiled with later versions of the
+  standard.  For details on the C++11 features used, see the pull
+  requests marked "C++11 modernization" at the above link; for
+  information on possible problems, see
+  <https://www.implementingquantlib.com/2021/02/leaving-03-for-real.html>.
 
-- The Visual Studio projects now allow enabling unity builds as
-  described at
-  <https://devblogs.microsoft.com/cppblog/support-for-unity-jumbo-files-in-visual-studio-2017-15-8-experimental/>
-
-Term structures
----------------
-
-- A new `GlobalBootstrap` class can now be used with
-  `PiecewiseYieldCurve` and other bootstrapped curves (thanks to Peter
-  Caspers).  It allows to produce curves close to Bloomberg's.
-
-- The experimental `SofrFutureRateHelper` class and its parent
-  `OvernightIndexFutureRateHelper` can now choose to use either
-  compounding or averaging, in order to accommodate different
-  conventions for 1M and 3M SOFR futures (thanks to GitHub user
-  `tani3010`).
-
-- The `FraRateHelper` class has new constructors that take IMM start /
-  end offsets (thanks to Peter Caspers).
-
-- It is now possible to pass explicit minimum and maximum values to
-  the `IterativeBootstrap` class.  The accuracy parameter was also
-  moved to the same class; passing it to the curve constructor is now
-  deprecated.
-
-Instruments
------------
-
-- It is now possible to build fixed-rate bonds with an arbitrary
-  schedule, even without a regular tenor (thanks to Steven Van Haren).
-
-Models
-------
-
-- It is now possible to use normal volatilities to calibrate a
-  short-rate model over caps.
-
-Date/time
+Cashflows
 ---------
 
-- The Austrian calendar was added (thanks to Benjamin Schwendinger).
+- Revised and tested the `SubPeriodCoupon` class (thanks to Marcin
+  Rybacki).  The class was moved out of the `ql/experimental` folder
+  and its interface can now be considered stable.
 
-- The German calendar incorrectly listed December 31st as a holiday;
-  this is now fixed (thanks to Prasad Somwanshi).
+- Add simple averaging to overnight-index coupons in addition to the
+  existing compound averaging (thanks to Marcin Rybacki).
 
-- Chinese holidays were updated for 2020 and the coronavirus event
-  (thanks to Cheng Li).
-
-- South Korea holidays were updated for 2016-2020 (thanks to GitHub
-  user `fayce66`).
-
-- In the calendar class, `holidayList` is now an instance method; the
-  static version is deprecated.  The `businessDayList` method was also
-  added.  (Thanks to Piotr Siejda.)
-
-- A bug in the 30/360 German day counter was fixed (thanks to Kobe
-  Young for the heads-up).
-
-Optimizers
-----------
-
-- The differential evolution optimizer was updated (thanks to Peter
-  Caspers).
+- Fixed accrual calculation for inflation coupon when trading
+  ex-coupon (thanks to GitHub user `bachhani`).
 
 Currencies
 ----------
 
-- Added Kazakstani Tenge to currencies (thanks to Jonathan Barber).
+- Added the Nigerian Naira (thanks to Bryte Morio).
+
+Date/time
+---------
+
+- Fixed actual/actual (ISMA) day counter calculation for long/short
+  final periods (thanks to Francois Botha).
+
+- Updated a couple of changed rules for New Zealand calendar (thanks
+  to Paul Giltinan).
+
+Indexes
+-------
+
+- Added `hasHistoricalFixing` inspector to `Index` class to check if
+  the fixing for a given past date is available (thanks to Ralf
+  Konrad).
+
+Instruments
+-----------
+
+- Added new-style finite-difference engine for shout options (thanks
+  to Klaus Spanderen).  In the case of dividend shout options, an
+  escrowed dividend model is used.
+
+- Revised the `OvernightIndexFutures` class.  The class was moved out
+  of the `ql/experimental` folder and its interface can now be
+  considered stable.
+
+- Added an overloaded constructor for Asian options that takes all
+  past fixings and thus allows to reprice them correctly when the
+  evaluation date changes (thanks to Jack Gillett).
+
+- Added support for seasoned geometric Asian options to the Heston
+  engine (thanks to Jack Gillett).
+
+Patterns
+--------
+
+- Faster implementation of the `Observable` class in the thread-safe
+  case (thanks to Klaus Spanderen).
+
+Term structures
+---------------
+
+- Added experimental rate helper for constant-notional cross-currency
+  basis swaps (thanks to Marcin Rybacki).
+
+- Added volatility type and displacements to year-on-year inflation
+  volatility surfaces (thanks to Peter Caspers).
 
 Deprecated features
 -------------------
 
-- Features deprecate in version 1.14 were removed: one of the
-  constructors of the `BSMOperator` class, the whole `OperatorFactory`
-  class, and the typedef `CalibrationHelper` which was used to alias
-  the `BlackCalibrationHelper` class.
+- Removed features deprecated in version 1.17: the `Callability::Type`
+  typedef (now `Bond::Price`), the `FdmOrnsteinUhlenbackOp` typedef
+  (now correctly spelled as `FdmOrnsteinUhlenbeckOp`, and a number of
+  old-style finite-difference engines (`FDAmericanEngine`,
+  `FDBermudanEngine`, `FDDividendAmericanEngine` and its variants,
+  `FDDividendEuropeanEngine` and its variants, and `FDEuropeanEngine`)
+  all replaced by the `FdBlackScholesVanillaEngine` class.
 
-- The `CalibrationHelperBase` class is now called
-  `CalibrationHelper`. The old name remains as a typedef but is
-  deprecated.
-
-- The overload of `CalibratedModel::calibrate` and
-  `CalibratedModel::value` taking a vector of
-  `BlackCalibrationHelper`s are deprecated in favor of the ones taking
-  a vector of `CalibrationHelper`s.
-
-- The static method `Calendar::holidayList` is deprecated in favor of
-  the instance method by the same name.
-
-- The constructors of `PiecewiseDefaultCurve` and
-  `PiecewiseYieldCurve` taking an accuracy parameter are deprecated in
-  favor of passing the parameter to an instance of the bootstrap
+- Deprecated the old-style finite difference engines for shout
+  options; they are now replaced by the new `FDDividendShoutEngine`
   class.
 
-- The constructors of `BondHelper` and derived classes taking a
-  boolean flag to choose between clean and dirty price are deprecated
-  in favor of the ones taking a `Bond::Price::Type` argument.  The
-  `useCleanPrice` method is also deprecated in favor of `priceType`.
+- Deprecated a few unused parts of the old-style finite-differences
+  framework: the `AmericanCondition` class, the `OneFactorOperator`
+  typedef, and the `FDAmericanCondition` class.
 
+Test suite
+----------
 
-Thanks go also to Ralf Konrad, Klaus Spanderen, Carlos Fidel Selva
-Ochoa, F. Eugene Aumson and Francois Botha for smaller fixes,
-enhancements, and bug reports.
+- Reduced the run time for the longest-running test cases.
+
+Thanks go also to Francis Duffy and Cay Oest for smaller fixes,
+enhancements and bug reports.

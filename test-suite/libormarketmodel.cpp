@@ -55,8 +55,7 @@ using namespace boost::unit_test_framework;
 
 namespace libor_market_model_test {
 
-    ext::shared_ptr<IborIndex> makeIndex(std::vector<Date> dates,
-                                           std::vector<Rate> rates) {
+    ext::shared_ptr<IborIndex> makeIndex(std::vector<Date> dates, const std::vector<Rate>& rates) {
         DayCounter dayCounter = Actual360();
 
         RelinkableHandle<YieldTermStructure> termStructure;
@@ -78,12 +77,8 @@ namespace libor_market_model_test {
 
 
     ext::shared_ptr<IborIndex> makeIndex() {
-        std::vector<Date> dates;
-        std::vector<Rate> rates;
-        dates.push_back(Date(4,September,2005));
-        dates.push_back(Date(4,September,2018));
-        rates.push_back(0.039);
-        rates.push_back(0.041);
+        std::vector<Date> dates = {{4,September,2005}, {4,September,2018}};
+        std::vector<Rate> rates = {0.039, 0.041};
 
         return makeIndex(dates, rates);
     }
@@ -368,12 +363,8 @@ void LiborMarketModelTest::testSwaptionPricing() {
     else
         tolerance = 1e-12;
 
-    std::vector<Date> dates;
-    std::vector<Rate> rates;
-    dates.push_back(Date(4,September,2005));
-    dates.push_back(Date(4,September,2011));
-    rates.push_back(0.04);
-    rates.push_back(0.08);
+    std::vector<Date> dates = {{4,September,2005}, {4,September,2011}};
+    std::vector<Rate> rates = {0.04, 0.08};
 
     ext::shared_ptr<IborIndex> index = makeIndex(dates, rates);
 
@@ -468,8 +459,7 @@ void LiborMarketModelTest::testSwaptionPricing() {
                 GeneralStatistics stat;
 
                 for (Size n=0; n<nrTrails; ++n) {
-                    sample_type path = (n%2) ? generator.antithetic()
-                                             : generator.next();
+                    sample_type path = (n % 2) != 0U ? generator.antithetic() : generator.next();
 
                     std::vector<Rate> rates(size);
                     for (Size k=0; k<process->size(); ++k) {
@@ -499,7 +489,7 @@ void LiborMarketModelTest::testSwaptionPricing() {
 
 
 test_suite* LiborMarketModelTest::suite(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("Libor market model tests");
+    auto* suite = BOOST_TEST_SUITE("Libor market model tests");
 
     suite->add(QUANTLIB_TEST_CASE(
                           &LiborMarketModelTest::testSimpleCovarianceModels));

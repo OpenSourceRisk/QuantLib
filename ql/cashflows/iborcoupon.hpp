@@ -60,11 +60,11 @@ namespace QuantLib {
         //! \name FloatingRateCoupon interface
         //@{
         //! Implemented in order to manage the case of par coupon
-        Rate indexFixing() const;
+        Rate indexFixing() const override;
         //@}
         //! \name Visitability
         //@{
-        virtual void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
       private:
         ext::shared_ptr<IborIndex> iborIndex_;
@@ -97,7 +97,7 @@ namespace QuantLib {
     //! helper class building a sequence of capped/floored ibor-rate coupons
     class IborLeg {
       public:
-        IborLeg(const Schedule& schedule, const ext::shared_ptr<IborIndex>& index);
+        IborLeg(Schedule schedule, ext::shared_ptr<IborIndex> index);
         IborLeg& withNotionals(Real notional);
         IborLeg& withNotionals(const std::vector<Real>& notionals);
         IborLeg& withPaymentDayCounter(const DayCounter&);

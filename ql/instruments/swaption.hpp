@@ -82,14 +82,14 @@ namespace QuantLib {
       public:
         class arguments;
         class engine;
-        Swaption(const ext::shared_ptr<VanillaSwap>& swap,
+        Swaption(ext::shared_ptr<VanillaSwap> swap,
                  const ext::shared_ptr<Exercise>& exercise,
                  Settlement::Type delivery = Settlement::Physical,
                  Settlement::Method settlementMethod = Settlement::PhysicalOTC);
         //! \name Instrument interface
         //@{
-        bool isExpired() const;
-        void setupArguments(PricingEngine::arguments*) const;
+        bool isExpired() const override;
+        void setupArguments(PricingEngine::arguments*) const override;
         //@}
         //! \name Inspectors
         //@{
@@ -125,11 +125,11 @@ namespace QuantLib {
     class Swaption::arguments : public VanillaSwap::arguments,
                                 public Option::arguments {
       public:
-        arguments() : settlementType(Settlement::Physical) {}
+        arguments() = default;
         ext::shared_ptr<VanillaSwap> swap;
-        Settlement::Type settlementType;
+        Settlement::Type settlementType = Settlement::Physical;
         Settlement::Method settlementMethod;
-        void validate() const;
+        void validate() const override;
     };
 
     //! base class for swaption engines

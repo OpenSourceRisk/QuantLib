@@ -40,15 +40,10 @@ namespace QuantLib {
                                const DayCounter& dayCounter,
                                BusinessDayConvention paymentConvention,
                                boost::optional<Real> notional)
-    : basket_(basket),
-      side_(side),
-      upfrontRate_(upfrontRate),
-      runningRate_(runningRate),
-      leverageFactor_(notional ? notional.get()/basket->trancheNotional() : 1.),
-      dayCounter_(dayCounter),
-      paymentConvention_(paymentConvention)
-    {
-        QL_REQUIRE (basket->names().size() > 0, "basket is empty");
+    : basket_(basket), side_(side), upfrontRate_(upfrontRate), runningRate_(runningRate),
+      leverageFactor_(notional ? notional.get() / basket->trancheNotional() : 1.), // NOLINT(readability-implicit-bool-conversion)
+      dayCounter_(dayCounter), paymentConvention_(paymentConvention) {
+        QL_REQUIRE(!basket->names().empty(), "basket is empty");
         // Basket inception must lie before contract protection start.
         QL_REQUIRE(basket->refDate() <= schedule.startDate(),
         //using the start date of the schedule might be wrong, think of the 
@@ -145,9 +140,8 @@ namespace QuantLib {
     }
 
     void SyntheticCDO::setupArguments(PricingEngine::arguments* args) const {
-        SyntheticCDO::arguments* arguments
-            = dynamic_cast<SyntheticCDO::arguments*>(args);
-        QL_REQUIRE(arguments != 0, "wrong argument type");
+        auto* arguments = dynamic_cast<SyntheticCDO::arguments*>(args);
+        QL_REQUIRE(arguments != nullptr, "wrong argument type");
         arguments->basket = basket_;
         arguments->side = side_;
         arguments->normalizedLeg = normalizedLeg_;
@@ -162,9 +156,8 @@ namespace QuantLib {
     void SyntheticCDO::fetchResults(const PricingEngine::results* r) const {
         Instrument::fetchResults(r);
 
-        const SyntheticCDO::results* results
-            = dynamic_cast<const SyntheticCDO::results*>(r);
-        QL_REQUIRE(results != 0, "wrong result type");
+        const auto* results = dynamic_cast<const SyntheticCDO::results*>(r);
+        QL_REQUIRE(results != nullptr, "wrong result type");
 
         premiumValue_ = results->premiumValue;
         protectionValue_ = results->protectionValue;
@@ -247,8 +240,7 @@ namespace QuantLib {
 
         MidPointCDOEngine engineIC(discountCurve);
         setupArguments(engineIC.getArguments());
-        const SyntheticCDO::results* results = 
-            dynamic_cast<const SyntheticCDO::results*>(engineIC.getResults());
+        const auto* results = dynamic_cast<const SyntheticCDO::results*>(engineIC.getResults());
 
         // aviod recal of the basket on engine updates through the quote
         basket_->recalculate();

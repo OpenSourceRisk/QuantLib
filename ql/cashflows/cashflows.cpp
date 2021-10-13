@@ -22,13 +22,14 @@
 
 #include <ql/cashflows/cashflows.hpp>
 #include <ql/cashflows/coupon.hpp>
-#include <ql/termstructures/yield/flatforward.hpp>
+#include <ql/cashflows/couponpricer.hpp>
 #include <ql/math/solvers1d/brent.hpp>
 #include <ql/math/solvers1d/newtonsafe.hpp>
-#include <ql/cashflows/couponpricer.hpp>
 #include <ql/patterns/visitor.hpp>
 #include <ql/quotes/simplequote.hpp>
+#include <ql/termstructures/yield/flatforward.hpp>
 #include <ql/termstructures/yield/zerospreadedtermstructure.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -38,12 +39,12 @@ namespace QuantLib {
         QL_REQUIRE(!leg.empty(), "empty leg");
 
         Date d = Date::maxDate();
-        for (Size i=0; i<leg.size(); ++i) {
-            ext::shared_ptr<Coupon> c = ext::dynamic_pointer_cast<Coupon>(leg[i]);
-            if (c)
+        for (const auto& i : leg) {
+            ext::shared_ptr<Coupon> c = ext::dynamic_pointer_cast<Coupon>(i);
+            if (c != nullptr)
                 d = std::min(d, c->accrualStartDate());
             else
-                d = std::min(d, leg[i]->date());
+                d = std::min(d, i->date());
         }
         return d;
     }
@@ -52,12 +53,12 @@ namespace QuantLib {
         QL_REQUIRE(!leg.empty(), "empty leg");
 
         Date d = Date::minDate();
-        for (Size i=0; i<leg.size(); ++i) {
-            ext::shared_ptr<Coupon> c = ext::dynamic_pointer_cast<Coupon>(leg[i]);
-            if (c)
+        for (const auto& i : leg) {
+            ext::shared_ptr<Coupon> c = ext::dynamic_pointer_cast<Coupon>(i);
+            if (c != nullptr)
                 d = std::max(d, c->accrualEndDate());
             else
-                d = std::max(d, leg[i]->date());
+                d = std::max(d, i->date());
         }
         return d;
     }
@@ -122,7 +123,7 @@ namespace QuantLib {
         cf = previousCashFlow(leg, includeSettlementDateFlows, settlementDate);
 
         if (cf==leg.rend())
-            return Date();
+            return {};
 
         return (*cf)->date();
     }
@@ -134,7 +135,7 @@ namespace QuantLib {
         cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
 
         if (cf==leg.end())
-            return Date();
+            return {};
 
         return (*cf)->date();
     }
@@ -231,15 +232,13 @@ namespace QuantLib {
     Real CashFlows::nominal(const Leg& leg,
                             bool includeSettlementDateFlows,
                             Date settlementDate) {
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
         if (cf==leg.end()) return 0.0;
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->nominal();
         }
         return 0.0;
@@ -248,83 +247,77 @@ namespace QuantLib {
     Date CashFlows::accrualStartDate(const Leg& leg,
                                      bool includeSettlementDateFlows,
                                      Date settlementDate) {
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
-        if (cf==leg.end()) return Date();
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
+        if (cf==leg.end())
+            return {};
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->accrualStartDate();
         }
-        return Date();
+        return {};
     }
 
     Date CashFlows::accrualEndDate(const Leg& leg,
                                    bool includeSettlementDateFlows,
                                    Date settlementDate) {
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
-        if (cf==leg.end()) return Date();
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
+        if (cf==leg.end())
+            return {};
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->accrualEndDate();
         }
-        return Date();
+        return {};
     }
 
     Date CashFlows::referencePeriodStart(const Leg& leg,
                                          bool includeSettlementDateFlows,
                                          Date settlementDate) {
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
-        if (cf==leg.end()) return Date();
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
+        if (cf==leg.end())
+            return {};
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->referencePeriodStart();
         }
-        return Date();
+        return {};
     }
 
     Date CashFlows::referencePeriodEnd(const Leg& leg,
                                        bool includeSettlementDateFlows,
                                        Date settlementDate) {
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
-        if (cf==leg.end()) return Date();
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
+        if (cf==leg.end())
+            return {};
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->referencePeriodEnd();
         }
-        return Date();
+        return {};
     }
 
     Time CashFlows::accrualPeriod(const Leg& leg,
                                   bool includeSettlementDateFlows,
                                   Date settlementDate) {
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
         if (cf==leg.end()) return 0;
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->accrualPeriod();
         }
         return 0;
@@ -333,15 +326,13 @@ namespace QuantLib {
     Date::serial_type CashFlows::accrualDays(const Leg& leg,
                                              bool includeSettlementDateFlows,
                                              Date settlementDate) {
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
         if (cf==leg.end()) return 0;
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->accrualDays();
         }
         return 0;
@@ -353,15 +344,13 @@ namespace QuantLib {
         if (settlementDate == Date())
             settlementDate = Settings::instance().evaluationDate();
 
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
         if (cf==leg.end()) return 0;
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->accruedPeriod(settlementDate);
         }
         return 0;
@@ -373,15 +362,13 @@ namespace QuantLib {
         if (settlementDate == Date())
             settlementDate = Settings::instance().evaluationDate();
 
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
         if (cf==leg.end()) return 0;
 
         Date paymentDate = (*cf)->date();
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 return cp->accruedDays(settlementDate);
         }
         return 0;
@@ -393,16 +380,14 @@ namespace QuantLib {
         if (settlementDate == Date())
             settlementDate = Settings::instance().evaluationDate();
 
-        Leg::const_iterator cf = nextCashFlow(leg,
-                                              includeSettlementDateFlows,
-                                              settlementDate);
+        auto cf = nextCashFlow(leg, includeSettlementDateFlows, settlementDate);
         if (cf==leg.end()) return 0.0;
 
         Date paymentDate = (*cf)->date();
         Real result = 0.0;
         for (; cf<leg.end() && (*cf)->date()==paymentDate; ++cf) {
             ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(*cf);
-            if (cp)
+            if (cp != nullptr)
                 result += cp->accruedAmount(settlementDate);
         }
         return result;
@@ -417,13 +402,13 @@ namespace QuantLib {
           public:
             explicit BPSCalculator(const YieldTermStructure& discountCurve)
             : discountCurve_(discountCurve), bps_(0.0), nonSensNPV_(0.0) {}
-            void visit(Coupon& c) {
+            void visit(Coupon& c) override {
                 Real bps = c.nominal() *
                            c.accrualPeriod() *
                            discountCurve_.discount(c.date());
                 bps_ += bps;
             }
-            void visit(CashFlow& cf) {
+            void visit(CashFlow& cf) override {
                 nonSensNPV_ += cf.amount() * 
                                discountCurve_.discount(cf.date());
             }
@@ -453,12 +438,10 @@ namespace QuantLib {
             npvDate = settlementDate;
 
         Real totalNPV = 0.0;
-        for (Size i=0; i<leg.size(); ++i) {
-            if (!leg[i]->hasOccurred(settlementDate,
-                                     includeSettlementDateFlows) &&
-                !leg[i]->tradingExCoupon(settlementDate))
-                totalNPV += leg[i]->amount() *
-                            discountCurve.discount(leg[i]->date());
+        for (const auto& i : leg) {
+            if (!i->hasOccurred(settlementDate, includeSettlementDateFlows) &&
+                !i->tradingExCoupon(settlementDate))
+                totalNPV += i->amount() * discountCurve.discount(i->date());
         }
 
         return totalNPV/discountCurve.discount(npvDate);
@@ -479,11 +462,10 @@ namespace QuantLib {
             npvDate = settlementDate;
 
         BPSCalculator calc(discountCurve);
-        for (Size i=0; i<leg.size(); ++i) {
-            if (!leg[i]->hasOccurred(settlementDate,
-                                     includeSettlementDateFlows) &&
-                !leg[i]->tradingExCoupon(settlementDate))
-                leg[i]->accept(calc);
+        for (const auto& i : leg) {
+            if (!i->hasOccurred(settlementDate, includeSettlementDateFlows) &&
+                !i->tradingExCoupon(settlementDate))
+                i->accept(calc);
         }
         return basisPoint_*calc.bps()/discountCurve.discount(npvDate);
     }
@@ -502,16 +484,15 @@ namespace QuantLib {
             return;
         }
 
-        for (Size i=0; i<leg.size(); ++i) {
-            CashFlow& cf = *leg[i];
+        for (const auto& i : leg) {
+            CashFlow& cf = *i;
             if (!cf.hasOccurred(settlementDate,
                                 includeSettlementDateFlows) &&
                 !cf.tradingExCoupon(settlementDate)) {
-                ext::shared_ptr<Coupon> cp =
-                    ext::dynamic_pointer_cast<Coupon>(leg[i]);
+                ext::shared_ptr<Coupon> cp = ext::dynamic_pointer_cast<Coupon>(i);
                 Real df = discountCurve.discount(cf.date());
                 npv += cf.amount() * df;
-                if(cp != NULL)
+                if (cp != nullptr)
                     bps += cp->nominal() * cp->accrualPeriod() * df;
             }
         }
@@ -526,6 +507,8 @@ namespace QuantLib {
                             Date settlementDate,
                             Date npvDate,
                             Real targetNpv) {
+        if (leg.empty())
+            return 0.0;
 
         if (settlementDate == Date())
             settlementDate = Settings::instance().evaluationDate();
@@ -535,8 +518,8 @@ namespace QuantLib {
 
         Real npv = 0.0;
         BPSCalculator calc(discountCurve);
-        for (Size i=0; i<leg.size(); ++i) {
-            CashFlow& cf = *leg[i];
+        for (const auto& i : leg) {
+            CashFlow& cf = *i;
             if (!cf.hasOccurred(settlementDate,
                                 includeSettlementDateFlows) &&
                 !cf.tradingExCoupon(settlementDate)) {
@@ -577,7 +560,7 @@ namespace QuantLib {
         }
 
         // helper fucntion used to calculate Time-To-Discount for each stage when calculating discount factor stepwisely
-        Time getStepwiseDiscountTime(const ext::shared_ptr<QuantLib::CashFlow> cashFlow,
+        Time getStepwiseDiscountTime(const ext::shared_ptr<QuantLib::CashFlow>& cashFlow,
                                      const DayCounter& dc,
                                      Date npvDate,
                                      Date lastDate) {
@@ -585,7 +568,7 @@ namespace QuantLib {
             Date refStartDate, refEndDate;
             ext::shared_ptr<Coupon> coupon =
                     ext::dynamic_pointer_cast<Coupon>(cashFlow);
-            if (coupon) {
+            if (coupon != nullptr) {
                 refStartDate = coupon->referencePeriodStart();
                 refEndDate = coupon->referencePeriodEnd();
             } else {
@@ -599,14 +582,13 @@ namespace QuantLib {
                 refEndDate = cashFlowDate;
             }
 
-            if (coupon && lastDate!=coupon->accrualStartDate()) {
+            if ((coupon != nullptr) && lastDate != coupon->accrualStartDate()) {
                 Time couponPeriod = dc.yearFraction(coupon->accrualStartDate(),
                                                 cashFlowDate, refStartDate, refEndDate);
                 Time accruedPeriod = dc.yearFraction(coupon->accrualStartDate(),
                                                 lastDate, refStartDate, refEndDate);
                 return couponPeriod - accruedPeriod;
-            }
-            else {
+            } else {
                 return dc.yearFraction(lastDate, cashFlowDate,
                                        refStartDate, refEndDate);
             }
@@ -631,22 +613,21 @@ namespace QuantLib {
             Time t = 0.0;
             Date lastDate = npvDate;
             const DayCounter& dc = y.dayCounter();
-            for (Size i=0; i<leg.size(); ++i) {
-                if (leg[i]->hasOccurred(settlementDate,
-                                        includeSettlementDateFlows))
+            for (const auto& i : leg) {
+                if (i->hasOccurred(settlementDate, includeSettlementDateFlows))
                     continue;
 
-                Real c = leg[i]->amount();
-                if (leg[i]->tradingExCoupon(settlementDate)) {
+                Real c = i->amount();
+                if (i->tradingExCoupon(settlementDate)) {
                     c = 0.0;
                 }
 
-                t += getStepwiseDiscountTime(leg[i], dc, npvDate, lastDate);
+                t += getStepwiseDiscountTime(i, dc, npvDate, lastDate);
                 DiscountFactor B = y.discountFactor(t);
                 P += c * B;
                 dPdy += t * c * B;
-                
-                lastDate = leg[i]->date();
+
+                lastDate = i->date();
             }
             if (P == 0.0) // no cashflows
                 return 0.0;
@@ -674,17 +655,16 @@ namespace QuantLib {
             Natural N = y.frequency();
             Date lastDate = npvDate;
             const DayCounter& dc = y.dayCounter();
-            for (Size i=0; i<leg.size(); ++i) {
-                if (leg[i]->hasOccurred(settlementDate,
-                                        includeSettlementDateFlows))
+            for (const auto& i : leg) {
+                if (i->hasOccurred(settlementDate, includeSettlementDateFlows))
                     continue;
 
-                Real c = leg[i]->amount();
-                if (leg[i]->tradingExCoupon(settlementDate)) {
+                Real c = i->amount();
+                if (i->tradingExCoupon(settlementDate)) {
                     c = 0.0;
                 }
 
-                t += getStepwiseDiscountTime(leg[i], dc, npvDate, lastDate);
+                t += getStepwiseDiscountTime(i, dc, npvDate, lastDate);
                 DiscountFactor B = y.discountFactor(t);
                 P += c * B;
                 switch (y.compounding()) {
@@ -713,7 +693,7 @@ namespace QuantLib {
                     QL_FAIL("unknown compounding convention (" <<
                             Integer(y.compounding()) << ")");
                 }
-                lastDate = leg[i]->date();
+                lastDate = i->date();
             }
 
             if (P == 0.0) // no cashflows
@@ -747,17 +727,15 @@ namespace QuantLib {
 
     CashFlows::IrrFinder::IrrFinder(const Leg& leg,
                                     Real npv,
-                                    const DayCounter& dayCounter,
+                                    DayCounter dayCounter,
                                     Compounding comp,
                                     Frequency freq,
                                     bool includeSettlementDateFlows,
                                     Date settlementDate,
                                     Date npvDate)
-    : leg_(leg), npv_(npv),
-      dayCounter_(dayCounter), compounding_(comp), frequency_(freq),
-      includeSettlementDateFlows_(includeSettlementDateFlows),
-      settlementDate_(settlementDate),
-      npvDate_(npvDate) {
+    : leg_(leg), npv_(npv), dayCounter_(std::move(dayCounter)), compounding_(comp),
+      frequency_(freq), includeSettlementDateFlows_(includeSettlementDateFlows),
+      settlementDate_(settlementDate), npvDate_(npvDate) {
 
         if (settlementDate_ == Date())
             settlementDate_ = Settings::instance().evaluationDate();
@@ -790,11 +768,10 @@ namespace QuantLib {
 
         Integer lastSign = sign(-npv_),
                 signChanges = 0;
-        for (Size i = 0; i < leg_.size(); ++i) {
-            if (!leg_[i]->hasOccurred(settlementDate_,
-                                      includeSettlementDateFlows_) &&
-                !leg_[i]->tradingExCoupon(settlementDate_)) {
-                Integer thisSign = sign(leg_[i]->amount());
+        for (const auto& i : leg_) {
+            if (!i->hasOccurred(settlementDate_, includeSettlementDateFlows_) &&
+                !i->tradingExCoupon(settlementDate_)) {
+                Integer thisSign = sign(i->amount());
                 if (lastSign * thisSign < 0) // sign change
                     signChanges++;
 
@@ -851,19 +828,18 @@ namespace QuantLib {
         DiscountFactor discount = 1.0;
         Date lastDate = npvDate;
         const DayCounter& dc = y.dayCounter();
-        for (Size i=0; i<leg.size(); ++i) {
-            if (leg[i]->hasOccurred(settlementDate,
-                                    includeSettlementDateFlows))
+        for (const auto& i : leg) {
+            if (i->hasOccurred(settlementDate, includeSettlementDateFlows))
                 continue;
 
-            Real amount = leg[i]->amount();
-            if (leg[i]->tradingExCoupon(settlementDate)) {
+            Real amount = i->amount();
+            if (i->tradingExCoupon(settlementDate)) {
                 amount = 0.0;
             }
 
-            DiscountFactor b = y.discountFactor(getStepwiseDiscountTime(leg[i], dc, npvDate, lastDate));
+            DiscountFactor b = y.discountFactor(getStepwiseDiscountTime(i, dc, npvDate, lastDate));
             discount *= b;
-            lastDate = leg[i]->date();
+            lastDate = i->date();
 
             npv += amount * discount;
         }
@@ -1011,17 +987,16 @@ namespace QuantLib {
         Rate r = y.rate();
         Natural N = y.frequency();
         Date lastDate = npvDate;
-        for (Size i=0; i<leg.size(); ++i) {
-            if (leg[i]->hasOccurred(settlementDate,
-                                        includeSettlementDateFlows))
+        for (const auto& i : leg) {
+            if (i->hasOccurred(settlementDate, includeSettlementDateFlows))
                 continue;
-            
-            Real c = leg[i]->amount();
-            if (leg[i]->tradingExCoupon(settlementDate)) {
+
+            Real c = i->amount();
+            if (i->tradingExCoupon(settlementDate)) {
                 c = 0.0;
             }
 
-            t += getStepwiseDiscountTime(leg[i], dc, npvDate, lastDate);
+            t += getStepwiseDiscountTime(i, dc, npvDate, lastDate);
             DiscountFactor B = y.discountFactor(t);
             P += c * B;
             switch (y.compounding()) {
@@ -1050,7 +1025,7 @@ namespace QuantLib {
                 QL_FAIL("unknown compounding convention (" <<
                         Integer(y.compounding()) << ")");
             }
-            lastDate = leg[i]->date();
+            lastDate = i->date();
         }
 
         if (P == 0.0)

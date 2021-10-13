@@ -33,7 +33,7 @@ namespace QuantLib {
     //! Cms-spread-rate coupon with digital digital call/put option
     class DigitalCmsSpreadCoupon : public DigitalCoupon {
       public:
-        DigitalCmsSpreadCoupon(
+        explicit DigitalCmsSpreadCoupon(
             const ext::shared_ptr<CmsSpreadCoupon> &underlying,
             Rate callStrike = Null<Rate>(),
             Position::Type callPosition = Position::Long,
@@ -49,7 +49,7 @@ namespace QuantLib {
 
         //! \name Visitability
         //@{
-        virtual void accept(AcyclicVisitor&);
+        void accept(AcyclicVisitor&) override;
         //@}
     };
 
@@ -57,11 +57,11 @@ namespace QuantLib {
     //! helper class building a sequence of digital ibor-rate coupons
     class DigitalCmsSpreadLeg {
       public:
-        DigitalCmsSpreadLeg(const Schedule& schedule,
-                      const ext::shared_ptr<SwapSpreadIndex>& index);
+        DigitalCmsSpreadLeg(Schedule schedule, ext::shared_ptr<SwapSpreadIndex> index);
         DigitalCmsSpreadLeg& withNotionals(Real notional);
         DigitalCmsSpreadLeg& withNotionals(const std::vector<Real>& notionals);
         DigitalCmsSpreadLeg& withPaymentDayCounter(const DayCounter&);
+        DigitalCmsSpreadLeg& withPaymentCalendar(const Calendar& cal);
         DigitalCmsSpreadLeg& withPaymentAdjustment(BusinessDayConvention);
         DigitalCmsSpreadLeg& withFixingDays(Natural fixingDays);
         DigitalCmsSpreadLeg& withFixingDays(const std::vector<Natural>& fixingDays);
@@ -106,6 +106,7 @@ namespace QuantLib {
         bool putATM_;
         ext::shared_ptr<DigitalReplication> replication_;
         bool nakedOption_;
+        Calendar paymentCalendar_;
     };
 
 }

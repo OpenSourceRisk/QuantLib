@@ -21,11 +21,12 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/cashflows/overnightindexedcoupon.hpp>
 #include <ql/cashflows/couponpricer.hpp>
+#include <ql/experimental/averageois/averageoiscouponpricer.hpp>
+#include <ql/cashflows/overnightindexedcoupon.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/utilities/vectors.hpp>
-#include <ql/termstructures/yieldtermstructure.hpp>
+#include <utility>
 
 using std::vector;
 
@@ -35,11 +36,11 @@ namespace QuantLib {
 
         class OvernightIndexedCouponPricer : public FloatingRateCouponPricer {
           public:
-            void initialize(const FloatingRateCoupon& coupon) {
+            void initialize(const FloatingRateCoupon& coupon) override {
                 coupon_ = dynamic_cast<const OvernightIndexedCoupon*>(&coupon);
                 QL_ENSURE(coupon_, "wrong coupon type");
             }
-            Rate swapletRate() const {
+            Rate swapletRate() const override {
 
                 ext::shared_ptr<OvernightIndex> index =
                     ext::dynamic_pointer_cast<OvernightIndex>(coupon_->index());
@@ -102,11 +103,12 @@ namespace QuantLib {
                 return coupon_->gearing() * rate + coupon_->spread();
             }
 
-            Real swapletPrice() const { QL_FAIL("swapletPrice not available");  }
-            Real capletPrice(Rate) const { QL_FAIL("capletPrice not available"); }
-            Rate capletRate(Rate) const { QL_FAIL("capletRate not available"); }
-            Real floorletPrice(Rate) const { QL_FAIL("floorletPrice not available"); }
-            Rate floorletRate(Rate) const { QL_FAIL("floorletRate not available"); }
+            Real swapletPrice() const override { QL_FAIL("swapletPrice not available"); }
+            Real capletPrice(Rate) const override { QL_FAIL("capletPrice not available"); }
+            Rate capletRate(Rate) const override { QL_FAIL("capletRate not available"); }
+            Real floorletPrice(Rate) const override { QL_FAIL("floorletPrice not available"); }
+            Rate floorletRate(Rate) const override { QL_FAIL("floorletRate not available"); }
+
           protected:
             const OvernightIndexedCoupon* coupon_;
         };
@@ -123,7 +125,8 @@ namespace QuantLib {
                     const Date& refPeriodStart,
                     const Date& refPeriodEnd,
                     const DayCounter& dayCounter,
-                    bool telescopicValueDates)
+                    bool telescopicValueDates, 
+                    RateAveraging::Type averagingMethod)
     : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
                          overnightIndex->fixingDays(), overnightIndex,
                          gearing, spread,
@@ -192,8 +195,18 @@ namespace QuantLib {
         for (Size i=0; i<n_; ++i)
             dt_[i] = dc.yearFraction(valueDates_[i], valueDates_[i+1]);
 
-        setPricer(ext::shared_ptr<FloatingRateCouponPricer>(new
-                                            OvernightIndexedCouponPricer));
+        switch (averagingMethod) {
+            case RateAveraging::Simple:
+                setPricer(ext::shared_ptr<FloatingRateCouponPricer>(
+                    new ArithmeticAveragedOvernightIndexedCouponPricer(telescopicValueDates)));
+                break;
+            case RateAveraging::Compound:
+                setPricer(
+                    ext::shared_ptr<FloatingRateCouponPricer>(new OvernightIndexedCouponPricer));
+                break;
+            default:
+                QL_FAIL("unknown compounding convention (" << Integer(averagingMethod) << ")");
+        }
     }
 
     const vector<Rate>& OvernightIndexedCoupon::indexFixings() const {
@@ -204,19 +217,18 @@ namespace QuantLib {
     }
 
     void OvernightIndexedCoupon::accept(AcyclicVisitor& v) {
-        Visitor<OvernightIndexedCoupon>* v1 =
-            dynamic_cast<Visitor<OvernightIndexedCoupon>*>(&v);
-        if (v1 != 0) {
+        auto* v1 = dynamic_cast<Visitor<OvernightIndexedCoupon>*>(&v);
+        if (v1 != nullptr) {
             v1->visit(*this);
         } else {
             FloatingRateCoupon::accept(v);
         }
     }
 
-    OvernightLeg::OvernightLeg(const Schedule& schedule,
-                               const ext::shared_ptr<OvernightIndex>& i)
-    : schedule_(schedule), overnightIndex_(i), paymentCalendar_(schedule.calendar()),
-      paymentAdjustment_(Following), paymentLag_(0), telescopicValueDates_(false) {}
+    OvernightLeg::OvernightLeg(const Schedule& schedule, ext::shared_ptr<OvernightIndex> i)
+    : schedule_(schedule), overnightIndex_(std::move(i)), paymentCalendar_(schedule.calendar()),
+      paymentAdjustment_(Following), paymentLag_(0), telescopicValueDates_(false),
+      averagingMethod_(RateAveraging::Compound) {}
 
     OvernightLeg& OvernightLeg::withNotionals(Real notional) {
         notionals_ = vector<Real>(1, notional);
@@ -274,6 +286,11 @@ namespace QuantLib {
         return *this;
     }
 
+    OvernightLeg& OvernightLeg::withAveragingMethod(RateAveraging::Type averagingMethod) {
+        averagingMethod_ = averagingMethod;
+        return *this;
+    }
+
     OvernightLeg::operator Leg() const {
 
         QL_REQUIRE(!notionals_.empty(), "no notional given");
@@ -309,7 +326,8 @@ namespace QuantLib {
                                        detail::get(spreads_, i, 0.0),
                                        refStart, refEnd,
                                        paymentDayCounter_,
-                                       telescopicValueDates_)));
+                                       telescopicValueDates_, 
+                                       averagingMethod_)));
         }
         return cashflows;
     }

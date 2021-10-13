@@ -18,30 +18,31 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/pricingengines/credit/isdacdsengine.hpp>
-#include <ql/instruments/claim.hpp>
 #include <ql/cashflows/fixedratecoupon.hpp>
-#include <ql/termstructures/yield/piecewiseyieldcurve.hpp>
-#include <ql/termstructures/yield/flatforward.hpp>
-#include <ql/termstructures/credit/piecewisedefaultcurve.hpp>
-#include <ql/termstructures/credit/flathazardrate.hpp>
+#include <ql/instruments/claim.hpp>
 #include <ql/math/interpolations/forwardflatinterpolation.hpp>
+#include <ql/pricingengines/credit/isdacdsengine.hpp>
+#include <ql/termstructures/credit/flathazardrate.hpp>
+#include <ql/termstructures/credit/piecewisedefaultcurve.hpp>
+#include <ql/termstructures/yield/flatforward.hpp>
+#include <ql/termstructures/yield/piecewiseyieldcurve.hpp>
 #include <ql/time/calendars/weekendsonly.hpp>
 #include <ql/time/daycounters/actual360.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    IsdaCdsEngine::IsdaCdsEngine(
-        const Handle<DefaultProbabilityTermStructure> &probability,
-        Real recoveryRate, const Handle<YieldTermStructure> &discountCurve,
-        boost::optional<bool> includeSettlementDateFlows,
-        const NumericalFix numericalFix, const AccrualBias accrualBias,
-        const ForwardsInCouponPeriod forwardsInCouponPeriod)
-        : probability_(probability), recoveryRate_(recoveryRate),
-          discountCurve_(discountCurve),
-          includeSettlementDateFlows_(includeSettlementDateFlows),
-          numericalFix_(numericalFix), accrualBias_(accrualBias),
-          forwardsInCouponPeriod_(forwardsInCouponPeriod) {
+    IsdaCdsEngine::IsdaCdsEngine(Handle<DefaultProbabilityTermStructure> probability,
+                                 Real recoveryRate,
+                                 Handle<YieldTermStructure> discountCurve,
+                                 const boost::optional<bool>& includeSettlementDateFlows,
+                                 const NumericalFix numericalFix,
+                                 const AccrualBias accrualBias,
+                                 const ForwardsInCouponPeriod forwardsInCouponPeriod)
+    : probability_(std::move(probability)), recoveryRate_(recoveryRate),
+      discountCurve_(std::move(discountCurve)),
+      includeSettlementDateFlows_(includeSettlementDateFlows), numericalFix_(numericalFix),
+      accrualBias_(accrualBias), forwardsInCouponPeriod_(forwardsInCouponPeriod) {
 
         registerWith(probability_);
         registerWith(discountCurve_);
@@ -92,8 +93,7 @@ namespace QuantLib {
                    "ISDA engine not compatible with non accrual paying CDS");
         QL_REQUIRE(arguments_.paysAtDefaultTime,
                    "ISDA engine not compatible with end period payment");
-        QL_REQUIRE(ext::dynamic_pointer_cast<FaceValueClaim>(
-                       arguments_.claim) != NULL,
+        QL_REQUIRE(ext::dynamic_pointer_cast<FaceValueClaim>(arguments_.claim) != nullptr,
                    "ISDA engine not compatible with non face value claim");
 
         Date maturity = arguments_.maturity;
@@ -194,9 +194,8 @@ namespace QuantLib {
         // premium leg pricing (npv is always positive at this stage)
 
         Real premiumNpv = 0.0, defaultAccrualNpv = 0.0;
-        for (Size i = 0; i < arguments_.leg.size(); ++i) {
-            ext::shared_ptr<FixedRateCoupon> coupon =
-                ext::dynamic_pointer_cast<FixedRateCoupon>(arguments_.leg[i]);
+        for (auto& i : arguments_.leg) {
+            ext::shared_ptr<FixedRateCoupon> coupon = ext::dynamic_pointer_cast<FixedRateCoupon>(i);
 
             QL_REQUIRE(coupon->dayCounter() == dc ||
                            coupon->dayCounter() == dc1 ||
@@ -205,8 +204,7 @@ namespace QuantLib {
                            << "or Act/360 (" << coupon->dayCounter() << ")");
 
             // premium coupons
-            if (!arguments_.leg[i]->hasOccurred(effectiveProtectionStart,
-                                                includeSettlementDateFlows_)) {
+            if (!i->hasOccurred(effectiveProtectionStart, includeSettlementDateFlows_)) {
                 premiumNpv +=
                     coupon->amount() *
                     discountCurve_->discount(coupon->date()) *
@@ -295,16 +293,15 @@ namespace QuantLib {
         }
 
         results_.accrualRebateNPV = 0.;
-        if (arguments_.accrualRebate &&
-            arguments_.accrualRebate->amount() != 0. &&
-            !arguments_.accrualRebate->hasOccurred(
-                evalDate, includeSettlementDateFlows_)) {
+        // NOLINTNEXTLINE(readability-implicit-bool-conversion)
+        if (arguments_.accrualRebate && arguments_.accrualRebate->amount() != 0. &&
+            !arguments_.accrualRebate->hasOccurred(evalDate, includeSettlementDateFlows_)) {
             results_.accrualRebateNPV =
                 discountCurve_->discount(arguments_.accrualRebate->date()) *
                 arguments_.accrualRebate->amount();
         }
 
-        Real upfrontSign = Protection::Seller ? 1.0 : -1.0;
+        Real upfrontSign = Protection::Seller != 0U ? 1.0 : -1.0;
 
         if (arguments_.side == Protection::Seller) {
             results_.defaultLegNPV *= -1.0;
@@ -346,6 +343,7 @@ namespace QuantLib {
             results_.couponLegBPS = Null<Rate>();
         }
 
+        // NOLINTNEXTLINE(readability-implicit-bool-conversion)
         if (arguments_.upfront && *arguments_.upfront != 0.0) {
             results_.upfrontBPS =
                 results_.upfrontNPV * basisPoint / (*arguments_.upfront);

@@ -42,7 +42,7 @@ namespace QuantLib {
                              revised,
                              interpolated,
                              frequency,
-                             Period(2, Months),
+                             Period(1, Months),
                              AUDCurrency(),
                              ts) {}
     };
@@ -62,7 +62,7 @@ namespace QuantLib {
                             interpolated,
                             false,
                             frequency,
-                            Period(2, Months),
+                            Period(1, Months),
                             AUDCurrency(),
                             ts) {}
     };
@@ -81,7 +81,7 @@ namespace QuantLib {
                             interpolated,
                             true,
                             frequency,
-                            Period(2, Months),
+                            Period(1, Months),
                             AUDCurrency(),
                             ts) {}
     };

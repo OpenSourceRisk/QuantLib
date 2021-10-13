@@ -80,15 +80,11 @@ void ShortRateModelTest::testCachedHullWhite() {
                                          new JamshidianSwaptionEngine(model));
 
     std::vector<ext::shared_ptr<CalibrationHelper> > swaptions;
-    for (Size i=0; i<LENGTH(data); i++) {
-        ext::shared_ptr<Quote> vol(new SimpleQuote(data[i].volatility));
+    for (auto& i : data) {
+        ext::shared_ptr<Quote> vol(new SimpleQuote(i.volatility));
         ext::shared_ptr<BlackCalibrationHelper> helper(
-                             new SwaptionHelper(Period(data[i].start, Years),
-                                                Period(data[i].length, Years),
-                                                Handle<Quote>(vol),
-                                                index,
-                                                Period(1, Years), Thirty360(),
-                                                Actual360(), termStructure));
+            new SwaptionHelper(Period(i.start, Years), Period(i.length, Years), Handle<Quote>(vol),
+                               index, Period(1, Years), Thirty360(), Actual360(), termStructure));
         helper->setPricingEngine(engine);
         swaptions.push_back(helper);
     }
@@ -159,15 +155,11 @@ void ShortRateModelTest::testCachedHullWhiteFixedReversion() {
                                          new JamshidianSwaptionEngine(model));
 
     std::vector<ext::shared_ptr<CalibrationHelper> > swaptions;
-    for (Size i=0; i<LENGTH(data); i++) {
-        ext::shared_ptr<Quote> vol(new SimpleQuote(data[i].volatility));
+    for (auto& i : data) {
+        ext::shared_ptr<Quote> vol(new SimpleQuote(i.volatility));
         ext::shared_ptr<BlackCalibrationHelper> helper(
-                             new SwaptionHelper(Period(data[i].start, Years),
-                                                Period(data[i].length, Years),
-                                                Handle<Quote>(vol),
-                                                index,
-                                                Period(1, Years), Thirty360(),
-                                                Actual360(), termStructure));
+            new SwaptionHelper(Period(i.start, Years), Period(i.length, Years), Handle<Quote>(vol),
+                               index, Period(1, Years), Thirty360(), Actual360(), termStructure));
         helper->setPricingEngine(engine);
         swaptions.push_back(helper);
     }
@@ -243,15 +235,11 @@ void ShortRateModelTest::testCachedHullWhite2() {
                                          new JamshidianSwaptionEngine(model));
 
     std::vector<ext::shared_ptr<CalibrationHelper> > swaptions;
-    for (Size i=0; i<LENGTH(data); i++) {
-        ext::shared_ptr<Quote> vol(new SimpleQuote(data[i].volatility));
+    for (auto& i : data) {
+        ext::shared_ptr<Quote> vol(new SimpleQuote(i.volatility));
         ext::shared_ptr<BlackCalibrationHelper> helper(
-                             new SwaptionHelper(Period(data[i].start, Years),
-                                                Period(data[i].length, Years),
-                                                Handle<Quote>(vol),
-                                                index0,
-                                                Period(1, Years), Thirty360(),
-                                                Actual360(), termStructure));
+            new SwaptionHelper(Period(i.start, Years), Period(i.length, Years), Handle<Quote>(vol),
+                               index0, Period(1, Years), Thirty360(), Actual360(), termStructure));
         helper->setPricingEngine(engine);
         swaptions.push_back(helper);
     }
@@ -312,7 +300,7 @@ void ShortRateModelTest::testSwaps() {
 
     Date settlement = calendar.advance(today,2,Days);
 
-    Date dates[] = {
+    std::vector<Date> dates = {
         settlement,
         calendar.advance(settlement,1,Weeks),
         calendar.advance(settlement,1,Months),
@@ -326,7 +314,7 @@ void ShortRateModelTest::testSwaps() {
         calendar.advance(settlement,10,Years),
         calendar.advance(settlement,15,Years)
     };
-    DiscountFactor discounts[] = {
+    std::vector<DiscountFactor> discounts = {
         1.0,
         0.999258,
         0.996704,
@@ -343,11 +331,7 @@ void ShortRateModelTest::testSwaps() {
 
     Handle<YieldTermStructure> termStructure(
        ext::shared_ptr<YieldTermStructure>(
-           new DiscountCurve(
-               std::vector<Date>(dates,dates+LENGTH(dates)),
-               std::vector<DiscountFactor>(discounts,
-                                           discounts+LENGTH(discounts)),
-               Actual365Fixed())));
+           new DiscountCurve(dates, discounts, Actual365Fixed())));
 
     ext::shared_ptr<HullWhite> model(new HullWhite(termStructure));
 
@@ -385,10 +369,9 @@ void ShortRateModelTest::testSwaps() {
             Schedule floatSchedule(startDate, maturity, Period(Semiannual),
                                    calendar, Following, Following,
                                    DateGeneration::Forward, false);
-            for (Size k=0; k<LENGTH(rates); k++) {
+            for (double rate : rates) {
 
-                VanillaSwap swap(VanillaSwap::Payer, 1000000.0,
-                                 fixedSchedule, rates[k], Thirty360(),
+                VanillaSwap swap(VanillaSwap::Payer, 1000000.0, fixedSchedule, rate, Thirty360(),
                                  floatSchedule, euribor, 0.0, Actual360());
                 swap.setPricingEngine(ext::shared_ptr<PricingEngine>(
                                    new DiscountingSwapEngine(termStructure)));
@@ -471,7 +454,7 @@ void ShortRateModelTest::testExtendedCoxIngersollRossDiscountFactor() {
 }
 
 test_suite* ShortRateModelTest::suite(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("Short-rate model tests");
+    auto* suite = BOOST_TEST_SUITE("Short-rate model tests");
 
     suite->add(QUANTLIB_TEST_CASE(&ShortRateModelTest::testCachedHullWhite));
     suite->add(QUANTLIB_TEST_CASE(&ShortRateModelTest::testCachedHullWhiteFixedReversion));

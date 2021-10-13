@@ -36,8 +36,8 @@ namespace {
               weights_(smileAndCms->weights_),
               calibrationType_(smileAndCms->calibrationType_) {};
 
-        Real value(const Array &x) const;
-        Disposable<Array> values(const Array &x) const;
+        Real value(const Array& x) const override;
+        Disposable<Array> values(const Array& x) const override;
 
       protected:
         Real switchErrorFunctionOnCalibrationType() const;
@@ -61,7 +61,7 @@ namespace {
               fixedMeanReversion_(fixedMeanReversion) {};
 
       private:
-        virtual void updateVolatilityCubeAndCmsMarket(const Array &x) const;
+        void updateVolatilityCubeAndCmsMarket(const Array& x) const override;
         Real fixedMeanReversion_;
     };
 
@@ -71,7 +71,7 @@ namespace {
             : ObjectiveFunction(smileAndCms) {};
 
       private:
-        virtual void updateVolatilityCubeAndCmsMarket(const Array &x) const;
+        void updateVolatilityCubeAndCmsMarket(const Array& x) const override;
     };
 
     class ObjectiveFunction4 : public ObjectiveFunction {
@@ -82,7 +82,7 @@ namespace {
               fixedMeanReversion_(fixedMeanReversion) {};
 
       private:
-        virtual void updateVolatilityCubeAndCmsMarket(const Array &x) const;
+        void updateVolatilityCubeAndCmsMarket(const Array& x) const override;
         Real fixedMeanReversion_;
     };
 
@@ -94,7 +94,7 @@ namespace {
               fixedMeanReversion_(fixedMeanReversion) {};
 
       private:
-        virtual void updateVolatilityCubeAndCmsMarket(const Array &x) const;
+        void updateVolatilityCubeAndCmsMarket(const Array& x) const override;
         Real fixedMeanReversion_;
     };
 
@@ -104,7 +104,7 @@ namespace {
             : ObjectiveFunction(smileAndCms) {};
 
       private:
-        virtual void updateVolatilityCubeAndCmsMarket(const Array &x) const;
+        void updateVolatilityCubeAndCmsMarket(const Array& x) const override;
     };
 
     //===========================================================================//
@@ -130,10 +130,10 @@ namespace {
         const ext::shared_ptr<SwaptionVolCube1> volCubeBySabr =
             ext::dynamic_pointer_cast<SwaptionVolCube1>(*volCube_);
         for (Size i = 0; i < nSwapTenors; ++i)
-            volCubeBySabr->recalibration(
-                smileAndCms_->betaTransformDirect(x[i]), swapTenors[i]);
+            volCubeBySabr->recalibration(CmsMarketCalibration::betaTransformDirect(x[i]),
+                                         swapTenors[i]);
         Real meanReversion =
-            smileAndCms_->reversionTransformDirect(x[nSwapTenors]);
+            CmsMarketCalibration::reversionTransformDirect(x[nSwapTenors]);
         cmsMarket_->reprice(volCube_, meanReversion);
     }
 
@@ -177,13 +177,12 @@ namespace {
         const ext::shared_ptr<SwaptionVolCube1> volCubeBySabr =
             ext::dynamic_pointer_cast<SwaptionVolCube1>(*volCube_);
         for (Size i = 0; i < nSwapTenors; ++i)
-            volCubeBySabr->recalibration(
-                smileAndCms_->betaTransformDirect(x[i]), swapTenors[i]);
-        cmsMarket_->reprice(
-            volCube_,
-            fixedMeanReversion_ == Null<Real>()
-                ? Null<Real>()
-                : smileAndCms_->reversionTransformDirect(fixedMeanReversion_));
+            volCubeBySabr->recalibration(QuantLib::CmsMarketCalibration::betaTransformDirect(x[i]),
+                                         swapTenors[i]);
+        cmsMarket_->reprice(volCube_, fixedMeanReversion_ == Null<Real>() ?
+                                          Null<Real>() :
+                                          QuantLib::CmsMarketCalibration::reversionTransformDirect(
+                                              fixedMeanReversion_));
     }
 
     //===========================================================================//
@@ -204,12 +203,12 @@ namespace {
         for (Size i = 0; i < nSwapTenors; ++i) {
             std::vector<Real> beta(x.begin() + (i * nSwapLengths),
                                    x.begin() + ((i + 1) * nSwapLengths));
-            for (Size j = 0; j < beta.size(); ++j)
-                beta[j] = smileAndCms_->betaTransformDirect(beta[j]);
+            for (double& j : beta)
+                j = CmsMarketCalibration::betaTransformDirect(j);
             volCubeBySabr->recalibration(swapLengths, beta, swapTenors[i]);
         }
-        Real meanReversion = smileAndCms_->reversionTransformDirect(
-            x[nSwapLengths + nSwapTenors]);
+        Real meanReversion =
+            CmsMarketCalibration::reversionTransformDirect(x[nSwapLengths + nSwapTenors]);
         cmsMarket_->reprice(volCube_, meanReversion);
     }
 
@@ -231,15 +230,14 @@ namespace {
         for (Size i = 0; i < nSwapTenors; ++i) {
             std::vector<Real> beta(x.begin() + (i * nSwapLengths),
                                    x.begin() + ((i + 1) * nSwapLengths));
-            for (Size j = 0; j < beta.size(); ++j)
-                beta[j] = smileAndCms_->betaTransformDirect(beta[j]);
+            for (double& j : beta)
+                j = CmsMarketCalibration::betaTransformDirect(j);
             volCubeBySabr->recalibration(swapLengths, beta, swapTenors[i]);
         }
-        cmsMarket_->reprice(
-            volCube_,
-            fixedMeanReversion_ == Null<Real>()
-                ? Null<Real>()
-                : smileAndCms_->reversionTransformDirect(fixedMeanReversion_));
+        cmsMarket_->reprice(volCube_, fixedMeanReversion_ == Null<Real>() ?
+                                          Null<Real>() :
+                                          CmsMarketCalibration::reversionTransformDirect(
+                                              fixedMeanReversion_));
     }
 
     //=============================================================================//
@@ -257,8 +255,8 @@ namespace {
         const ext::shared_ptr<SwaptionVolCube1> volCubeBySabr =
             ext::dynamic_pointer_cast<SwaptionVolCube1>(*volCube_);
         for (Size i = 0; i < nSwapTenors; ++i) {
-            Real betaInf = smileAndCms_->betaTransformDirect(x[0 + 3 * i]);
-            Real beta0 = smileAndCms_->betaTransformDirect(x[1 + 3 * i]);
+            Real betaInf = CmsMarketCalibration::betaTransformDirect(x[0 + 3 * i]);
+            Real beta0 = CmsMarketCalibration::betaTransformDirect(x[1 + 3 * i]);
             Real decay = x[2 + 3 * i] * x[2 + 3 * i];
             std::vector<Real> beta(nSwapLengths);
             for (Size j = 0; j < beta.size(); ++j) {
@@ -268,11 +266,10 @@ namespace {
             }
             volCubeBySabr->recalibration(swapLengths, beta, swapTenors[i]);
         }
-        cmsMarket_->reprice(
-            volCube_,
-            fixedMeanReversion_ == Null<Real>()
-                ? Null<Real>()
-                : smileAndCms_->reversionTransformDirect(fixedMeanReversion_));
+        cmsMarket_->reprice(volCube_, fixedMeanReversion_ == Null<Real>() ?
+                                          Null<Real>() :
+                                          CmsMarketCalibration::reversionTransformDirect(
+                                              fixedMeanReversion_));
     }
 
     //===========================================================================//
@@ -290,8 +287,8 @@ namespace {
         const ext::shared_ptr<SwaptionVolCube1> volCubeBySabr =
             ext::dynamic_pointer_cast<SwaptionVolCube1>(*volCube_);
         for (Size i = 0; i < nSwapTenors; ++i) {
-            Real betaInf = smileAndCms_->betaTransformDirect(x[0 + 3 * i]);
-            Real beta0 = smileAndCms_->betaTransformDirect(x[1 + 3 * i]);
+            Real betaInf = CmsMarketCalibration::betaTransformDirect(x[0 + 3 * i]);
+            Real beta0 = CmsMarketCalibration::betaTransformDirect(x[1 + 3 * i]);
             Real decay = x[2 + 3 * i] * x[2 + 3 * i];
             std::vector<Real> beta(nSwapLengths);
             for (Size j = 0; j < beta.size(); ++j) {
@@ -302,7 +299,7 @@ namespace {
             volCubeBySabr->recalibration(swapLengths, beta, swapTenors[i]);
         }
         Real meanReversion =
-            smileAndCms_->reversionTransformDirect(x[3 * nSwapTenors]);
+            CmsMarketCalibration::reversionTransformDirect(x[3 * nSwapTenors]);
         cmsMarket_->reprice(volCube_, meanReversion);
     }
 }

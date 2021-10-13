@@ -62,14 +62,14 @@ namespace QuantLib {
       protected:
         ConvertibleBond(const ext::shared_ptr<Exercise>& exercise,
                         Real conversionRatio,
-                        const DividendSchedule& dividends,
+                        DividendSchedule dividends,
                         const CallabilitySchedule& callability,
                         const Handle<Quote>& creditSpread,
                         const Date& issueDate,
                         Natural settlementDays,
                         const Schedule& schedule,
                         Real redemption);
-        void performCalculations() const;
+        void performCalculations() const override;
         Real conversionRatio_;
         CallabilitySchedule callability_;
         DividendSchedule dividends_;
@@ -108,18 +108,21 @@ namespace QuantLib {
     */
     class ConvertibleFixedCouponBond : public ConvertibleBond {
       public:
-        ConvertibleFixedCouponBond(
-                const ext::shared_ptr<Exercise>& exercise,
-                Real conversionRatio,
-                const DividendSchedule& dividends,
-                const CallabilitySchedule& callability,
-                const Handle<Quote>& creditSpread,
-                const Date& issueDate,
-                Natural settlementDays,
-                const std::vector<Rate>& coupons,
-                const DayCounter& dayCounter,
-                const Schedule& schedule,
-                Real redemption = 100);
+        ConvertibleFixedCouponBond(const ext::shared_ptr<Exercise>& exercise,
+                                   Real conversionRatio,
+                                   const DividendSchedule& dividends,
+                                   const CallabilitySchedule& callability,
+                                   const Handle<Quote>& creditSpread,
+                                   const Date& issueDate,
+                                   Natural settlementDays,
+                                   const std::vector<Rate>& coupons,
+                                   const DayCounter& dayCounter,
+                                   const Schedule& schedule,
+                                   Real redemption = 100,
+                                   const Period& exCouponPeriod = Period(),
+                                   const Calendar& exCouponCalendar = Calendar(),
+                                   BusinessDayConvention exCouponConvention = Unadjusted,
+                                   bool exCouponEndOfMonth = false);
     };
 
 
@@ -131,20 +134,23 @@ namespace QuantLib {
     */
     class ConvertibleFloatingRateBond : public ConvertibleBond {
       public:
-        ConvertibleFloatingRateBond(
-                const ext::shared_ptr<Exercise>& exercise,
-                Real conversionRatio,
-                const DividendSchedule& dividends,
-                const CallabilitySchedule& callability,
-                const Handle<Quote>& creditSpread,
-                const Date& issueDate,
-                Natural settlementDays,
-                const ext::shared_ptr<IborIndex>& index,
-                Natural fixingDays,
-                const std::vector<Spread>& spreads,
-                const DayCounter& dayCounter,
-                const Schedule& schedule,
-                Real redemption = 100);
+        ConvertibleFloatingRateBond(const ext::shared_ptr<Exercise>& exercise,
+                                    Real conversionRatio,
+                                    const DividendSchedule& dividends,
+                                    const CallabilitySchedule& callability,
+                                    const Handle<Quote>& creditSpread,
+                                    const Date& issueDate,
+                                    Natural settlementDays,
+                                    const ext::shared_ptr<IborIndex>& index,
+                                    Natural fixingDays,
+                                    const std::vector<Spread>& spreads,
+                                    const DayCounter& dayCounter,
+                                    const Schedule& schedule,
+                                    Real redemption = 100,
+                                    const Period& exCouponPeriod = Period(),
+                                    const Calendar& exCouponCalendar = Calendar(),
+                                    BusinessDayConvention exCouponConvention = Unadjusted,
+                                    bool exCouponEndOfMonth = false);
     };
 
 
@@ -155,17 +161,18 @@ namespace QuantLib {
         option(const ConvertibleBond* bond,
                const ext::shared_ptr<Exercise>& exercise,
                Real conversionRatio,
-               const DividendSchedule& dividends,
-               const CallabilitySchedule& callability,
-               const Handle<Quote>& creditSpread,
-               const Leg& cashflows,
-               const DayCounter& dayCounter,
-               const Schedule& schedule,
+               DividendSchedule dividends,
+               CallabilitySchedule callability,
+               Handle<Quote> creditSpread,
+               Leg cashflows,
+               DayCounter dayCounter,
+               Schedule schedule,
                const Date& issueDate,
                Natural settlementDays,
                Real redemption);
 
-        void setupArguments(PricingEngine::arguments*) const;
+        void setupArguments(PricingEngine::arguments*) const override;
+
       private:
         const ConvertibleBond* bond_;
         Real conversionRatio_;
@@ -203,7 +210,7 @@ namespace QuantLib {
 
         Natural settlementDays;
         Real redemption;
-        void validate() const;
+        void validate() const override;
     };
 
     class ConvertibleBond::option::engine

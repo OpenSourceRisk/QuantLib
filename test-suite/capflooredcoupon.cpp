@@ -82,8 +82,7 @@ namespace capfloored_coupon_test {
         }
 
         // utilities
-        Leg makeFixedLeg(const Date& startDate,
-                         Integer length) {
+        Leg makeFixedLeg(const Date& startDate, Integer length) const {
 
             Date endDate = calendar.advance(startDate, length, Years,
                                             convention);
@@ -99,7 +98,7 @@ namespace capfloored_coupon_test {
         Leg makeFloatingLeg(const Date& startDate,
                             Integer length,
                             const Rate gearing = 1.0,
-                            const Rate spread = 0.0) {
+                            const Rate spread = 0.0) const {
 
             Date endDate = calendar.advance(startDate,length,Years,convention);
             Schedule schedule(startDate,endDate,Period(frequency),calendar,
@@ -122,7 +121,7 @@ namespace capfloored_coupon_test {
                               const std::vector<Rate>& floors,
                               Volatility volatility,
                               const Rate gearing = 1.0,
-                              const Rate spread = 0.0) {
+                              const Rate spread = 0.0) const {
 
             Date endDate = calendar.advance(startDate,length,Years,convention);
             Schedule schedule(startDate,endDate,Period(frequency),calendar,
@@ -151,7 +150,7 @@ namespace capfloored_coupon_test {
             return iborLeg;
         }
 
-        ext::shared_ptr<PricingEngine> makeEngine(Volatility volatility) {
+        ext::shared_ptr<PricingEngine> makeEngine(Volatility volatility) const {
             Handle<Quote> vol(ext::shared_ptr<Quote>(
                                                 new SimpleQuote(volatility)));
             return ext::shared_ptr<PricingEngine>(
@@ -159,10 +158,10 @@ namespace capfloored_coupon_test {
         }
 
         ext::shared_ptr<CapFloor> makeCapFloor(CapFloor::Type type,
-                                                 const Leg& leg,
-                                                 Rate capStrike,
-                                                 Rate floorStrike,
-                                                 Volatility volatility) {
+                                               const Leg& leg,
+                                               Rate capStrike,
+                                               Rate floorStrike,
+                                               Volatility volatility) const {
             ext::shared_ptr<CapFloor> result;
             switch (type) {
               case CapFloor::Cap:
@@ -224,7 +223,7 @@ void CapFlooredCouponTest::testLargeRates() {
     collarLeg.setPricingEngine(engine);
 
     if (std::abs(vanillaLeg.NPV()-collarLeg.NPV())>tolerance) {
-        BOOST_ERROR("Lenght: " << vars.length << " y" << "\n" <<
+        BOOST_ERROR("Length: " << vars.length << " y" << "\n" <<
                     "Volatility: " << vars.volatility*100 << "%\n" <<
                     "Notional: " << vars.nominal << "\n" <<
                     "Vanilla floating leg NPV: " << vanillaLeg.NPV()
@@ -254,9 +253,9 @@ void CapFlooredCouponTest::testDecomposition() {
     std::vector<Rate> floors(vars.length,floorstrike);
     std::vector<Rate> floors0 = std::vector<Rate>();
     Rate gearing_p = Rate(0.5);
-    Spread spread_p = Spread(0.002);
+    auto spread_p = Spread(0.002);
     Rate gearing_n = Rate(-1.5);
-    Spread spread_n = Spread(0.12);
+    auto spread_n = Spread(0.12);
     // fixed leg with zero rate
     Leg fixedLeg  =
         vars.makeFixedLeg(vars.startDate,vars.length);
@@ -549,7 +548,7 @@ void CapFlooredCouponTest::testDecomposition() {
 }
 
 test_suite* CapFlooredCouponTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Capped and floored coupon tests");
+    auto* suite = BOOST_TEST_SUITE("Capped and floored coupon tests");
     suite->add(QUANTLIB_TEST_CASE(&CapFlooredCouponTest::testLargeRates));
     suite->add(QUANTLIB_TEST_CASE(&CapFlooredCouponTest::testDecomposition));
     return suite;

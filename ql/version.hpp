@@ -31,16 +31,10 @@
 /*! @{ */
 
 //! version string
-#ifdef QL_DEBUG
-    #define QL_VERSION "1.18-debug"
-#else
-    #define QL_VERSION "1.18"
-#endif
+#define QL_VERSION "1.22"
 
 //! version hexadecimal number
-#define QL_HEX_VERSION 0x011800f0
-//! version string for output lib name
-#define QL_LIB_VERSION "1_18"
+#define QL_HEX_VERSION 0x012200f0
 
 //! This QuantLib has patches for ORE
 #define QL_ORE_PATCH

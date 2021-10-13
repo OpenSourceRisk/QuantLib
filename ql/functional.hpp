@@ -34,7 +34,7 @@
 #pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 #endif
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/ref.hpp>
 #if defined(__GNUC__) && (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ > 4))
 #pragma GCC diagnostic pop
@@ -46,29 +46,35 @@ namespace QuantLib {
     namespace ext {
 
         #if defined(QL_USE_STD_FUNCTION)
-        using std::function;
-        using std::bind;
-        using std::ref;
-        using std::cref;
+        using std::function;                       // NOLINT(misc-unused-using-decls)
+        using std::bind;                           // NOLINT(misc-unused-using-decls)
+        using std::ref;                            // NOLINT(misc-unused-using-decls)
+        using std::cref;                           // NOLINT(misc-unused-using-decls)
         namespace placeholders {
-            using namespace std::placeholders;
+            using namespace std::placeholders;     // NOLINT(misc-unused-using-decls)
         }
+        #define QL_NULL_FUNCTION nullptr
         #else
-        using boost::function;
-        using boost::bind;
-        using boost::ref;
-        using boost::cref;
+        using boost::function;                     // NOLINT(misc-unused-using-decls)
+        using boost::bind;                         // NOLINT(misc-unused-using-decls)
+        using boost::ref;                          // NOLINT(misc-unused-using-decls)
+        using boost::cref;                         // NOLINT(misc-unused-using-decls)
         namespace placeholders {
-            using ::_1;
-            using ::_2;
-            using ::_3;
-            using ::_4;
-            using ::_5;
-            using ::_6;
-            using ::_7;
-            using ::_8;
-            using ::_9;
+            #if BOOST_VERSION >= 106000
+            using namespace boost::placeholders;   // NOLINT(misc-unused-using-decls)
+            #else
+            using ::_1;                            // NOLINT(misc-unused-using-decls)
+            using ::_2;                            // NOLINT(misc-unused-using-decls)
+            using ::_3;                            // NOLINT(misc-unused-using-decls)
+            using ::_4;                            // NOLINT(misc-unused-using-decls)
+            using ::_5;                            // NOLINT(misc-unused-using-decls)
+            using ::_6;                            // NOLINT(misc-unused-using-decls)
+            using ::_7;                            // NOLINT(misc-unused-using-decls)
+            using ::_8;                            // NOLINT(misc-unused-using-decls)
+            using ::_9;                            // NOLINT(misc-unused-using-decls)
+            #endif
         }
+        #define QL_NULL_FUNCTION 0
         #endif
 
     }

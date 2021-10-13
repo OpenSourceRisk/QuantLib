@@ -37,27 +37,11 @@ namespace QuantLib {
      */
     class MakeYoYInflationCapFloor {
       public:
-        MakeYoYInflationCapFloor(
-                        YoYInflationCapFloor::Type capFloorType,
-                        const ext::shared_ptr<YoYInflationIndex>& index,
-                        const Size& length, const Calendar& cal,
-                        const Period& observationLag);
-        /*! \deprecated Use the other constructor.  In order to
-                        specify the strike, you'll have to call either
-                        withStrike (with an explicit strike) or
-                        withAtmStrike (to get a strike at the money on
-                        the passed nominal term structure).  In order
-                        to specify a forward start, you'll have to call
-                        withForwardStart.
-                        Deprecated in version 1.15.
-        */
-        QL_DEPRECATED
-        MakeYoYInflationCapFloor(
-                        YoYInflationCapFloor::Type capFloorType,
-                        const Size& length, const Calendar& cal,
-                        const ext::shared_ptr<YoYInflationIndex>& index,
-                        const Period& observationLag, Rate strike = Null<Rate>(),
-                        const Period& forwardStart=0*Days);
+        MakeYoYInflationCapFloor(YoYInflationCapFloor::Type capFloorType,
+                                 ext::shared_ptr<YoYInflationIndex> index,
+                                 const Size& length,
+                                 Calendar cal,
+                                 const Period& observationLag);
         MakeYoYInflationCapFloor& withNominal(Real n);
         MakeYoYInflationCapFloor& withEffectiveDate(const Date& effectiveDate);
         MakeYoYInflationCapFloor& withFirstCapletExcluded();

@@ -34,58 +34,39 @@ namespace QuantLib {
         // number of dimensions in the alternative primitive polynomials
         const unsigned int maxAltDegree = 52;
 
-        static const long AltPrimitivePolynomialDegree01[]=
-        {
-            0, /* x+1 (1)(1) */
-            -1
-        };
+        const long AltPrimitivePolynomialDegree01[] = {0, /* x+1 (1)(1) */
+                                                       -1};
 
-        static const long AltPrimitivePolynomialDegree02[]=
-        {
-            1, /* x^2+x+1 (1)1(1) */
-            -1
-        };
+        const long AltPrimitivePolynomialDegree02[] = {1, /* x^2+x+1 (1)1(1) */
+                                                       -1};
 
-        static const long AltPrimitivePolynomialDegree03[]=
-        {
-            1, /* x^3    +x+1 (1)01(1) */
-            2, /* x^3+x^2  +1 (1)10(1) */
-            -1
-        };
+        const long AltPrimitivePolynomialDegree03[] = {1, /* x^3    +x+1 (1)01(1) */
+                                                       2, /* x^3+x^2  +1 (1)10(1) */
+                                                       -1};
 
-        static const long AltPrimitivePolynomialDegree04[]=
-        {
-            1, /* x^4+       +x+1 (1)001(1) */
-            4, /* x^4+x^3+     +1 (1)100(1) */
-            -1
-        };
+        const long AltPrimitivePolynomialDegree04[] = {1, /* x^4+       +x+1 (1)001(1) */
+                                                       4, /* x^4+x^3+     +1 (1)100(1) */
+                                                       -1};
 
 
-        static const long AltPrimitivePolynomialDegree05[]=
-        {
-            2,  /* x^5        +x^2  +1 (1)0010(1) */
-            13, /* x^5+x^4+x^3    +x+1 (1)1101(1) */
-            7,  /* x^5    +x^3+x^2+x+1 (1)0111(1) */
-            14, /* x^5+x^4+x^3+x^2  +1 (1)1110(1) */
-            11, /* x^5+x^4    +x^2+x+1 (1)1011(1) */
-            4,  /* x^5    +x^3      +1 (1)0100(1) */
-            -1
-        };
+        const long AltPrimitivePolynomialDegree05[] = {2,  /* x^5        +x^2  +1 (1)0010(1) */
+                                                       13, /* x^5+x^4+x^3    +x+1 (1)1101(1) */
+                                                       7,  /* x^5    +x^3+x^2+x+1 (1)0111(1) */
+                                                       14, /* x^5+x^4+x^3+x^2  +1 (1)1110(1) */
+                                                       11, /* x^5+x^4    +x^2+x+1 (1)1011(1) */
+                                                       4,  /* x^5    +x^3      +1 (1)0100(1) */
+                                                       -1};
 
-        static const long AltPrimitivePolynomialDegree06[]=
-        {
-            1,  /* x^6                +x+1 (1)00001(1) */
-            16, /* x^6+x^5              +1 (1)10000(1) */
-            13, /* x^6    +x^4+x^3    +x+1 (1)01101(1) */
-            22, /* x^6+x^5    +x^3+x^2  +1 (1)10110(1) */
-            19, /* x^6            +x^2+x+1 (1)10011(1) */
-            25, /* x^6+x^5+x^4        +x+1 (1)11001(1) */
-            -1
-        };
+        const long AltPrimitivePolynomialDegree06[] = {1,  /* x^6                +x+1 (1)00001(1) */
+                                                       16, /* x^6+x^5              +1 (1)10000(1) */
+                                                       13, /* x^6    +x^4+x^3    +x+1 (1)01101(1) */
+                                                       22, /* x^6+x^5    +x^3+x^2  +1 (1)10110(1) */
+                                                       19, /* x^6            +x^2+x+1 (1)10011(1) */
+                                                       25, /* x^6+x^5+x^4        +x+1 (1)11001(1) */
+                                                       -1};
 
 
-        static const long AltPrimitivePolynomialDegree07[]=
-        {
+        const long AltPrimitivePolynomialDegree07[] = {
             1,  /* x^7                    +x+1 (1)000001(1) */
             32, /* x^7+x^6                  +1 (1)100000(1) */
             4,  /* x^7            +x^3      +1 (1)000100(1) */
@@ -104,30 +85,10 @@ namespace QuantLib {
             41, /* x^7+x^6    +x^4        +x+1 (1)101001(1) */
             55, /* x^7+x^6+x^5    +x^3+x^2+x+1 (1)110111(1) */
             59, /* x^7+x^6+x^5+x^4    +x^2+x+1 (1)111011(1) */
-            -1
-        };
+            -1};
 
-        static const long AltPrimitivePolynomialDegree08[]=
-        {
-            14,
-            56,
-            21,
-            22,
-            38,
-            47,
-            49,
-            50,
-            52,
-            67,
-            70,
-            84,
-            97,
-            103,
-            115,
-            122,
-            -1
-        };
-
+        const long AltPrimitivePolynomialDegree08[] = {14, 56, 21, 22, 38,  47,  49,  50, 52,
+                                                       67, 70, 84, 97, 103, 115, 122, -1};
 
 
 #define N_ALT_MAX_DEGREE 8
@@ -78748,7 +78709,7 @@ namespace QuantLib {
                         // rightmost l bits non-zero
                         directionIntegers_[k][l-1] =
                             (boost::uint_least32_t)(u*(1UL<<l));
-                    } while (!(directionIntegers_[k][l-1] & 1UL));
+                    } while ((directionIntegers_[k][l - 1] & 1UL) == 0U);
                     // iterate until the direction integer is odd
                     // that is it has the rightmost bit set
 
@@ -78779,7 +78740,7 @@ namespace QuantLib {
                 for (Size j=1; j<gk; j++) {
                     // XORed with a selection of (unshifted) direction
                     // integers controlled by which of the a[k][j] are set
-                    if ((ppmt[k] >> (gk-j-1)) & 1UL)
+                    if (((ppmt[k] >> (gk - j - 1)) & 1UL) != 0U)
                         n ^= directionIntegers_[k][l-j];
                 }
                 // a[k][gk] is always set, so directionIntegers_[k][l-gk]
@@ -78822,7 +78783,7 @@ namespace QuantLib {
         for (Size k=0; k<dimensionality_; k++) {
             integerSequence_[k] = 0;
             for (Size index=0; index<ops; index++) {
-                if (G>>index & 1)
+                if ((G >> index & 1) != 0U)
                     integerSequence_[k] ^= directionIntegers_[k][index];
             }
         }
@@ -78850,7 +78811,10 @@ namespace QuantLib {
         boost::uint_least32_t n = sequenceCounter_;
         // Find rightmost zero bit of n
         int j = 0;
-        while (n & 1) { n >>= 1; j++; }
+        while ((n & 1) != 0U) {
+            n >>= 1;
+            j++;
+        }
         for (Size k=0; k<dimensionality_; k++) {
             // XOR the appropriate direction number into each component of
             // the integer sequence to obtain a new Sobol integer for that

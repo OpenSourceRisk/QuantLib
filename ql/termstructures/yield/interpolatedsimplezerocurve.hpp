@@ -53,7 +53,7 @@ class InterpolatedSimpleZeroCurve : public YieldTermStructure, protected Interpo
                                 const DayCounter &dayCounter, const Interpolator &interpolator);
     //! \name TermStructure interface
     //@{
-    Date maxDate() const;
+    Date maxDate() const override;
     //@}
     //! \name other inspectors
     //@{
@@ -65,9 +65,7 @@ class InterpolatedSimpleZeroCurve : public YieldTermStructure, protected Interpo
     //@}
   protected:
     explicit InterpolatedSimpleZeroCurve(const DayCounter &,
-                                const std::vector<Handle<Quote> > &jumps = std::vector<Handle<Quote> >(),
-                                const std::vector<Date> &jumpDates = std::vector<Date>(),
-                                const Interpolator &interpolator = Interpolator());
+                                         const Interpolator &interpolator = Interpolator());
     InterpolatedSimpleZeroCurve(const Date &referenceDate, const DayCounter &,
                                 const std::vector<Handle<Quote> > &jumps = std::vector<Handle<Quote> >(),
                                 const std::vector<Date> &jumpDates = std::vector<Date>(),
@@ -76,9 +74,19 @@ class InterpolatedSimpleZeroCurve : public YieldTermStructure, protected Interpo
                                 const std::vector<Handle<Quote> > &jumps = std::vector<Handle<Quote> >(),
                                 const std::vector<Date> &jumpDates = std::vector<Date>(),
                                 const Interpolator &interpolator = Interpolator());
+
+    /*! \deprecated Passing jumps without a reference date never worked correctly.
+                    Use one of the other constructors instead.
+                    Deprecated in version 1.19.
+    */
+    QL_DEPRECATED
+    explicit InterpolatedSimpleZeroCurve(const DayCounter &,
+                                         const std::vector<Handle<Quote> > &jumps,
+                                         const std::vector<Date> &jumpDates = std::vector<Date>(),
+                                         const Interpolator &interpolator = Interpolator());
     //! \name YieldTermStructure implementation
     //@{
-    DiscountFactor discountImpl(Time t) const;
+    DiscountFactor discountImpl(Time t) const override;
     //@}
     mutable std::vector<Date> dates_;
 
@@ -131,10 +139,8 @@ template <class T> DiscountFactor InterpolatedSimpleZeroCurve<T>::discountImpl(T
 }
 
 template <class T>
-InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const DayCounter &dayCounter,
-                                                            const std::vector<Handle<Quote> > &jumps,
-                                                            const std::vector<Date> &jumpDates, const T &interpolator)
-    : YieldTermStructure(dayCounter, jumps, jumpDates), InterpolatedCurve<T>(interpolator) {}
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const DayCounter &dayCounter, const T &interpolator)
+    : YieldTermStructure(dayCounter), InterpolatedCurve<T>(interpolator) {}
 
 template <class T>
 InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const Date &referenceDate, const DayCounter &dayCounter,
@@ -148,6 +154,17 @@ InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(Natural settlementDa
                                                             const std::vector<Handle<Quote> > &jumps,
                                                             const std::vector<Date> &jumpDates, const T &interpolator)
     : YieldTermStructure(settlementDays, calendar, dayCounter, jumps, jumpDates), InterpolatedCurve<T>(interpolator) {}
+
+QL_DEPRECATED_DISABLE_WARNING
+
+template <class T>
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const DayCounter &dayCounter,
+                                                            const std::vector<Handle<Quote> > &jumps,
+                                                            const std::vector<Date> &jumpDates,
+                                                            const T &interpolator)
+    : YieldTermStructure(dayCounter, jumps, jumpDates), InterpolatedCurve<T>(interpolator) {}
+
+QL_DEPRECATED_ENABLE_WARNING
 
 template <class T>
 InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const std::vector<Date> &dates,

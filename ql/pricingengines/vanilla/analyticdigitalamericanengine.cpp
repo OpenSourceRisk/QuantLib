@@ -19,16 +19,17 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/pricingengines/vanilla/analyticdigitalamericanengine.hpp>
-#include <ql/pricingengines/americanpayoffathit.hpp>
-#include <ql/pricingengines/americanpayoffatexpiry.hpp>
 #include <ql/exercise.hpp>
+#include <ql/pricingengines/americanpayoffatexpiry.hpp>
+#include <ql/pricingengines/americanpayoffathit.hpp>
+#include <ql/pricingengines/vanilla/analyticdigitalamericanengine.hpp>
+#include <utility>
 
 namespace QuantLib {
 
     AnalyticDigitalAmericanEngine::AnalyticDigitalAmericanEngine(
-              const ext::shared_ptr<GeneralizedBlackScholesProcess>& process)
-    : process_(process) {
+        ext::shared_ptr<GeneralizedBlackScholesProcess> process)
+    : process_(std::move(process)) {
         registerWith(process_);
     }
 
@@ -56,6 +57,12 @@ namespace QuantLib {
         Rate riskFreeDiscount =
             process_->riskFreeRate()->discount(ex->lastDate());
 
+        results_.additionalResults["spot"] = spot;
+        results_.additionalResults["strike"] = payoff->strike();
+        results_.additionalResults["variance"] = variance;
+        results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount;
+        results_.additionalResults["dividendDiscount"] = dividendDiscount;        
+        
         if(ex->payoffAtExpiry()) {
             AmericanPayoffAtExpiry pricer(spot, riskFreeDiscount,
                                           dividendDiscount, variance, 

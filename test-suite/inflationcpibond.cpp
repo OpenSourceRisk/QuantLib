@@ -52,7 +52,7 @@ namespace inflation_cpi_bond_test {
     typedef BootstrapHelper<ZeroInflationTermStructure> Helper;
 
     std::vector<ext::shared_ptr<Helper> > makeHelpers(
-        Datum iiData[], Size N,
+        const std::vector<Datum>& iiData,
         const ext::shared_ptr<ZeroInflationIndex>& ii,
         const Period& observationLag,
         const Calendar& calendar,
@@ -61,10 +61,10 @@ namespace inflation_cpi_bond_test {
         const Handle<YieldTermStructure>& yTS) {
 
         std::vector<ext::shared_ptr<Helper> > instruments;
-        for (Size i=0; i<N; i++) {
-            Date maturity = iiData[i].date;
+        for (Datum datum : iiData) {
+            Date maturity = datum.date;
             Handle<Quote> quote(ext::shared_ptr<Quote>(
-                                new SimpleQuote(iiData[i].rate/100.0)));
+                                new SimpleQuote(datum.rate/100.0)));
             ext::shared_ptr<Helper> h(
                       new ZeroCouponInflationSwapHelper(quote, observationLag,
                                                         maturity, calendar,
@@ -131,7 +131,7 @@ namespace inflation_cpi_bond_test {
             // now build the zero inflation curve
             observationLag = Period(2,Months);
 
-            Datum zciisData[] = {
+            std::vector<Datum> zciisData = {
                 { Date(25, November, 2010), 3.0495 },
                 { Date(25, November, 2011), 2.93 },
                 { Date(26, November, 2012), 2.9795 },
@@ -152,7 +152,7 @@ namespace inflation_cpi_bond_test {
             };
 
             std::vector<ext::shared_ptr<Helper> > helpers =
-                makeHelpers(zciisData, LENGTH(zciisData), ii,
+                makeHelpers(zciisData, ii,
                             observationLag, calendar, convention, dayCounter, yTS);
 
             Rate baseZeroRate = zciisData[0].rate/100.0;
@@ -160,7 +160,7 @@ namespace inflation_cpi_bond_test {
                   new PiecewiseZeroInflationCurve<Linear>(
                          evaluationDate, calendar, dayCounter, observationLag,
                          ii->frequency(),ii->interpolated(), baseZeroRate,
-                         Handle<YieldTermStructure>(yTS), helpers)));
+                         helpers)));
         }
 
         // teardown
@@ -209,7 +209,11 @@ void InflationCPIBondTest::testCleanPrice() {
 
     ext::shared_ptr<DiscountingBondEngine> engine(
                                  new DiscountingBondEngine(common.yTS));
+    ext::shared_ptr<InflationCouponPricer> pricer =
+        ext::make_shared<CPICouponPricer>(common.yTS);
+
     bond.setPricingEngine(engine);
+    setCouponPricer(bond.cashflows(), pricer);
 
     Real storedPrice = 383.01816406;
     Real calculated = bond.cleanPrice();
@@ -224,7 +228,7 @@ void InflationCPIBondTest::testCleanPrice() {
 
 
 test_suite* InflationCPIBondTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("CPI bond tests");
+    auto* suite = BOOST_TEST_SUITE("CPI bond tests");
 
     suite->add(QUANTLIB_TEST_CASE(&InflationCPIBondTest::testCleanPrice));
 

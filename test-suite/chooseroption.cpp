@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2010 Master IMAFA - Polytech'Nice Sophia - Université de Nice Sophia Antipolis
+ Copyright (C) 2010 Master IMAFA - Polytech'Nice Sophia - UniversitÃ© de Nice Sophia Antipolis
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -157,7 +157,7 @@ void ChooserOptionTest::testAnalyticComplexChooserEngine(){
 }
 
 test_suite* ChooserOptionTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Chooser option tests");
+    auto* suite = BOOST_TEST_SUITE("Chooser option tests");
 
     suite->add(QUANTLIB_TEST_CASE(
         &ChooserOptionTest::testAnalyticSimpleChooserEngine));

@@ -52,6 +52,8 @@ namespace QuantLib {
             return out << "MondayAfterThirdFriday";
           case DateGeneration::TuesdayAfterThirdFriday:
             return out << "TuesdayAfterThirdFriday";
+          case DateGeneration::LastWednesday:
+              return out << "LastWednesday";
           default:
             QL_FAIL("unknown DateGeneration::Rule (" << Integer(r) << ")");
         }

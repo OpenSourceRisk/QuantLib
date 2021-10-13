@@ -42,15 +42,14 @@ namespace QuantLib {
       public:
         class arguments;
         class engine;
-        FloatFloatSwaption(
-            const ext::shared_ptr<FloatFloatSwap>& swap,
-            const ext::shared_ptr<Exercise>& exercise,
-            Settlement::Type delivery = Settlement::Physical,
-            Settlement::Method settlementMethod = Settlement::PhysicalOTC);
+        FloatFloatSwaption(ext::shared_ptr<FloatFloatSwap> swap,
+                           const ext::shared_ptr<Exercise>& exercise,
+                           Settlement::Type delivery = Settlement::Physical,
+                           Settlement::Method settlementMethod = Settlement::PhysicalOTC);
         //! \name Instrument interface
         //@{
-        bool isExpired() const;
-        void setupArguments(PricingEngine::arguments *) const;
+        bool isExpired() const override;
+        void setupArguments(PricingEngine::arguments*) const override;
         //@}
         //! \name Inspectors
         //@{
@@ -64,11 +63,10 @@ namespace QuantLib {
         }
         //@}
         Disposable<std::vector<ext::shared_ptr<BlackCalibrationHelper> > >
-        calibrationBasket(
-            ext::shared_ptr<SwapIndex> standardSwapBase,
-            ext::shared_ptr<SwaptionVolatilityStructure> swaptionVolatility,
-            const BasketGeneratingEngine::CalibrationBasketType basketType =
-                BasketGeneratingEngine::MaturityStrikeByDeltaGamma) const;
+        calibrationBasket(const ext::shared_ptr<SwapIndex>& standardSwapBase,
+                          const ext::shared_ptr<SwaptionVolatilityStructure>& swaptionVolatility,
+                          BasketGeneratingEngine::CalibrationBasketType basketType =
+                              BasketGeneratingEngine::MaturityStrikeByDeltaGamma) const;
 
       private:
         // arguments
@@ -81,11 +79,11 @@ namespace QuantLib {
     class FloatFloatSwaption::arguments : public FloatFloatSwap::arguments,
                                           public Option::arguments {
       public:
-        arguments() {}
+        arguments() = default;
         ext::shared_ptr<FloatFloatSwap> swap;
         Settlement::Type settlementType;
         Settlement::Method settlementMethod;
-        void validate() const;
+        void validate() const override;
     };
 
     //! base class for cms swaption engines

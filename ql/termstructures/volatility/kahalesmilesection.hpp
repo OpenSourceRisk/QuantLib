@@ -66,7 +66,7 @@ namespace QuantLib {
             cFunction(Real f, Real s, Real a, Real b)
                 : f_(f), s_(s), a_(a), b_(b), exponential_(false) {}
             cFunction(Real a, Real b) : a_(a), b_(b), exponential_(true) {}
-            Real operator()(Real k) {
+            Real operator()(Real k) const {
                 if (exponential_)
                     return std::exp(-a_ * k + b_);
                 if (s_ < QL_EPSILON)
@@ -134,28 +134,25 @@ namespace QuantLib {
             mutable Real f_, b_;
         };
 
-        KahaleSmileSection(const ext::shared_ptr<SmileSection> source,
-                           const Real atm = Null<Real>(),
-                           const bool interpolate = false,
-                           const bool exponentialExtrapolation = false,
-                           const bool deleteArbitragePoints = false,
-                           const std::vector<Real> &moneynessGrid =
-                               std::vector<Real>(),
-                           const Real gap = 1.0E-5,
-                           const int forcedLeftIndex = -1,
-                           const int forcedRightIndex = QL_MAX_INTEGER);
+        KahaleSmileSection(const ext::shared_ptr<SmileSection>& source,
+                           Real atm = Null<Real>(),
+                           bool interpolate = false,
+                           bool exponentialExtrapolation = false,
+                           bool deleteArbitragePoints = false,
+                           const std::vector<Real>& moneynessGrid = std::vector<Real>(),
+                           Real gap = 1.0E-5,
+                           int forcedLeftIndex = -1,
+                           int forcedRightIndex = QL_MAX_INTEGER);
 
-        Real minStrike() const { return -shift(); }
-        Real maxStrike() const { return QL_MAX_REAL; }
-        Real atmLevel() const { return f_; }
-        const Date& exerciseDate() const { return source_->exerciseDate(); }
-        Time exerciseTime() const { return source_->exerciseTime(); }
-        const DayCounter& dayCounter() const { return source_->dayCounter(); }
-        const Date& referenceDate() const { return source_->referenceDate(); }
-        VolatilityType volatilityType() const {
-            return source_->volatilityType();
-        }
-        Real shift() const { return source_->shift(); }
+        Real minStrike() const override { return -shift(); }
+        Real maxStrike() const override { return QL_MAX_REAL; }
+        Real atmLevel() const override { return f_; }
+        const Date& exerciseDate() const override { return source_->exerciseDate(); }
+        Time exerciseTime() const override { return source_->exerciseTime(); }
+        const DayCounter& dayCounter() const override { return source_->dayCounter(); }
+        const Date& referenceDate() const override { return source_->referenceDate(); }
+        VolatilityType volatilityType() const override { return source_->volatilityType(); }
+        Real shift() const override { return source_->shift(); }
 
         Real leftCoreStrike() const { return k_[leftIndex_]; }
         Real rightCoreStrike() const { return k_[rightIndex_]; }
@@ -164,11 +161,12 @@ namespace QuantLib {
             return std::make_pair(leftIndex_, rightIndex_);
         }
 
-        Real optionPrice(Rate strike, Option::Type type = Option::Call,
-                         Real discount = 1.0) const;
+        Real optionPrice(Rate strike,
+                         Option::Type type = Option::Call,
+                         Real discount = 1.0) const override;
 
       protected:
-        Volatility volatilityImpl(Rate strike) const;
+        Volatility volatilityImpl(Rate strike) const override;
 
       private:
         Size index(Rate strike) const;

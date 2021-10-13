@@ -19,69 +19,98 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/termstructures/yield/nonlinearfittingmethods.hpp>
-#include <ql/math/bernsteinpolynomial.hpp>
 #include <ql/auto_ptr.hpp>
+#include <ql/math/bernsteinpolynomial.hpp>
+#include <ql/termstructures/yield/nonlinearfittingmethods.hpp>
+#include <utility>
 
 namespace QuantLib {
 
-    ExponentialSplinesFitting::ExponentialSplinesFitting(bool constrainAtZero,
-                                                         const Array& weights,
-                                                         ext::shared_ptr<OptimizationMethod> optimizationMethod,
-                                                         const Array& l2,
-                                                         const Real minCutoffTime, const Real maxCutoffTime)
-        : FittedBondDiscountCurve::FittingMethod(constrainAtZero, weights, optimizationMethod, l2,
-                                                 minCutoffTime, maxCutoffTime) {}
+    ExponentialSplinesFitting::ExponentialSplinesFitting(
+        bool constrainAtZero,
+        const Array& weights,
+        const ext::shared_ptr<OptimizationMethod>& optimizationMethod,
+        const Array& l2,
+        const Real minCutoffTime,
+        const Real maxCutoffTime,
+        const Size numCoeffs,
+        const Real fixedKappa)
+    : FittedBondDiscountCurve::FittingMethod(
+          constrainAtZero, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime),
+          numCoeffs_(numCoeffs), fixedKappa_(fixedKappa) 
+    {
+        QL_REQUIRE(size() > 0, "At least 1 unconstrained coefficient required");
+    }
 
     ExponentialSplinesFitting::ExponentialSplinesFitting(bool constrainAtZero,
         const Array& weights,
-        const Array& l2, const Real minCutoffTime, const Real maxCutoffTime)
+        const Array& l2, const Real minCutoffTime, const Real maxCutoffTime,
+        const Size numCoeffs, const Real fixedKappa)
         : FittedBondDiscountCurve::FittingMethod(constrainAtZero, weights, ext::shared_ptr<OptimizationMethod>(), l2,
-                                                 minCutoffTime, maxCutoffTime) {}
+                                                 minCutoffTime, maxCutoffTime),
+          numCoeffs_(numCoeffs),fixedKappa_(fixedKappa) 
+    {
+        QL_REQUIRE(size() > 0, "At least 1 unconstrained coefficient required");
+    }
+
+    ExponentialSplinesFitting::ExponentialSplinesFitting(bool constrainAtZero,
+                              const Size numCoeffs,
+                              const Real fixedKappa,
+                              const Array& weights )
+    : FittedBondDiscountCurve::FittingMethod(constrainAtZero, weights, ext::shared_ptr<OptimizationMethod>(), Array(),0.0,QL_MAX_REAL),
+          numCoeffs_(numCoeffs), fixedKappa_(fixedKappa)
+    {
+        QL_REQUIRE(size() > 0, "At least 1 unconstrained coefficient required");
+    }
 
     QL_UNIQUE_OR_AUTO_PTR<FittedBondDiscountCurve::FittingMethod>
     ExponentialSplinesFitting::clone() const {
         return QL_UNIQUE_OR_AUTO_PTR<FittedBondDiscountCurve::FittingMethod>(
-                                        new ExponentialSplinesFitting(*this));
+                                        new ExponentialSplinesFitting(*this)); 
     }
 
     Size ExponentialSplinesFitting::size() const {
-        return constrainAtZero_ ? 9 : 10;
+        Size N = constrainAtZero_ ? numCoeffs_ : numCoeffs_ + 1;
+        
+        return (fixedKappa_ != Null<Real>()) ? N-1 : N; //One fewer optimization parameters if kappa is fixed
     }
 
     DiscountFactor ExponentialSplinesFitting::discountFunction(const Array& x,
                                                                Time t) const {
         DiscountFactor d = 0.0;
         Size N = size();
-        Real kappa = x[N-1];
+        //Use the interal fixedKappa_ member if non-zero, otherwise take kappa from the passed x[] array
+        Real kappa = (fixedKappa_ != Null<Real>()) ? fixedKappa_: x[N-1];
         Real coeff = 0;
 
         if (!constrainAtZero_) {
-            for (Size i=0; i<N-1; ++i) {
-                d += x[i]* std::exp(-kappa * (i+1) * t);
+            for (Size i = 0; i < N - 1; ++i) {
+                d += x[i] * std::exp(-kappa * (i + 1) * t);
             }
         } else {
             //  notation:
             //  d(t) = coeff* exp(-kappa*1*t) + x[0]* exp(-kappa*2*t) +
             //  x[1]* exp(-kappa*3*t) + ..+ x[7]* exp(-kappa*9*t)
-            for (Size i=0; i<N-1; i++) {
-                d += x[i]* std::exp(-kappa * (i+2) * t);
+            for (Size i = 0; i < N - 1; i++) {
+                d += x[i] * std::exp(-kappa * (i + 2) * t);
                 coeff += x[i];
             }
-            coeff = 1.0- coeff;
+            coeff = 1.0 - coeff;
             d += coeff * std::exp(-kappa * t);
         }
+
         return d;
     }
 
 
-
-    NelsonSiegelFitting::NelsonSiegelFitting(const Array& weights,
-                                             ext::shared_ptr<OptimizationMethod> optimizationMethod,
-                                             const Array& l2,
-                                             const Real minCutoffTime, const Real maxCutoffTime)
-    : FittedBondDiscountCurve::FittingMethod(true, weights, optimizationMethod, l2,
-                                             minCutoffTime, maxCutoffTime) {}
+    NelsonSiegelFitting::NelsonSiegelFitting(
+        const Array& weights,
+        const ext::shared_ptr<OptimizationMethod>& optimizationMethod,
+        const Array& l2,
+        const Real minCutoffTime,
+        const Real maxCutoffTime)
+    : FittedBondDiscountCurve::FittingMethod(
+          true, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime) {}
 
     NelsonSiegelFitting::NelsonSiegelFitting(const Array& weights,
                                              const Array& l2,
@@ -112,10 +141,12 @@ namespace QuantLib {
 
 
     SvenssonFitting::SvenssonFitting(const Array& weights,
-                                     ext::shared_ptr<OptimizationMethod> optimizationMethod,
+                                     const ext::shared_ptr<OptimizationMethod>& optimizationMethod,
                                      const Array& l2,
-                                     const Real minCutoffTime, const Real maxCutoffTime)
-    : FittedBondDiscountCurve::FittingMethod(true, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime) {}
+                                     const Real minCutoffTime,
+                                     const Real maxCutoffTime)
+    : FittedBondDiscountCurve::FittingMethod(
+          true, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime) {}
 
     SvenssonFitting::SvenssonFitting(const Array& weights,
         const Array& l2, const Real minCutoffTime, const Real maxCutoffTime)
@@ -147,15 +178,17 @@ namespace QuantLib {
     }
 
 
-
-    CubicBSplinesFitting::CubicBSplinesFitting(const std::vector<Time>& knots,
-                                               bool constrainAtZero,
-                                               const Array& weights,
-                                               ext::shared_ptr<OptimizationMethod> optimizationMethod,
-                                               const Array& l2,
-                                               const Real minCutoffTime, const Real maxCutoffTime)
-    : FittedBondDiscountCurve::FittingMethod(constrainAtZero, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime),
-      splines_(3, knots.size()-5, knots) {
+    CubicBSplinesFitting::CubicBSplinesFitting(
+        const std::vector<Time>& knots,
+        bool constrainAtZero,
+        const Array& weights,
+        const ext::shared_ptr<OptimizationMethod>& optimizationMethod,
+        const Array& l2,
+        const Real minCutoffTime,
+        const Real maxCutoffTime)
+    : FittedBondDiscountCurve::FittingMethod(
+          constrainAtZero, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime),
+      splines_(3, knots.size() - 5, knots) {
 
         QL_REQUIRE(knots.size() >= 8,
                    "At least 8 knots are required" );
@@ -248,14 +281,17 @@ namespace QuantLib {
     }
 
 
-    SimplePolynomialFitting::SimplePolynomialFitting(Natural degree,
-                                                     bool constrainAtZero,
-                                                     const Array& weights,
-                                                     ext::shared_ptr<OptimizationMethod> optimizationMethod,
-                                                     const Array& l2,
-                                                     const Real minCutoffTime, const Real maxCutoffTime)
-    : FittedBondDiscountCurve::FittingMethod(constrainAtZero, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime),
-      size_(constrainAtZero ? degree : degree+1) {}
+    SimplePolynomialFitting::SimplePolynomialFitting(
+        Natural degree,
+        bool constrainAtZero,
+        const Array& weights,
+        const ext::shared_ptr<OptimizationMethod>& optimizationMethod,
+        const Array& l2,
+        const Real minCutoffTime,
+        const Real maxCutoffTime)
+    : FittedBondDiscountCurve::FittingMethod(
+          constrainAtZero, weights, optimizationMethod, l2, minCutoffTime, maxCutoffTime),
+      size_(constrainAtZero ? degree : degree + 1) {}
 
     SimplePolynomialFitting::SimplePolynomialFitting(Natural degree, bool constrainAtZero,
                                                      const Array& weights, const Array& l2,
@@ -288,14 +324,19 @@ namespace QuantLib {
         }
         return d;
     }
-    
-    SpreadFittingMethod::SpreadFittingMethod(ext::shared_ptr<FittingMethod> method,
-                        Handle<YieldTermStructure> discountCurve,
-                        const Real minCutoffTime, const Real maxCutoffTime)
-    : FittedBondDiscountCurve::FittingMethod(method ? method->constrainAtZero() : true, method ? method->weights() : Array(),
-                                             method ? method->optimizationMethod() : ext::shared_ptr<OptimizationMethod>(), 
-                                             method ? method->l2() : Array(), minCutoffTime, maxCutoffTime),
-      method_(method), discountingCurve_(discountCurve) {
+
+    SpreadFittingMethod::SpreadFittingMethod(const ext::shared_ptr<FittingMethod>& method,
+                                             Handle<YieldTermStructure> discountCurve,
+                                             const Real minCutoffTime,
+                                             const Real maxCutoffTime)
+    : FittedBondDiscountCurve::FittingMethod(
+          method != nullptr ? method->constrainAtZero() : true,
+          method != nullptr ? method->weights() : Array(),
+          method != nullptr ? method->optimizationMethod() : ext::shared_ptr<OptimizationMethod>(),
+          method != nullptr ? method->l2() : Array(),
+          minCutoffTime,
+          maxCutoffTime),
+      method_(method), discountingCurve_(std::move(discountCurve)) {
         QL_REQUIRE(method, "Fitting method is empty");
         QL_REQUIRE(!discountingCurve_.empty(), "Discounting curve cannot be empty");
     }
