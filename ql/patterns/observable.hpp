@@ -48,6 +48,7 @@ namespace QuantLib {
     class ObservableSettings : public Singleton<ObservableSettings> {
         friend class Singleton<ObservableSettings>;
         friend class Observable;
+        friend class Observer;
       public:
         void disableUpdates(bool deferred=false) {
             updatesEnabled_  = false;
@@ -55,23 +56,29 @@ namespace QuantLib {
         }
         void enableUpdates();
 
+        void enableRecordingAllObservers(bool record = true) { recordAllObservers_ = record; }
+        void clearAllObservers() { allObservers_.clear(); }
+        const boost::unordered_set<Observer*>& allObservers() const { return allObservers_; }
+
         bool updatesEnabled() const { return updatesEnabled_; }
         bool updatesDeferred() const { return updatesDeferred_; }
+        bool recordAllObservers() const { return recordAllObservers_; }
 
       private:
-        ObservableSettings()
-
-            = default;
+        ObservableSettings() = default;
 
         void registerDeferredObservers(
             const boost::unordered_set<Observer*>& observers);
         void unregisterDeferredObserver(Observer*);
+        void addToAllObservers(Observer*);
+        void removeFromAllObservers(Observer*);
 
         typedef boost::unordered_set<Observer*> set_type;
         typedef set_type::iterator iterator;
         set_type deferredObservers_;
+        set_type allObservers_;
 
-        bool updatesEnabled_ = true, updatesDeferred_ = false;
+        bool updatesEnabled_ = true, updatesDeferred_ = false, recordAllObservers_ = false;
     };
 
     //! Object that notifies its changes to a set of observers
@@ -88,6 +95,8 @@ namespace QuantLib {
             or when the programmer desires to notify any changes.
         */
         void notifyObservers();
+        const boost::unordered_set<Observer*>& observers() const { return observers_; }
+
       private:
         typedef boost::unordered_set<Observer*>::iterator iterator;
         std::pair<iterator, bool> registerObserver(Observer*);
@@ -104,7 +113,7 @@ namespace QuantLib {
         typedef set_type::iterator iterator;
 
         // constructors, assignment, destructor
-        Observer() = default;
+        Observer() : settings_(ObservableSettings::instance()) {};
         Observer(const Observer&);
         Observer& operator=(const Observer&);
         virtual ~Observer();
@@ -137,8 +146,11 @@ namespace QuantLib {
           should be implemented in derived classes whenever applicable */
         virtual void deepUpdate();
 
+        const set_type& observables() const { return observables_; }
+
       private:
         set_type observables_;
+        ObservableSettings& settings_;
     };
 
 
@@ -155,8 +167,15 @@ namespace QuantLib {
         deferredObservers_.erase(o);
     }
 
-    inline Observable::Observable(const Observable&)
-    : settings_(ObservableSettings::instance()) {
+    inline void ObservableSettings::addToAllObservers(Observer* o) {
+        allObservers_.insert(o);
+    }
+
+    inline void ObservableSettings::removeFromAllObservers(Observer* o) {
+        allObservers_.erase(o);
+    }
+
+    inline Observable::Observable(const Observable&) : settings_(ObservableSettings::instance()) {
         // the observer set is not copied; no observer asked to
         // register with this object
     }
@@ -191,7 +210,7 @@ namespace QuantLib {
 
 
     inline Observer::Observer(const Observer& o)
-    : observables_(o.observables_) {
+    : observables_(o.observables_), settings_(ObservableSettings::instance()) {
         for (const auto& observable : observables_)
             observable->registerObserver(this);
     }
@@ -209,11 +228,15 @@ namespace QuantLib {
     inline Observer::~Observer() {
         for (const auto& observable : observables_)
             observable->unregisterObserver(this);
+        if(settings_.recordAllObservers())
+            settings_.removeFromAllObservers(this);
     }
 
     inline std::pair<Observer::iterator, bool>
     Observer::registerWith(const ext::shared_ptr<Observable>& h) {
         if (h != nullptr) {
+            if (settings_.recordAllObservers())
+                settings_.addToAllObservers(this);
             h->registerObserver(this);
             return observables_.insert(h);
         }

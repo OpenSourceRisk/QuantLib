@@ -1,6 +1,7 @@
 # cpp files, this list is maintained manually
 
 set(QuantLib_SRC
+    observablegraph.cpp
     cashflow.cpp
     cashflows/averagebmacoupon.cpp
     cashflows/capflooredcoupon.cpp
