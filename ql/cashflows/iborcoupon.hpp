@@ -89,8 +89,8 @@ namespace QuantLib {
         static bool usingAtParCoupons() { return usingAtParCoupons_; }
 
       private:
-        static bool constructorWasNotCalled_;
-        static bool usingAtParCoupons_;
+        thread_local static bool constructorWasNotCalled_;
+        thread_local static bool usingAtParCoupons_;
     };
 
 

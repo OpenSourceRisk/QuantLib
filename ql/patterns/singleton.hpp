@@ -1,6 +1,11 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
+ Copyright (C) 2021 Quaternion Risk Management Ltd
+ All rights reserved.
+*/
+
+/*
  Copyright (C) 2004, 2005, 2007 StatPro Italia srl
 
  This file is part of QuantLib, a free-software/open-source library
@@ -19,12 +24,16 @@
 
 /*! \file singleton.hpp
     \brief basic support for the singleton pattern
+           QRM: add thread safe singleton init for QL_ENABLE_SEESION
+                add option to have a unique singleton instance for all sessions
 */
 
 #ifndef quantlib_singleton_hpp
 #define quantlib_singleton_hpp
 
 #include <ql/qldefines.hpp>
+
+#include <type_traits>
 
 #ifdef QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
     #if defined(QL_ENABLE_SESSIONS)
@@ -39,7 +48,6 @@
         #endif
     #else
         #include <boost/atomic.hpp>
-        #include <boost/thread/mutex.hpp>
         #if !defined(BOOST_ATOMIC_ADDRESS_LOCK_FREE)
             #ifdef BOOST_MSVC
                 #pragma message(\
@@ -53,6 +61,15 @@
         #endif
         #define QL_SINGLETON_THREAD_SAFE_INIT
     #endif
+#endif
+
+#if defined(QL_SINGLETON_THREAD_SAFE_INIT)
+#include <boost/thread/mutex.hpp>
+#endif
+
+#if defined(QL_ENABLE_SESSIONS)
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #endif
 
 #include <ql/types.hpp>
@@ -79,24 +96,11 @@
 
 namespace QuantLib {
 
-    // This allows to define a different type if needed, while keeping
-    // backwards compatibility with the current implementation.
-    // For instance, one might create a file threadkey.hpp with:
-    //
-    // #include <pthread.h>
-    // #define QL_THREAD_KEY pthread_t
-    //
-    // and then compile QuantLib with the option -DQL_INCLUDE_FIRST=threadkey.hpp
-    // to have that file included by qldefines.hpp and thus this one.
-    #if defined(QL_THREAD_KEY)
-    typedef QL_THREAD_KEY ThreadKey;
-    #else
     typedef Integer ThreadKey;
-    #endif
 
     #if defined(QL_ENABLE_SESSIONS)
     // definition must be provided by the user
-    ThreadKey sessionId();
+    Integer sessionId();
     #endif
 
     // this is required on VC++ when CLR support is enabled
@@ -120,54 +124,65 @@ namespace QuantLib {
         as a single implemementation point should synchronization
         features be added.
 
+        If B is true, the singleton instance will be unique for all sessions.
+
         \ingroup patterns
     */
-    template <class T>
-    class Singleton : private boost::noncopyable {
-    #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-      private:
-        static std::map<ThreadKey, ext::shared_ptr<T> > instances_;
-    #endif
 
-    #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
+    template <class T, class B = std::integral_constant<bool, false> >
+    class Singleton : private boost::noncopyable {
       private:
+    #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
+        static std::map<Integer, ext::shared_ptr<T> >& instances() {
+            static std::map<Integer, ext::shared_ptr<T> > instances_;
+            return instances_;
+        }
+    #else
         static boost::atomic<T*> instance_;
         static boost::mutex mutex_;
+    #endif
+    #if defined(QL_ENABLE_SESSIONS)
+        static boost::shared_mutex mutex_;
     #endif
 
       public:
         //! access to the unique instance
         static T& instance();
+        //! clear stored instances
+        static void clearInstances() {
+    #if !defined(QL_SINGLETON_THREAD_SAFE_INIT)
+            instances() = std::map<Integer, ext::shared_ptr<T> >();
+    #else
+            instance_.store(nullptr, boost::memory_order_release);
+    #endif
+        }
       protected:
-        Singleton() = default;
+      Singleton() {}
     };
 
     // static member definitions
-    
-    #if (QL_MANAGED == 1) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-    template <class T>
-    std::map<ThreadKey, ext::shared_ptr<T> > Singleton<T>::instances_;
+
+    #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
+    template <class T, class B> boost::atomic<T*> Singleton<T, B>::instance_;
+    #endif
+    #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
+    template <class T, class B> boost::mutex Singleton<T, B>::mutex_;
+    #endif
+    #if defined(QL_ENABLE_SESSIONS)
+    template <class T, class B>
+    boost::shared_mutex Singleton<T, B>::mutex_;
     #endif
 
-    #if defined(QL_SINGLETON_THREAD_SAFE_INIT) 
-    template <class T>  boost::atomic<T*> Singleton<T>::instance_;
-    template <class T> boost::mutex Singleton<T>::mutex_;
-    #endif
-    
     // template definitions
 
-    template <class T>
-    T& Singleton<T>::instance() {
-
-        #if (QL_MANAGED == 0) && !defined(QL_SINGLETON_THREAD_SAFE_INIT)
-        static std::map<ThreadKey, ext::shared_ptr<T> > instances_;
-        #endif
+    template <class T, class B>
+    T& Singleton<T, B>::instance() {
 
         // thread safe double checked locking pattern with atomic memory calls
-        #if defined(QL_SINGLETON_THREAD_SAFE_INIT) 
+        #if defined(QL_SINGLETON_THREAD_SAFE_INIT)
 
         T* instance =  instance_.load(boost::memory_order_consume);
-        
+
         if (!instance) {
             boost::mutex::scoped_lock guard(mutex_);
             instance = instance_.load(boost::memory_order_consume);
@@ -177,21 +192,35 @@ namespace QuantLib {
             }
         }
 
-        #else //this is not thread safe
+        #else
 
         #if defined(QL_ENABLE_SESSIONS)
-        ThreadKey id = sessionId();
+        // thread safe
+        Integer id = B() ? 0 : sessionId();
+        const std::map<Integer, ext::shared_ptr<T> >& i = instances();
+        {
+            boost::shared_lock<boost::shared_mutex> shared_lock(mutex_);
+            typename std::map<Integer, ext::shared_ptr<T> >::const_iterator instance = i.find(id);
+            if(instance != i.end())
+                return *instance->second;
+        }
+        {
+            boost::unique_lock<boost::shared_mutex> uniqueLock(mutex_);
+            typename std::map<Integer, ext::shared_ptr<T> >::const_iterator instance = i.find(id);
+            if(instance != i.end())
+                return *instance->second;
+            ext::shared_ptr<T> tmp(new T);
+            instances()[id] = tmp;
+            return *tmp;
+        }
         #else
-        ThreadKey id {};
-        #endif
-
-        ext::shared_ptr<T>& instance = instances_[id];
+        ext::shared_ptr<T>& instance = instances()[0];
         if (!instance)
             instance = ext::shared_ptr<T>(new T);
-
+        return *instance;
         #endif
 
-        return *instance;
+        #endif
     }
 
     // reverts the change above
