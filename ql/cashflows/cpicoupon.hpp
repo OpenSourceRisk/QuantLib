@@ -160,6 +160,9 @@ namespace QuantLib {
         //! redefined to use baseFixing() and interpolation
         Real amount() const override;
 
+        //! interpolation of the index fixing
+        virtual Real indexFixing() const override;
+
       protected:
         Real baseFixing_;
         CPI::InterpolationType interpolation_;
