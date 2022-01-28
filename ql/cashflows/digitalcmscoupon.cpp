@@ -67,6 +67,11 @@ namespace QuantLib {
         return *this;
     }
 
+    DigitalCmsLeg& DigitalCmsLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+    }
+
     DigitalCmsLeg& DigitalCmsLeg::withPaymentDayCounter(
                                                const DayCounter& dayCounter) {
         paymentDayCounter_ = dayCounter;
@@ -201,7 +206,7 @@ namespace QuantLib {
                             callATM_, callPayoffs_,
                             putStrikes_, longPutOption_,
                             putATM_, putPayoffs_,
-                            replication_, nakedOption_);
+                            replication_, nakedOption_, paymentCalendar_);
     }
 
 }

@@ -62,6 +62,7 @@ namespace QuantLib {
         DigitalCmsLeg(Schedule schedule, ext::shared_ptr<SwapIndex> index);
         DigitalCmsLeg& withNotionals(Real notional);
         DigitalCmsLeg& withNotionals(const std::vector<Real>& notionals);
+        DigitalCmsLeg& withPaymentCalendar(const Calendar& cal);
         DigitalCmsLeg& withPaymentDayCounter(const DayCounter&);
         DigitalCmsLeg& withPaymentAdjustment(BusinessDayConvention);
         DigitalCmsLeg& withFixingDays(Natural fixingDays);
@@ -93,6 +94,7 @@ namespace QuantLib {
         Schedule schedule_;
         ext::shared_ptr<SwapIndex> index_;
         std::vector<Real> notionals_;
+        Calendar paymentCalendar_;
         DayCounter paymentDayCounter_;
         BusinessDayConvention paymentAdjustment_;
         std::vector<Natural> fixingDays_;
