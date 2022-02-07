@@ -113,7 +113,7 @@ namespace overnight_indexed_swap_test {
     struct CommonVars {
         // global data
         Date today, settlement;
-        OvernightIndexedSwap::Type type;
+        Swap::Type type;
         Real nominal;
         Calendar calendar;
         Natural settlementDays;
@@ -153,7 +153,7 @@ namespace overnight_indexed_swap_test {
         }
 
         CommonVars() {
-            type = OvernightIndexedSwap::Payer;
+            type = Swap::Payer;
             settlementDays = 2;
             nominal = 100.0;
             fixedEoniaConvention = ModifiedFollowing;
@@ -164,7 +164,7 @@ namespace overnight_indexed_swap_test {
             eoniaIndex = ext::make_shared<Eonia>(eoniaTermStructure);
             fixedSwapConvention = ModifiedFollowing;
             fixedSwapFrequency = Annual;
-            fixedSwapDayCount = Thirty360();
+            fixedSwapDayCount = Thirty360(Thirty360::BondBasis);
             swapIndex = ext::shared_ptr<IborIndex>(new Euribor3M(swapTermStructure));
             calendar = eoniaIndex->fixingCalendar();
             today = Date(5, February, 2009);
@@ -500,8 +500,8 @@ void OvernightIndexedSwapTest::testBootstrapRegression() {
                                   Pillar::MaturityDate)));
     }
 
-    PiecewiseYieldCurve<Discount,LogCubic> curve(0, UnitedStates(), helpers, Actual365Fixed(),
-                                                 MonotonicLogCubic());
+    PiecewiseYieldCurve<Discount,LogCubic> curve(0, UnitedStates(UnitedStates::GovernmentBond),
+                                                 helpers, Actual365Fixed(), MonotonicLogCubic());
 
     BOOST_CHECK_NO_THROW(curve.discount(1.0));
 }

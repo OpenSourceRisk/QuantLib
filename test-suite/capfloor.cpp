@@ -391,7 +391,7 @@ void CapFloorTest::testParity() {
                 Date maturity = vars.calendar.advance(startDate, length, Years, vars.convention);
                 Schedule schedule(startDate, maturity, Period(vars.frequency), vars.calendar,
                                   vars.convention, vars.convention, DateGeneration::Forward, false);
-                VanillaSwap swap(VanillaSwap::Payer, vars.nominals[0], schedule, strike,
+                VanillaSwap swap(Swap::Payer, vars.nominals[0], schedule, strike,
                                  vars.index->dayCounter(), schedule, vars.index, 0.0,
                                  vars.index->dayCounter());
                 swap.setPricingEngine(
@@ -449,7 +449,7 @@ void CapFloorTest::testATMRate() {
                                << "   floor ATM rate:" << floorATMRate << "\n"
                                << "   relative Error:"
                                << relativeError(capATMRate, floorATMRate, capATMRate) * 100 << "%");
-                VanillaSwap swap(VanillaSwap::Payer, vars.nominals[0],
+                VanillaSwap swap(Swap::Payer, vars.nominals[0],
                                  schedule, floorATMRate,
                                  vars.index->dayCounter(),
                                  schedule, vars.index, 0.0,
@@ -575,7 +575,7 @@ void CapFloorTest::testCachedValue() {
                                                             0.03,0.20);
 
     Real cachedCapNPV, cachedFloorNPV ;
-    if (!IborCoupon::usingAtParCoupons()) {
+    if (!IborCoupon::Settings::instance().usingAtParCoupons()) {
         // index fixing price
         cachedCapNPV   = 6.87630307745,
         cachedFloorNPV = 2.65796764715;
@@ -626,7 +626,7 @@ void CapFloorTest::testCachedValueFromOptionLets() {
          calculatedFloorletsNPV = 0.0;
 
     Real cachedCapNPV, cachedFloorNPV;
-    if (IborCoupon::usingAtParCoupons()) {
+    if (IborCoupon::Settings::instance().usingAtParCoupons()) {
         cachedCapNPV = 6.87570026732;
         cachedFloorNPV = 2.65812927959;
     } else {

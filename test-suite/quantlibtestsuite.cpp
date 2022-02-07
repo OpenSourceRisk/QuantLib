@@ -32,15 +32,13 @@
 /* Use BOOST_MSVC instead of _MSC_VER since some other vendors (Metrowerks,
    for example) also #define _MSC_VER
 */
-#ifdef BOOST_MSVC
+#if !defined(BOOST_ALL_NO_LIB) && defined(BOOST_MSVC)
 #  include <ql/auto_link.hpp>
-
-#ifndef QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER
-#  define BOOST_LIB_NAME boost_unit_test_framework
-#  include <boost/config/auto_link.hpp>
-#  undef BOOST_LIB_NAME
-#endif
-
+#  ifndef QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER
+#      define BOOST_LIB_NAME boost_unit_test_framework
+#      include <boost/config/auto_link.hpp>
+#      undef BOOST_LIB_NAME
+#  endif
 #endif
 
 #include "utilities.hpp"
@@ -55,6 +53,7 @@
 #include "autocovariances.hpp"
 #include "barrieroption.hpp"
 #include "basismodels.hpp"
+#include "basisswapratehelpers.hpp"
 #include "basketoption.hpp"
 #include "batesmodel.hpp"
 #include "bermudanswaption.hpp"
@@ -84,6 +83,7 @@
 #include "creditdefaultswap.hpp"
 #include "creditriskplus.hpp"
 #include "crosscurrencyratehelpers.hpp"
+#include "currency.hpp"
 #include "curvestates.hpp"
 #include "dates.hpp"
 #include "daycounters.hpp"
@@ -125,6 +125,7 @@
 #include "inflationcpicapfloor.hpp"
 #include "inflationcpiswap.hpp"
 #include "inflationvolatility.hpp"
+#include "inflationzciisinterpolation.hpp"
 #include "instruments.hpp"
 #include "integrals.hpp"
 #include "interestrates.hpp"
@@ -158,6 +159,7 @@
 #include "operators.hpp"
 #include "optimizers.hpp"
 #include "optionletstripper.hpp"
+#include "overnightindexedcoupon.hpp"
 #include "overnightindexedswap.hpp"
 #include "pagodaoption.hpp"
 #include "partialtimebarrieroption.hpp"
@@ -203,6 +205,7 @@
 #include "volatilitymodels.hpp"
 #include "vpp.hpp"
 #include "zabr.hpp"
+#include "zerocouponswap.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -319,11 +322,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     std::ostringstream header;
     header <<
         " Testing "
-        #ifdef BOOST_MSVC
-        QL_LIB_NAME
-        #else
         "QuantLib " QL_VERSION
-        #endif
         "\n  QL_EXTRA_SAFETY_CHECKS "
         #ifdef QL_EXTRA_SAFETY_CHECKS
         "  defined"
@@ -383,10 +382,12 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(CashFlowsTest::suite());
     test->add(CliquetOptionTest::suite());
     test->add(CmsTest::suite());
+    test->add(ConvertibleBondTest::suite());
     test->add(CovarianceTest::suite());
     test->add(CPISwapTest::suite());
     test->add(CreditDefaultSwapTest::suite());
     test->add(CrossCurrencyRateHelpersTest::suite());
+    test->add(CurrencyTest::suite());
     test->add(CurveStatesTest::suite());
     test->add(DateTest::suite(speed));
     test->add(DayCounterTest::suite());
@@ -418,6 +419,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(InflationCapFloorTest::suite());
     test->add(InflationCapFlooredCouponTest::suite());
     test->add(InflationCPIBondTest::suite());
+    test->add(InflationZCIISInterpolationTest::suite());
     test->add(InstrumentTest::suite());
     test->add(IntegralTest::suite());
     test->add(InterestRateTest::suite());
@@ -439,12 +441,13 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(MersenneTwisterTest::suite());
     test->add(MoneyTest::suite());
     test->add(NumericalDifferentiationTest::suite());
-    test->add(NthOrderDerivativeOpTest::suite());
+    test->add(NthOrderDerivativeOpTest::suite(speed));
     test->add(ObservableTest::suite());
     test->add(OdeTest::suite());
     test->add(OperatorTest::suite());
     test->add(OptimizersTest::suite(speed));
     test->add(OptionletStripperTest::suite());
+    test->add(OvernightIndexedCouponTest::suite());
     test->add(OvernightIndexedSwapTest::suite());
     test->add(PathGeneratorTest::suite());
     test->add(PeriodTest::suite());
@@ -478,11 +481,13 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(UltimateForwardTermStructureTest::suite());
     test->add(VarianceSwapTest::suite());
     test->add(VolatilityModelsTest::suite());
+    test->add(ZeroCouponSwapTest::suite());
 
     // tests for experimental classes
     test->add(AmortizingBondTest::suite());
     test->add(AsianOptionTest::experimental(speed));
     test->add(BasismodelsTest::suite());
+    test->add(BasisSwapRateHelpersTest::suite());
     test->add(BarrierOptionTest::experimental());
     test->add(DoubleBarrierOptionTest::experimental(speed));
     test->add(BlackDeltaCalculatorTest::suite());
@@ -495,7 +500,6 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(CommodityUnitOfMeasureTest::suite());
     test->add(CompiledBoostVersionTest::suite());
     test->add(CompoundOptionTest::suite());
-    test->add(ConvertibleBondTest::suite());
     test->add(CreditRiskPlusTest::suite());
     test->add(DoubleBarrierOptionTest::suite(speed));
     test->add(DoubleBinaryOptionTest::suite());

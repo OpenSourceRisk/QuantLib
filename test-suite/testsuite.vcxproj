@@ -645,6 +645,7 @@
     <ClCompile Include="autocovariances.cpp" />
     <ClCompile Include="barrieroption.cpp" />
     <ClCompile Include="basismodels.cpp" />
+    <ClCompile Include="basisswapratehelpers.cpp" />
     <ClCompile Include="basketoption.cpp" />
     <ClCompile Include="batesmodel.cpp" />
     <ClCompile Include="bermudanswaption.cpp" />
@@ -673,6 +674,8 @@
     <ClCompile Include="covariance.cpp" />
     <ClCompile Include="creditdefaultswap.cpp" />
     <ClCompile Include="creditriskplus.cpp" />
+    <ClCompile Include="crosscurrencyratehelpers.cpp" />
+    <ClCompile Include="currency.cpp" />
     <ClCompile Include="curvestates.cpp" />
     <ClCompile Include="dates.cpp" />
     <ClCompile Include="daycounters.cpp" />
@@ -714,6 +717,7 @@
     <ClCompile Include="inflationcpicapfloor.cpp" />
     <ClCompile Include="inflationcpiswap.cpp" />
     <ClCompile Include="inflationvolatility.cpp" />
+    <ClCompile Include="inflationzciisinterpolation.cpp" />
     <ClCompile Include="instruments.cpp" />
     <ClCompile Include="integrals.cpp" />
     <ClCompile Include="interestrates.cpp" />
@@ -747,6 +751,7 @@
     <ClCompile Include="operators.cpp" />
     <ClCompile Include="optimizers.cpp" />
     <ClCompile Include="optionletstripper.cpp" />
+    <ClCompile Include="overnightindexedcoupon.cpp" />
     <ClCompile Include="overnightindexedswap.cpp" />
     <ClCompile Include="pagodaoption.cpp" />
     <ClCompile Include="partialtimebarrieroption.cpp" />
@@ -792,8 +797,8 @@
     <ClCompile Include="varianceswaps.cpp" />
     <ClCompile Include="volatilitymodels.cpp" />
     <ClCompile Include="vpp.cpp" />
-    <ClCompile Include="crosscurrencyratehelpers.cpp" />
     <ClCompile Include="zabr.cpp" />
+    <ClCompile Include="zerocouponswap.cpp" />
     <ClCompile Include="quantlibtestsuite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -806,6 +811,7 @@
     <ClInclude Include="autocovariances.hpp" />
     <ClInclude Include="barrieroption.hpp" />
     <ClInclude Include="basismodels.hpp" />
+    <ClInclude Include="basisswapratehelpers.hpp" />
     <ClInclude Include="basketoption.hpp" />
     <ClInclude Include="batesmodel.hpp" />
     <ClInclude Include="bermudanswaption.hpp" />
@@ -834,6 +840,8 @@
     <ClInclude Include="covariance.hpp" />
     <ClInclude Include="creditdefaultswap.hpp" />
     <ClInclude Include="creditriskplus.hpp" />
+    <ClInclude Include="crosscurrencyratehelpers.hpp" />
+    <ClInclude Include="currency.hpp" />
     <ClInclude Include="curvestates.hpp" />
     <ClInclude Include="dates.hpp" />
     <ClInclude Include="daycounters.hpp" />
@@ -875,6 +883,7 @@
     <ClInclude Include="inflationcpicapfloor.hpp" />
     <ClInclude Include="inflationcpiswap.hpp" />
     <ClInclude Include="inflationvolatility.hpp" />
+    <ClInclude Include="inflationzciisinterpolation.hpp" />
     <ClInclude Include="instruments.hpp" />
     <ClInclude Include="integrals.hpp" />
     <ClInclude Include="interestrates.hpp" />
@@ -908,6 +917,7 @@
     <ClInclude Include="operators.hpp" />
     <ClInclude Include="optimizers.hpp" />
     <ClInclude Include="optionletstripper.hpp" />
+    <ClInclude Include="overnightindexedcoupon.hpp" />
     <ClInclude Include="overnightindexedswap.hpp" />
     <ClInclude Include="pagodaoption.hpp" />
     <ClInclude Include="partialtimebarrieroption.hpp" />
@@ -956,8 +966,8 @@
     <ClInclude Include="varianceswaps.hpp" />
     <ClInclude Include="volatilitymodels.hpp" />
     <ClInclude Include="vpp.hpp" />
-    <ClInclude Include="crosscurrencyratehelpers.hpp" />
     <ClInclude Include="zabr.hpp" />
+    <ClInclude Include="zerocouponswap.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QuantLib.vcxproj">

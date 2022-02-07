@@ -893,7 +893,7 @@ void ScheduleTest::testScheduleAlwaysHasAStartDate() {
                        "always produce a schedule with a start date...");
     // Attempt to establish whether the first coupoun payment date is
     // always the second element of the constructor.
-    Calendar calendar = UnitedStates();
+    Calendar calendar = UnitedStates(UnitedStates::GovernmentBond);
     Schedule schedule = MakeSchedule()
         .from(Date(10, January, 2017))
         .withFirstDate(Date(31, August, 2017))
@@ -949,7 +949,7 @@ void ScheduleTest::testFirstDateOnMaturity() {
         .to(Date(20, December, 2016))
         .withFirstDate(Date(20, December, 2016))
         .withFrequency(Quarterly)
-        .withCalendar(UnitedStates())
+        .withCalendar(UnitedStates(UnitedStates::GovernmentBond))
         .withConvention(Unadjusted)
         .backwards();
 
@@ -964,7 +964,7 @@ void ScheduleTest::testFirstDateOnMaturity() {
         .to(Date(20, December, 2016))
         .withFirstDate(Date(20, December, 2016))
         .withFrequency(Quarterly)
-        .withCalendar(UnitedStates())
+        .withCalendar(UnitedStates(UnitedStates::GovernmentBond))
         .withConvention(Unadjusted)
         .forwards();
 
@@ -978,7 +978,7 @@ void ScheduleTest::testNextToLastDateOnStart() {
         .to(Date(20, December, 2016))
         .withNextToLastDate(Date(20, September, 2016))
         .withFrequency(Quarterly)
-        .withCalendar(UnitedStates())
+        .withCalendar(UnitedStates(UnitedStates::GovernmentBond))
         .withConvention(Unadjusted)
         .backwards();
 
@@ -993,7 +993,7 @@ void ScheduleTest::testNextToLastDateOnStart() {
         .to(Date(20, December, 2016))
         .withNextToLastDate(Date(20, September, 2016))
         .withFrequency(Quarterly)
-        .withCalendar(UnitedStates())
+        .withCalendar(UnitedStates(UnitedStates::GovernmentBond))
         .withConvention(Unadjusted)
         .backwards();
 

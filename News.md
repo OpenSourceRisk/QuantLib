@@ -1,121 +1,110 @@
-Changes for QuantLib 1.22:
+Changes for QuantLib 1.25:
 ==========================
 
-QuantLib 1.22 includes 54 pull requests from several contributors.
+QuantLib 1.25 includes 35 pull requests from several contributors.
 
-The most notable changes are included below.
+Some of the most notable changes are included below.
 A detailed list of changes is available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib/milestone/18?closed=1>.
+<https://github.com/lballabio/QuantLib/milestone/21?closed=1>.
 
 Portability
 -----------
 
-- As previously announced, this release drops support for Visual
-  C++ 2012.  VC++ 2013 or later is now required.
+- **End of support:** this release and the next will be the last two
+  to support Visual Studio 2013.
 
-- The `Date` and `Array` classes are now visualized more clearly in
-  the Visual Studio debugger (thanks to Francois Botha).
+- Added a few CMake presets for building the library (thanks to Jonathan Sweemer).
 
-Language standard
------------------
-
-- QuantLib now uses the C++11 standard and no longer compiles in C++03
-  mode.  As before, it can be compiled with later versions of the
-  standard.  For details on the C++11 features used, see the pull
-  requests marked "C++11 modernization" at the above link; for
-  information on possible problems, see
-  <https://www.implementingquantlib.com/2021/02/leaving-03-for-real.html>.
+- When built and installed through CMake, the library now installs a `QuantLibConfig.cmake` file
+  that allows other CMake projects to find and use QuantLib (thanks to Jonathan Sweemer).
 
 Cashflows
 ---------
 
-- Revised and tested the `SubPeriodCoupon` class (thanks to Marcin
-  Rybacki).  The class was moved out of the `ql/experimental` folder
-  and its interface can now be considered stable.
+- Fixed the accrual calculation in overnight-indexed coupons (thanks to Mohammad Shojatalab).
 
-- Add simple averaging to overnight-index coupons in addition to the
-  existing compound averaging (thanks to Marcin Rybacki).
+- Fixed fixing-days usage in `SubPeriodsCoupon` class (thanks to Marcin Rybacki).
 
-- Fixed accrual calculation for inflation coupon when trading
-  ex-coupon (thanks to GitHub user `bachhani`).
-
-Currencies
-----------
-
-- Added the Nigerian Naira (thanks to Bryte Morio).
-
-Date/time
----------
-
-- Fixed actual/actual (ISMA) day counter calculation for long/short
-  final periods (thanks to Francois Botha).
-
-- Updated a couple of changed rules for New Zealand calendar (thanks
-  to Paul Giltinan).
+- IBOR coupons fixed in the past no longer need a forecast curve to return their amount.
 
 Indexes
 -------
 
-- Added `hasHistoricalFixing` inspector to `Index` class to check if
-  the fixing for a given past date is available (thanks to Ralf
-  Konrad).
+- **Important change:** inflation indexes inherited from the `ZeroInflationIndex`
+  class no longer rely on their forecast curve for interpolation.  For coupons
+  that already took care of interpolation (as in the case of `CPICoupon` and
+  `ZeroInflationCashFlow`) this should not change the results. In other cases,
+  figures will change but should be more correct as the interpolation is now
+  performed according to market conventions.
+  Also, most inflation curves now assume that the index is not implemented.
+  Year-on-year inflation indexes and curves are not affected.
 
 Instruments
 -----------
 
-- Added new-style finite-difference engine for shout options (thanks
-  to Klaus Spanderen).  In the case of dividend shout options, an
-  escrowed dividend model is used.
+- **Breaking change:** convertible bonds were moved out of the `ql/experimental` folder.
+  Also, being market values and not part of the contract, dividends and credit spread
+  were moved from the bond to the `BinomialConvertibleEngine` class
+  (thanks to Lew Wei Hao).
 
-- Revised the `OvernightIndexFutures` class.  The class was moved out
-  of the `ql/experimental` folder and its interface can now be
-  considered stable.
+- The `ForwardRateAgreement` no longer inherits from `Forward`.  This also made it
+  possible to implement the `amount` method returning the expected cash settlement
+  (thanks to Lew Wei Hao).  The methods from `Forward` were kept available but
+  deprecated so code using them won't break.  Client code might break if it
+  performed casts to `Forward`.
 
-- Added an overloaded constructor for Asian options that takes all
-  past fixings and thus allows to reprice them correctly when the
-  evaluation date changes (thanks to Jack Gillett).
+Models
+------
 
-- Added support for seasoned geometric Asian options to the Heston
-  engine (thanks to Jack Gillett).
-
-Patterns
---------
-
-- Faster implementation of the `Observable` class in the thread-safe
-  case (thanks to Klaus Spanderen).
+- Fixed formula for discount bond option in CIR++ model (thanks to Magnus Mencke).
 
 Term structures
 ---------------
 
-- Added experimental rate helper for constant-notional cross-currency
-  basis swaps (thanks to Marcin Rybacki).
+- It is now possible to use normal volatilities in SABR smile sections,
+  and thus in the `SwaptionVolCube1` class (thanks to Lew Wei Hao).
 
-- Added volatility type and displacements to year-on-year inflation
-  volatility surfaces (thanks to Peter Caspers).
+Date/time
+---------
+
+- Added Chinese holidays for 2022 (thanks to Cheng Li).
+
+Currencies
+----------
+
+- Added a number of African, American, Asian and European currencies from
+  Quaternion's `QuantExt` project (thanks to Ole Bueker).
+
+Experimental folder
+-------------------
+
+The `ql/experimental` folder contains code whose interface is not
+fully stable, but is released in order to get user
+feedback. Experimental classes make no guarantees of backward
+compatibility; their interfaces might change in future releases.
+
+- Added experimental rate helpers for LIBOR-LIBOR and Overnight-LIBOR basis swaps.
+
+- Renamed `WulinYongDoubleBarrierEngine` to `SuoWangDoubleBarrierEngine`
+ (thanks to Adityakumar Sinha for the fix and Ruilong Xu for the heads-up).
 
 Deprecated features
 -------------------
 
-- Removed features deprecated in version 1.17: the `Callability::Type`
-  typedef (now `Bond::Price`), the `FdmOrnsteinUhlenbackOp` typedef
-  (now correctly spelled as `FdmOrnsteinUhlenbeckOp`, and a number of
-  old-style finite-difference engines (`FDAmericanEngine`,
-  `FDBermudanEngine`, `FDDividendAmericanEngine` and its variants,
-  `FDDividendEuropeanEngine` and its variants, and `FDEuropeanEngine`)
-  all replaced by the `FdBlackScholesVanillaEngine` class.
+- Deprecated the constructors of zero-coupon inflation term structures taking
+  an `indexIsInterpolated` boolean argument.
 
-- Deprecated the old-style finite difference engines for shout
-  options; they are now replaced by the new `FDDividendShoutEngine`
-  class.
+- Deprecated a number of methods in the `ForwardRateAgreement` class that used
+  to be inherited from `Forward`.
 
-- Deprecated a few unused parts of the old-style finite-differences
-  framework: the `AmericanCondition` class, the `OneFactorOperator`
-  typedef, and the `FDAmericanCondition` class.
+- Deprecated a couple of constructors in the `SofrFutureRateHelper` class.
 
-Test suite
-----------
+- Deprecated the `WulinYongDoubleBarrierEngine` alias for `SuoWangDoubleBarrierEngine`.
 
-- Reduced the run time for the longest-running test cases.
+- Deprecated the protected `spreadLegValue_` data member
+  in the `BlackIborCouponPricer` class.
 
-Thanks go also to Francis Duffy and Cay Oest for smaller fixes,
-enhancements and bug reports.
+
+Thanks go also to Tom Anderson, Francois Botha, Matthew Kolbe, Benson
+Luk, Marcin Rybacki, Henning Segger, Klaus Spanderen, and GitHub users
+@jxcv0 and @azsrz for smaller fixes, enhancements and bug reports.

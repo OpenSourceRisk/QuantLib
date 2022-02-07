@@ -191,14 +191,12 @@ void LiborMarketModelTest::testCapletPricing() {
 
     using namespace libor_market_model_test;
 
+    bool usingAtParCoupons  = IborCoupon::Settings::instance().usingAtParCoupons();
+
     SavedSettings backup;
 
     const Size size = 10;
-    Real tolerance;
-    if (!IborCoupon::usingAtParCoupons())
-        tolerance = 1e-5;
-    else
-        tolerance = 1e-12;
+    Real tolerance = usingAtParCoupons ? 1e-12 : 1e-5;
 
     ext::shared_ptr<IborIndex> index = makeIndex();
     ext::shared_ptr<LiborForwardModelProcess> process(
@@ -352,16 +350,14 @@ void LiborMarketModelTest::testSwaptionPricing() {
 
     using namespace libor_market_model_test;
 
+    bool usingAtParCoupons = IborCoupon::Settings::instance().usingAtParCoupons();
+
     SavedSettings backup;
 
     const Size size  = 10;
     const Size steps = 8*size;
 
-    Real tolerance;
-    if (!IborCoupon::usingAtParCoupons())
-        tolerance = 1e-6;
-    else
-        tolerance = 1e-12;
+    Real tolerance = usingAtParCoupons ? 1e-12 : 1e-6;
 
     std::vector<Date> dates = {{4,September,2005}, {4,September,2011}};
     std::vector<Rate> rates = {0.04, 0.08};
@@ -422,7 +418,7 @@ void LiborMarketModelTest::testSwaptionPricing() {
 
             Rate swapRate  = 0.0404;
             ext::shared_ptr<VanillaSwap> forwardSwap(
-                new VanillaSwap(VanillaSwap::Receiver, 1.0,
+                new VanillaSwap(Swap::Receiver, 1.0,
                                 schedule, swapRate, dayCounter,
                                 schedule, index, 0.0, index->dayCounter()));
             forwardSwap->setPricingEngine(ext::shared_ptr<PricingEngine>(
@@ -439,7 +435,7 @@ void LiborMarketModelTest::testSwaptionPricing() {
 
             swapRate = forwardSwap->fairRate();
             forwardSwap = ext::make_shared<VanillaSwap>(
-                VanillaSwap::Receiver, 1.0,
+                                Swap::Receiver, 1.0,
                                 schedule, swapRate, dayCounter,
                                 schedule, index, 0.0, index->dayCounter());
             forwardSwap->setPricingEngine(ext::shared_ptr<PricingEngine>(

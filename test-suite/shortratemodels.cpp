@@ -60,6 +60,8 @@ void ShortRateModelTest::testCachedHullWhite() {
 
     using namespace short_rate_models_test;
 
+    bool usingAtParCoupons  = IborCoupon::Settings::instance().usingAtParCoupons();
+
     SavedSettings backup;
     IndexHistoryCleaner cleaner;
 
@@ -84,7 +86,7 @@ void ShortRateModelTest::testCachedHullWhite() {
         ext::shared_ptr<Quote> vol(new SimpleQuote(i.volatility));
         ext::shared_ptr<BlackCalibrationHelper> helper(
             new SwaptionHelper(Period(i.start, Years), Period(i.length, Years), Handle<Quote>(vol),
-                               index, Period(1, Years), Thirty360(), Actual360(), termStructure));
+                               index, Period(1, Years), Thirty360(Thirty360::BondBasis), Actual360(), termStructure));
         helper->setPricingEngine(engine);
         swaptions.push_back(helper);
     }
@@ -101,7 +103,7 @@ void ShortRateModelTest::testCachedHullWhite() {
 
     // Check and print out results
     Real cachedA, cachedSigma;
-    if (!IborCoupon::usingAtParCoupons()) {
+    if (!usingAtParCoupons) {
         cachedA = 0.0463679, cachedSigma = 0.00579831;
     } else {
         cachedA = 0.0464041, cachedSigma = 0.00579912;
@@ -135,6 +137,8 @@ void ShortRateModelTest::testCachedHullWhiteFixedReversion() {
 
     using namespace short_rate_models_test;
 
+    bool usingAtParCoupons = IborCoupon::Settings::instance().usingAtParCoupons();
+
     SavedSettings backup;
     IndexHistoryCleaner cleaner;
 
@@ -159,7 +163,8 @@ void ShortRateModelTest::testCachedHullWhiteFixedReversion() {
         ext::shared_ptr<Quote> vol(new SimpleQuote(i.volatility));
         ext::shared_ptr<BlackCalibrationHelper> helper(
             new SwaptionHelper(Period(i.start, Years), Period(i.length, Years), Handle<Quote>(vol),
-                               index, Period(1, Years), Thirty360(), Actual360(), termStructure));
+                               index, Period(1, Years), Thirty360(Thirty360::BondBasis),
+                               Actual360(), termStructure));
         helper->setPricingEngine(engine);
         swaptions.push_back(helper);
     }
@@ -177,10 +182,11 @@ void ShortRateModelTest::testCachedHullWhiteFixedReversion() {
 
     // Check and print out results
     Real cachedA, cachedSigma;
-    if (!IborCoupon::usingAtParCoupons())
+    if (!usingAtParCoupons) {
         cachedA = 0.05, cachedSigma = 0.00585835;
-    else
+    } else {
         cachedA = 0.05, cachedSigma = 0.00585858;
+    }
 
     Real tolerance = 1.0e-5;
     Array xMinCalculated = model->params();
@@ -212,6 +218,8 @@ void ShortRateModelTest::testCachedHullWhite2() {
 
     using namespace short_rate_models_test;
 
+    bool usingAtParCoupons = IborCoupon::Settings::instance().usingAtParCoupons();
+
     SavedSettings backup;
     IndexHistoryCleaner cleaner;
 
@@ -239,7 +247,8 @@ void ShortRateModelTest::testCachedHullWhite2() {
         ext::shared_ptr<Quote> vol(new SimpleQuote(i.volatility));
         ext::shared_ptr<BlackCalibrationHelper> helper(
             new SwaptionHelper(Period(i.start, Years), Period(i.length, Years), Handle<Quote>(vol),
-                               index0, Period(1, Years), Thirty360(), Actual360(), termStructure));
+                               index0, Period(1, Years), Thirty360(Thirty360::BondBasis),
+                               Actual360(), termStructure));
         helper->setPricingEngine(engine);
         swaptions.push_back(helper);
     }
@@ -259,7 +268,7 @@ void ShortRateModelTest::testCachedHullWhite2() {
     // JamshidianEngine not accounting for the delay between option
     // expiry and underlying start
     Real cachedA, cachedSigma;
-    if (!IborCoupon::usingAtParCoupons())
+    if (!usingAtParCoupons)
         cachedA = 0.0481608, cachedSigma = 0.00582493;
     else
         cachedA = 0.0482063, cachedSigma = 0.00582687;
@@ -289,6 +298,8 @@ void ShortRateModelTest::testCachedHullWhite2() {
 
 void ShortRateModelTest::testSwaps() {
     BOOST_TEST_MESSAGE("Testing Hull-White swap pricing against known values...");
+
+    bool usingAtParCoupons = IborCoupon::Settings::instance().usingAtParCoupons();
 
     SavedSettings backup;
     IndexHistoryCleaner cleaner;
@@ -343,11 +354,7 @@ void ShortRateModelTest::testSwaps() {
     ext::shared_ptr<PricingEngine> engine(
                                         new TreeVanillaSwapEngine(model,120));
 
-    Real tolerance;
-    if (!IborCoupon::usingAtParCoupons())
-        tolerance = 4.0e-3;
-    else
-        tolerance = 1.0e-8;
+    Real tolerance = usingAtParCoupons ? 1.0e-8 : 4.0e-3;
 
     for (Size i=0; i<LENGTH(start); i++) {
 
@@ -371,7 +378,8 @@ void ShortRateModelTest::testSwaps() {
                                    DateGeneration::Forward, false);
             for (double rate : rates) {
 
-                VanillaSwap swap(VanillaSwap::Payer, 1000000.0, fixedSchedule, rate, Thirty360(),
+                VanillaSwap swap(Swap::Payer, 1000000.0, fixedSchedule, rate,
+                                 Thirty360(Thirty360::BondBasis),
                                  floatSchedule, euribor, 0.0, Actual360());
                 swap.setPricingEngine(ext::shared_ptr<PricingEngine>(
                                    new DiscountingSwapEngine(termStructure)));

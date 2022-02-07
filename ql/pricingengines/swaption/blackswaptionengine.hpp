@@ -306,8 +306,8 @@ namespace QuantLib {
 
         Real stdDev = std::sqrt(variance);
         results_.additionalResults["stdDev"] = stdDev;
-        Option::Type w = (arguments_.type==VanillaSwap::Payer) ?
-                                                Option::Call : Option::Put;
+
+        Option::Type w = (arguments_.type==Swap::Payer) ? Option::Call : Option::Put;
 
         Time exerciseTime = vol_->timeFromReference(exerciseDate);
 

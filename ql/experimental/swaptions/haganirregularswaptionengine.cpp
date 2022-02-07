@@ -178,7 +178,8 @@ namespace QuantLib {
 
         Real defect = -targetNPV_;
 
-        for(Size i=0; i< weights.size();++i)   defect -= swap_->type()*lambda*weights[i]*annuities_[i];
+        for (Size i=0; i< weights.size();++i)
+            defect -= Integer(swap_->type()) * lambda*weights[i] * annuities_[i];
 
         return defect;
     }
@@ -197,7 +198,7 @@ namespace QuantLib {
         Period dummySwapLength = Period(1,Years);
                         
         ext::shared_ptr<VanillaSwap> memberSwap_ = MakeVanillaSwap(dummySwapLength,iborIndex)
-                                                     .withType(VanillaSwap::Type(swap_->type()))
+                                                     .withType(swap_->type())
                                                      .withEffectiveDate(swap_->startDate())
                                                      .withTerminationDate(expiries_[i])
                                                      .withRule(DateGeneration::Backward)
@@ -209,7 +210,7 @@ namespace QuantLib {
         Rate transformedRate = (fairRates_[i]+lambda_)*annuities_[i]/stdAnnuity;
 
         memberSwap_ = MakeVanillaSwap(dummySwapLength,iborIndex,transformedRate)
-                                                     .withType(VanillaSwap::Type(swap_->type()))
+                                                     .withType(swap_->type())
                                                      .withEffectiveDate(swap_->startDate())
                                                      .withTerminationDate(expiries_[i])
                                                      .withRule(DateGeneration::Backward)

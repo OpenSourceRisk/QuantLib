@@ -19,6 +19,7 @@
 
 #include <ql/pricingengines/americanpayoffathit.hpp>
 #include <ql/math/distributions/normaldistribution.hpp>
+#include <iostream>
 
 namespace QuantLib {
 
@@ -57,6 +58,9 @@ namespace QuantLib {
                 QL_FAIL("null discount not handled yet");
             } else {
                 mu_ = std::log(dividendDiscount_/discount_)/variance_ - 0.5;
+                Real arg = mu_*mu_-2.0*std::log(discount_)/variance_;
+                QL_REQUIRE(arg >= 0.0, "Negative sqrt argument " << arg
+                           << " in ArmericanPayoffAtHit due to discount > 1 and small variance");
                 lambda_ = std::sqrt(mu_*mu_-2.0*std::log(discount_)/variance_);
             }
             D1_ = log_H_S_/stdDev_ + lambda_*stdDev_;

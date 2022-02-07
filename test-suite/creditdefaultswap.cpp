@@ -174,7 +174,7 @@ void CreditDefaultSwapTest::testCachedMarketValue() {
 
     Settings::instance().evaluationDate() = Date(9,June,2006);
     Date evalDate = Settings::instance().evaluationDate();
-    Calendar calendar = UnitedStates();
+    Calendar calendar = UnitedStates(UnitedStates::GovernmentBond);
 
     std::vector<Date> discountDates = {
         evalDate,
@@ -223,7 +223,7 @@ void CreditDefaultSwapTest::testCachedMarketValue() {
         ext::shared_ptr<YieldTermStructure>(
             new DiscountCurve(discountDates, dfs, curveDayCounter)));
 
-    DayCounter dayCounter = Thirty360();
+    DayCounter dayCounter = Thirty360(Thirty360::BondBasis);
     std::vector<Date> dates = {
         evalDate,
         calendar.advance(evalDate, 6, Months, ModifiedFollowing),
@@ -263,7 +263,7 @@ void CreditDefaultSwapTest::testCachedMarketValue() {
         ext::shared_ptr<DefaultProbabilityTermStructure>(
                new InterpolatedHazardRateCurve<BackwardFlat>(dates,
                                                              hazardRates,
-                                                             Thirty360())));
+                                                             Thirty360(Thirty360::BondBasis))));
 
     // Testing credit default swap
 
@@ -579,6 +579,8 @@ void CreditDefaultSwapTest::testIsdaEngine() {
     BOOST_TEST_MESSAGE(
         "Testing ISDA engine calculations for credit-default swaps...");
 
+    bool usingAtParCoupons  = IborCoupon::Settings::instance().usingAtParCoupons();
+
     SavedSettings backup;
 
     Date tradeDate(21, May, 2009);
@@ -628,7 +630,7 @@ void CreditDefaultSwapTest::testIsdaEngine() {
                                       swap_quotes[i], swap_tenors[i] * Years,
                                       WeekendsOnly(),
                                       Semiannual,
-                                      ModifiedFollowing, Thirty360(), isda_ibor
+                                      ModifiedFollowing, Thirty360(Thirty360::BondBasis), isda_ibor
                                       )
             );
     }
@@ -669,15 +671,10 @@ void CreditDefaultSwapTest::testIsdaEngine() {
                              795915.9787,
                              -4702034.688,
                              -4042340.999};
-    Real tolerance;
-    if (IborCoupon::usingAtParCoupons()) {
-        tolerance = 1.0e-6;
-    } else {
-        /* The risk-free curve is a bit off. We might skip the tests
-           altogether and rely on running them with indexed coupons
-           disabled, but leaving them can be useful anyway. */
-        tolerance = 1.0e-3;
-    }
+    /* When using indexes coupons, the risk-free curve is a bit off.
+       We might skip the tests altogether and rely on running them
+       with indexed coupons disabled, but leaving them can be useful anyway. */
+    Real tolerance = usingAtParCoupons ? 1.0e-6 : 1.0e-3;
 
     size_t l = 0;
 

@@ -215,6 +215,9 @@
     <ClCompile Include="inflationvolatility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="inflationzciisinterpolation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="instruments.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -306,6 +309,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="optionletstripper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="overnightindexedcoupon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="overnightindexedswap.cpp">
@@ -480,10 +486,19 @@
     <ClCompile Include="ultimateforwardtermstructure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="basisswapratehelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="crosscurrencyratehelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="subperiodcoupons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zerocouponswap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="currency.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -692,6 +707,9 @@
     <ClInclude Include="inflationvolatility.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inflationzciisinterpolation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="instruments.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -783,6 +801,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="optionletstripper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="overnightindexedcoupon.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="overnightindexedswap.hpp">
@@ -965,10 +986,19 @@
     <ClInclude Include="ultimateforwardtermstructure.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="basisswapratehelpers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="crosscurrencyratehelpers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="subperiodcoupons.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zerocouponswap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="currency.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

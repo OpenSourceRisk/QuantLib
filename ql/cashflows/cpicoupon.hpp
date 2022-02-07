@@ -31,15 +31,6 @@
 
 namespace QuantLib {
 
-    struct CPI {
-        //! when you observe an index, how do you interpolate between fixings?
-        enum InterpolationType {
-            AsIndex,   //!< same interpolation as index
-            Flat,      //!< flat from previous fixing
-            Linear     //!< linearly between bracketing fixings
-        };
-    };
-
 
     class CPICouponPricer;
 
@@ -159,6 +150,9 @@ namespace QuantLib {
 
         //! redefined to use baseFixing() and interpolation
         Real amount() const override;
+
+        //! interpolation of the index fixing
+        virtual Real indexFixing() const override;
 
       protected:
         Real baseFixing_;

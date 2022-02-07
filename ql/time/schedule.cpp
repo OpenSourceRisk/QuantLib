@@ -262,6 +262,7 @@ namespace QuantLib {
           case DateGeneration::ThirdFriday:
           case DateGeneration::MondayAfterThirdFriday:
           case DateGeneration::TuesdayAfterThirdFriday:
+          case DateGeneration::ThirdWednesdayInclusive:
           case DateGeneration::OldCDS:
           case DateGeneration::CDS:
           case DateGeneration::CDS2015:
@@ -401,6 +402,9 @@ namespace QuantLib {
                 dates_[i] = Date::nextWeekday(Date::endOfMonth(dates_[i]) + 1, Wednesday) - 7;
             }
         }
+        else if (*rule_ == DateGeneration::ThirdWednesdayInclusive)
+            for (auto& date : dates_)
+                date = Date::nthWeekday(3, Wednesday, date.month(), date.year());
 
         if (*endOfMonth_ && calendar_.isEndOfMonth(seed)) {
             // adjust to end of month
