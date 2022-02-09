@@ -2184,132 +2184,132 @@ set(QL_HEADERS
 )
 
 set(QL_CONFIGURED_HEADERS
-    ${CMAKE_BINARY_DIR}/ql/config.hpp
-    ${CMAKE_BINARY_DIR}/ql/qldefines.hpp
-    ${CMAKE_BINARY_DIR}/ql/version.hpp)
+    ${CMAKE_CURRENT_BINARY_DIR}/config.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/qldefines.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/version.hpp)
 
 set(QL_GENERATED_HEADERS
-    ${CMAKE_BINARY_DIR}/ql/quantlib.hpp
-    ${CMAKE_BINARY_DIR}/ql/cashflows/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/currencies/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/amortizingbonds/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/asian/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/averageois/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/barrieroption/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/basismodels/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/callablebonds/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/catbonds/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/commodities/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/coupons/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/credit/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/exoticoptions/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/finitedifferences/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/forward/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/fx/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/inflation/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/lattices/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/math/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/mcbasket/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/models/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/processes/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/risk/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/shortrate/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/swaptions/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/termstructures/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/variancegamma/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/varianceoption/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/experimental/volatility/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/indexes/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/indexes/ibor/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/indexes/inflation/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/indexes/swap/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/instruments/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/instruments/bonds/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/legacy/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/legacy/libormarketmodels/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/copulas/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/distributions/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/integrals/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/interpolations/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/matrixutilities/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/ode/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/optimization/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/randomnumbers/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/solvers1d/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/math/statistics/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/finitedifferences/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/finitedifferences/meshers/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/finitedifferences/operators/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/finitedifferences/schemes/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/finitedifferences/solvers/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/finitedifferences/stepconditions/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/finitedifferences/utilities/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/lattices/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/methods/montecarlo/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/equity/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/browniangenerators/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/callability/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/correlations/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/curvestates/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/driftcomputation/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/evolvers/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/evolvers/volprocesses/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/models/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/pathwisegreeks/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/products/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/products/multistep/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/products/onestep/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/marketmodels/products/pathwise/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/shortrate/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/shortrate/calibrationhelpers/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/shortrate/onefactormodels/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/shortrate/twofactormodels/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/models/volatility/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/patterns/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/asian/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/barrier/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/basket/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/bond/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/capfloor/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/cliquet/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/credit/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/forward/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/inflation/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/lookback/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/quanto/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/swap/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/swaption/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/pricingengines/vanilla/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/processes/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/quotes/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/credit/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/inflation/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/volatility/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/volatility/capfloor/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/volatility/equityfx/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/volatility/inflation/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/volatility/optionlet/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/volatility/swaption/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/termstructures/yield/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/time/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/time/calendars/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/time/daycounters/all.hpp
-    ${CMAKE_BINARY_DIR}/ql/utilities/all.hpp)
+    ${CMAKE_CURRENT_BINARY_DIR}/quantlib.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/cashflows/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/currencies/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/amortizingbonds/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/asian/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/averageois/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/barrieroption/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/basismodels/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/callablebonds/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/catbonds/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/commodities/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/coupons/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/credit/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/exoticoptions/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/finitedifferences/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/forward/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/fx/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/inflation/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/lattices/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/math/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/mcbasket/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/models/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/processes/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/risk/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/shortrate/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/swaptions/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/termstructures/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/variancegamma/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/varianceoption/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/experimental/volatility/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/indexes/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/indexes/ibor/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/indexes/inflation/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/indexes/swap/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/instruments/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/instruments/bonds/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/legacy/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/legacy/libormarketmodels/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/copulas/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/distributions/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/integrals/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/interpolations/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/matrixutilities/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/ode/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/optimization/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/randomnumbers/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/solvers1d/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/math/statistics/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/finitedifferences/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/finitedifferences/meshers/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/finitedifferences/operators/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/finitedifferences/schemes/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/finitedifferences/solvers/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/finitedifferences/stepconditions/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/finitedifferences/utilities/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/lattices/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/methods/montecarlo/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/equity/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/browniangenerators/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/callability/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/correlations/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/curvestates/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/driftcomputation/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/evolvers/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/evolvers/volprocesses/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/models/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/pathwisegreeks/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/products/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/products/multistep/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/products/onestep/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/marketmodels/products/pathwise/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/shortrate/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/shortrate/calibrationhelpers/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/shortrate/onefactormodels/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/shortrate/twofactormodels/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/models/volatility/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/patterns/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/asian/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/barrier/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/basket/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/bond/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/capfloor/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/cliquet/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/credit/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/forward/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/inflation/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/lookback/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/quanto/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/swap/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/swaption/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/pricingengines/vanilla/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/processes/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/quotes/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/credit/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/inflation/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/volatility/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/volatility/capfloor/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/volatility/equityfx/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/volatility/inflation/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/volatility/optionlet/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/volatility/swaption/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/termstructures/yield/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/time/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/time/calendars/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/time/daycounters/all.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/utilities/all.hpp)
 
 add_custom_command(OUTPUT ${QL_GENERATED_HEADERS}
     COMMAND ${CMAKE_COMMAND}
-        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-        -DBINARY_DIR=${CMAKE_BINARY_DIR}
-        -P ${CMAKE_SOURCE_DIR}/cmake/GenerateHeaders.cmake
+        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}/ore/QuantLib
+        -DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+        -P ${CMAKE_SOURCE_DIR}/ore/QuantLib/cmake/GenerateHeaders.cmake
     COMMENT "Generating headers..."
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(ql_library
     ${QL_SOURCES}
@@ -2330,8 +2330,8 @@ target_compile_options(ql_library PRIVATE
     ${OpenMP_CXX_FLAGS})
 
 target_include_directories(ql_library PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/ore/QuantLib>
     $<INSTALL_INTERFACE:${QL_INSTALL_INCLUDEDIR}>
     ${Boost_INCLUDE_DIRS}
     ${OpenMP_CXX_INCLUDE_DIRS})
@@ -2360,27 +2360,27 @@ endforeach()
 # Install generated headers from the build directory
 foreach(file ${QL_GENERATED_HEADERS})
     get_filename_component(dir ${file} DIRECTORY)
-    file(RELATIVE_PATH path ${CMAKE_BINARY_DIR} ${dir})
+    file(RELATIVE_PATH path ${CMAKE_CURRENT_BINARY_DIR} ${dir})
     install(FILES ${file} DESTINATION "${QL_INSTALL_INCLUDEDIR}/${path}")
 endforeach()
 
 # Install config scripts for people using `find_package(QuantLib::QuantLib CONFIG ...)`
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    "${CMAKE_BINARY_DIR}/cmake/QuantLibConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuantLibConfigVersion.cmake"
     VERSION ${QL_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
 export(EXPORT QuantLibTargets
-    FILE "${CMAKE_BINARY_DIR}/cmake/QuantLibTargets.cmake"
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuantLibTargets.cmake"
     NAMESPACE QuantLib::
 )
 configure_file("${PROJECT_SOURCE_DIR}/cmake/QuantLibConfig.cmake.in"
-    "${CMAKE_BINARY_DIR}/cmake/QuantLibConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuantLibConfig.cmake"
     COPYONLY
 )
 configure_package_config_file("${PROJECT_SOURCE_DIR}/cmake/QuantLibConfig.cmake.in"
-    "${CMAKE_BINARY_DIR}/cmake/QuantLibConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuantLibConfig.cmake"
     INSTALL_DESTINATION "${QL_INSTALL_CMAKEDIR}"
 )
 install(EXPORT QuantLibTargets
@@ -2388,7 +2388,7 @@ install(EXPORT QuantLibTargets
     NAMESPACE QuantLib::
     DESTINATION "${QL_INSTALL_CMAKEDIR}"
 )
-install(FILES "${CMAKE_BINARY_DIR}/cmake/QuantLibConfig.cmake"
-    "${CMAKE_BINARY_DIR}/cmake/QuantLibConfigVersion.cmake"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuantLibConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/QuantLibConfigVersion.cmake"
     DESTINATION "${QL_INSTALL_CMAKEDIR}"
 )
