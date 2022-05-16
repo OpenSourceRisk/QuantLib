@@ -40,7 +40,7 @@
     {
       "name": "windows-clang-x64",
       "binaryDir": "${sourceDir}/build",
-      "generator": "Visual Studio 16 2019",
+      "generator": "Visual Studio 17 2022",
       "toolset": "ClangCL",
       "architecture": {
         "value": "x64",
@@ -58,7 +58,12 @@
     {
       "name": "windows-msvc-x64",
       "binaryDir": "${sourceDir}/build",
-      "generator": "Visual Studio 16 2019",
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "Boost_DIR": "$env{BOOST}",
+        "Boost_INCLUDE_DIR": "$env{BOOST_INCLUDE_DIR}",
+        "Boost_LIBRARY_DIR": "$env{BOOST_LIBRARYDIR}"
+      },
       "architecture": {
         "value": "x64",
         "strategy": "external"

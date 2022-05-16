@@ -2,16 +2,22 @@
 if (MSVC)
     # See cmake policy CMP00091
     # One of "MultiThreaded", "MultiThreadedDebug", "MultiThreadedDLL", "MultiThreadedDebugDLL"
+    set(BUILD_SHARED_LIBS OFF)
+    # build static libs always
     set(CMAKE_MSVC_RUNTIME_LIBRARY
-        "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-
+        "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${MSVC_LINK_DYNAMIC}>:DLL>")
+    message("${CMAKE_MSVC_RUNTIME_LIBRARY}")
     # Export all symbols so MSVC can populate the .lib and .dll
     if (BUILD_SHARED_LIBS)
-        # Temp: disable DLL builds on MSVC
+    #    # Temp: disable DLL builds on MSVC
         message(FATAL_ERROR
-            "Shared library (DLL) builds for QuantLib on MSVC are not supported")
+            <CONFIG>_OUTPUT_NAME        "Shared library (DLL) builds for QuantLib on MSVC are not supported")
         set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
     endif()
+
+
+    add_definitions(/MP)
+
 
     add_compile_definitions(NOMINMAX)
 

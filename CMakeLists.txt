@@ -72,6 +72,10 @@ if (QL_USE_STD_CLASSES)
     set(QL_USE_STD_TUPLE ON)
 endif()
 
+if(NOT DEFINED MSVC_LINK_DYNAMIC)
+    set(MSVC_LINK_DYNAMIC ON)
+endif()
+
 # Project shared libs ON for UNIX
 if (NOT DEFINED BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS ${UNIX})
@@ -79,12 +83,24 @@ endif()
 
 # Boost static libs ON for MSVC
 if (NOT DEFINED Boost_USE_STATIC_LIBS)
-    set(Boost_USE_STATIC_LIBS ${MSVC})
+    if(BUILD_SHARED_LIBS)
+        set(Boost_USE_STATIC_LIBS 0)
+        message("SET USE BOOST USE SHared LIBS")
+    else()
+        set(Boost_USE_STATIC_LIBS 1)
+        message("SET BOOST USE STATIC LIBS")
+    endif()
 endif()
 
 # Boost static runtime ON for MSVC
 if (NOT DEFINED Boost_USE_STATIC_RUNTIME)
-    set(Boost_USE_STATIC_RUNTIME ${MSVC})
+    if(BUILD_SHARED_LIBS OR (MSVC AND MSVC_LINK_DYNAMIC))
+        set(Boost_USE_STATIC_RUNTIME 0)
+        message("QL SET NOT BOOST USE STATIC RUNTIME")
+    else()
+        set(Boost_USE_STATIC_RUNTIME 1)
+        message("QL SET BOOST USE STATIC RUNTIME")
+    endif()
 endif()
 
 # Require C++11 or higher
@@ -154,20 +170,26 @@ configure_file(ql/config.hpp.cfg ql/config.hpp @ONLY)
 configure_file(ql/qldefines.hpp.cfg ql/qldefines.hpp @ONLY)
 configure_file(ql/version.hpp.cfg ql/version.hpp @ONLY)
 
+message("${LINK_WINDOWS_STATIC}")
+
 # Check for library name layout tagging
 if (QL_TAGGED_LAYOUT)
-    set(DEBUG_POSTFIX "-mt")
-    set(RELEASE_POSTFIX "-mt")
-    if (NOT BUILD_SHARED_LIBS)
+
+    if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+        set(DEBUG_POSTFIX "-x64-mt")
+        set(RELEASE_POSTFIX "-x64-mt")
+    else()
+        set(DEBUG_POSTFIX "-mt")
+        set(RELEASE_POSTFIX "-mt")
+    endif()
+
+    if (NOT BUILD_SHARED_LIBS AND (MSVC AND NOT MSVC_LINK_DYNAMIC))
         set(DEBUG_POSTFIX ${DEBUG_POSTFIX}-sgd)
         set(RELEASE_POSTFIX ${RELEASE_POSTFIX}-s)
     else()
         set(DEBUG_POSTFIX ${DEBUG_POSTFIX}-gd)
     endif()
-    if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-        set(DEBUG_POSTFIX ${DEBUG_POSTFIX}-x64)
-        set(RELEASE_POSTFIX ${RELEASE_POSTFIX}-x64)
-    endif()
+    
     set(CMAKE_DEBUG_POSTFIX ${DEBUG_POSTFIX})
     set(CMAKE_RELEASE_POSTFIX ${RELEASE_POSTFIX})
     set(CMAKE_RELWITHDEBINFO_POSTFIX ${RELEASE_POSTFIX})
