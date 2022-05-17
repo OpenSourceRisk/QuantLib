@@ -5,8 +5,8 @@ if (MSVC)
     set(BUILD_SHARED_LIBS OFF)
     # build static libs always
     set(CMAKE_MSVC_RUNTIME_LIBRARY
-        "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${MSVC_LINK_DYNAMIC}>:DLL>")
-    message("${CMAKE_MSVC_RUNTIME_LIBRARY}")
+        "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${MSVC_LINK_DYNAMIC_RUNTIME}>:DLL>")
+
     # Export all symbols so MSVC can populate the .lib and .dll
     if (BUILD_SHARED_LIBS)
     #    # Temp: disable DLL builds on MSVC
