@@ -60,9 +60,7 @@
 #endif
 
 /* Define this to have singletons return different instances for
-   different sessions. You will have to provide and link with the
-   library a sessionId() function in namespace QuantLib, returning a
-   different session id for each session.
+   different threads.
    This also implies thread-safe Singleton initialization.
 */
 #ifndef QL_ENABLE_SESSIONS
@@ -116,14 +114,6 @@
 /* Define this to enable the parallel unit test runner */
 #ifndef QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER
 #    define QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER
-#endif
-
-/* Define this to make Singleton initialization thread-safe.
-   Note that defining QL_ENABLE_SESSIONS implies thread-safe
-   initialization, whether this is defined or not.
-*/
-#ifndef QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
-//#   define QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
 #endif
 
 #endif

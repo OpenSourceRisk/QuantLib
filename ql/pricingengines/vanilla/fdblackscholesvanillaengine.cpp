@@ -75,6 +75,14 @@ namespace QuantLib {
         const Time maturity = process_->time(exerciseDate);
         const Date settlementDate = process_->riskFreeRate()->referenceDate();
 
+        if (exerciseDate <= Settings::instance().evaluationDate()) {
+            results_.value = 0.0;
+            results_.delta = 0.0;
+            results_.gamma = 0.0;
+            results_.theta = 0.0;
+            return;
+        }
+        
         Real spotAdjustment = 0.0;
         DividendSchedule dividendSchedule = DividendSchedule();
 

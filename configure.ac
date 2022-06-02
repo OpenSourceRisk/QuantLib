@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([QuantLib], [1.25],
+AC_INIT([QuantLib], [1.27-dev],
         [quantlib-dev@lists.sourceforge.net],
         [QuantLib])
 AC_PREREQ(2.62)
@@ -79,7 +79,7 @@ QL_CHECK_CPP11
 
 # Check for Boost components
 QL_CHECK_BOOST
-AM_CONDITIONAL(BOOST_UNIT_TEST_FOUND, test "x${BOOST_UNIT_TEST_LIB}" != "x")
+AM_CONDITIONAL(BOOST_UNIT_TEST_FOUND, test "x${HAVE_BOOST_TEST}" != "x")
 
 # Check for Emacs
 AM_PATH_LISPDIR
@@ -255,22 +255,6 @@ if test "$ql_use_tsop" = "yes" ; then
               thread-safe observer pattern.])
 fi
 
-AC_MSG_CHECKING([whether to enable thread-safe singleton initialization])
-AC_ARG_ENABLE([thread-safe-singleton-init],
-              AS_HELP_STRING([--enable-thread-safe-singleton-init],
-                             [If enabled, singleton initialization will
-                              be thread-safe. This requires Boost 1.58
-                              or later.  Note that --enable-sessions
-                              implies thread-safe initialization,
-                              whether this is defined or not]),
-              [ql_use_safe_singleton_init=$enableval],
-              [ql_use_safe_singleton_init=no])
-if test "$ql_use_safe_singleton_init" = "yes" ; then
-   AC_DEFINE([QL_ENABLE_SINGLETON_THREAD_SAFE_INIT],[1],
-             [Define this if you want thread-safe singleton initialization.])
-fi
-AC_MSG_RESULT([$ql_use_safe_singleton_init])
-
 if test "$ql_use_sessions" = "yes" || test "$ql_use_tsop" = "yes" || test "$ql_use_safe_singleton_init" = "yes"; then
    QL_CHECK_BOOST_VERSION_1_58_OR_HIGHER
    QL_CHECK_BOOST_TEST_THREAD_SIGNALS2_SYSTEM
@@ -376,20 +360,6 @@ if test "$ql_use_std_pointers" = "yes" ; then
 fi
 AC_MSG_RESULT([$ql_use_std_pointers])
 
-AC_MSG_CHECKING([whether to enable std::unique_ptr instead of std::auto_ptr])
-AC_ARG_ENABLE([std-unique-ptr],
-              AS_HELP_STRING([--enable-std-unique-ptr],
-                             [If enabled (the default), std::unique_ptr will
-                              be used instead of the deprecated std::auto_ptr.
-                              If disabled, std::auto_ptr will still be used.]),
-              [ql_use_unique_ptr=$enableval],
-              [ql_use_unique_ptr=yes])
-if test "$ql_use_unique_ptr" = "yes" ; then
-   AC_DEFINE([QL_USE_STD_UNIQUE_PTR],[1],
-             [Define this if you want to replace std::auto_ptr with std::unique_ptr.])
-fi
-AC_MSG_RESULT([$ql_use_unique_ptr])
-
 AC_MSG_CHECKING([whether to enable std::function])
 AC_ARG_ENABLE([std-function],
               AS_HELP_STRING([--enable-std-function],
@@ -425,8 +395,7 @@ AC_MSG_CHECKING([whether to enable available std classes])
 AC_ARG_ENABLE([std-classes],
               AS_HELP_STRING([--enable-std-classes],
                              [This is a shortcut for --enable-std-pointers
-                              --enable-std-unique-ptr --enable-std-function
-                              --enable-std-tuple.
+                              --enable-std-function --enable-std-tuple.
                               If enabled, this supersedes any --disable
                               option passed for the above.]),
               [ql_use_std_classes=$enableval],
@@ -434,31 +403,12 @@ AC_ARG_ENABLE([std-classes],
 if test "$ql_use_std_classes" = "yes" ; then
    AC_DEFINE([QL_USE_STD_SHARED_PTR],[1],
              [Define this if you want to use standard smart pointers.])
-   AC_DEFINE([QL_USE_STD_UNIQUE_PTR],[1],
-             [Define this if you want to replace std::auto_ptr with std::unique_ptr.])
    AC_DEFINE([QL_USE_STD_FUNCTION],[1],
              [Define this if you want to use std::function and std::bind.])
    AC_DEFINE([QL_USE_STD_TUPLE],[1],
              [Define this if you want to use std::tuple.])
 fi
 AC_MSG_RESULT([$ql_use_std_classes])
-
-
-AC_MSG_CHECKING([whether to enable the Disposable class template])
-AC_ARG_ENABLE([disposable],
-              AS_HELP_STRING([--enable-disposable],
-                             [If enabled, the Disposable class template will be used;
-                              this should be no longer necessary in C++11
-                              and might interfere with compiler optimizations.
-                              If disabled (the default) the class will only
-                              be an alias for the underlying type.]),
-              [ql_use_disposable=$enableval],
-              [ql_use_disposable=no])
-if test "$ql_use_disposable" = "yes" ; then
-   AC_DEFINE([QL_USE_DISPOSABLE],[1],
-             [Define this if you want to use the Disposable class template.])
-fi
-AC_MSG_RESULT([$ql_use_disposable])
 
 
 # manual configurations for specific hosts
