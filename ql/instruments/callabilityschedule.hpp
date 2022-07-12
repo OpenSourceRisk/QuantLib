@@ -27,13 +27,29 @@
 
 #include <ql/event.hpp>
 #include <ql/instruments/bond.hpp>
+#include <ql/interestrate.hpp>
 #include <ql/patterns/visitor.hpp>
 #include <ql/utilities/null.hpp>
 #include <ql/shared_ptr.hpp>
 #include <boost/optional.hpp>
+#include <boost/variant.hpp>
 #include <vector>
 
 namespace QuantLib {
+
+    struct BondPriceGetter : boost::static_visitor<const Bond::Price&> {
+        BondPriceGetter() {}
+        const Bond::Price& operator()(const Bond::Price& p) const { return p; }
+        const Bond::Price& operator()(const InterestRate& p) const { 
+            QL_FAIL("Must be a Bond::Price");
+        }
+    };
+
+    struct InterestRateGetter : boost::static_visitor<const InterestRate&> {
+        InterestRateGetter() {}
+        const InterestRate& operator()(const Bond::Price& p) const { QL_FAIL("Must be a Bond::Price"); }
+        const InterestRate& operator()(const InterestRate& p) const { return p; }
+    };
 
     //! %instrument callability
     class Callability : public Event {
@@ -41,11 +57,26 @@ namespace QuantLib {
         //! type of the callability
         enum Type { Call, Put };
 
+        Callability(boost::variant<Bond::Price, InterestRate> variable, Type type, const Date& date)
+        : variable_(variable), type_(type), date_(date) {}
+
         Callability(const Bond::Price& price, Type type, const Date& date)
-        : price_(price), type_(type), date_(date) {}
+        : variable_(price), type_(type), date_(date) {}
+
+        Callability(const InterestRate& yield, Type type, const Date& date)
+        : variable_(yield), type_(type), date_(date) {}
+
         const Bond::Price& price() const {
-            QL_REQUIRE(price_, "no price given");
-            return *price_;
+            QL_REQUIRE(variable_, "no bond price given");
+            return boost::apply_visitor(BondPriceGetter(), *variable_);
+        }
+        const InterestRate& yield() const {
+            QL_REQUIRE(variable_, "no yield given");
+            return boost::apply_visitor(InterestRateGetter(), *variable_);
+        }
+        const bool isBondPrice() const { 
+            QL_REQUIRE(variable_, "no bond price or yield given");
+            return (*variable_).which() == 0;
         }
         Type type() const { return type_; }
         //! \name Event interface
@@ -57,7 +88,7 @@ namespace QuantLib {
         void accept(AcyclicVisitor&) override;
         //@}
       private:
-        boost::optional<Bond::Price> price_;
+        boost::optional<boost::variant<Bond::Price, InterestRate>> variable_;
         Type type_;
         Date date_;
     };
