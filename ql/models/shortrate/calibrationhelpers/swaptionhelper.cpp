@@ -205,8 +205,8 @@ namespace QuantLib {
                 type = strike_ <= forward ? Swap::Receiver : Swap::Payer;
             }
             swapOis_ = ext::make_shared<OvernightIndexedSwap>(
-                type, nominal_, fixedSchedule, 0.0, fixedLegDayCounter_, onIndex, 0.0, 0, Following,
-                Calendar(), true, averagingMethod_);
+                type, nominal_, fixedSchedule, exerciseRate_, fixedLegDayCounter_, onIndex, 0.0, 0,
+                Following, Calendar(), true, averagingMethod_);
             swapOis_->setPricingEngine(swapEngine);
             swaption_ = ext::make_shared<Swaption>(swapOis_, exercise);
         } else {
