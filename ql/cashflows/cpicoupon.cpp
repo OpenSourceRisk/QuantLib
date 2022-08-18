@@ -78,18 +78,17 @@ namespace QuantLib {
                    "|baseCPI_| < 1e-16, future divide-by-zero problem");
     }
 
-    CPICoupon::CPICoupon(Rate baseCPI,
-                         const Date& baseDate,
+    CPICoupon::CPICoupon(Real baseCPI,         // user provided, can be null<Real>()
+                         const Date& baseDate, // user provided
                          const Date& paymentDate,
                          Real nominal,
                          const Date& startDate,
                          const Date& endDate,
-                         Natural fixingDays,
                          const ext::shared_ptr<ZeroInflationIndex>& zeroIndex,
                          const Period& observationLag,
                          CPI::InterpolationType observationInterpolation,
                          const DayCounter& dayCounter,
-                         Real fixedRate,
+                         Real fixedRate, // aka gearing
                          Spread spread,
                          const Date& refPeriodStart,
                          const Date& refPeriodEnd,
@@ -98,7 +97,7 @@ namespace QuantLib {
                       nominal,
                       startDate,
                       endDate,
-                      fixingDays,
+                      0,
                       zeroIndex,
                       observationLag,
                       dayCounter,
@@ -217,12 +216,14 @@ namespace QuantLib {
 
     Real CPICashFlow::amount() const {
         Real I0 = baseFixing();
-        
+        Real I1;
+    
+        // Added to handle cases with null baseCPI, look up from index
         if (I0 == Null<Real>()) {
-            I0 = indexFixing(baseDate());
+            I0 = CPI::laggedFixing(cpiIndex(), baseDate() + observationLag(), observationLag(), interpolation());
         }
 
-        Real I1 = indexFixing();
+        I1 = indexFixing();
 
         if (growthOnly())
             return notional() * (I1 / I0 - 1.0);
@@ -230,51 +231,15 @@ namespace QuantLib {
             return notional() * (I1 / I0);
     }
 
-    Real CPICashFlow::indexFixing(const Date& observationDate) const {
-        
-        Date obsDate = observationDate == Date() ? fixingDate() : observationDate;
-        Real I1;
-
-        // what interpolation do we use? Index / flat / linear
-        if (interpolation() == CPI::AsIndex) {
-            I1 = index()->fixing(obsDate);
+    Real CPICashFlow::indexFixing() const {
+        if (observationDate_ != Date()) {
+            return CPI::laggedFixing(cpiIndex(), observationDate_, observationLag_, interpolation_);
         } else {
-            // work out what it should be
-            // std::cout << fixingDate() << " and " << frequency() << std::endl;
-            // std::pair<Date,Date> dd = inflationPeriod(fixingDate(), frequency());
-            // std::cout << fixingDate() << " and " << dd.first << " " << dd.second << std::endl;
-            // work out what it should be
-            std::pair<Date, Date> observationInflationPeriod =
-                inflationPeriod(obsDate, frequency());
-            Real indexStart = index()->fixing(observationInflationPeriod.first);
-            if (interpolation() == CPI::Linear) {
-                std::pair<Date, Date> paymentDateInflationPeriod =
-                    inflationPeriod(date(), frequency());
-                Real indexEnd =
-                    index()->fixing(observationInflationPeriod.second + Period(1, Days));
-                // linear interpolation
-                // std::cout << indexStart << " and " << indexEnd << std::endl;
-                I1 = indexStart +
-                     (indexEnd - indexStart) * (date() - paymentDateInflationPeriod.first) /
-                         ((paymentDateInflationPeriod.second + Period(1, Days)) -
-                          paymentDateInflationPeriod
-                              .first); // can't get to next period's value within current period
-            } else {
-                std::pair<Date,Date> dd = inflationPeriod(fixingDate(), frequency());
-                Real indexStart = index()->fixing(dd.first);
-                if (interpolation() == CPI::Linear) {
-                    Real indexEnd = index()->fixing(dd.second+Period(1,Days));
-                    // linear interpolation
-                    I1 = indexStart + (indexEnd - indexStart) * (fixingDate() - dd.first)
-                        / ( (dd.second+Period(1,Days)) - dd.first);
-                } else {
-                    // no interpolation, i.e. flat = constant, so use start-of-period value
-                    I1 = indexStart;
-                }
-            }
+            return CPI::laggedFixing(cpiIndex(), fixingDate() + observationLag_, observationLag_,
+                                     interpolation());
         }
-        return I1;
     }
+
 
     CPILeg::CPILeg(const Schedule& schedule,
                    ext::shared_ptr<ZeroInflationIndex> index,

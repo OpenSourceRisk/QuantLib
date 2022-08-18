@@ -88,13 +88,13 @@ namespace QuantLib {
                   const Date& refPeriodEnd = Date(),
                   const Date& exCouponDate = Date());
 
+        /* Allow baseCPI to be Null but then baseDate is required*/
         CPICoupon(Real baseCPI, // user provided, can be null<Real>()
                   const Date& baseDate, // user provided
                   const Date& paymentDate,
                   Real nominal,
                   const Date& startDate,
                   const Date& endDate,
-                  Natural fixingDays,
                   const ext::shared_ptr<ZeroInflationIndex>& index,
                   const Period& observationLag,
                   CPI::InterpolationType observationInterpolation,
@@ -219,7 +219,7 @@ namespace QuantLib {
         Real amount() const override;
 
         //! interpolation of the index fixing
-        virtual Real indexFixing(const Date& observationDate=Date()) const override;
+        virtual Real indexFixing() const override;
 
       protected:
         Real baseFixing_;
@@ -311,9 +311,7 @@ namespace QuantLib {
     }
 
     inline Rate CPICoupon::indexFixing() const {
-        return indexFixing(fixingDate(), paymentDate_);
-        // QL 1.27:
-        // return CPI::laggedFixing(cpiIndex(), accrualEndDate(), observationLag(), observationInterpolation());
+        return CPI::laggedFixing(cpiIndex(), accrualEndDate(), observationLag(), observationInterpolation());
     }
 
     inline Rate CPICoupon::baseCPI() const {

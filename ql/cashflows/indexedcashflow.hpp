@@ -59,14 +59,8 @@ namespace QuantLib {
         virtual Date fixingDate() const { return fixingDate_; }
         virtual ext::shared_ptr<Index> index() const { return index_; }
         virtual bool growthOnly() const { return growthOnly_; }
-
-        virtual Real indexFixing(const Date& observationDate = Date()) const {
-            if (observationDate == Date()) {
-                return index_->fixing(fixingDate_);
-            } else {
-                return index_->fixing(observationDate);
-            }
-        }
+        
+        virtual Real indexFixing() const { return index_->fixing(fixingDate_); }
         //! \name CashFlow interface
         //@{
         Real amount() const override; // already virtual

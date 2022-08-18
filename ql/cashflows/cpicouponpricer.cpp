@@ -112,7 +112,10 @@ namespace QuantLib {
         Real I0 = coupon_->baseCPI();
 
         if (I0 == Null<Real>()) {
-            I0 = coupon_->indexObservation(coupon_->baseDate());
+            I0 = CPI::laggedFixing(coupon_->cpiIndex(),
+                                   coupon_->baseDate() + coupon_->observationLag(),
+                                   coupon_->observationLag(),
+                                   coupon_->observationInterpolation());
         }
 
         Rate I1 = coupon_->indexFixing();
