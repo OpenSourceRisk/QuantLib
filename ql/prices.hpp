@@ -102,8 +102,11 @@ namespace QuantLib {
 
     
     template <>
-    inline IntervalPrice Null<IntervalPrice>() {
-        return {};
+    class Null<IntervalPrice> 
+    {
+      public:
+        Null() = default;
+        operator IntervalPrice() const { return {}; }
     };
 
 }

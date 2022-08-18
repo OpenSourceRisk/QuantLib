@@ -27,13 +27,25 @@
 #define quantlib_null_hpp
 
 #include <ql/types.hpp>
-#include <type_traits>
-#include <limits>
+
+#if defined(__GNUC__) && (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ > 4))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
+#endif
+
+#include <boost/type_traits.hpp>
+
+#if defined(__GNUC__) && (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ > 4))
+#pragma GCC diagnostic pop
+#endif
 
 namespace QuantLib {
 
-    
-   
+    //! template class providing a null value for a given type.
+    template <class Type>
+    class Null;
+
+
     namespace detail {
 
         template <bool>
@@ -42,28 +54,31 @@ namespace QuantLib {
         // null value for floating-point types
         template <>
         struct FloatingPointNull<true> {
-            constexpr static float nullValue() {
-                // a specific values that should fit into any Real
-                return (std::numeric_limits<float>::max)();
+            static float nullValue() {
+                return QL_NULL_REAL;
             }
         };
 
         // null value for integer types
         template <>
         struct FloatingPointNull<false> {
-            constexpr static int nullValue() {
-                // a specific values that should fit into any Integer
-                return (std::numeric_limits<int>::max)();
+            static int nullValue() {
+                return QL_NULL_INTEGER;
             }
         };
 
     }
 
-    //! template function providing a null value for a given type.
+    // default implementation for built-in types
     template <typename T>
-    T Null() {
-        return T(detail::FloatingPointNull<std::is_floating_point<T>::value>::nullValue());
-    }
+    class Null {
+      public:
+        Null() = default;
+        operator T() const {
+            return T(detail::FloatingPointNull<
+                         boost::is_floating_point<T>::value>::nullValue());
+        }
+    };
 
 }
 
