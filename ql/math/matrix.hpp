@@ -155,6 +155,8 @@ namespace QuantLib {
     /*! \relates Matrix */
     Disposable<Matrix> operator+(const Matrix&, const Matrix&);
     /*! \relates Matrix */
+    Disposable<Matrix> operator-(const Matrix&);
+    /*! \relates Matrix */
     Disposable<Matrix> operator-(const Matrix&, const Matrix&);
     /*! \relates Matrix */
     Disposable<Matrix> operator*(const Matrix&, Real);
@@ -522,6 +524,12 @@ namespace QuantLib {
         Matrix temp(m1.rows(),m1.columns());
         std::transform(m1.begin(),m1.end(),m2.begin(),temp.begin(),
                        std::plus<Real>());
+        return temp;
+    }
+
+    inline Disposable<Matrix> operator-(const Matrix& m1) {
+        Matrix temp(m1.rows(), m1.columns());
+        std::transform(m1.begin(), m1.end(), temp.begin(), std::negate<Real>());
         return temp;
     }
 
