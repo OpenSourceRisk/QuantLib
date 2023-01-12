@@ -60,6 +60,9 @@ namespace QuantLib {
         //! returns a copy of itself linked to a different forwarding curve
         virtual ext::shared_ptr<IborIndex> clone(
                         const Handle<YieldTermStructure>& forwarding) const;
+        //! returns a copy of itself with different fixingCalendar
+        virtual ext::shared_ptr<IborIndex> clone(
+                const Calendar& fixingCalendar) const;
         // @}
       protected:
         // overload to avoid date/time (re)calculation

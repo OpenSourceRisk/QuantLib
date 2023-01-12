@@ -59,6 +59,19 @@ namespace QuantLib {
     }
 
     ext::shared_ptr<IborIndex> IborIndex::clone(
+        const Calendar& fixingCalendar) const {
+        return ext::make_shared<IborIndex>(familyName(),
+                                           tenor(),
+                                           fixingDays(),
+                                           currency(),
+                                           fixingCalendar,
+                                           businessDayConvention(),
+                                           endOfMonth(),
+                                           dayCounter(),
+                                           forwardingTermStructure());
+    }
+
+    ext::shared_ptr<IborIndex> IborIndex::clone(
                                const Handle<YieldTermStructure>& h) const {
         return ext::make_shared<IborIndex>(
                                         familyName(),
