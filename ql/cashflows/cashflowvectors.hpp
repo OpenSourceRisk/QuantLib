@@ -75,7 +75,8 @@ namespace QuantLib {
                     Period exCouponPeriod = Period(),
                     Calendar exCouponCalendar = Calendar(),
                     BusinessDayConvention exCouponAdjustment = Unadjusted,
-                    bool exCouponEndOfMonth = false) {
+                    bool exCouponEndOfMonth = false,
+                    const std::vector<Date>& paymentDates = {}) {
 
         Size n = schedule.size()-1;
         QL_REQUIRE(!nominals.empty(), "no notional given");
@@ -94,6 +95,11 @@ namespace QuantLib {
         QL_REQUIRE(floors.size()<=n,
                    "too many floors (" << floors.size() <<
                    "), only " << n << " required");
+        QL_REQUIRE(paymentDates.empty() || paymentDates.size() == n,
+                   "Expected the number of explicit payment dates (" <<
+                   paymentDates.size() <<
+                   ") to equal the number of calculation periods ("
+                   << n << ")");
         QL_REQUIRE(!isZero || !isInArrears,
                    "in-arrears and zero features are not compatible");
 
@@ -112,8 +118,17 @@ namespace QuantLib {
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule.date(i);
             refEnd   =   end = schedule.date(i+1);
-            Date paymentDate =
-                isZero ? lastPaymentDate : paymentCalendar.advance(end, paymentLag, Days, paymentAdj);
+            Date paymentDate;
+            if (isZero) {
+                paymentDate = lastPaymentDate;
+            } else {
+                // If explicit payment dates provided, use them.
+                if (!paymentDates.empty()) {
+                    paymentDate = paymentDates[i];
+                } else {
+                    paymentDate = paymentCalendar.advance(end, paymentLag, Days, paymentAdj);
+                }
+            }
             if (i==0   && (schedule.hasIsRegular() && schedule.hasTenor() && !schedule.isRegular(i+1))) {
                 BusinessDayConvention bdc = schedule.businessDayConvention();
                 refStart = calendar.adjust(end - schedule.tenor(), bdc);
