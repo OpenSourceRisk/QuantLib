@@ -30,6 +30,7 @@
 #define quantlib_floating_rate_coupon_hpp
 
 #include <ql/cashflows/coupon.hpp>
+#include <ql/math/rounding.hpp>
 #include <ql/patterns/visitor.hpp>
 #include <ql/patterns/lazyobject.hpp>
 #include <ql/time/daycounter.hpp>
@@ -56,7 +57,8 @@ namespace QuantLib {
                            const Date& refPeriodEnd = Date(),
                            DayCounter dayCounter = DayCounter(),
                            bool isInArrears = false,
-                           const Date& exCouponDate = Date());
+                           const Date& exCouponDate = Date(),
+                           const Rounding& rounding = Rounding());
 
         //! \name LazyObject interface
         //@{
@@ -95,6 +97,8 @@ namespace QuantLib {
         virtual Rate adjustedFixing() const;
         //! whether or not the coupon fixes in arrears
         bool isInArrears() const { return isInArrears_; }
+        //! rounding of fixings
+        Rounding rounding() const { return rounding_; }
         //@}
 
         //! \name Visitability
@@ -113,6 +117,7 @@ namespace QuantLib {
         Real gearing_;
         Spread spread_;
         bool isInArrears_;
+        Rounding rounding_;
         ext::shared_ptr<FloatingRateCouponPricer> pricer_;
         mutable Real rate_;
     };

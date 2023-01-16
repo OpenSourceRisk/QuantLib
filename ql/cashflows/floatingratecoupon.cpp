@@ -42,11 +42,12 @@ namespace QuantLib {
                                            const Date& refPeriodEnd,
                                            DayCounter dayCounter,
                                            bool isInArrears,
-                                           const Date& exCouponDate)
+                                           const Date& exCouponDate,
+                                           const Rounding& rounding)
     : Coupon(paymentDate, nominal, startDate, endDate, refPeriodStart, refPeriodEnd, exCouponDate),
       index_(index), dayCounter_(std::move(dayCounter)),
       fixingDays_(fixingDays == Null<Natural>() ? (index ? index->fixingDays() : 0) : fixingDays),
-      gearing_(gearing), spread_(spread), isInArrears_(isInArrears) {
+      gearing_(gearing), spread_(spread), isInArrears_(isInArrears), rounding_(rounding) {
         QL_REQUIRE(index_, "no index provided");
         QL_REQUIRE(gearing_!=0, "Null gearing not allowed");
 

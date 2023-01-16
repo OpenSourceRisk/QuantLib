@@ -76,7 +76,8 @@ namespace QuantLib {
                     Calendar exCouponCalendar = Calendar(),
                     BusinessDayConvention exCouponAdjustment = Unadjusted,
                     bool exCouponEndOfMonth = false,
-                    const std::vector<Date>& paymentDates = {}) {
+                    const std::vector<Date>& paymentDates = {},
+                    const Rounding& rounding = Rounding()) {
 
         Size n = schedule.size()-1;
         QL_REQUIRE(!nominals.empty(), "no notional given");
@@ -165,7 +166,7 @@ namespace QuantLib {
                             detail::get(gearings, i, 1.0),
                             detail::get(spreads, i, 0.0),
                             refStart, refEnd,
-                            paymentDayCounter, isInArrears, exCouponDate)));
+                            paymentDayCounter, isInArrears, exCouponDate, rounding)));
                 else {
                     leg.push_back(ext::shared_ptr<CashFlow>(new
                         CappedFlooredCouponType(

@@ -55,11 +55,13 @@ namespace QuantLib {
                            const Date& refPeriodEnd,
                            const DayCounter& dayCounter,
                            bool isInArrears,
-                           const Date& exCouponDate)
+                           const Date& exCouponDate,
+                           const Rounding& rounding)
     : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
                          fixingDays, iborIndex, gearing, spread,
                          refPeriodStart, refPeriodEnd,
-                         dayCounter, isInArrears, exCouponDate),
+                         dayCounter, isInArrears, exCouponDate,
+                         rounding),
       iborIndex_(iborIndex) {
         fixingDate_ = fixingDate();
     }
@@ -118,13 +120,13 @@ namespace QuantLib {
             Rate result = index_->pastFixing(fixingDate_);
             QL_REQUIRE(result != Null<Real>(),
                        "Missing " << index_->name() << " fixing for " << fixingDate_);
-            return result;
+            return rounding_(result);
         }
 
         try {
             Rate result = index_->pastFixing(fixingDate_);
             if (result!=Null<Real>())
-                return result;
+                return rounding_(result);
             else
                 ;   // fall through and forecast
         } catch (Error&) {
@@ -282,6 +284,11 @@ namespace QuantLib {
         return *this;
     }
 
+    IborLeg& IborLeg::withRounding(const Rounding& rounding) {
+        rounding_ = rounding;
+        return *this;
+    }
+
     IborLeg::operator Leg() const {
 
         Leg leg = FloatingLeg<IborIndex, IborCoupon, CappedFlooredIborCoupon>(
@@ -289,7 +296,7 @@ namespace QuantLib {
                          paymentAdjustment_, fixingDays_, gearings_, spreads_,
                          caps_, floors_, inArrears_, zeroPayments_, paymentLag_, paymentCalendar_, 
 			             exCouponPeriod_, exCouponCalendar_, exCouponAdjustment_, exCouponEndOfMonth_,
-                         paymentDates_);
+                         paymentDates_, rounding_);
 
         if (caps_.empty() && floors_.empty() && !inArrears_) {
             ext::shared_ptr<IborCouponPricer> pricer = ext::make_shared<BlackIborCouponPricer>(

@@ -38,12 +38,17 @@ namespace QuantLib {
                          const Date& refPeriodEnd,
                          const DayCounter& dayCounter,
                          bool isInArrears,
-                         const Date& exCouponDate)
+                         const Date& exCouponDate,
+                         const Rounding& rounding)
     : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
                          fixingDays, swapIndex, gearing, spread,
                          refPeriodStart, refPeriodEnd,
-                         dayCounter, isInArrears, exCouponDate),
-      swapIndex_(swapIndex) {}
+                         dayCounter, isInArrears, exCouponDate,
+                         rounding),
+      swapIndex_(swapIndex) {
+        QL_REQUIRE(rounding.type() == Rounding::None,
+                   "rounding is not supported in CmsCoupon yet");
+    }
 
     void CmsCoupon::accept(AcyclicVisitor& v) {
         auto* v1 = dynamic_cast<Visitor<CmsCoupon>*>(&v);

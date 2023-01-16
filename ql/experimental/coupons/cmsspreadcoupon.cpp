@@ -29,12 +29,16 @@ namespace QuantLib {
         const ext::shared_ptr<SwapSpreadIndex> &index, Real gearing,
         Spread spread, const Date &refPeriodStart,
         const Date &refPeriodEnd,
-        const DayCounter &dayCounter, bool isInArrears, const Date &exCouponDate)
+        const DayCounter &dayCounter, bool isInArrears, const Date &exCouponDate,
+        const Rounding& rounding)
         : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
                              fixingDays, index, gearing, spread,
                              refPeriodStart, refPeriodEnd, dayCounter,
-                             isInArrears, exCouponDate),
-          index_(index) {}
+                             isInArrears, exCouponDate, rounding),
+          index_(index) {
+        QL_REQUIRE(rounding.type() == Rounding::None,
+                   "rounding is not supported in CmsSpreadCoupon yet");
+    }
 
     void CmsSpreadCoupon::accept(AcyclicVisitor &v) {
         auto* v1 = dynamic_cast<Visitor<CmsSpreadCoupon>*>(&v);

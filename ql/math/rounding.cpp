@@ -31,7 +31,7 @@ namespace QuantLib {
         if (type_ == None)
             return value;
 
-        Real mult = std::pow(10.0,precision_);
+        Real mult = fraction_ != 0.0 ? 1.0/fraction_ : std::pow(10.0,precision_);
         bool neg = (value < 0.0);
         Real lvalue = std::fabs(value)*mult;
         Real integral = 0.0;

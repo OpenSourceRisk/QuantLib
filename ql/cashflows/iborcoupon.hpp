@@ -51,7 +51,8 @@ namespace QuantLib {
                    const Date& refPeriodEnd = Date(),
                    const DayCounter& dayCounter = DayCounter(),
                    bool isInArrears = false,
-                   const Date& exCouponDate = Date());
+                   const Date& exCouponDate = Date(),
+                   const Rounding& rounding = Rounding());
         //! \name Inspectors
         //@{
         const ext::shared_ptr<IborIndex>& iborIndex() const { return iborIndex_; }
@@ -169,6 +170,7 @@ namespace QuantLib {
         IborLeg& withIndexedCoupons(boost::optional<bool> b = true);
         IborLeg& withAtParCoupons(bool b = true);
         IborLeg& withPaymentDates(const std::vector<Date>& paymentDates);
+        IborLeg& withRounding(const Rounding& rounding);
         operator Leg() const;
 
       private:
@@ -190,6 +192,7 @@ namespace QuantLib {
         bool exCouponEndOfMonth_ = false;
         boost::optional<bool> useIndexedCoupons_;
         std::vector<Date> paymentDates_;
+        Rounding rounding_;
     };
 
 }

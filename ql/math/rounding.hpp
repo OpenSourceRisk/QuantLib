@@ -71,16 +71,26 @@ namespace QuantLib {
         explicit Rounding(Integer precision,
                           Type type = Closest,
                           Integer digit = 5)
-        : precision_(precision), type_(type), digit_(digit) {}
+        : precision_(precision), fraction_(0.0), type_(type), digit_(digit) {}
+        explicit Rounding(Size precision,
+                          Type type = Closest,
+                          Integer digit = 5)
+        : precision_(precision), fraction_(0.0), type_(type), digit_(digit) {}
+        explicit Rounding(Decimal fraction,
+                          Type type = Closest,
+                          Integer digit = 5)
+        : precision_(0), fraction_(fraction), type_(type), digit_(digit) {}
         //! perform rounding
         Decimal operator()(Decimal value) const;
         //! \name Inspectors
         //@{
         Integer precision() const { return precision_; }
+        Decimal fraction() const { return fraction_; }
         Type type() const { return type_; }
         Integer roundingDigit() const { return digit_; }
       private:
         Integer precision_;
+        Decimal fraction_;
         Type type_ = None;
         Integer digit_;
     };
