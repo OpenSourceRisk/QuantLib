@@ -15,7 +15,7 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-/*! \file qle/utilities/time.hpp
+/*! \file ql/utilities/time.hpp
     \brief time related utilities.
 */
 
