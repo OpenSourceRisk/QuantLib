@@ -49,10 +49,11 @@ namespace QuantLib {
     LocalVolSurface::LocalVolSurface(const Handle<BlackVolTermStructure>& blackTS,
                                      Handle<YieldTermStructure> riskFreeTS,
                                      Handle<YieldTermStructure> dividendTS,
-                                     Handle<Quote> underlying)
+                                     Handle<Quote> underlying,
+                                     bool floorNegativeValues)
     : LocalVolTermStructure(blackTS->businessDayConvention(), blackTS->dayCounter()),
       blackTS_(blackTS), riskFreeTS_(std::move(riskFreeTS)), dividendTS_(std::move(dividendTS)),
-      underlying_(std::move(underlying)) {
+      underlying_(std::move(underlying)), floorNegativeValues_(floorNegativeValues) {
         registerWith(blackTS_);
         registerWith(riskFreeTS_);
         registerWith(dividendTS_);
@@ -62,10 +63,12 @@ namespace QuantLib {
     LocalVolSurface::LocalVolSurface(const Handle<BlackVolTermStructure>& blackTS,
                                      Handle<YieldTermStructure> riskFreeTS,
                                      Handle<YieldTermStructure> dividendTS,
-                                     Real underlying)
+                                     Real underlying,
+                                     bool floorNegativeValues)
     : LocalVolTermStructure(blackTS->businessDayConvention(), blackTS->dayCounter()),
       blackTS_(blackTS), riskFreeTS_(std::move(riskFreeTS)), dividendTS_(std::move(dividendTS)),
-      underlying_(ext::shared_ptr<Quote>(new SimpleQuote(underlying))) {
+      underlying_(ext::shared_ptr<Quote>(new SimpleQuote(underlying))),
+      floorNegativeValues_(floorNegativeValues) {
         registerWith(blackTS_);
         registerWith(riskFreeTS_);
         registerWith(dividendTS_);
@@ -125,15 +128,15 @@ namespace QuantLib {
             
             wpt = blackTS_->blackVariance(t+dt, strikept, true);
             wmt = blackTS_->blackVariance(t-dt, strikemt, true);
-
-            QL_ENSURE(wpt>=w,
-                      "decreasing variance at strike " << strike
-                      << " between time " << t << " and time " << t+dt);
-            QL_ENSURE(w>=wmt,
-                      "decreasing variance at strike " << strike
-                      << " between time " << t-dt << " and time " << t);
-         
             dwdt = (wpt-wmt)/(2.0*dt);
+
+            QL_ENSURE(wpt>=w && w>=wmt,
+                      "decreasing variance at strike " << strike
+                      << " between time " << t << " and time " << t+dt
+                      << ": wmt=" << wmt
+                      << " w=" << w
+                      << " wpt=" << wpt
+                      << " dwdt=" << dwdt);
         }
 
         if (dwdy==0.0 && d2wdy2==0.0) { // avoid /w where w might be 0.0
@@ -145,8 +148,12 @@ namespace QuantLib {
             Real den = den1+den2+den3;
             Real result = dwdt / den;
 
+            if (floorNegativeValues_ && result < 0.0)
+                result = 0;
+            
             QL_ENSURE(result>=0.0,
-                      "negative local vol^2 at strike " << strike
+                      "negative local vol^2 " << result
+                      << " at strike " << strike
                       << " and time " << t
                       << "; the black vol surface is not smooth enough");
 

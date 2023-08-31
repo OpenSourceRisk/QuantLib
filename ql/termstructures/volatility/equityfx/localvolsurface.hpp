@@ -47,11 +47,13 @@ namespace QuantLib {
         LocalVolSurface(const Handle<BlackVolTermStructure>& blackTS,
                         Handle<YieldTermStructure> riskFreeTS,
                         Handle<YieldTermStructure> dividendTS,
-                        Handle<Quote> underlying);
+                        Handle<Quote> underlying,
+                        bool floorNegativeValues = false);
         LocalVolSurface(const Handle<BlackVolTermStructure>& blackTS,
                         Handle<YieldTermStructure> riskFreeTS,
                         Handle<YieldTermStructure> dividendTS,
-                        Real underlying);
+                        Real underlying,
+                        bool floorNegativeValues = false);
         //! \name TermStructure interface
         //@{
         const Date& referenceDate() const override;
@@ -74,6 +76,7 @@ namespace QuantLib {
         Handle<BlackVolTermStructure> blackTS_;
         Handle<YieldTermStructure> riskFreeTS_, dividendTS_;
         Handle<Quote> underlying_;
+        bool floorNegativeValues_;
     };
 
 }
