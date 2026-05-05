@@ -39,19 +39,22 @@ namespace QuantLib {
 
     namespace detail {
 
-        class CoefficientHolder {
+        class CubicInterpolationBaseImpl : public Interpolation::Impl {
           public:
-            explicit CoefficientHolder(Size n)
-            : n_(n), primitiveConst_(n-1), a_(n-1), b_(n-1), c_(n-1),
-              monotonicityAdjustments_(n) {}
-            virtual ~CoefficientHolder() = default;
-            Size n_;
+            CubicInterpolationBaseImpl(Size n,
+                                       Real leftConditionValue,
+                                       Real rightConditionValue)
+            : primitiveConst_(n-1), a_(n-1), b_(n-1), c_(n-1),
+              monotonicityAdjustments_(n),
+              leftValue_(leftConditionValue), rightValue_(rightConditionValue) {}
+
             // P[i](x) = y[i] +
             //           a[i]*(x-x[i]) +
             //           b[i]*(x-x[i])^2 +
             //           c[i]*(x-x[i])^3
             std::vector<Real> primitiveConst_, a_, b_, c_;
             std::vector<bool> monotonicityAdjustments_;
+            Real leftValue_, rightValue_;
         };
 
         template <class I1, class I2> class CubicInterpolationImpl;
@@ -176,17 +179,24 @@ namespace QuantLib {
             impl_->update();
         }
         const std::vector<Real>& primitiveConstants() const {
-            return coeffs().primitiveConst_;
+            return baseImpl().primitiveConst_;
         }
-        const std::vector<Real>& aCoefficients() const { return coeffs().a_; }
-        const std::vector<Real>& bCoefficients() const { return coeffs().b_; }
-        const std::vector<Real>& cCoefficients() const { return coeffs().c_; }
+        const std::vector<Real>& aCoefficients() const { return baseImpl().a_; }
+        const std::vector<Real>& bCoefficients() const { return baseImpl().b_; }
+        const std::vector<Real>& cCoefficients() const { return baseImpl().c_; }
         const std::vector<bool>& monotonicityAdjustments() const {
-            return coeffs().monotonicityAdjustments_;
+            return baseImpl().monotonicityAdjustments_;
+        }
+        void updateLeftConditionValue(Real value) {
+            baseImpl().leftValue_ = value;
+        }
+        void updateRightConditionValue(Real value) {
+            baseImpl().rightValue_ = value;
         }
       private:
-        const detail::CoefficientHolder& coeffs() const {
-            return *dynamic_cast<detail::CoefficientHolder*>(impl_.get());
+        detail::CubicInterpolationBaseImpl& baseImpl() const {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+            return *static_cast<detail::CubicInterpolationBaseImpl*>(impl_.get());
         }
     };
 
@@ -361,8 +371,8 @@ namespace QuantLib {
     namespace detail {
 
         template <class I1, class I2>
-        class CubicInterpolationImpl final : public CoefficientHolder,
-                                             public Interpolation::templateImpl<I1,I2> {
+        class CubicInterpolationImpl final
+            : public Interpolation::templateImpl<I1, I2, CubicInterpolationBaseImpl> {
           public:
             CubicInterpolationImpl(const I1& xBegin,
                                    const I1& xEnd,
@@ -373,14 +383,13 @@ namespace QuantLib {
                                    Real leftConditionValue,
                                    CubicInterpolation::BoundaryCondition rightCondition,
                                    Real rightConditionValue)
-            : CoefficientHolder(xEnd-xBegin),
-              Interpolation::templateImpl<I1,I2>(xBegin, xEnd, yBegin,
-                                                 Cubic::requiredPoints),
+            : Interpolation::templateImpl<I1, I2, CubicInterpolationBaseImpl>(
+                xBegin, xEnd, yBegin, Cubic::requiredPoints,
+                xEnd-xBegin, leftConditionValue, rightConditionValue),
+              n_(xEnd-xBegin),
               da_(da),
               monotonic_(monotonic),
               leftType_(leftCondition), rightType_(rightCondition),
-              leftValue_(leftConditionValue),
-              rightValue_(rightConditionValue),
               tmp_(n_), dx_(n_-1), S_(n_-1), L_(n_) {
                 if (leftType_ == CubicInterpolation::Lagrange
                     || rightType_ == CubicInterpolation::Lagrange) {
@@ -415,11 +424,11 @@ namespace QuantLib {
                         break;
                       case CubicInterpolation::FirstDerivative:
                         L_.setFirstRow(1.0, 0.0);
-                        tmp_[0] = leftValue_;
+                        tmp_[0] = this->leftValue_;
                         break;
                       case CubicInterpolation::SecondDerivative:
                         L_.setFirstRow(2.0, 1.0);
-                        tmp_[0] = 3.0*S_[0] - leftValue_*dx_[0]/2.0;
+                        tmp_[0] = 3.0*S_[0] - this->leftValue_*dx_[0]/2.0;
                         break;
                       case CubicInterpolation::Periodic:
                         QL_FAIL("this end condition is not implemented yet");
@@ -447,11 +456,11 @@ namespace QuantLib {
                         break;
                       case CubicInterpolation::FirstDerivative:
                         L_.setLastRow(0.0, 1.0);
-                        tmp_[n_-1] = rightValue_;
+                        tmp_[n_-1] = this->rightValue_;
                         break;
                       case CubicInterpolation::SecondDerivative:
                         L_.setLastRow(1.0, 2.0);
-                        tmp_[n_-1] = 3.0*S_[n_-2] + rightValue_*dx_[n_-2]/2.0;
+                        tmp_[n_-1] = 3.0*S_[n_-2] + this->rightValue_*dx_[n_-2]/2.0;
                         break;
                       case CubicInterpolation::Periodic:
                         QL_FAIL("this end condition is not implemented yet");
@@ -667,8 +676,9 @@ namespace QuantLib {
                     }
                 }
 
-                std::fill(monotonicityAdjustments_.begin(),
-                          monotonicityAdjustments_.end(), false);
+                auto& monotonicityAdjustments = this->monotonicityAdjustments_;
+                std::fill(monotonicityAdjustments.begin(),
+                          monotonicityAdjustments.end(), false);
                 // Hyman monotonicity constrained filter
                 if (monotonic_) {
                     Real correction;
@@ -684,7 +694,7 @@ namespace QuantLib {
                             }
                             if (correction!=tmp_[i]) {
                                 tmp_[i] = correction;
-                                monotonicityAdjustments_[i] = true;
+                                monotonicityAdjustments[i] = true;
                             }
                         } else if (i==n_-1) {
                             if (tmp_[i]*S_[n_-2]>0.0) {
@@ -696,7 +706,7 @@ namespace QuantLib {
                             }
                             if (correction!=tmp_[i]) {
                                 tmp_[i] = correction;
-                                monotonicityAdjustments_[i] = true;
+                                monotonicityAdjustments[i] = true;
                             }
                         } else {
                             pm=(S_[i-1]*dx_[i]+S_[i]*dx_[i-1])/
@@ -735,7 +745,7 @@ namespace QuantLib {
                             }
                             if (correction!=tmp_[i]) {
                                 tmp_[i] = correction;
-                                monotonicityAdjustments_[i] = true;
+                                monotonicityAdjustments[i] = true;
                             }
                         }
                     }
@@ -744,48 +754,49 @@ namespace QuantLib {
 
                 // cubic coefficients
                 for (Size i=0; i<n_-1; ++i) {
-                    a_[i] = tmp_[i];
-                    b_[i] = (3.0*S_[i] - tmp_[i+1] - 2.0*tmp_[i])/dx_[i];
-                    c_[i] = (tmp_[i+1] + tmp_[i] - 2.0*S_[i])/(dx_[i]*dx_[i]);
+                    this->a_[i] = tmp_[i];
+                    this->b_[i] = (3.0*S_[i] - tmp_[i+1] - 2.0*tmp_[i])/dx_[i];
+                    this->c_[i] = (tmp_[i+1] + tmp_[i] - 2.0*S_[i])/(dx_[i]*dx_[i]);
                 }
 
-                primitiveConst_[0] = 0.0;
+                auto& primitiveConst = this->primitiveConst_;
+                primitiveConst[0] = 0.0;
                 for (Size i=1; i<n_-1; ++i) {
-                    primitiveConst_[i] = primitiveConst_[i-1]
+                    primitiveConst[i] = primitiveConst[i-1]
                         + dx_[i-1] *
                         (this->yBegin_[i-1] + dx_[i-1] *
-                         (a_[i-1]/2.0 + dx_[i-1] *
-                          (b_[i-1]/3.0 + dx_[i-1] * c_[i-1]/4.0)));
+                         (this->a_[i-1]/2.0 + dx_[i-1] *
+                          (this->b_[i-1]/3.0 + dx_[i-1] * this->c_[i-1]/4.0)));
                 }
             }
             Real value(Real x) const override {
                 Size j = this->locate(x);
                 Real dx_ = x-this->xBegin_[j];
-                return this->yBegin_[j] + dx_*(a_[j] + dx_*(b_[j] + dx_*c_[j]));
+                return this->yBegin_[j] + dx_*(this->a_[j] + dx_*(this->b_[j] + dx_*this->c_[j]));
             }
             Real primitive(Real x) const override {
                 Size j = this->locate(x);
                 Real dx_ = x-this->xBegin_[j];
-                return primitiveConst_[j]
-                    + dx_*(this->yBegin_[j] + dx_*(a_[j]/2.0
-                    + dx_*(b_[j]/3.0 + dx_*c_[j]/4.0)));
+                return this->primitiveConst_[j]
+                    + dx_*(this->yBegin_[j] + dx_*(this->a_[j]/2.0
+                    + dx_*(this->b_[j]/3.0 + dx_*this->c_[j]/4.0)));
             }
             Real derivative(Real x) const override {
                 Size j = this->locate(x);
                 Real dx_ = x-this->xBegin_[j];
-                return a_[j] + (2.0*b_[j] + 3.0*c_[j]*dx_)*dx_;
+                return this->a_[j] + (2.0*this->b_[j] + 3.0*this->c_[j]*dx_)*dx_;
             }
             Real secondDerivative(Real x) const override {
                 Size j = this->locate(x);
                 Real dx_ = x-this->xBegin_[j];
-                return 2.0*b_[j] + 6.0*c_[j]*dx_;
+                return 2.0*this->b_[j] + 6.0*this->c_[j]*dx_;
             }
 
           private:
+            Size n_;
             CubicInterpolation::DerivativeApprox da_;
             bool monotonic_;
             CubicInterpolation::BoundaryCondition leftType_, rightType_;
-            Real leftValue_, rightValue_;
             mutable Array tmp_;
             mutable std::vector<Real> dx_, S_;
             mutable TridiagonalOperator L_;

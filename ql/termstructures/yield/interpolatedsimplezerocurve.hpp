@@ -46,18 +46,21 @@ class InterpolatedSimpleZeroCurve : public YieldTermStructure, protected Interpo
                                 const std::vector<Handle<Quote>>& jumps = {},
                                 const std::vector<Date>& jumpDates = {},
                                 const Interpolator& interpolator = {},
-                                const Extrapolation = Extrapolation::ContinuousForward);
+                                const Extrapolation = Extrapolation::ContinuousForward,
+                                const bool excludeTimeZeroFromInterpolation = false);
     InterpolatedSimpleZeroCurve(const std::vector<Date>& dates,
                                 const std::vector<Rate>& yields,
                                 const DayCounter& dayCounter,
                                 const Calendar& calendar,
                                 const Interpolator& interpolator,
-                                const Extrapolation = Extrapolation::ContinuousForward);
+                                const Extrapolation = Extrapolation::ContinuousForward,
+                                const bool excludeTimeZeroFromInterpolation = false);
     InterpolatedSimpleZeroCurve(const std::vector<Date>& dates,
                                 const std::vector<Rate>& yields,
                                 const DayCounter& dayCounter,
                                 const Interpolator& interpolator,
-                                const Extrapolation = Extrapolation::ContinuousForward);
+                                const Extrapolation = Extrapolation::ContinuousForward,
+                                const bool excludeTimeZeroFromInterpolation = false);
     //! \name TermStructure interface
     //@{
     Date maxDate() const override;
@@ -73,26 +76,30 @@ class InterpolatedSimpleZeroCurve : public YieldTermStructure, protected Interpo
   protected:
     explicit InterpolatedSimpleZeroCurve(const DayCounter&,
                                          const Interpolator& interpolator = {},
-                                         const Extrapolation = Extrapolation::ContinuousForward);
+                                         const Extrapolation = Extrapolation::ContinuousForward,
+                                         const bool excludeTimeZeroFromInterpolation = false);
     InterpolatedSimpleZeroCurve(const Date& referenceDate,
                                 const DayCounter&,
                                 const std::vector<Handle<Quote>>& jumps = {},
                                 const std::vector<Date>& jumpDates = {},
                                 const Interpolator& interpolator = {},
-                                const Extrapolation = Extrapolation::ContinuousForward);
+                                const Extrapolation = Extrapolation::ContinuousForward,
+                                const bool excludeTimeZeroFromInterpolation = false);
     InterpolatedSimpleZeroCurve(Natural settlementDays,
                                 const Calendar&,
                                 const DayCounter&,
                                 const std::vector<Handle<Quote>>& jumps = {},
                                 const std::vector<Date>& jumpDates = {},
                                 const Interpolator& interpolator = {},
-                                const Extrapolation = Extrapolation::ContinuousForward);
+                                const Extrapolation = Extrapolation::ContinuousForward,
+                                const bool excludeTimeZeroFromInterpolation = false);
 
     //! \name YieldTermStructure implementation
     //@{
     DiscountFactor discountImpl(Time t) const override;
     //@}
     Extrapolation extrapolation_;
+    bool excludeTimeZeroFromInterpolation_;
     mutable std::vector<Date> dates_;
 
   private:
@@ -130,7 +137,11 @@ template <class T> inline std::vector<std::pair<Date, Real> > InterpolatedSimple
 template <class T> DiscountFactor InterpolatedSimpleZeroCurve<T>::discountImpl(Time t) const {
     Rate R;
     if (t <= this->times_.back()) {
-        R = this->interpolation_(t, true);
+        if (excludeTimeZeroFromInterpolation_ && t < this->times_[1]) {
+            R = this->data_[1];
+        } else {
+            R = this->interpolation_(t, true);
+        }
     } else {
         // flat fwd extrapolation after last pillar,
         // Notice that bbg uses flat extrapolation of non-annualized zero instead
@@ -140,73 +151,98 @@ template <class T> DiscountFactor InterpolatedSimpleZeroCurve<T>::discountImpl(T
         R = (zMax * tMax + instFwdMax * (t - tMax)) / t;
     }
 
-	return DiscountFactor(1.0 / (1.0 + R * t));    
+    return DiscountFactor(1.0 / (1.0 + R * t));
 }
 
 template <class T>
-InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const DayCounter& dayCounter,
-                                                            const T& interpolator,
-                                                            const Extrapolation extrapolation)
-: YieldTermStructure(dayCounter), InterpolatedCurve<T>(interpolator), extrapolation_(extrapolation) {}
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(
+    const DayCounter& dayCounter,
+    const T& interpolator,
+    const Extrapolation extrapolation,
+    const bool excludeTimeZeroFromInterpolation)
+: YieldTermStructure(dayCounter),
+  InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+  extrapolation_(extrapolation),
+  excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
 
 template <class T>
-InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const Date& referenceDate,
-                                                            const DayCounter& dayCounter,
-                                                            const std::vector<Handle<Quote>>& jumps,
-                                                            const std::vector<Date>& jumpDates,
-                                                            const T& interpolator,
-                                                            const Extrapolation extrapolation)
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(
+    const Date& referenceDate,
+    const DayCounter& dayCounter,
+    const std::vector<Handle<Quote>>& jumps,
+    const std::vector<Date>& jumpDates,
+    const T& interpolator,
+    const Extrapolation extrapolation,
+    const bool excludeTimeZeroFromInterpolation)
 : YieldTermStructure(referenceDate, Calendar(), dayCounter, jumps, jumpDates),
-  InterpolatedCurve<T>(interpolator), extrapolation_(extrapolation) {}
+  InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+  extrapolation_(extrapolation),
+  excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
 
 template <class T>
-InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(Natural settlementDays,
-                                                            const Calendar& calendar,
-                                                            const DayCounter& dayCounter,
-                                                            const std::vector<Handle<Quote>>& jumps,
-                                                            const std::vector<Date>& jumpDates,
-                                                            const T& interpolator,
-                                                            const Extrapolation extrapolation)
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(
+    Natural settlementDays,
+    const Calendar& calendar,
+    const DayCounter& dayCounter,
+    const std::vector<Handle<Quote>>& jumps,
+    const std::vector<Date>& jumpDates,
+    const T& interpolator,
+    const Extrapolation extrapolation,
+    const bool excludeTimeZeroFromInterpolation)
 : YieldTermStructure(settlementDays, calendar, dayCounter, jumps, jumpDates),
-  InterpolatedCurve<T>(interpolator), extrapolation_(extrapolation) {}
+  InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+  extrapolation_(extrapolation),
+  excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
 
 template <class T>
-InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const std::vector<Date>& dates,
-                                                            const std::vector<Rate>& yields,
-                                                            const DayCounter& dayCounter,
-                                                            const Calendar& calendar,
-                                                            const std::vector<Handle<Quote>>& jumps,
-                                                            const std::vector<Date>& jumpDates,
-                                                            const T& interpolator,
-                                                            const Extrapolation extrapolation)
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(
+    const std::vector<Date>& dates,
+    const std::vector<Rate>& yields,
+    const DayCounter& dayCounter,
+    const Calendar& calendar,
+    const std::vector<Handle<Quote>>& jumps,
+    const std::vector<Date>& jumpDates,
+    const T& interpolator,
+    const Extrapolation extrapolation,
+    const bool excludeTimeZeroFromInterpolation)
 : YieldTermStructure(dates.at(0), calendar, dayCounter, jumps, jumpDates),
-  InterpolatedCurve<T>(std::vector<Time>(), yields, interpolator), extrapolation_(extrapolation),
-  dates_(dates) {
+  InterpolatedCurve<T>(
+      std::vector<Time>(), yields, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+  extrapolation_(extrapolation),
+  excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
     initialize();
 }
 
 template <class T>
-InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const std::vector<Date>& dates,
-                                                            const std::vector<Rate>& yields,
-                                                            const DayCounter& dayCounter,
-                                                            const Calendar& calendar,
-                                                            const T& interpolator,
-                                                            const Extrapolation extrapolation)
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(
+    const std::vector<Date>& dates,
+    const std::vector<Rate>& yields,
+    const DayCounter& dayCounter,
+    const Calendar& calendar,
+    const T& interpolator,
+    const Extrapolation extrapolation,
+    const bool excludeTimeZeroFromInterpolation)
 : YieldTermStructure(dates.at(0), calendar, dayCounter),
-  InterpolatedCurve<T>(std::vector<Time>(), yields, interpolator), extrapolation_(extrapolation),
-  dates_(dates) {
+  InterpolatedCurve<T>(
+      std::vector<Time>(), yields, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+  extrapolation_(extrapolation),
+  excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
     initialize();
 }
 
 template <class T>
-InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(const std::vector<Date>& dates,
-                                                            const std::vector<Rate>& yields,
-                                                            const DayCounter& dayCounter,
-                                                            const T& interpolator,
-                                                            const Extrapolation extrapolation)
+InterpolatedSimpleZeroCurve<T>::InterpolatedSimpleZeroCurve(
+    const std::vector<Date>& dates,
+    const std::vector<Rate>& yields,
+    const DayCounter& dayCounter,
+    const T& interpolator,
+    const Extrapolation extrapolation,
+    const bool excludeTimeZeroFromInterpolation)
 : YieldTermStructure(dates.at(0), Calendar(), dayCounter),
-  InterpolatedCurve<T>(std::vector<Time>(), yields, interpolator), extrapolation_(extrapolation),
-  dates_(dates) {
+  InterpolatedCurve<T>(
+      std::vector<Time>(), yields, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+  extrapolation_(extrapolation),
+  excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
     initialize();
 }
 

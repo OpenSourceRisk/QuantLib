@@ -43,10 +43,9 @@ namespace QuantLib {
     }
 
     const std::vector<std::uint32_t>& Burley2020SobolRsg::skipTo(std::uint32_t n) const {
-        reset();
-        for (Size k = 0; k < n + 1; ++k) {
-            nextInt32Sequence();
-        }
+        nextSequenceCounter_ = n;
+        nextInt32Sequence();
+        --nextSequenceCounter_;
         return integerSequence_;
     }
 
@@ -138,7 +137,7 @@ namespace QuantLib {
             }
         } while (i < dimensionality_);
         QL_REQUIRE(++nextSequenceCounter_ != 0,
-                   "Burley2020SobolRsg::nextIn32Sequence(): period exceeded");
+                   "Burley2020SobolRsg::nextInt32Sequence(): period exceeded");
         return integerSequence_;
     }
 
@@ -146,7 +145,7 @@ namespace QuantLib {
         const std::vector<std::uint32_t>& v = nextInt32Sequence();
         // normalize to get a double in (0,1)
         for (Size k = 0; k < dimensionality_; ++k) {
-            sequence_.value[k] = static_cast<double>(v[k]) / 4294967296.0;
+            sequence_.value[k] = (static_cast<double>(v[k]) + 0.5) / 4294967296.0;
         }
         return sequence_;
     }

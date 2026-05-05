@@ -5,14 +5,14 @@ cmake_policy(SET CMP0091 NEW)
 
 # Version info
 set(QUANTLIB_VERSION_MAJOR 1)
-set(QUANTLIB_VERSION_MINOR 41)
+set(QUANTLIB_VERSION_MINOR 42)
 set(QUANTLIB_VERSION_PATCH 0)
 set(QUANTLIB_VERSION ${QUANTLIB_VERSION_MAJOR}.${QUANTLIB_VERSION_MINOR}.${QUANTLIB_VERSION_PATCH})
 
 # Project Info
 set(PACKAGE_NAME          "QuantLib")
-set(PACKAGE_VERSION       "1.41")
-set(PACKAGE_VERSION_HEX   "0x014100f0")
+set(PACKAGE_VERSION       "1.42.1")
+set(PACKAGE_VERSION_HEX   "0x014201f0")
 set(PACKAGE_STRING        "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME       "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT     "https://github.com/lballabio/QuantLib/issues/")
@@ -237,13 +237,15 @@ set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}")
 set(includedir "\${prefix}/include")
 set(libdir "\${exec_prefix}/lib")
-if (QL_ENABLE_OPENMP)
-    set(OPENMP_CXXFLAGS ${OpenMP_CXX_FLAGS})
-endif()
 configure_file(quantlib-config.in quantlib-config @ONLY)
 configure_file(quantlib.pc.in quantlib.pc @ONLY)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/quantlib-config TYPE BIN)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/quantlib.pc DESTINATION lib/pkgconfig)
+
+# We want this to be available for tests in consuming projects.
+install(FILES ${CMAKE_CURRENT_LIST_DIR}/test-suite/paralleltestrunner.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/test-suite
+)
 
 include(Platform)
 

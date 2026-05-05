@@ -41,6 +41,7 @@ namespace QuantLib {
                         Handle<YieldTermStructure>(),
                         optionletStripper1->volatilityType(),
                         optionletStripper1->displacement(),
+                        optionletStripper1->useEffectiveVolatility(),
                         optionletStripper1->optionletFrequency()),
       stripper1_(optionletStripper1), atmCapFloorTermVolCurve_(atmCapFloorTermVolCurve),
       dc_(stripper1_->termVolSurface()->dayCounter()),

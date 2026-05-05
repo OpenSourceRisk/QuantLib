@@ -1067,11 +1067,17 @@ BOOST_AUTO_TEST_CASE(testDefaultInstantiation) {
 
     CommonVars vars;
 
+    class SplineLogCubic : public LogCubic {
+      public:
+        SplineLogCubic()
+        : LogCubic(CubicInterpolation::Spline, false,
+                   CubicInterpolation::SecondDerivative, 0.0,
+                   CubicInterpolation::SecondDerivative, 0.0) {}
+    };
+
     // no actual tests at runtime; this tests that all these instantiations compile
-    PiecewiseYieldCurve<Discount, Linear> linear(vars.settlement, vars.instruments, Actual360());
     PiecewiseYieldCurve<Discount, LogLinear> log_linear(vars.settlement, vars.instruments, Actual360());
-    PiecewiseYieldCurve<Discount, Cubic> cubic(vars.settlement, vars.instruments, Actual360());
-    PiecewiseYieldCurve<Discount, DefaultLogCubic> log_cubic(vars.settlement, vars.instruments, Actual360());
+    PiecewiseYieldCurve<Discount, SplineLogCubic> log_cubic(vars.settlement, vars.instruments, Actual360());
     PiecewiseYieldCurve<Discount, MonotonicLogCubic> monotonic_log_cubic(vars.settlement, vars.instruments, Actual360());
     PiecewiseYieldCurve<Discount, KrugerLog> kruger_log_cubic(vars.settlement, vars.instruments, Actual360());
     PiecewiseYieldCurve<ForwardRate, BackwardFlat> backward(vars.settlement, vars.instruments, Actual360());
@@ -1769,7 +1775,7 @@ BOOST_AUTO_TEST_CASE(testGlobalBootstrapInstrumentWeights) {
 
     // check that both approaches result in the same curve
 
-    BOOST_CHECK_CLOSE(curve1->discount(0.3), curve2->discount(0.3), 1E-13);
+    QL_CHECK_CLOSE(curve1->discount(0.3), curve2->discount(0.3), 1E-13);
 }
 
 template <template<class C> class Bootstrap>

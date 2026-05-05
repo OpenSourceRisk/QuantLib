@@ -66,6 +66,8 @@ namespace QuantLib {
 
         ext::shared_ptr<CappedFlooredCoupon> underlying() { return underlying_; }
 
+        void alwaysForwardNotifications() override;
+
       protected:
         ext::shared_ptr<CappedFlooredCoupon> underlying_;
 

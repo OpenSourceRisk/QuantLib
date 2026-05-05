@@ -42,7 +42,8 @@ namespace QuantLib {
                                     Handle<Quote> volatility,
                                     const DayCounter& dc,
                                     VolatilityType type = ShiftedLognormal,
-                                    Real displacement = 0.0);
+                                    Real displacement = 0.0,
+                                    bool useEffectiveVolatility = false);
         //! fixed reference date, floating market data
         ConstantOptionletVolatility(const Date& referenceDate,
                                     const Calendar& cal,
@@ -50,20 +51,23 @@ namespace QuantLib {
                                     Handle<Quote> volatility,
                                     const DayCounter& dc,
                                     VolatilityType type = ShiftedLognormal,
-                                    Real displacement = 0.0);
+                                    Real displacement = 0.0,
+                                    bool useEffectiveVolatility = false);
         //! floating reference date, fixed market data
         ConstantOptionletVolatility(Natural settlementDays, const Calendar &cal,
                                     BusinessDayConvention bdc,
                                     Volatility volatility, const DayCounter &dc,
                                     VolatilityType type = ShiftedLognormal,
-                                    Real displacement = 0.0);
+                                    Real displacement = 0.0,
+                                    bool useEffectiveVolatility = false);
         //! fixed reference date, fixed market data
         ConstantOptionletVolatility(const Date &referenceDate,
                                     const Calendar &cal,
                                     BusinessDayConvention bdc,
                                     Volatility volatility, const DayCounter &dc,
                                     VolatilityType type = ShiftedLognormal,
-                                    Real displacement = 0.0);
+                                    Real displacement = 0.0,
+                                    bool useEffectiveVolatility = false);
         //! \name TermStructure interface
         //@{
         Date maxDate() const override;
@@ -75,6 +79,7 @@ namespace QuantLib {
         //@}
         VolatilityType volatilityType() const override;
         Real displacement() const override;
+        bool useEffectiveVolatility() const override;
 
       protected:
         ext::shared_ptr<SmileSection> smileSectionImpl(const Date& d) const override;
@@ -85,6 +90,7 @@ namespace QuantLib {
         Handle<Quote> volatility_;
         VolatilityType type_;
         Real displacement_;
+        bool useEffectiveVolatility_;
     };
 
 
@@ -109,6 +115,10 @@ namespace QuantLib {
 
     inline Real ConstantOptionletVolatility::displacement() const {
         return displacement_;
+    }
+
+    inline bool ConstantOptionletVolatility::useEffectiveVolatility() const {
+        return useEffectiveVolatility_;
     }
 }
 

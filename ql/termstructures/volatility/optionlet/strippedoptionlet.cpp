@@ -39,6 +39,7 @@ namespace QuantLib {
                                          DayCounter dc,
                                          VolatilityType type,
                                          Real displacement,
+                                         bool useEffectiveVolatility,
                                          const std::vector<Real>& atmOptionletRates)
     : StrippedOptionlet(settlementDays,
                         calendar,
@@ -50,6 +51,7 @@ namespace QuantLib {
                         std::move(dc),
                         type,
                         displacement,
+                        useEffectiveVolatility,
                         atmOptionletRates) {}
 
     StrippedOptionlet::StrippedOptionlet(Natural settlementDays,
@@ -62,10 +64,12 @@ namespace QuantLib {
                                          DayCounter dc,
                                          VolatilityType type,
                                          Real displacement,
+                                         bool useEffectiveVolatility,
                                          const std::vector<Real>& atmOptionletRates)
     : calendar_(calendar), settlementDays_(settlementDays), businessDayConvention_(bdc),
       dc_(std::move(dc)), iborIndex_(std::move(iborIndex)), type_(type),
-      displacement_(displacement), nOptionletDates_(optionletDates.size()),
+      displacement_(displacement), useEffectiveVolatility_(useEffectiveVolatility),
+      nOptionletDates_(optionletDates.size()),
       optionletDates_(optionletDates), optionletTimes_(nOptionletDates_),
       optionletAtmRates_(atmOptionletRates), optionletStrikes_(strikes),
       optionletVolQuotes_(std::move(v)) {
@@ -199,6 +203,10 @@ namespace QuantLib {
 
     Real StrippedOptionlet::displacement() const {
         return displacement_;
+    }
+
+    bool StrippedOptionlet::useEffectiveVolatility() const {
+        return useEffectiveVolatility_;
     }
 
 }

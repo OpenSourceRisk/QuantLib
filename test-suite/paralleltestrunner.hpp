@@ -69,10 +69,20 @@ namespace bp = boost::process;
 #ifndef BOOST_TEST_MODULE
 #    define BOOST_TEST_MODULE "TestSuite"
 #endif
-using boost::unit_test::test_results;
-using namespace boost::interprocess;
-using namespace boost::unit_test_framework;
 
+using boost::interprocess::message_queue;
+using boost::interprocess::create_only;
+using boost::interprocess::open_only;
+using boost::interprocess::interprocess_exception;
+
+namespace utf = boost::unit_test;
+using utf::test_observer;
+using utf::test_results;
+using utf::test_suite;
+using utf::test_tree_visitor;
+using utf::test_unit;
+using utf::test_unit_id;
+using utf::test_unit_type;
 
 namespace {
     int worker(std::string cmd) {
@@ -88,7 +98,7 @@ namespace {
 
 
         bool visit(test_unit const& tu) override {
-            if (tu.p_parent_id == framework::master_test_suite().p_id) {
+            if (tu.p_parent_id == utf::framework::master_test_suite().p_id) {
                 BOOST_TEST_MESSAGE(tu.p_name.get());
                 testSuiteId_ = tu.p_id;
             } else if (tu.p_type == test_unit_type::TUT_SUITE && tu.p_parent_id == testSuiteId_ &&
@@ -114,7 +124,7 @@ namespace {
     class TestCaseReportAggregator : public test_tree_visitor {
       public:
         void test_suite_finish(test_suite const& ts) override {
-            results_collect_helper ch(s_rc_impl().m_results_store[ts.p_id], ts);
+            utf::results_collect_helper ch(utf::s_rc_impl().m_results_store[ts.p_id], ts);
             traverse_test_tree(ts, ch);
         }
     };
@@ -202,13 +212,13 @@ int main(int argc, char* argv[]) {
                 }
             }           
 
-            framework::init(init_unit_test_suite, localArgs.size(), &localArgs[0]);
-            framework::finalize_setup_phase();
+            utf::framework::init(init_unit_test_suite, localArgs.size(), &localArgs[0]);
+            utf::framework::finalize_setup_phase();
 
-            framework::impl::s_frk_state().deduce_run_status(framework::master_test_suite().p_id);
+            utf::framework::impl::s_frk_state().deduce_run_status(utf::framework::master_test_suite().p_id);
 
             TestCaseCollector tcc;
-            traverse_test_tree(framework::master_test_suite(), tcc, true);
+            traverse_test_tree(utf::framework::master_test_suite(), tcc, true);
 
             message_queue::remove(testUnitIdQueueName);
             message_queue mq(create_only, testUnitIdQueueName, tcc.numberOfTests() + nProc,
@@ -250,7 +260,7 @@ int main(int argc, char* argv[]) {
                 for (std::list<test_unit_id>::const_iterator it = p_it->second.begin();
                      it != p_it->second.end(); ++it) {
 
-                    const std::string name = framework::get(*it, TUT_ANY).p_name;
+                    const std::string name = utf::framework::get(*it, test_unit_type::TUT_ANY).p_name;
 
                     if (runTimeLog.count(name) != 0u) {
                         testsSortedByRunTime.insert(std::make_pair(runTimeLog[name], *it));
@@ -292,9 +302,9 @@ int main(int argc, char* argv[]) {
             }
 
             TestCaseReportAggregator tca;
-            traverse_test_tree(framework::master_test_suite(), tca, true);
+            traverse_test_tree(utf::framework::master_test_suite(), tca, true);
 
-            results_reporter::make_report();
+            utf::results_reporter::make_report();
 
             RuntimeLog log;
             for (unsigned i = 0; i < ids.size(); ++i) {
@@ -362,10 +372,10 @@ int main(int argc, char* argv[]) {
                     localArgs.push_back(argv[i]);
             }
                 
-            framework::init(init_unit_test_suite, localArgs.size(), &localArgs[0]);
-            framework::finalize_setup_phase();
+            utf::framework::init(init_unit_test_suite, localArgs.size(), &localArgs[0]);
+            utf::framework::finalize_setup_phase();
 
-            framework::impl::s_frk_state().deduce_run_status(framework::master_test_suite().p_id);
+            utf::framework::impl::s_frk_state().deduce_run_status(utf::framework::master_test_suite().p_id);
 
             message_queue mq(open_only, testUnitIdQueueName);
 
@@ -381,17 +391,17 @@ int main(int argc, char* argv[]) {
                 auto startTime = std::chrono::steady_clock::now();
 
 #if BOOST_VERSION < 106200
-                BOOST_TEST_FOREACH(test_observer*, to, framework::impl::s_frk_state().m_observers)
-                framework::impl::s_frk_state().m_aux_em.vexecute([&]() { to->test_start(1); });
+                BOOST_TEST_FOREACH(test_observer*, to, utf::framework::impl::s_frk_state().m_observers)
+                utf::framework::impl::s_frk_state().m_aux_em.vexecute([&]() { to->test_start(1); });
 
-                framework::impl::s_frk_state().execute_test_tree(id.id);
+                utf::framework::impl::s_frk_state().execute_test_tree(id.id);
 
                 BOOST_TEST_REVERSE_FOREACH(test_observer*, to,
-                                           framework::impl::s_frk_state().m_observers)
+                                           utf::framework::impl::s_frk_state().m_observers)
                 to->test_finish();
 #else
                 // works for BOOST_VERSION > 106100, needed for >106500    
-                framework::run(id.id, false);
+                utf::framework::run(id.id, false);
 #endif
 
                 auto stopTime = std::chrono::steady_clock::now();
@@ -399,7 +409,8 @@ int main(int argc, char* argv[]) {
                     std::chrono::duration_cast<std::chrono::microseconds>(stopTime - startTime)
                         .count() *
                     1e-6;
-                runTimeLogs.push_back(std::make_pair(framework::get(id.id, TUT_ANY).p_name, T));
+                runTimeLogs.push_back(
+                    std::make_pair(utf::framework::get(id.id, test_unit_type::TUT_ANY).p_name, T));
 
                 QualifiedTestResults results = {id.id,
                                                 boost::unit_test::results_collector.results(id.id)};
@@ -428,36 +439,37 @@ int main(int argc, char* argv[]) {
     } catch (interprocess_exception& ex) {
         std::cerr << "interprocess exception: " << ex.what() << std::endl;
         return boost::exit_exception_failure;
-    } catch (framework::nothing_to_test const&) {
+    } catch (utf::framework::nothing_to_test const&) {
         return boost::exit_success;
-    } catch (framework::internal_error const& ex) {
-        results_reporter::get_stream()
+    } catch (utf::framework::internal_error const& ex) {
+        utf::results_reporter::get_stream()
             << "Boost.Test framework internal error: " << ex.what() << std::endl;
 
         return boost::exit_exception_failure;
-    } catch (framework::setup_error const& ex) {
-        results_reporter::get_stream() << "Test setup error: " << ex.what() << std::endl;
+    } catch (utf::framework::setup_error const& ex) {
+        utf::results_reporter::get_stream() << "Test setup error: " << ex.what() << std::endl;
 
         return boost::exit_exception_failure;
     } catch (...) {
-        results_reporter::get_stream()
+        utf::results_reporter::get_stream()
             << "Boost.Test framework internal error: unknown reason" << std::endl;
 
         return boost::exit_exception_failure;
     }
 
-    framework::shutdown();
+    utf::framework::shutdown();
 
 #if BOOST_VERSION < 106000
-    return runtime_config::no_result_code()
+    return utf::runtime_config::no_result_code()
 #elif BOOST_VERSION < 106400
     // changed in Boost 1.60
-    return !runtime_config::get<bool>(runtime_config::RESULT_CODE)
+    return !utf::runtime_config::get<bool>(runtime_config::RESULT_CODE)
 #else
     // changed again in Boost 1.64
-    return !runtime_config::get<bool>(runtime_config::btrt_result_code)
+    return !utf::runtime_config::get<bool>(utf::runtime_config::btrt_result_code)
 #endif
                ?
                boost::exit_success :
-               results_collector.results(framework::master_test_suite().p_id).result_code();
+               utf::results_collector.results(utf::framework::master_test_suite().p_id)
+                   .result_code();
 }

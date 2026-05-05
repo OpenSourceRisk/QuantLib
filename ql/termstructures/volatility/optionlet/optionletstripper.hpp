@@ -64,6 +64,7 @@ namespace QuantLib {
         ext::shared_ptr<IborIndex> iborIndex() const;
         Real displacement() const override;
         VolatilityType volatilityType() const override;
+        bool useEffectiveVolatility() const override;
         ext::optional<Period> optionletFrequency() const;
 
       protected:
@@ -72,6 +73,7 @@ namespace QuantLib {
                           Handle<YieldTermStructure> discount = {},
                           VolatilityType type = ShiftedLognormal,
                           Real displacement = 0.0,
+                          bool useEffectiveVolatility = false,
                           ext::optional<Period> optionletFrequency = ext::nullopt);
         ext::shared_ptr<CapFloorTermVolSurface> termVolSurface_;
         ext::shared_ptr<IborIndex> iborIndex_;
@@ -92,6 +94,7 @@ namespace QuantLib {
         std::vector<Period> capFloorLengths_;
         const VolatilityType volatilityType_;
         const Real displacement_;
+        bool useEffectiveVolatility_;
         ext::optional<Period> optionletFrequency_;
     };
 

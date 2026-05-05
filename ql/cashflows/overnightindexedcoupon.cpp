@@ -77,6 +77,11 @@ namespace QuantLib {
         compoundSpreadDaily_(compoundSpreadDaily),
         rateComputationStartDate_(rateComputationStartDate),
         rateComputationEndDate_(rateComputationEndDate) {
+        
+        // ctor guard prevents construction of an object with illogically ordered dates. 
+        QL_REQUIRE(paymentDate >= endDate, 
+        "Payment date cannot be earlier than accrual end date");
+
         Date valueStart = rateComputationStartDate_ == Null<Date>() ? startDate : rateComputationStartDate_;
         Date valueEnd = rateComputationEndDate_ == Null<Date>() ? endDate : rateComputationEndDate_;
         if (lookbackDays != Null<Natural>()) {
@@ -217,9 +222,9 @@ namespace QuantLib {
     Rate OvernightIndexedCoupon::averageRate(const Date& d) const {
         QL_REQUIRE(pricer_, "pricer not set");
         pricer_->initialize(*this);
-        if (const auto compoundingPricer =
-                ext::dynamic_pointer_cast<CompoundingOvernightIndexedCouponPricer>(pricer_)) {
-            return compoundingPricer->averageRate(d);
+        if (const auto overnightIndexedPricer =
+            ext::dynamic_pointer_cast<OvernightIndexedCouponPricer>(pricer_)) {
+            return overnightIndexedPricer->averageRate(d);
         }
         return pricer_->swapletRate();
     }

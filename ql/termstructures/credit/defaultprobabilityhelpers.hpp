@@ -81,6 +81,7 @@ namespace QuantLib {
         QL_DEPRECATED
         CdsHelper(const std::variant<Rate, Handle<Quote>>& quote,
                   const Period& tenor,
+                  // const Period& tenor,
                   Integer settlementDays,
                   Calendar calendar,
                   Frequency frequency,
@@ -137,6 +138,19 @@ namespace QuantLib {
                   const DayCounter& lastPeriodDayCounter = DayCounter(),
                   bool rebatesAccrual = true,
                   CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
+        CdsHelper(const std::variant<Rate, Handle<Quote>>& quote,
+                  Schedule schedule,
+                  const DayCounter& dayCounter,
+                  Real recoveryRate,
+                  const Handle<YieldTermStructure>& discountCurve,
+                  CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint,
+                  bool settlesAccrual = true,
+                  CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                      CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                  const DayCounter& lastPeriodDayCounter = DayCounter(),
+                  bool rebatesAccrual = true);
+
 
         void setTermStructure(DefaultProbabilityTermStructure*) override;
         // NOLINTNEXTLINE(cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
@@ -261,11 +275,25 @@ namespace QuantLib {
                          const DayCounter& lastPeriodDayCounter = DayCounter(),
                          bool rebatesAccrual = true);
 
+
+        UpfrontCdsHelper(const std::variant<Rate, Handle<Quote>>& upfront,
+                         Rate runningSpread,
+                         Schedule schedule,
+                         DayCounter dayCounter,
+                         Real recoveryRate,
+                         const Handle<YieldTermStructure>& discountCurve,
+                         CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint,
+                         Integer upfrontSettlementDays = 3,
+                         bool settlesAccrual = true,
+                         CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                             CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                         const DayCounter& lastPeriodDayCounter = DayCounter(),
+                         bool rebatesAccrual = true);
+
         Real impliedQuote() const override;
         
       private:
         Date upfrontDate();
-        void initializeDates() override;
         void resetEngine() override;
         Natural upfrontSettlementDays_;
         Date upfrontDate_;

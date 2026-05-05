@@ -18,6 +18,7 @@ QL_TEST_SRCS = \
 	blackcalculator.cpp \
 	blackdeltacalculator.cpp \
 	blackformula.cpp \
+	blackvolsurfacedelta.cpp \
 	bondforward.cpp \
 	bonds.cpp \
 	brownianbridge.cpp \
@@ -68,9 +69,11 @@ QL_TEST_SRCS = \
 	fdcev.cpp \
 	fdsabr.cpp \
 	fittedbonddiscountcurve.cpp \
+	floatfloatswap.cpp \
 	forwardoption.cpp \
 	forwardrateagreement.cpp \
 	functions.cpp \
+	fxforward.cpp \
 	garch.cpp \
 	gaussianquadratures.cpp \
 	gjrgarchmodel.cpp \
@@ -90,6 +93,7 @@ QL_TEST_SRCS = \
 	instruments.cpp \
 	integrals.cpp \
 	interestrates.cpp \
+	interpolatedsmilesection.cpp \
 	interpolations.cpp \
 	jumpdiffusion.cpp \
 	lazyobject.cpp \
@@ -111,6 +115,7 @@ QL_TEST_SRCS = \
 	mersennetwister.cpp \
 	money.cpp \
 	multipleresetscoupons.cpp \
+	multipleresetsswap.cpp \
 	noarbsabr.cpp \
 	normalclvmodel.cpp \
 	nthorderderivativeop.cpp \
@@ -128,6 +133,7 @@ QL_TEST_SRCS = \
 	pathgenerator.cpp \
 	period.cpp \
 	perpetualfutures.cpp \
+	piecewiseblackvariancesurface.cpp \
 	piecewiseyieldcurve.cpp \
 	piecewisezerospreadedtermstructure.cpp \
 	preconditions.cpp \
@@ -146,7 +152,6 @@ QL_TEST_SRCS = \
 	sofrfutures.cpp \
 	softbarrieroption.cpp \
 	solvers.cpp \
-	spreadoption.cpp \
 	squarerootclvmodel.cpp \
 	stats.cpp \
 	svivolatility.cpp \
@@ -159,7 +164,6 @@ QL_TEST_SRCS = \
 	termstructures.cpp \
 	timegrid.cpp \
 	timeseries.cpp \
-	transformedgrid.cpp \
 	tqreigendecomposition.cpp \
 	tracing.cpp \
 	twoassetbarrieroption.cpp \

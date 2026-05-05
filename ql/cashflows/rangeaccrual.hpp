@@ -130,6 +130,14 @@ namespace QuantLib {
         void initialize(const FloatingRateCoupon& coupon) override;
         //@}
 
+        //! Set a fixed coupon rate for fixed-rate range accrual mode.
+        /*! When set to a valid value (not Null<Real>()), the pricer computes
+            Amount = fixedRate * (n/N) * accrualFactor * discount
+            instead of the floating-rate formula
+            gearing * Libor * (n/N) + spread. */
+        void setFixedRate(Real fixedRate) { fixedRate_ = fixedRate; }
+        Real fixedRate() const { return fixedRate_; }
+
     protected:
         const RangeAccrualFloatersCoupon* coupon_;
         Real startTime_;                                   // S
@@ -145,6 +153,7 @@ namespace QuantLib {
         Real gearing_;
         Spread spread_;
         Real spreadLegValue_;
+        Real fixedRate_ = Null<Real>();
 
     };
 

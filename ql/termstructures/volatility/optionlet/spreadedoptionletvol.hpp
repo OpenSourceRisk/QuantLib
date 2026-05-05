@@ -56,6 +56,7 @@ namespace QuantLib {
         //@}
         VolatilityType volatilityType() const override;
         Real displacement() const override;
+        bool useEffectiveVolatility() const override;
 
       protected:
         // All virtual methods of base classes must be forwarded
@@ -114,6 +115,10 @@ namespace QuantLib {
 
     inline Real SpreadedOptionletVolatility::displacement() const {
         return baseVol_->displacement();
+    }
+
+    inline bool SpreadedOptionletVolatility::useEffectiveVolatility() const {
+        return baseVol_->useEffectiveVolatility();
     }
 }
 

@@ -65,6 +65,7 @@ namespace QuantLib {
 
           VolatilityType volatilityType() const override;
           Real displacement() const override;
+          bool useEffectiveVolatility() const override;
 
         protected:
           //! \name OptionletVolatilityStructure interface

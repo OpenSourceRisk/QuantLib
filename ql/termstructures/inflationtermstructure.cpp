@@ -186,8 +186,6 @@ namespace QuantLib {
     }
 
 
-    QL_DEPRECATED_DISABLE_WARNING
-
     YoYInflationTermStructure::YoYInflationTermStructure(
                                     Date baseDate,
                                     Rate baseYoYRate,
@@ -196,7 +194,6 @@ namespace QuantLib {
                                     const DayCounter& dayCounter,
                                     const ext::shared_ptr<Seasonality> &seasonality)
     : InflationTermStructure(baseDate, observationLag, frequency, dayCounter, seasonality, baseYoYRate) {
-        indexIsInterpolated_ = false;
     }
 
     YoYInflationTermStructure::YoYInflationTermStructure(
@@ -208,7 +205,6 @@ namespace QuantLib {
                                     const DayCounter& dayCounter,
                                     const ext::shared_ptr<Seasonality> &seasonality)
     : InflationTermStructure(referenceDate, baseDate, observationLag, frequency, dayCounter, seasonality, baseYoYRate) {
-        indexIsInterpolated_ = false;
     }
 
     YoYInflationTermStructure::YoYInflationTermStructure(
@@ -221,51 +217,7 @@ namespace QuantLib {
                                     const DayCounter& dayCounter,
                                     const ext::shared_ptr<Seasonality> &seasonality)
     : InflationTermStructure(settlementDays, calendar, baseDate, observationLag, frequency, dayCounter, seasonality, baseYoYRate) {
-        indexIsInterpolated_ = false;
     }
-
-    YoYInflationTermStructure::YoYInflationTermStructure(
-                                    Date baseDate,
-                                    Rate baseYoYRate,
-                                    const Period& observationLag,
-                                    Frequency frequency,
-                                    bool indexIsInterpolated,
-                                    const DayCounter& dayCounter,
-                                    const ext::shared_ptr<Seasonality> &seasonality)
-    : YoYInflationTermStructure(baseDate, baseYoYRate, observationLag, frequency, dayCounter, seasonality) {
-        indexIsInterpolated_ = indexIsInterpolated;
-    }
-
-    YoYInflationTermStructure::YoYInflationTermStructure(
-                                    const Date& referenceDate,
-                                    Date baseDate,
-                                    Rate baseYoYRate,
-                                    const Period& observationLag,
-                                    Frequency frequency,
-                                    bool indexIsInterpolated,
-                                    const DayCounter& dayCounter,
-                                    const ext::shared_ptr<Seasonality> &seasonality)
-    : YoYInflationTermStructure(referenceDate, baseDate, baseYoYRate, observationLag,
-                                frequency, dayCounter, seasonality) {
-        indexIsInterpolated_ = indexIsInterpolated;
-    }
-
-    YoYInflationTermStructure::YoYInflationTermStructure(
-                                    Natural settlementDays,
-                                    const Calendar& calendar,
-                                    Date baseDate,
-                                    Rate baseYoYRate,
-                                    const Period& observationLag,
-                                    Frequency frequency,
-                                    bool indexIsInterpolated,
-                                    const DayCounter& dayCounter,
-                                    const ext::shared_ptr<Seasonality> &seasonality)
-    : YoYInflationTermStructure(settlementDays, calendar, baseDate, baseYoYRate, observationLag,
-                                frequency, dayCounter, seasonality) {
-        indexIsInterpolated_ = indexIsInterpolated;
-    }
-
-    QL_DEPRECATED_ENABLE_WARNING
 
     Rate YoYInflationTermStructure::yoyRate(const Date &d, bool extrapolate) const {
         QL_DEPRECATED_DISABLE_WARNING
@@ -297,18 +249,10 @@ namespace QuantLib {
             Rate y2 = yoyRateImpl(t2);
             yoyRate = y1 + (y2-y1) * (dt/dp);
         } else {
-            QL_DEPRECATED_DISABLE_WARNING
-            if (indexIsInterpolated()) {
-                InflationTermStructure::checkRange(d-useLag, extrapolate);
-                Time t = timeFromReference(d-useLag);
-                yoyRate = yoyRateImpl(t);
-            } else {
-                std::pair<Date,Date> dd = inflationPeriod(d-useLag, frequency());
-                InflationTermStructure::checkRange(dd.first, extrapolate);
-                Time t = timeFromReference(dd.first);
-                yoyRate = yoyRateImpl(t);
-            }
-            QL_DEPRECATED_ENABLE_WARNING
+            std::pair<Date,Date> dd = inflationPeriod(d-useLag, frequency());
+            InflationTermStructure::checkRange(dd.first, extrapolate);
+            Time t = timeFromReference(dd.first);
+            yoyRate = yoyRateImpl(t);
         }
 
         if (hasSeasonality()) {

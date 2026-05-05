@@ -184,6 +184,15 @@ namespace QuantLib {
     */
     Date previousTwentieth(const Date& d, DateGeneration::Rule rule);
 
+    /*! Helper function for returning the date on or after date \p d that is the 20th of the month and obeserves the 
+        given date generation \p rule if it is relevant.
+    */
+    Date nextTwentieth(const Date& d, DateGeneration::Rule rule);
+
+    Schedule removeCDSPeriodsBeforeStartDate(const Schedule& cdsSchedule, const Date& protectionStartDate);
+
+    //! returns true for (non-zero) tenor with unit Months or Years
+    bool allowsEndOfMonth(const Period& tenor);
 
     /*! Helper function for returning the date on or after date \p d that is the 20th of the month and obeserves the 
         given date generation \p rule if it is relevant.

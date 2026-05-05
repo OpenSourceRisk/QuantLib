@@ -25,7 +25,7 @@
 #define quantlib_interpolated_curve_hpp
 
 #include <ql/math/comparison.hpp>
-#include <ql/math/interpolation.hpp>
+#include <ql/math/interpolations/linearinterpolation.hpp>
 #include <ql/time/date.hpp>
 #include <ql/time/daycounter.hpp>
 #include <utility>
@@ -48,25 +48,32 @@ namespace QuantLib {
         //@{
         InterpolatedCurve(std::vector<Time> times,
                           std::vector<Real> data,
-                          const Interpolator& i = Interpolator())
-        : times_(std::move(times)), data_(std::move(data)), interpolator_(i) {}
+                          const Interpolator& i = Interpolator(),
+                          const Size skipTimesInterpolation = 0)
+        : times_(std::move(times)), data_(std::move(data)), interpolator_(i),
+          skipTimesInterpolation_(skipTimesInterpolation) {}
 
         InterpolatedCurve(std::vector<Time> times,
-                          const Interpolator& i = Interpolator())
-        : times_(std::move(times)), data_(times_.size()), interpolator_(i) {}
+                          const Interpolator& i = Interpolator(),
+                          const Size skipTimesInterpolation = 0)
+        : times_(std::move(times)), data_(times_.size()), interpolator_(i),
+          skipTimesInterpolation_(skipTimesInterpolation) {}
 
         InterpolatedCurve(Size n,
-                          const Interpolator& i = Interpolator())
-        : times_(n), data_(n), interpolator_(i) {}
+                          const Interpolator& i = Interpolator(),
+                          const Size skipTimesInterpolation = 0)
+        : times_(n), data_(n), interpolator_(i), skipTimesInterpolation_(skipTimesInterpolation) {}
 
-        InterpolatedCurve(const Interpolator& i = Interpolator())
-        : interpolator_(i) {}
+        InterpolatedCurve(const Interpolator& i = Interpolator(),
+                          const Size skipTimesInterpolation = 0)
+        : interpolator_(i), skipTimesInterpolation_(skipTimesInterpolation) {}
         //@}
 
         //! \name Copying
         //@{
         InterpolatedCurve(const InterpolatedCurve& c)
-        : times_(c.times_), data_(c.data_), interpolator_(c.interpolator_) {
+        : times_(c.times_), data_(c.data_), interpolator_(c.interpolator_),
+          skipTimesInterpolation_(c.skipTimesInterpolation_) {
             setupInterpolation();
         }
 
@@ -74,6 +81,7 @@ namespace QuantLib {
             times_ = c.times_;
             data_ = c.data_;
             interpolator_ = c.interpolator_;
+            skipTimesInterpolation_ = c.skipTimesInterpolation_;
             setupInterpolation();
             return *this;
         }
@@ -82,7 +90,10 @@ namespace QuantLib {
         //! \name Moving
         //@{
         InterpolatedCurve(InterpolatedCurve&& c) noexcept
-        : times_(std::move(c.times_)), data_(std::move(c.data_)), interpolator_(std::move(c.interpolator_)) {
+        : times_(std::move(c.times_)), data_(std::move(c.data_)),
+          interpolator_(std::move(c.interpolator_)),
+          skipTimesInterpolation_(c.skipTimesInterpolation_
+) {
             setupInterpolation();
         }
 
@@ -90,6 +101,7 @@ namespace QuantLib {
             times_ = std::move(c.times_);
             data_ = std::move(c.data_);
             interpolator_ = std::move(c.interpolator_);
+            skipTimesInterpolation_ = c.skipTimesInterpolation_;
             setupInterpolation();
             return *this;
         }
@@ -114,10 +126,25 @@ namespace QuantLib {
             }
         }
 
-        void setupInterpolation() {
-            interpolation_ = interpolator_.interpolate(times_.begin(),
-                                                       times_.end(),
-                                                       data_.begin());
+        void setupInterpolation(Size i = Null<Size>(), const bool fallback = false) {
+            /* we want i+1 - effSkipTimeInt >= reqPoints, i.e. effSkipTimeInt <= i+1 - reqPoints
+               (replace i+1 with times.size() if i == null) */
+            Size effectiveSkipTimesInterpolation = static_cast<Size>(std::max<int>(
+                0, std::min<int>(static_cast<int>(skipTimesInterpolation_),
+                                 (i == Null<Size>() ? static_cast<int>(times_.size()) :
+                                                      static_cast<int>(i + 1)) -
+                                     static_cast<int>(Interpolator::requiredPoints))));
+            if (fallback) {
+                interpolation_ = Linear().interpolate(
+                    std::next(times_.begin(), effectiveSkipTimesInterpolation),
+                    i == Null<Size>() ? times_.end() : std::next(times_.begin(), i + 1),
+                    std::next(data_.begin(), effectiveSkipTimesInterpolation));
+            } else {
+                interpolation_ = interpolator_.interpolate(
+                    std::next(times_.begin(), effectiveSkipTimesInterpolation),
+                    i == Null<Size>() ? times_.end() : std::next(times_.begin(), i + 1),
+                    std::next(data_.begin(), effectiveSkipTimesInterpolation));
+            }
         }
         //@}
 
@@ -125,6 +152,7 @@ namespace QuantLib {
         mutable std::vector<Real> data_;
         mutable Interpolation interpolation_;
         Interpolator interpolator_;
+        Size skipTimesInterpolation_ = 0;
         // Usually, the maximum date is the one corresponding to the
         // last node. However, it might happen that a bit of
         // extrapolation is used by construction; for instance, when a

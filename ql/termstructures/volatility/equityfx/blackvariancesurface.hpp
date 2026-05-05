@@ -26,11 +26,11 @@
 #ifndef quantlib_black_variance_surface_hpp
 #define quantlib_black_variance_surface_hpp
 
-#include <ql/termstructures/volatility/equityfx/blackvoltermstructure.hpp>
-#include <ql/math/matrix.hpp>
 #include <ql/math/interpolations/interpolation2d.hpp>
+#include <ql/math/matrix.hpp>
+#include <ql/termstructures/volatility/equityfx/blackvoltimeextrapolation.hpp>
+#include <ql/termstructures/volatility/equityfx/blackvoltermstructure.hpp>
 #include <ql/time/daycounters/actual365fixed.hpp>
-
 namespace QuantLib {
 
     //! Black volatility surface modelled as variance surface
@@ -57,7 +57,7 @@ namespace QuantLib {
                              DayCounter dayCounter,
                              Extrapolation lowerExtrapolation = InterpolatorDefaultExtrapolation,
                              Extrapolation upperExtrapolation = InterpolatorDefaultExtrapolation,
-                             BlackVolTimeExtrapolation timeExtrapolation = BlackVolTimeExtrapolation::FlatVolatility,
+                             BlackVolTimeExtrapolation::Type timeExtrapolation = BlackVolTimeExtrapolation::Type::FlatVolatility,
                              QuantLib::VolatilityType volType = VolatilityType::ShiftedLognormal,
                              Real shift = 0.0);
         //! \name TermStructure interface
@@ -96,7 +96,7 @@ namespace QuantLib {
         Matrix variances_;
         Interpolation2D varianceSurface_;
         Extrapolation lowerExtrapolation_, upperExtrapolation_;
-        BlackVolTimeExtrapolation timeExtrapolation_;
+        BlackVolTimeExtrapolation::Type timeExtrapolation_;
     };
 
     // inline definitions

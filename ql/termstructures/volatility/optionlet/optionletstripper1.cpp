@@ -44,8 +44,9 @@ namespace QuantLib {
         const VolatilityType type,
         const Real displacement,
         bool dontThrow,
+        bool useEffectiveVolatility,
         ext::optional<Period> optionletFrequency)
-    : OptionletStripper(termVolSurface, index, discount, type, displacement, optionletFrequency),
+    : OptionletStripper(termVolSurface, index, discount, type, displacement, useEffectiveVolatility, optionletFrequency),
       floatingSwitchStrike_(switchStrike == Null<Rate>()), switchStrike_(switchStrike),
       accuracy_(accuracy), maxIter_(maxIter), dontThrow_(dontThrow) {
 

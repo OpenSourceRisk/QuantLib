@@ -26,7 +26,7 @@
 #ifndef quantlib_forward_curve_hpp
 #define quantlib_forward_curve_hpp
 
-#include <ql/termstructures/yield/forwardstructure.hpp>
+#include <ql/termstructures/yield/zeroyieldstructure.hpp>
 #include <ql/termstructures/interpolatedcurve.hpp>
 #include <ql/math/interpolations/backwardflatinterpolation.hpp>
 #include <utility>
@@ -36,7 +36,7 @@ namespace QuantLib {
     //! YieldTermStructure based on interpolation of forward rates
     /*! \ingroup yieldtermstructures */
     template <class Interpolator>
-    class InterpolatedForwardCurve : public ForwardRateStructure,
+    class InterpolatedForwardCurve : public ZeroYieldStructure,
                                      protected InterpolatedCurve<Interpolator> {
       public:
         // constructor
@@ -47,20 +47,23 @@ namespace QuantLib {
                                  const std::vector<Handle<Quote>>& jumps = {},
                                  const std::vector<Date>& jumpDates = {},
                                  const Interpolator& interpolator = {},
-                                 const Extrapolation = Extrapolation::ContinuousForward);
+                                 const Extrapolation = Extrapolation::ContinuousForward,
+                                 const bool excludeTimeZeroFromInterpolation = false);
         InterpolatedForwardCurve(
             const std::vector<Date>& dates,
             const std::vector<Rate>& forwards,
             const DayCounter& dayCounter,
             const Calendar& calendar,
             const Interpolator& interpolator,
-            const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+            const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+            const bool excludeTimeZeroFromInterpolation = false);
         InterpolatedForwardCurve(
             const std::vector<Date>& dates,
             const std::vector<Rate>& forwards,
             const DayCounter& dayCounter,
             const Interpolator& interpolator,
-            const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+            const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+            const bool excludeTimeZeroFromInterpolation = false);
         //! \name TermStructure interface
         //@{
         Date maxDate() const override;
@@ -78,14 +81,16 @@ namespace QuantLib {
         explicit InterpolatedForwardCurve(
             const DayCounter&,
             const Interpolator& interpolator = {},
-            const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+            const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+            const bool excludeTimeZeroFromInterpolation = false);
         InterpolatedForwardCurve(
             const Date& referenceDate,
             const DayCounter&,
             const std::vector<Handle<Quote>>& jumps = {},
             const std::vector<Date>& jumpDates = {},
             const Interpolator& interpolator = {},
-            const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+            const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+            const bool excludeTimeZeroFromInterpolation = false);
         InterpolatedForwardCurve(
             Natural settlementDays,
             const Calendar&,
@@ -93,14 +98,15 @@ namespace QuantLib {
             const std::vector<Handle<Quote>>& jumps = {},
             const std::vector<Date>& jumpDates = {},
             const Interpolator& interpolator = {},
-            const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+            const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+            const bool excludeTimeZeroFromInterpolation = false);
 
-        //! \name ForwardRateStructure implementation
+        //! \name ZeroYieldStructure implementation
         //@{
-        Rate forwardImpl(Time t) const override;
         Rate zeroYieldImpl(Time t) const override;
         //@}
         Extrapolation extrapolation_;
+        bool excludeTimeZeroFromInterpolation_;
         mutable std::vector<Date> dates_;
       private:
         void initialize();
@@ -159,32 +165,38 @@ namespace QuantLib {
     // template definitions
 
     template <class T>
-    Rate InterpolatedForwardCurve<T>::forwardImpl(Time t) const {
-        if (t <= this->times_.back())
-            return this->interpolation_(t, true);
-
-        // flat fwd extrapolation
-        return this->data_.back();
-    }
-
-    template <class T>
     Rate InterpolatedForwardCurve<T>::zeroYieldImpl(Time t) const {
         if (t == 0.0)
-            return forwardImpl(0.0);
+            return this->interpolation_(t, true);
 
-        Real integral;
+        Real integral = 0.0;
+        Real tCutoff = 0.0;
+        if (excludeTimeZeroFromInterpolation_) {
+            tCutoff = std::min(this->times_[1], t);
+            // constant forward between 0 and first positive time
+            integral = this->data_[1] * tCutoff;
+        }
+
         if (t <= this->times_.back()) {
-            integral = this->interpolation_.primitive(t, true);
+            integral += this->interpolation_.primitive(t, true);
+            if(excludeTimeZeroFromInterpolation_)
+                integral -= this->interpolation_.primitive(tCutoff, true);
         } else {
             // flat fwd extrapolation
             if (extrapolation_ == YieldTermStructure::Extrapolation::ContinuousForward) {
                 integral = this->interpolation_.primitive(this->times_.back(), true) +
                            this->data_.back() * (t - this->times_.back());
+                if(excludeTimeZeroFromInterpolation_)
+                    integral -= this->interpolation_.primitive(tCutoff, true);
             } else if (extrapolation_ == YieldTermStructure::Extrapolation::DiscreteForward) {
                 Time tMax = this->times_.back();
                 Time tMax_m = this->timeFromReference(dates_.back() - 1);
                 Real iMax =this->interpolation_.primitive(tMax, true);
                 Real iMax_m =this->interpolation_.primitive(tMax_m, true);
+                if (excludeTimeZeroFromInterpolation_) {
+                    iMax -= this->interpolation_.primitive(tCutoff, true);
+                    iMax_m -= this->interpolation_.primitive(tCutoff, true);
+                }
                 integral = iMax + (iMax - iMax_m) * (t - tMax) / (tMax - tMax_m);
             } else {
                 QL_FAIL("extrapolation method not handled.");
@@ -194,70 +206,93 @@ namespace QuantLib {
     }
 
     template <class T>
-    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(const DayCounter& dayCounter,
-                                                          const T& interpolator,
-                                                          const Extrapolation extrapolation)
-    : ForwardRateStructure(dayCounter), InterpolatedCurve<T>(interpolator),
+    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(
+        const DayCounter& dayCounter,
+        const T& interpolator,
+        const Extrapolation extrapolation,
+        const bool excludeTimeZeroFromInterpolation)
+    : ZeroYieldStructure(dayCounter),
+      InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
+
+    template <class T>
+    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(
+        const Date& referenceDate,
+        const DayCounter& dayCounter,
+        const std::vector<Handle<Quote>>& jumps,
+        const std::vector<Date>& jumpDates,
+        const T& interpolator,
+        const Extrapolation extrapolation,
+        const bool excludeTimeZeroFromInterpolation)
+    : ZeroYieldStructure(referenceDate, Calendar(), dayCounter, jumps, jumpDates),
+      InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
       extrapolation_(extrapolation) {}
 
     template <class T>
-    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(const Date& referenceDate,
-                                                          const DayCounter& dayCounter,
-                                                          const std::vector<Handle<Quote>>& jumps,
-                                                          const std::vector<Date>& jumpDates,
-                                                          const T& interpolator,
-                                                          const Extrapolation extrapolation)
-    : ForwardRateStructure(referenceDate, Calendar(), dayCounter, jumps, jumpDates),
-      InterpolatedCurve<T>(interpolator), extrapolation_(extrapolation) {}
+    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(
+        Natural settlementDays,
+        const Calendar& calendar,
+        const DayCounter& dayCounter,
+        const std::vector<Handle<Quote>>& jumps,
+        const std::vector<Date>& jumpDates,
+        const T& interpolator,
+        const Extrapolation extrapolation,
+        const bool excludeTimeZeroFromInterpolation)
+    : ZeroYieldStructure(settlementDays, calendar, dayCounter, jumps, jumpDates),
+      InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
 
     template <class T>
-    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(Natural settlementDays,
-                                                          const Calendar& calendar,
-                                                          const DayCounter& dayCounter,
-                                                          const std::vector<Handle<Quote>>& jumps,
-                                                          const std::vector<Date>& jumpDates,
-                                                          const T& interpolator,
-                                                          const Extrapolation extrapolation)
-    : ForwardRateStructure(settlementDays, calendar, dayCounter, jumps, jumpDates),
-      InterpolatedCurve<T>(interpolator), extrapolation_(extrapolation) {}
-
-    template <class T>
-    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(const std::vector<Date>& dates,
-                                                          const std::vector<Rate>& forwards,
-                                                          const DayCounter& dayCounter,
-                                                          const Calendar& calendar,
-                                                          const std::vector<Handle<Quote>>& jumps,
-                                                          const std::vector<Date>& jumpDates,
-                                                          const T& interpolator,
-                                                          const Extrapolation extrapolation)
-    : ForwardRateStructure(dates.at(0), calendar, dayCounter, jumps, jumpDates),
-      InterpolatedCurve<T>(std::vector<Time>(), forwards, interpolator),
-      extrapolation_(extrapolation), dates_(dates) {
+    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(
+        const std::vector<Date>& dates,
+        const std::vector<Rate>& forwards,
+        const DayCounter& dayCounter,
+        const Calendar& calendar,
+        const std::vector<Handle<Quote>>& jumps,
+        const std::vector<Date>& jumpDates,
+        const T& interpolator,
+        const Extrapolation extrapolation,
+        const bool excludeTimeZeroFromInterpolation)
+    : ZeroYieldStructure(dates.at(0), calendar, dayCounter, jumps, jumpDates),
+      InterpolatedCurve<T>(
+          std::vector<Time>(), forwards, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
         initialize();
     }
 
     template <class T>
-    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(const std::vector<Date>& dates,
-                                                          const std::vector<Rate>& forwards,
-                                                          const DayCounter& dayCounter,
-                                                          const Calendar& calendar,
-                                                          const T& interpolator,
-                                                          const Extrapolation extrapolation)
-    : ForwardRateStructure(dates.at(0), calendar, dayCounter),
-      InterpolatedCurve<T>(std::vector<Time>(), forwards, interpolator),
-      extrapolation_(extrapolation), dates_(dates) {
+    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(
+        const std::vector<Date>& dates,
+        const std::vector<Rate>& forwards,
+        const DayCounter& dayCounter,
+        const Calendar& calendar,
+        const T& interpolator,
+        const Extrapolation extrapolation,
+        const bool excludeTimeZeroFromInterpolation)
+    : ZeroYieldStructure(dates.at(0), calendar, dayCounter),
+      InterpolatedCurve<T>(
+          std::vector<Time>(), forwards, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
         initialize();
     }
 
     template <class T>
-    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(const std::vector<Date>& dates,
-                                                          const std::vector<Rate>& forwards,
-                                                          const DayCounter& dayCounter,
-                                                          const T& interpolator,
-                                                          const Extrapolation extrapolation)
-    : ForwardRateStructure(dates.at(0), Calendar(), dayCounter),
-      InterpolatedCurve<T>(std::vector<Time>(), forwards, interpolator),
-      extrapolation_(extrapolation), dates_(dates) {
+    InterpolatedForwardCurve<T>::InterpolatedForwardCurve(
+        const std::vector<Date>& dates,
+        const std::vector<Rate>& forwards,
+        const DayCounter& dayCounter,
+        const T& interpolator,
+        const Extrapolation extrapolation,
+        const bool excludeTimeZeroFromInterpolation)
+    : ZeroYieldStructure(dates.at(0), Calendar(), dayCounter),
+      InterpolatedCurve<T>(
+          std::vector<Time>(), forwards, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
         initialize();
     }
 

@@ -51,6 +51,7 @@ namespace QuantLib {
                           DayCounter dc,
                           VolatilityType type = ShiftedLognormal,
                           Real displacement = 0.0,
+                          bool useEffectiveVolatility = false,
                           const std::vector<Real>& atmOptionletRates = {});
         StrippedOptionlet(Natural settlementDays,
                           const Calendar& calendar,
@@ -62,6 +63,7 @@ namespace QuantLib {
                           DayCounter dc,
                           VolatilityType type = ShiftedLognormal,
                           Real displacement = 0.0,
+                          bool useEffectiveVolatility = false,
                           const std::vector<Real>& atmOptionletRates = {});
         //! \name StrippedOptionletBase interface
         //@{
@@ -81,6 +83,7 @@ namespace QuantLib {
         //@}
         VolatilityType volatilityType() const override;
         Real displacement() const override;
+        bool useEffectiveVolatility() const override;
 
       protected:
         void performCalculations() const override;
@@ -96,6 +99,7 @@ namespace QuantLib {
         ext::shared_ptr<IborIndex> iborIndex_;
         VolatilityType type_;
         Real displacement_;
+        bool useEffectiveVolatility_;
 
         Size nOptionletDates_;
         std::vector<Date> optionletDates_;

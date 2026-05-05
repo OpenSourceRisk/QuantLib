@@ -645,7 +645,7 @@ for (auto [tenor, q]: quotes) {
         Real npv = fixedProxy.NPV() + floatProxy.NPV();
         Real tolerance = 1e-10;
 
-        BOOST_CHECK_SMALL(npv, tolerance);
+        QL_CHECK_SMALL(npv, tolerance);
     }
 }
 
@@ -744,7 +744,7 @@ for (auto [tenor, q]: quotes) {
         Real npv = fixedProxy.NPV() + floatProxy.NPV();
         Real tolerance = 1e-10;
 
-        BOOST_CHECK_SMALL(npv, tolerance);
+        QL_CHECK_SMALL(npv, tolerance);
     }
 }
 

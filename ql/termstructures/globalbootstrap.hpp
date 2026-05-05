@@ -112,7 +112,8 @@ template <class Curve> class GlobalBootstrap final : public MultiCurveBootstrapC
     GlobalBootstrap(Real accuracy = Null<Real>(),
                     ext::shared_ptr<OptimizationMethod> optimizer = nullptr,
                     ext::shared_ptr<EndCriteria> endCriteria = nullptr,
-                    std::vector<Real> instrumentWeights = {});
+                    std::vector<Real> instrumentWeights = {},
+                    const bool optimizeTimeZeroValue = false);
     GlobalBootstrap(std::vector<ext::shared_ptr<typename Traits::helper>> additionalHelpers,
                     std::function<std::vector<Date>()> additionalDates,
                     AdditionalPenalties additionalPenalties,
@@ -120,7 +121,8 @@ template <class Curve> class GlobalBootstrap final : public MultiCurveBootstrapC
                     ext::shared_ptr<OptimizationMethod> optimizer = nullptr,
                     ext::shared_ptr<EndCriteria> endCriteria = nullptr,
                     ext::shared_ptr<AdditionalBootstrapVariables> additionalVariables = nullptr,
-                    std::vector<Real> instrumentWeights = {});
+                    std::vector<Real> instrumentWeights = {},
+                    const bool optimizeTimeZeroValue = false);
     GlobalBootstrap(std::vector<ext::shared_ptr<typename Traits::helper>> additionalHelpers,
                     std::function<std::vector<Date>()> additionalDates,
                     std::function<Array()> additionalPenalties,
@@ -128,7 +130,8 @@ template <class Curve> class GlobalBootstrap final : public MultiCurveBootstrapC
                     ext::shared_ptr<OptimizationMethod> optimizer = nullptr,
                     ext::shared_ptr<EndCriteria> endCriteria = nullptr,
                     ext::shared_ptr<AdditionalBootstrapVariables> additionalVariables = nullptr,
-                    std::vector<Real> instrumentWeights = {});
+                    std::vector<Real> instrumentWeights = {},
+                    const bool optimizeTimeZeroValue = false);
     void setup(Curve *ts);
     void calculate() const;
 
@@ -151,6 +154,7 @@ template <class Curve> class GlobalBootstrap final : public MultiCurveBootstrapC
     AdditionalPenalties additionalPenalties_;
     ext::shared_ptr<AdditionalBootstrapVariables> additionalVariables_;
     mutable std::vector<Real> instrumentWeights_;
+    bool optimizeTimeZeroValue_;
     mutable std::vector<Real> aliveInstrumentWeights_;
     mutable bool initialized_ = false, validCurve_ = false;
     mutable ext::shared_ptr<MultiCurveBootstrap> parentBootstrapper_ = nullptr;
@@ -162,9 +166,11 @@ template <class Curve>
 GlobalBootstrap<Curve>::GlobalBootstrap(Real accuracy,
                                         ext::shared_ptr<OptimizationMethod> optimizer,
                                         ext::shared_ptr<EndCriteria> endCriteria,
-                                        std::vector<Real> instrumentWeights)
+                                        std::vector<Real> instrumentWeights,
+                                        const bool optimizeTimeZeroValue)
 : ts_(nullptr), accuracy_(accuracy), optimizer_(std::move(optimizer)),
-  endCriteria_(std::move(endCriteria)), instrumentWeights_(std::move(instrumentWeights)) {}
+  endCriteria_(std::move(endCriteria)), instrumentWeights_(std::move(instrumentWeights)),
+  optimizeTimeZeroValue_(optimizeTimeZeroValue) {}
 
 template <class Curve>
 GlobalBootstrap<Curve>::GlobalBootstrap(
@@ -175,13 +181,14 @@ GlobalBootstrap<Curve>::GlobalBootstrap(
     ext::shared_ptr<OptimizationMethod> optimizer,
     ext::shared_ptr<EndCriteria> endCriteria,
     ext::shared_ptr<AdditionalBootstrapVariables> additionalVariables,
-    std::vector<Real> instrumentWeights)
+    std::vector<Real> instrumentWeights,
+    const bool optimizeTimeZeroValue)
 : ts_(nullptr), accuracy_(accuracy), optimizer_(std::move(optimizer)),
   endCriteria_(std::move(endCriteria)), additionalHelpers_(std::move(additionalHelpers)),
   additionalDates_(std::move(additionalDates)),
   additionalPenalties_(std::move(additionalPenalties)),
   additionalVariables_(std::move(additionalVariables)),
-  instrumentWeights_(std::move(instrumentWeights)) {}
+  instrumentWeights_(std::move(instrumentWeights)), optimizeTimeZeroValue_(optimizeTimeZeroValue) {}
 
 template <class Curve>
 GlobalBootstrap<Curve>::GlobalBootstrap(
@@ -192,7 +199,8 @@ GlobalBootstrap<Curve>::GlobalBootstrap(
     ext::shared_ptr<OptimizationMethod> optimizer,
     ext::shared_ptr<EndCriteria> endCriteria,
     ext::shared_ptr<AdditionalBootstrapVariables> additionalVariables,
-    std::vector<Real> instrumentWeights)
+    std::vector<Real> instrumentWeights,
+    const bool optimizeTimeZeroValue)
 : GlobalBootstrap(std::move(additionalHelpers),
                   std::move(additionalDates),
                   additionalPenalties ?
@@ -203,7 +211,8 @@ GlobalBootstrap<Curve>::GlobalBootstrap(
                   std::move(optimizer),
                   std::move(endCriteria),
                   std::move(additionalVariables),
-                  std::move(instrumentWeights)) {}
+                  std::move(instrumentWeights),
+                  optimizeTimeZeroValue) {}
 
 template <class Curve>
 void GlobalBootstrap<Curve>::setParentBootstrapper(const ext::shared_ptr<MultiCurveBootstrap>& b) const {
@@ -353,8 +362,7 @@ template <class Curve> Array GlobalBootstrap<Curve>::setupCostFunction() const {
 
     // setup interpolation
     if (!validCurve_) {
-        ts_->interpolation_ = ts_->interpolator_.interpolate(ts_->times_.begin(), ts_->times_.end(),
-                                                             ts_->data_.begin());
+        ts_->setupInterpolation();
     }
 
     // Initial guess. We have guesses for the curve values first (numberPillars),
@@ -363,12 +371,16 @@ template <class Curve> Array GlobalBootstrap<Curve>::setupCostFunction() const {
     if (additionalVariables_) {
         additionalGuesses = additionalVariables_->initialize(validCurve_);
     }
-    Array guess(ts_->times_.size() - 1 + additionalGuesses.size());
-    for (Size i = 0; i < ts_->times_.size() - 1; ++i) {
+    Size optimizeTimeZeroOffset = (optimizeTimeZeroValue_ ? 0 : 1);
+    Array guess(ts_->times_.size() - optimizeTimeZeroOffset + additionalGuesses.size());
+    for (Size i = 0; i < ts_->times_.size() - optimizeTimeZeroOffset; ++i) {
         // just pass zero as the first alive helper, it's not used in the standard QL traits anyway
         // update ts_->data_ since Traits::guess() usually depends on previous values
-        Traits::updateGuess(ts_->data_, Traits::guess(i + 1, ts_, validCurve_, 0), i + 1);
-        guess[i] = Traits::transformInverse(ts_->data_[i + 1], i + 1, ts_);
+        Traits::updateGuess(ts_->data_,
+                            Traits::guess(i + optimizeTimeZeroOffset, ts_, validCurve_, 0),
+                            i + optimizeTimeZeroOffset);
+        guess[i] = Traits::transformInverse(ts_->data_[i + optimizeTimeZeroOffset],
+                                            i + optimizeTimeZeroOffset, ts_);
     }
     std::copy(additionalGuesses.begin(), additionalGuesses.end(),
               guess.begin() + ts_->times_.size() - 1);
@@ -379,12 +391,15 @@ template <class Curve>
 void GlobalBootstrap<Curve>::setCostFunctionArgument(const Array& x) const {
     // x has the same layout as guess above: the first numberPillars values go into
     // the curve, while the rest are new values for the additional variables.
-    for (Size i = 0; i < ts_->times_.size() - 1; ++i) {
-        Traits::updateGuess(ts_->data_, Traits::transformDirect(x[i], i + 1, ts_), i + 1);
+    Size optimizeTimeZeroOffset = (optimizeTimeZeroValue_ ? 0 : 1);
+    for (Size i = 0; i < ts_->times_.size() - optimizeTimeZeroOffset; ++i) {
+        Traits::updateGuess(ts_->data_,
+                            Traits::transformDirect(x[i], i + optimizeTimeZeroOffset, ts_),
+                            i + optimizeTimeZeroOffset);
     }
     ts_->interpolation_.update();
     if (additionalVariables_) {
-        additionalVariables_->update(Array(x.begin() + ts_->times_.size() - 1, x.end()));
+        additionalVariables_->update(Array(x.begin() + ts_->times_.size() - optimizeTimeZeroOffset, x.end()));
     }
 }
 

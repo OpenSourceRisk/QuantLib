@@ -948,7 +948,7 @@ BOOST_AUTO_TEST_CASE(testTermVolatilityStripping1ON, *precondition(if_speed(Slow
             new OptionletStripper1(vars.capfloorVol, sofrIndex,
                                    Null<Real>(), 1e-6, 100,
                                    vars.sofrCurveHandle, Normal,
-                                   0.0, true, Period(3, Months)));
+                                   0.0, true, false, Period(3, Months)));
 
     Handle<OptionletVolatilityStructure> ovsHandle(
         ext::shared_ptr<OptionletVolatilityStructure>(

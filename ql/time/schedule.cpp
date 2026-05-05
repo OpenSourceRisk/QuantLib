@@ -28,14 +28,6 @@
 
 namespace QuantLib {
 
-    namespace {
-
-        bool allowsEndOfMonth(const Period& tenor) {
-            return (tenor.units() == Months || tenor.units() == Years)
-                && tenor >= 1*Months;
-        }
-
-    }
 
 
     Schedule::Schedule(const std::vector<Date>& dates,
@@ -147,6 +139,8 @@ namespace QuantLib {
               case DateGeneration::OldCDS:
               case DateGeneration::CDS:
               case DateGeneration::CDS2015:
+              case DateGeneration::NthBusinessDay:
+              case DateGeneration::EighthBusinessDay:
               case DateGeneration::LastWednesday:
                 QL_FAIL("first date incompatible with " << *rule_ <<
                         " date generation rule");
@@ -181,6 +175,8 @@ namespace QuantLib {
               case DateGeneration::OldCDS:
               case DateGeneration::CDS:
               case DateGeneration::CDS2015:
+              case DateGeneration::EighthBusinessDay:
+              case DateGeneration::NthBusinessDay:
               case DateGeneration::LastWednesday:
                 QL_FAIL("next to last date incompatible with " << *rule_ <<
                         " date generation rule");
@@ -228,7 +224,10 @@ namespace QuantLib {
                         (calendar_.adjust(dates_.back(),convention)!=
                          calendar_.adjust(firstDate_,convention))) {
                         dates_.push_back(firstDate_);
-                        isRegular_.push_back(false);
+                        isRegular_.push_back(
+                            nullCalendar.advance(dates_[dates_.size()-2],
+                                -1*(*tenor_), convention, *endOfMonth_) ==
+                            firstDate_);
                     }
                     break;
                 } else {
@@ -246,7 +245,10 @@ namespace QuantLib {
             if (calendar_.adjust(dates_.back(),convention)!=
                 calendar_.adjust(effectiveDate,convention)) {
                 dates_.push_back(effectiveDate);
-                isRegular_.push_back(false);
+                isRegular_.push_back(
+                    nullCalendar.advance(dates_[dates_.size()-2],
+                        -1*(*tenor_), convention, *endOfMonth_) ==
+                    effectiveDate);
             }
 	        std::reverse(dates_.begin(), dates_.end());
 	        std::reverse(isRegular_.begin(), isRegular_.end());
@@ -263,6 +265,8 @@ namespace QuantLib {
           case DateGeneration::OldCDS:
           case DateGeneration::CDS:
           case DateGeneration::CDS2015:
+          case DateGeneration::EighthBusinessDay:
+          case DateGeneration::NthBusinessDay:
           case DateGeneration::LastWednesday:
             QL_REQUIRE(!*endOfMonth_,
                        "endOfMonth convention incompatible with " << *rule_ <<
@@ -324,7 +328,10 @@ namespace QuantLib {
                         (calendar_.adjust(dates_.back(),convention)!=
                          calendar_.adjust(nextToLastDate_,convention))) {
                         dates_.push_back(nextToLastDate_);
-                        isRegular_.push_back(false);
+                        isRegular_.push_back(
+                            nullCalendar.advance(dates_[dates_.size()-2],
+                                1*(*tenor_), convention, *endOfMonth_) ==
+                            nextToLastDate_);
                     }
                     break;
                 } else {
@@ -397,6 +404,13 @@ namespace QuantLib {
             for (Size i = 1; i < dates_.size() - 1; ++i) {
                 // The next Wednesday on or after the 1st of the next month and back 7.
                 dates_[i] = Date::nextWeekday(Date::endOfMonth(dates_[i]) + 1, Wednesday) - 7;
+            }
+        }
+
+        if (*rule_ == DateGeneration::EighthBusinessDay) {
+            for (Size i = 1; i < dates_.size() - 1; ++i) {
+                Date endOfLast = Date(1, dates_[i].month(), dates_[i].year()) - 1;
+                dates_[i] = calendar_.advance(endOfLast, 8 * Days, Following);
             }
         }
         else if (*rule_ == DateGeneration::ThirdWednesdayInclusive)
@@ -746,6 +760,10 @@ namespace QuantLib {
             }
         }
         return result;
+    }
+
+    bool allowsEndOfMonth(const Period& tenor) {
+        return (tenor.units() == Months || tenor.units() == Years) && tenor >= 1 * Months;
     }
 
     Date nextTwentieth(const Date& d, DateGeneration::Rule rule) {

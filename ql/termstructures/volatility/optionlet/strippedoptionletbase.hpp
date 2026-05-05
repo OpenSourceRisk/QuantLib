@@ -59,6 +59,7 @@ namespace QuantLib {
         virtual BusinessDayConvention businessDayConvention() const = 0;
         virtual VolatilityType volatilityType() const = 0;
         virtual Real displacement() const = 0;
+        virtual bool useEffectiveVolatility() const = 0;
     };
 
 }

@@ -38,11 +38,13 @@ namespace QuantLib {
                          const Date& refPeriodEnd,
                          const DayCounter& dayCounter,
                          bool isInArrears,
-                         const Date& exCouponDate)
+                         const Date& exCouponDate,
+                         BusinessDayConvention fixingConvention)
     : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
                          fixingDays, swapIndex, gearing, spread,
                          refPeriodStart, refPeriodEnd,
-                         dayCounter, isInArrears, exCouponDate),
+                         dayCounter, isInArrears, exCouponDate,
+                         fixingConvention),
       swapIndex_(swapIndex) {}
 
     void CmsCoupon::accept(AcyclicVisitor& v) {
@@ -151,6 +153,11 @@ namespace QuantLib {
         return *this;
     }
 
+    CmsLeg& CmsLeg::withFixingConvention(BusinessDayConvention convention) {
+        fixingConvention_ = convention;
+        return *this;
+    }
+
     CmsLeg& CmsLeg::withExCouponPeriod(
                                 const Period& period,
                                 const Calendar& cal,
@@ -175,7 +182,9 @@ namespace QuantLib {
                          caps_, floors_, inArrears_, zeroPayments_,
                          paymentLag_, Calendar(),
                          exCouponPeriod_, exCouponCalendar_,
-                         exCouponAdjustment_, exCouponEndOfMonth_);
+                         exCouponAdjustment_, exCouponEndOfMonth_,
+                         paymentDates_,
+                         fixingConvention_);
    }
 
 }

@@ -33,9 +33,10 @@ namespace QuantLib {
                                                              Handle<Quote> vol,
                                                              const DayCounter& dc,
                                                              VolatilityType type,
-                                                             Real displacement)
+                                                             Real displacement,
+                                                             bool useEffectiveVolatility)
     : OptionletVolatilityStructure(settlementDays, cal, bdc, dc), volatility_(std::move(vol)),
-      type_(type), displacement_(displacement) {
+      type_(type), displacement_(displacement), useEffectiveVolatility_(useEffectiveVolatility) {
         registerWith(volatility_);
     }
 
@@ -46,9 +47,10 @@ namespace QuantLib {
                                                              Handle<Quote> vol,
                                                              const DayCounter& dc,
                                                              VolatilityType type,
-                                                             Real displacement)
+                                                             Real displacement,
+                                                             bool useEffectiveVolatility)
     : OptionletVolatilityStructure(referenceDate, cal, bdc, dc), volatility_(std::move(vol)),
-      type_(type), displacement_(displacement) {
+      type_(type), displacement_(displacement), useEffectiveVolatility_(useEffectiveVolatility) {
         registerWith(volatility_);
     }
 
@@ -56,19 +58,19 @@ namespace QuantLib {
     ConstantOptionletVolatility::ConstantOptionletVolatility(
         Natural settlementDays, const Calendar &cal, BusinessDayConvention bdc,
         Volatility vol, const DayCounter &dc, VolatilityType type,
-        Real displacement)
+        Real displacement, bool useEffectiveVolatility)
         : OptionletVolatilityStructure(settlementDays, cal, bdc, dc),
           volatility_(ext::shared_ptr< Quote >(new SimpleQuote(vol))),
-          type_(type), displacement_(displacement) {}
+          type_(type), displacement_(displacement), useEffectiveVolatility_(useEffectiveVolatility) {}
 
     // fixed reference date, fixed market data
     ConstantOptionletVolatility::ConstantOptionletVolatility(
         const Date &referenceDate, const Calendar &cal,
         BusinessDayConvention bdc, Volatility vol, const DayCounter &dc,
-        VolatilityType type, Real displacement)
+        VolatilityType type, Real displacement, bool useEffectiveVolatility)
         : OptionletVolatilityStructure(referenceDate, cal, bdc, dc),
           volatility_(ext::shared_ptr< Quote >(new SimpleQuote(vol))),
-          type_(type), displacement_(displacement) {}
+          type_(type), displacement_(displacement), useEffectiveVolatility_(useEffectiveVolatility) {}
 
     ext::shared_ptr<SmileSection>
     ConstantOptionletVolatility::smileSectionImpl(const Date& d) const {

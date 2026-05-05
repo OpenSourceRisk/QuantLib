@@ -140,6 +140,10 @@ namespace QuantLib {
         return optionletStripper_->volatilityType();
     }
 
+    bool StrippedOptionletAdapter::useEffectiveVolatility() const {
+        return optionletStripper_->useEffectiveVolatility();
+    }
+
     Real StrippedOptionletAdapter::displacement() const {
         return optionletStripper_->displacement();
     }

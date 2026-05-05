@@ -33,11 +33,13 @@ namespace QuantLib {
         Handle<YieldTermStructure> discount,
         const VolatilityType type,
         const Real displacement,
+        bool useEffectiveVolatility,
         ext::optional<Period> optionletFrequency
     )
     : termVolSurface_(termVolSurface), iborIndex_(std::move(iborIndex)),
       discount_(std::move(discount)), nStrikes_(termVolSurface->strikes().size()),
       volatilityType_(type), displacement_(displacement), 
+      useEffectiveVolatility_(useEffectiveVolatility),
       optionletFrequency_(optionletFrequency) {
 
         if (volatilityType_ == Normal) {
@@ -168,6 +170,10 @@ namespace QuantLib {
 
     VolatilityType OptionletStripper::volatilityType() const {
         return volatilityType_;
+    }
+
+    bool OptionletStripper::useEffectiveVolatility() const {
+        return useEffectiveVolatility_;
     }
 
     ext::optional<Period> OptionletStripper::optionletFrequency() const {

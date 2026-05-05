@@ -80,7 +80,8 @@ namespace QuantLib {
                             const Interpolator& i = {},
                             bootstrap_type bootstrap = {},
                             const YieldTermStructure::Extrapolation extrapolation =
-                                YieldTermStructure::Extrapolation::ContinuousForward)
+                                YieldTermStructure::Extrapolation::ContinuousForward,
+                            const bool excludeTimeZeroFromInterpolation = false)
         : PiecewiseYieldCurve(std::move(instruments),
                               std::move(bootstrap),
                               referenceDate,
@@ -88,7 +89,8 @@ namespace QuantLib {
                               jumps,
                               jumpDates,
                               i,
-                              extrapolation) {}
+                              extrapolation,
+                              excludeTimeZeroFromInterpolation) {}
 
         PiecewiseYieldCurve(const Date& referenceDate,
                             std::vector<ext::shared_ptr<typename Traits::helper>> instruments,
@@ -96,7 +98,8 @@ namespace QuantLib {
                             const Interpolator& i,
                             bootstrap_type bootstrap = {},
                             const YieldTermStructure::Extrapolation extrapolation =
-                                YieldTermStructure::Extrapolation::ContinuousForward)
+                                YieldTermStructure::Extrapolation::ContinuousForward,
+                            const bool excludeTimeZeroFromInterpolation = false)
         : PiecewiseYieldCurve(std::move(instruments),
                               std::move(bootstrap),
                               referenceDate,
@@ -104,7 +107,8 @@ namespace QuantLib {
                               std::vector<Handle<Quote>>(),
                               std::vector<Date>(),
                               i,
-                              extrapolation) {}
+                              extrapolation,
+                              excludeTimeZeroFromInterpolation) {}
 
         PiecewiseYieldCurve(const Date& referenceDate,
                             std::vector<ext::shared_ptr<typename Traits::helper>> instruments,
@@ -124,7 +128,8 @@ namespace QuantLib {
                             const Interpolator& i = {},
                             bootstrap_type bootstrap = {},
                             const YieldTermStructure::Extrapolation extrapolation =
-                                YieldTermStructure::Extrapolation::ContinuousForward)
+                                YieldTermStructure::Extrapolation::ContinuousForward,
+                            const bool excludeTimeZeroFromInterpolation = false)
         : PiecewiseYieldCurve(std::move(instruments),
                               std::move(bootstrap),
                               settlementDays,
@@ -133,7 +138,8 @@ namespace QuantLib {
                               jumps,
                               jumpDates,
                               i,
-                              extrapolation) {}
+                              extrapolation,
+                              excludeTimeZeroFromInterpolation) {}
 
         PiecewiseYieldCurve(Natural settlementDays,
                             const Calendar& calendar,
@@ -142,7 +148,8 @@ namespace QuantLib {
                             const Interpolator& i,
                             bootstrap_type bootstrap = {},
                             const YieldTermStructure::Extrapolation extrapolation =
-                                YieldTermStructure::Extrapolation::ContinuousForward)
+                                YieldTermStructure::Extrapolation::ContinuousForward,
+                            const bool excludeTimeZeroFromInterpolation = false)
         : PiecewiseYieldCurve(std::move(instruments),
                               std::move(bootstrap),
                               settlementDays,
@@ -151,7 +158,8 @@ namespace QuantLib {
                               std::vector<Handle<Quote>>(),
                               std::vector<Date>(),
                               i,
-                              extrapolation) {}
+                              extrapolation,
+                              excludeTimeZeroFromInterpolation) {}
 
         PiecewiseYieldCurve(Natural settlementDays,
                             const Calendar& calendar,

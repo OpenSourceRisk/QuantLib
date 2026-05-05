@@ -105,6 +105,7 @@ namespace QuantLib {
         //@}
         virtual VolatilityType volatilityType() const;
         virtual Real displacement() const;
+        virtual bool useEffectiveVolatility() const;
 
       protected:
         virtual ext::shared_ptr<SmileSection> smileSectionImpl(
@@ -217,6 +218,10 @@ namespace QuantLib {
 
     inline Real OptionletVolatilityStructure::displacement() const {
         return 0.0;
+    }
+
+    inline bool OptionletVolatilityStructure::useEffectiveVolatility() const {
+        return false;
     }
 }
 

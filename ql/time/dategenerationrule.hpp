@@ -83,6 +83,10 @@ namespace QuantLib {
             LastWednesday,          /*!< All dates but effective date and termination
                                          date are taken to be on the last Wednesday 
                                          of their month. */
+            NthBusinessDay,         /*!< Dates are once per month on the specified 
+                                        business day of each month. */
+            EighthBusinessDay,         /*!< Dates are once per month on the eighth
+                                        business day of each month. */
         };
     };
 
