@@ -154,13 +154,15 @@ namespace QuantLib {
                       const DayCounter& dayCounter,
                       Pillar::Choice pillar = Pillar::LastRelevantDate,
                       Date customPillarDate = Date(),
-                      bool useIndexedCoupon = true);
+                      bool useIndexedCoupon = true,
+                      bool endDateFromStart = false);
         FraRateHelper(const std::variant<Rate, Handle<Quote>>& rate,
                       Natural monthsToStart,
                       const ext::shared_ptr<IborIndex>& iborIndex,
                       Pillar::Choice pillar = Pillar::LastRelevantDate,
                       Date customPillarDate = Date(),
-                      bool useIndexedCoupon = true);
+                      bool useIndexedCoupon = true,
+                      bool endDateFromStart = false);
         FraRateHelper(const std::variant<Rate, Handle<Quote>>& rate,
                       Period periodToStart,
                       Natural lengthInMonths,
@@ -171,20 +173,23 @@ namespace QuantLib {
                       const DayCounter& dayCounter,
                       Pillar::Choice pillar = Pillar::LastRelevantDate,
                       Date customPillarDate = Date(),
-                      bool useIndexedCoupon = true);
+                      bool useIndexedCoupon = true,
+                      bool endDateFromStart = false);
         FraRateHelper(const std::variant<Rate, Handle<Quote>>& rate,
                       Period periodToStart,
                       const ext::shared_ptr<IborIndex>& iborIndex,
                       Pillar::Choice pillar = Pillar::LastRelevantDate,
                       Date customPillarDate = Date(),
-                      bool useIndexedCoupon = true);
+                      bool useIndexedCoupon = true,
+                      bool endDateFromStart = false);
         FraRateHelper(const std::variant<Rate, Handle<Quote>>& rate,
                       Natural immOffsetStart,
                       Natural immOffsetEnd,
                       const ext::shared_ptr<IborIndex>& iborIndex,
                       Pillar::Choice pillar = Pillar::LastRelevantDate,
                       Date customPillarDate = Date(),
-                      bool useIndexedCoupon = true);
+                      bool useIndexedCoupon = true,
+                      bool endDateFromStart = false);
         FraRateHelper(const std::variant<Rate, Handle<Quote>>& rate,
                       Date startDate,
                       Date endDate,
@@ -212,6 +217,7 @@ namespace QuantLib {
         ext::shared_ptr<IborIndex> iborIndex_;
         RelinkableHandle<YieldTermStructure> termStructureHandle_;
         bool useIndexedCoupon_;
+        bool endDateFromStart_;
         Real spanningTime_;
     };
 
