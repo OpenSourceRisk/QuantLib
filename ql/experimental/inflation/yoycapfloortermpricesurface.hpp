@@ -87,6 +87,8 @@ namespace QuantLib {
         virtual Real floorPrice(const Date& d, Rate k) const = 0;
         virtual Rate atmYoYSwapRate(const Date &d,
                                     bool extrapolate = true) const = 0;
+
+        [[deprecated("Use the overload without the obsLag argument instead")]]
         virtual Rate atmYoYRate(const Date &d,
                                 const Period &obsLag = Period(-1,Days),
                                 bool extrapolate = true) const = 0;
@@ -96,6 +98,8 @@ namespace QuantLib {
         virtual Real floorPrice(const Period& d, Rate k) const;
         virtual Rate atmYoYSwapRate(const Period &d,
                                     bool extrapolate = true) const;
+        
+        [[deprecated("Use the overload without the obsLag argument instead")]]
         virtual Rate atmYoYRate(const Period &d,
                                 const Period &obsLag = Period(-1,Days),
                                 bool extrapolate = true) const;
@@ -553,7 +557,7 @@ namespace QuantLib {
         auto pYITS =
             ext::make_shared<PiecewiseYoYInflationCurve<Linear>>(
                       nominalTS_->referenceDate(), baseDate, baseYoYRate,
-                      observationLag(), yoyIndex()->frequency(), dayCounter(), YYhelpers);
+                      yoyIndex()->frequency(), dayCounter(), YYhelpers);
         pYITS->recalculate();
         yoy_ = pYITS;   // store
 

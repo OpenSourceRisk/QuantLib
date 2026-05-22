@@ -122,11 +122,12 @@ namespace QuantLib {
         return atmYoYSwapRate(yoyOptionDateFromTenor(d), extrapolate);
     }
 
-    Rate YoYCapFloorTermPriceSurface::atmYoYRate(const Period &d,
+    Rate YoYCapFloorTermPriceSurface::atmYoYRate(const Period& d,
                                                  const Period& obsLag,
-                    bool extrapolate) const {
+                                                 bool extrapolate) const {
+        QL_DEPRECATED_DISABLE_WARNING
         return atmYoYRate(yoyOptionDateFromTenor(d), obsLag, extrapolate);
+        QL_DEPRECATED_ENABLE_WARNING
     }
-
 }
 
