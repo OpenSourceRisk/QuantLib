@@ -100,3 +100,19 @@ namespace QuantLib {
     const char* Error::what() const noexcept { return message_->c_str(); }
 }
 
+#if defined(__GNUC__) or defined(__clang__)
+bool qlStoreStacktrace = false;
+thread_local boost::stacktrace::stacktrace qlLastStacktrace;
+extern "C" {
+typedef void (*cxa_throw_type)(void*, std::type_info*, void (*)(void*));
+void __cxa_throw(void* thrown_exception, std::type_info* tinfo, void (*dest)(void*)) {
+    if (qlStoreStacktrace) {
+        qlLastStacktrace = boost::stacktrace::stacktrace();
+    }
+    static cxa_throw_type real_cxa_throw =
+        reinterpret_cast<cxa_throw_type>(dlsym(RTLD_NEXT, "__cxa_throw"));
+    real_cxa_throw(thrown_exception, tinfo, dest);
+    __builtin_unreachable();
+}
+}
+#endif

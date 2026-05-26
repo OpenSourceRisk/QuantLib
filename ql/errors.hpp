@@ -33,6 +33,13 @@
 #include <sstream>
 #include <string>
 
+#if defined(__GNUC__) or defined(__clang__)
+#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
+#include <boost/stacktrace.hpp>
+#include <dlfcn.h>
+#include <cxxabi.h>
+#endif
+
 namespace QuantLib {
 
     //! Base error class
@@ -137,6 +144,15 @@ if (!(condition)) { \
 } \
 QL_MULTILINE_ASSERTION_END
 
+
+/*! intercept exceptions when building with gcc or clang */
+#if defined(__GNUC__) or defined(__clang__)
+extern bool qlStoreStacktrace;
+extern thread_local boost::stacktrace::stacktrace qlLastStacktrace;
+extern "C" {
+void __cxa_throw(void* thrown_exception, std::type_info* tinfo, void (*dest)(void*));
+}
+#endif
 
 #endif
 
