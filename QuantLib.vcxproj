@@ -2092,6 +2092,7 @@
     <ClCompile Include="ql\experimental\finitedifferences\glued1dmesher.cpp" />
     <ClCompile Include="ql\experimental\finitedifferences\vanillavppoption.cpp" />
     <ClCompile Include="ql\experimental\forward\analytichestonforwardeuropeanengine.cpp" />
+    <ClCompile Include="ql\experimental\fx\bachelierdeltacalculator.cpp" />
     <ClCompile Include="ql\experimental\inflation\cpicapfloorengines.cpp" />
     <ClCompile Include="ql\experimental\inflation\cpicapfloortermpricesurface.cpp" />
     <ClCompile Include="ql\experimental\inflation\yoycapfloortermpricesurface.cpp" />
@@ -2645,6 +2646,7 @@
     <ClCompile Include="ql\pricingengines\credit\integralcdsengine.cpp" />
     <ClCompile Include="ql\pricingengines\credit\isdacdsengine.cpp" />
     <ClCompile Include="ql\pricingengines\credit\midpointcdsengine.cpp" />
+    <ClCompile Include="ql\pricingengines\diffusioncalculator.cpp" />
     <ClCompile Include="ql\pricingengines\exotic\analyticamericanmargrabeengine.cpp" />
     <ClCompile Include="ql\pricingengines\exotic\analyticcomplexchooserengine.cpp" />
     <ClCompile Include="ql\pricingengines\exotic\analyticcompoundoptionengine.cpp" />
