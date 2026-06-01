@@ -417,7 +417,7 @@ namespace QuantLib {
     }
 
     bool Israel::TelAvivImpl::isWeekend(Weekday w) const {
-        return w == Friday || w == Saturday;
+        return w == Saturday || w == Sunday;
     }
 
     bool Israel::TelAvivImpl::isBusinessDay(const Date& date) const {
