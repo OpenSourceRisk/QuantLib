@@ -400,6 +400,13 @@ namespace QuantLib {
         bool isBusinessDay(const Date&) const override;
     };
 
+    class Israel::TelborImpl final : public Calendar::Impl {
+      public:
+        std::string name() const override { return "Israel Telbor Implementation"; }
+        bool isWeekend(Weekday) const override;
+        bool isBusinessDay(const Date&) const override;
+    };
+
     class Israel::ShirImpl final : public Calendar::WesternImpl {
       public:
         std::string name() const override { return "SHIR fixing calendar"; }
@@ -410,6 +417,7 @@ namespace QuantLib {
         // all calendar instances share the same implementation instance
         static auto telAvivImpl = ext::make_shared<Israel::TelAvivImpl>();
         static auto telAvivNationalImpl = ext::make_shared<Israel::TelAvivNationalImpl>();
+        static auto telborImpl = ext::make_shared<Israel::TelborImpl>();
         static auto shirImpl = ext::make_shared<Israel::ShirImpl>();
         switch (market) {
         case Settlement:
@@ -418,6 +426,9 @@ namespace QuantLib {
             break;
         case TASE_National:
             impl_ = telAvivNationalImpl;
+            break;
+        case Telbor:
+            impl_ = telborImpl;
             break;
         case SHIR:
             impl_ = shirImpl;
@@ -488,6 +499,58 @@ namespace QuantLib {
             || isSukkot(date)
             || isSimchatTorah(date+1)  // Eve of Simchat Torah
             || isSimchatTorah(date))
+            return false; // NOLINT(readability-simplify-boolean-expr)
+
+        return true;
+    }
+
+    bool Israel::TelborImpl::isWeekend(Weekday w) const {
+        return w == Saturday || w == Sunday;
+    }
+
+    bool Israel::TelborImpl::isBusinessDay(const Date& date) const {
+        Weekday w = date.weekday();
+        Day d = date.dayOfMonth();
+        Month m = date.month();
+        Year y = date.year();
+
+        if (isWeekend(w)
+            // New Year's Day
+            || (d == 1 && m == January)
+            // General Elections
+            || (((d == 9 && m == April) || (d == 17 && m == September)) && y == 2019)
+            || (d == 2 && m == March && y == 2020)
+            // Holiday abroad
+            || (((d == 22 && m == April) || (d == 27 && m == May)) && y == 2019)
+            || ((((d == 10 || d == 13) && m == April) || ((d == 8 || d == 25) && m == May)) && y == 2020)
+            // Purim
+            || isPurim(date)
+            || isPurim(date-1) // Shushan Purim
+            // Passover I and Passover VII
+            || isPassover1st(date+1) // Eve of Passover
+            || isPassover1st(date)
+            || isPassover1st(date-6) // Passover VII
+            // Israel Independence Day
+            || isIndependenceDay(date)
+            // Feast of Shavuot (Pentecost)
+            || isShavuot(date)
+            // Fast of Ninth of Av
+            || isFastDay(date)
+            // Jewish New Year (Rosh Hashanah)
+            || isNewYearsDay(date)
+            || isNewYearsDay(date-1) // 2nd day of new year
+            // Day of Atonement (Yom Kippur)
+            || isYomKippur(date)
+            // First Day of Sukkot (Tabernacles)
+            || isSukkot(date)
+            // Rejoicing of the Law Festival (Simchat Torah)
+            || isSimchatTorah(date)
+            // last Monday of May (Spring Bank Holiday)
+            || (d >= 25 && w == Monday && m == May && y != 2002 && y != 2012)
+            // Christmas
+            || (d == 25 && m == December)
+            // Day of Goodwill (Boxing Day)
+            || (d == 26 && m == December && y >= 2000 && y != 2020))
             return false; // NOLINT(readability-simplify-boolean-expr)
 
         return true;
