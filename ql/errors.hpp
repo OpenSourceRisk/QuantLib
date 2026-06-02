@@ -150,7 +150,11 @@ QL_MULTILINE_ASSERTION_END
 extern bool qlStoreStacktrace;
 extern thread_local boost::stacktrace::stacktrace qlLastStacktrace;
 extern "C" {
+#if defined(__clang__)
 void __cxa_throw(void* thrown_exception, std::type_info* tinfo, void (*dest)(void*));
+#elif defined(__GNUC__)
+void __cxa_throw(void* thrown_exception, void* tinfo, void (*dest)(void*));
+#endif
 }
 #endif
 
