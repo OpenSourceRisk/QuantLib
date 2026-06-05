@@ -73,6 +73,15 @@ namespace QuantLib {
                   const Array& b,
                   bool pivot = true,
                   const Array& d = Array());
+
+    // ! QR Solve based on qrDecomposition() results
+    Array qrSolve(const std::vector<Size>& lipvt,
+                  const Matrix& q,
+                  const Matrix& r,
+                  const Array& b,
+                  bool pivot = true,
+                  const Array& d = Array());
+
 }
 
 #endif

@@ -135,6 +135,23 @@ namespace QuantLib {
 
         std::vector<Size> lipvt = qrDecomposition(a, q, r, pivot);
 
+        return qrSolve(lipvt, q, r, b, pivot, d);
+    }
+
+    Array qrSolve(const std::vector<Size>& lipvt,
+                  const Matrix& q,
+                  const Matrix& r,
+                  const Array& b,
+                  bool pivot,
+                  const Array& d) {
+
+        const Size m = q.rows();
+        const Size n = q.columns();
+
+        QL_REQUIRE(r.rows() == n && r.columns() == n, "dimension of q and r do not match");
+        QL_REQUIRE(b.size() == m, "dimensions of q and b do not match");
+        QL_REQUIRE(d.size() == n || d.empty(), "dimensions of q and d do not match");
+
         std::unique_ptr<int[]> ipvt(new int[n]);
         std::copy(lipvt.begin(), lipvt.end(), ipvt.get());
 
