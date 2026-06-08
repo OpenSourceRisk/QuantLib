@@ -146,10 +146,15 @@ namespace QuantLib {
         return *this;
     }
 
+    CmsSpreadLeg& CmsSpreadLeg::withPaymentDates(const std::vector<Date> paymentDates) {
+        paymentDates_ = paymentDates;
+        return *this;
+    }
+
     CmsSpreadLeg::operator Leg() const {
             return FloatingLeg<SwapSpreadIndex, CmsSpreadCoupon, CappedFlooredCmsSpreadCoupon>(
                 schedule_, notionals_, swapSpreadIndex_, paymentDayCounter_, paymentAdjustment_,
                 fixingDays_, gearings_, spreads_, caps_, floors_, inArrears_, zeroPayments_, paymentLag_,
-                paymentCalendar_); 
+                paymentCalendar_, Period(), Calendar(), Following, false, paymentDates_);
     }
 }

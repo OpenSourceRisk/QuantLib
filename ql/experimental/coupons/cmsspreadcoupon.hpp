@@ -124,6 +124,7 @@ namespace QuantLib {
         CmsSpreadLeg& withFloors(const std::vector<Rate>& floors);
         CmsSpreadLeg& inArrears(bool flag = true);
         CmsSpreadLeg& withZeroPayments(bool flag = true);
+        CmsSpreadLeg& withPaymentDates(const std::vector<Date> paymentDates);
         operator Leg() const;
       private:
         Schedule schedule_;
@@ -138,6 +139,7 @@ namespace QuantLib {
         std::vector<Rate> caps_, floors_;
         Calendar paymentCalendar_;
         bool inArrears_ = false, zeroPayments_ = false;
+        std::vector<Date> paymentDates_;
     };
 
 
