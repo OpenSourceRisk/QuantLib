@@ -46,7 +46,6 @@ namespace QuantLib {
         InterpolatedYoYInflationCurve(const Date& referenceDate,
                                       std::vector<Date> dates,
                                       const std::vector<Rate>& rates,
-                                      const Period& observationLag,
                                       Frequency frequency,
                                       const DayCounter& dayCounter,
                                       const ext::shared_ptr<Seasonality>& seasonality = {},
@@ -80,7 +79,6 @@ namespace QuantLib {
         InterpolatedYoYInflationCurve(const Date& referenceDate,
                                       Date baseDate,
                                       Rate baseYoYRate,
-                                      const Period& observationLag,
                                       Frequency frequency,
                                       const DayCounter& dayCounter,
                                       const ext::shared_ptr<Seasonality>& seasonality = {},
@@ -98,13 +96,12 @@ namespace QuantLib {
         const Date& referenceDate,
         std::vector<Date> dates,
         const std::vector<Rate>& rates,
-        const Period& observationLag,
         Frequency frequency,
         const DayCounter& dayCounter,
         const ext::shared_ptr<Seasonality>& seasonality,
         const Interpolator& interpolator)
-    : YoYInflationTermStructure(referenceDate, dates.at(0), rates[0], 
-                                observationLag, frequency, dayCounter, seasonality),
+    : YoYInflationTermStructure(referenceDate, dates.at(0), rates[0],
+                                frequency, dayCounter, seasonality),
       InterpolatedCurve<Interpolator>(std::vector<Time>(), rates, interpolator),
       dates_(std::move(dates)) {
 
@@ -131,12 +128,11 @@ namespace QuantLib {
     InterpolatedYoYInflationCurve(const Date& referenceDate,
                                   Date baseDate,
                                   Rate baseYoYRate,
-                                  const Period& observationLag,
                                   Frequency frequency,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<Seasonality>& seasonality,
                                   const Interpolator& interpolator)
-    : YoYInflationTermStructure(referenceDate, baseDate, baseYoYRate, observationLag,
+    : YoYInflationTermStructure(referenceDate, baseDate, baseYoYRate,
                                 frequency, dayCounter, seasonality),
       InterpolatedCurve<Interpolator>(interpolator) {}
 
