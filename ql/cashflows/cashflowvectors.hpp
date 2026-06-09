@@ -257,7 +257,7 @@ namespace QuantLib {
                         const ext::shared_ptr<DigitalReplication>& replication,
                         bool nakedOption = false,
                         Calendar paymentCalendar = Calendar(),
-                        QuantLib::Integer paymentLag = 0) {
+                        Integer paymentLag = 0) {
         Size n = schedule.size()-1;
         QL_REQUIRE(!nominals.empty(), "no notional given");
         QL_REQUIRE(nominals.size() <= n,
