@@ -38,20 +38,13 @@ namespace QuantLib {
         //! \name Constructors
         //@{
         InflationTermStructure(Date baseDate,
-                               // TODO: remove this internal extension, but at the moment we need the observation Lag
-                               // in the parSensiAnalysis, ScenarioSimMarket, CAM model
-                               const Period& observationLag,
                                Frequency frequency,
                                const DayCounter& dayCounter = DayCounter(),
                                ext::shared_ptr<Seasonality> seasonality = {},
                                Rate baseRate = Null<Rate>());
-                               
 
         InflationTermStructure(const Date& referenceDate,
                                Date baseDate,
-                               // TODO: remove this internal extension, but at the moment we need the observation Lag
-                               // in the parSensiAnalysis, ScenarioSimMarket, CAM model
-                               const Period& observationLag,
                                Frequency frequency,
                                const DayCounter& dayCounter = DayCounter(),
                                ext::shared_ptr<Seasonality> seasonality = {},
@@ -60,9 +53,6 @@ namespace QuantLib {
         InflationTermStructure(Natural settlementDays,
                                const Calendar& calendar,
                                Date baseDate,
-                               // TODO: remove this internal extension, but at the moment we need the observation Lag
-                               // in the parSensiAnalysis, ScenarioSimMarket, CAM model
-                               const Period& observationLag,
                                Frequency frequency,
                                const DayCounter& dayCounter = DayCounter(),
                                ext::shared_ptr<Seasonality> seasonality = {},
@@ -79,7 +69,7 @@ namespace QuantLib {
                         base date now.
                         Deprecated in version 1.39.
         */
-        //[[deprecated("Do not use; inflation curves always have an explicit base date now.")]]
+        [[deprecated("Do not use; inflation curves always have an explicit base date now.")]]
         virtual Period observationLag() const;
 
         virtual Frequency frequency() const;
@@ -118,9 +108,7 @@ namespace QuantLib {
                         base date now.
                         Deprecated in version 1.39.
         */
-        // Dont deprecate it, we need the observation lag in the curve for the while being
-        // Get it from conventions in cross asset model and par rate conversion in the future
-        //[[deprecated("Do not use; inflation curves always have an explicit base date now.")]]
+        [[deprecated("Do not use; inflation curves always have an explicit base date now.")]]
         Period observationLag_;
 
         Frequency frequency_;
@@ -135,14 +123,12 @@ namespace QuantLib {
         //! \name Constructors
         //@{
         ZeroInflationTermStructure(Date baseDate,
-                                   const Period& observationLag,
                                    Frequency frequency,
                                    const DayCounter& dayCounter,
                                    const ext::shared_ptr<Seasonality>& seasonality = {});
 
         ZeroInflationTermStructure(const Date& referenceDate,
                                    Date baseDate,
-                                   const Period& observationLag,
                                    Frequency frequency,
                                    const DayCounter& dayCounter,
                                    const ext::shared_ptr<Seasonality>& seasonality = {});
@@ -150,7 +136,6 @@ namespace QuantLib {
         ZeroInflationTermStructure(Natural settlementDays,
                                    const Calendar& calendar,
                                    Date baseDate,
-                                   const Period& observationLag,
                                    Frequency frequency,
                                    const DayCounter& dayCounter,
                                    const ext::shared_ptr<Seasonality>& seasonality = {});
@@ -171,7 +156,7 @@ namespace QuantLib {
         /*! \deprecated Use the overload without a lag instead.
                         Deprecated in version 1.41.
         */
-        //[[deprecated("Use the overload without a lag instead")]]
+        [[deprecated("Use the overload without a lag instead")]]
         Rate zeroRate(const Date& d, const Period& instObsLag,
                       bool forceLinearInterpolation = false,
                       bool extrapolate = false) const;
@@ -185,8 +170,6 @@ namespace QuantLib {
         */
         Rate zeroRate(Time t,
                       bool extrapolate = false) const;
-
-        Rate baseRate() const override { return baseRate_; }
         //@}
       protected:
         //! to be defined in derived classes
@@ -201,7 +184,6 @@ namespace QuantLib {
         //@{
         YoYInflationTermStructure(Date baseDate,
                                   Rate baseYoYRate,
-                                  const Period& observationLag,
                                   Frequency frequency,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<Seasonality>& seasonality = {});
@@ -209,7 +191,6 @@ namespace QuantLib {
         YoYInflationTermStructure(const Date& referenceDate,
                                   Date baseDate,
                                   Rate baseYoYRate,
-                                  const Period& observationLag,
                                   Frequency frequency,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<Seasonality>& seasonality = {});
@@ -218,10 +199,10 @@ namespace QuantLib {
                                   const Calendar& calendar,
                                   Date baseDate,
                                   Rate baseYoYRate,
-                                  const Period& observationLag,
                                   Frequency frequency,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<Seasonality>& seasonality = {});
+        //@}
 
         //! \name Inspectors
         //@{
@@ -282,8 +263,6 @@ namespace QuantLib {
     }
 
     inline Rate InflationTermStructure::baseRate() const {
-        // base rate not required anymore for zero curves, this cause 
-        // problems if accessing baseRate for zero inf curves.
         QL_REQUIRE(baseRate_ != Null<Real>(), "base rate not available");
         return baseRate_;
     }

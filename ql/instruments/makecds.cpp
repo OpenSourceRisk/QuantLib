@@ -81,10 +81,15 @@ namespace QuantLib {
             schedule = Schedule(protectionStart, end, couponTenor_, WeekendsOnly(), convention_,
                                 Unadjusted, rule_, false);
         }
+        auto defaultPaymentTime = paysAtDefaultTime_ ?
+                               CreditDefaultSwap::ProtectionPaymentTime::atDefault :
+                               CreditDefaultSwap::ProtectionPaymentTime::atPeriodEnd;
+
         auto cds = ext::make_shared<CreditDefaultSwap>(
-            side_, nominal_, upfrontRate_, runningSpread_, schedule, convention_,
-            dayCounter_, settlesAccrual_, paysAtDefaultTime_, protectionStart, upfrontDate,
-            claim_, lastPeriodDayCounter_, rebatesAccrual_, tradeDate, cashSettlementDays_);
+            side_, nominal_, upfrontRate_, runningSpread_, schedule, convention_, dayCounter_,
+            settlesAccrual_, defaultPaymentTime, protectionStart,
+            upfrontDate, claim_, lastPeriodDayCounter_, rebatesAccrual_, tradeDate,
+            cashSettlementDays_);
 
         cds->setPricingEngine(engine_);
         return cds;

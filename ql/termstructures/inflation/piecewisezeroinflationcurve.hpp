@@ -55,7 +55,6 @@ namespace QuantLib {
         PiecewiseZeroInflationCurve(
             const Date& referenceDate,
             Date baseDate,
-            const Period& lag,
             Frequency frequency,
             const DayCounter& dayCounter,
             std::vector<ext::shared_ptr<typename Traits::helper> > instruments,
@@ -64,7 +63,6 @@ namespace QuantLib {
             const Interpolator& i = Interpolator())
         : base_curve(referenceDate,
                      baseDate,
-                     lag,
                      frequency,
                      dayCounter,
                      seasonality,
@@ -76,7 +74,6 @@ namespace QuantLib {
         PiecewiseZeroInflationCurve(
             const Date& referenceDate,
             BaseDateFunc baseDateFunc,
-            const Period& lag,
             Frequency frequency,
             const DayCounter& dayCounter,
             std::vector<ext::shared_ptr<typename Traits::helper> > instruments,
@@ -85,7 +82,6 @@ namespace QuantLib {
             const Interpolator& i = Interpolator())
         : base_curve(referenceDate,
                      Date(),
-                     lag,
                      frequency,
                      dayCounter,
                      seasonality,

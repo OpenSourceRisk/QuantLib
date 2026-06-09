@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE(testZeroTermStructure) {
 
     ext::shared_ptr<PiecewiseZeroInflationCurve<Linear> > pZITS =
         ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-            evaluationDate, baseDate, observationLag, frequency, dc, helpers);
+            evaluationDate, baseDate, frequency, dc, helpers);
     hz.linkTo(pZITS);
 
     //===========================================================================================
@@ -555,7 +555,8 @@ BOOST_AUTO_TEST_CASE(testZeroTermStructureLazyBaseDate) {
     // we can pass this curve to create further objects, as long as they don't
     // trigger the calculation before the fixings are available.
     auto curveLazy = ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-        evaluationDate, [&]() { return ii->lastFixingDate(); }, observationLag, frequency, dc, helpers);
+        evaluationDate, [&]() { return ii->lastFixingDate(); }, frequency, dc, helpers);
+
     // set zc swaps quotes
     for (Size i=0; i<std::size(zcData); i++) {
         quotes[i]->setValue(zcData[i].rate / 100.0);
@@ -583,7 +584,7 @@ BOOST_AUTO_TEST_CASE(testZeroTermStructureLazyBaseDate) {
     // Create a curve with an explicit baseDate and check that the lazy curve
     // produces the same results.
     auto curve = ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-        evaluationDate, ii->lastFixingDate(), observationLag, frequency, dc, helpers);
+        evaluationDate, ii->lastFixingDate(), frequency, dc, helpers);
 
     BOOST_CHECK_EQUAL(curveLazy->baseDate(), curve->baseDate());
     BOOST_CHECK(curveLazy->nodes() == curve->nodes());
@@ -657,7 +658,7 @@ BOOST_AUTO_TEST_CASE(testZeroTermStructureWithNominalCurve) {
 
     ext::shared_ptr<PiecewiseZeroInflationCurve<Linear> > pZITS =
         ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-            evaluationDate, baseDate, observationLag, frequency, dc, helpers);
+            evaluationDate, baseDate, frequency, dc, helpers);
     hz.linkTo(pZITS);
 
     //===========================================================================================
@@ -834,7 +835,7 @@ BOOST_AUTO_TEST_CASE(testSeasonalityCorrection) {
     Frequency frequency = Monthly;
 
     auto zeroCurve = ext::make_shared<InterpolatedZeroInflationCurve<Linear>>(
-                                 evaluationDate, nodes, rates, 2 * Months, frequency, dc);
+                                 evaluationDate, nodes, rates, frequency, dc);
     hz.linkTo(zeroCurve);
 
     // Perform checks on the seasonality for this non-interpolated index
@@ -911,7 +912,7 @@ BOOST_AUTO_TEST_CASE(testInterpolatedZeroTermStructure) {
     std::vector<Rate> rates = { 0.01, 0.01, 0.011, 0.012, 0.013, 0.015, 0.018, 0.02, 0.025, 0.03, 0.03 };
 
     auto curve = ext::make_shared<InterpolatedZeroInflationCurve<Linear>>(
-        today, dates, rates, 2*Months, Monthly, Actual360());
+        today, dates, rates, Monthly, Actual360());
 
     auto nodes = curve->nodes();
 
@@ -1274,7 +1275,7 @@ BOOST_AUTO_TEST_CASE(testYYTermStructure) {
     Rate baseYYRate = yyData[0].rate/100.0;
     auto pYYTS =
         ext::make_shared<PiecewiseYoYInflationCurve<Linear>>(
-                evaluationDate, baseDate, baseYYRate, observationLag,
+                evaluationDate, baseDate, baseYYRate,
                 iir->frequency(), dc, helpers);
 
     // validation
@@ -1510,7 +1511,7 @@ BOOST_AUTO_TEST_CASE(testCpiAsIndexInterpolation) {
     std::vector<Date> dates = { today - 3*Months, today + 5*Years };
     std::vector<Rate> rates = { 0.02, 0.02 };
     Handle<ZeroInflationTermStructure> mock_curve(
-            ext::make_shared<ZeroInflationCurve>(today, dates, rates, 3 * Months, Monthly, Actual360()));
+            ext::make_shared<ZeroInflationCurve>(today, dates, rates, Monthly, Actual360()));
     auto testIndex = ext::make_shared<UKRPI>(mock_curve);
 
     testIndex->addFixing(Date(1, November, 2020), 293.5);
@@ -1751,7 +1752,7 @@ BOOST_AUTO_TEST_CASE(testNotifications) {
 
     RelinkableHandle<ZeroInflationTermStructure> inflation_handle;
     inflation_handle.linkTo(
-            ext::make_shared<ZeroInflationCurve>(today, dates, rates, 3 * Months, Monthly, Actual360()));
+            ext::make_shared<ZeroInflationCurve>(today, dates, rates, Monthly, Actual360()));
 
     auto index = ext::make_shared<UKRPI>(inflation_handle);
     index->addFixing(inflationPeriod(today - 3 * Months, index->frequency()).first, 100.0);
@@ -1770,7 +1771,7 @@ BOOST_AUTO_TEST_CASE(testNotifications) {
     flag.lower();
 
     inflation_handle.linkTo(
-            ext::make_shared<ZeroInflationCurve>(today, dates, rates, 3 * Months, Monthly, Actual360()));
+            ext::make_shared<ZeroInflationCurve>(today, dates, rates, Monthly, Actual360()));
 
     if (!flag.isUp())
         BOOST_FAIL("cash flow did not notify observer of curve change");
@@ -1949,7 +1950,7 @@ BOOST_AUTO_TEST_CASE(testExtrapolationRegression) {
 
     ext::shared_ptr<PiecewiseZeroInflationCurve<Linear> > pZITS =
         ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-            evaluationDate, baseDate, observationLag, frequency, dc, helpers);
+            evaluationDate, baseDate, frequency, dc, helpers);
     pZITS->enableExtrapolation();
 
     BOOST_CHECK_NO_THROW(pZITS->zeroRate(10.0));
@@ -1988,7 +1989,7 @@ BOOST_AUTO_TEST_CASE(testExtrapolationRegression) {
     auto pYYTS =
         ext::make_shared<PiecewiseYoYInflationCurve<Linear>>(
                 evaluationDate, baseDate, baseYYRate,
-                observationLag, yoy->frequency(), dc, yoyHelpers);
+                yoy->frequency(), dc, yoyHelpers);
     pYYTS->enableExtrapolation();
 
     BOOST_CHECK_NO_THROW(pYYTS->yoyRate(10.0));
@@ -2060,7 +2061,7 @@ BOOST_AUTO_TEST_CASE(testUsCpiLinearBootstrapAtMonthStart) {
 
         try {
             auto curve = ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-                evalDate, baseDate, observationLag, Monthly, dc, helpers);
+                evalDate, baseDate, Monthly, dc, helpers);
             hz.linkTo(curve);
             curve->zeroRate(evalDate + 1*Years);
         } catch (const std::exception&) {
@@ -2139,7 +2140,7 @@ BOOST_AUTO_TEST_CASE(testEuHicpFlatBootstrapAtMonthStart) {
         // IterativeBootstrap
         try {
             auto curve = ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-                evalDate, baseDate, observationLag, Monthly, dc, helpers);
+                evalDate, baseDate, Monthly, dc, helpers);
             hz.linkTo(curve);
             curve->zeroRate(evalDate + 1*Years);
         } catch (const std::exception&) {
@@ -2152,7 +2153,7 @@ BOOST_AUTO_TEST_CASE(testEuHicpFlatBootstrapAtMonthStart) {
         try {
             auto curve = ext::make_shared<
                 PiecewiseZeroInflationCurve<Linear, GlobalBootstrap>>(
-                evalDate, baseDate, observationLag, Monthly, dc, helpers);
+                evalDate, baseDate, Monthly, dc, helpers);
             hz.linkTo(curve);
             curve->zeroRate(evalDate + 1*Years);
         } catch (const std::exception&) {
@@ -2233,7 +2234,7 @@ BOOST_AUTO_TEST_CASE(testUkRpiFlatBootstrapAtMonthStart) {
         // IterativeBootstrap
         try {
             auto curve = ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-                evalDate, baseDate, observationLag, Monthly, dc, helpers);
+                evalDate, baseDate, Monthly, dc, helpers);
             hz.linkTo(curve);
             curve->zeroRate(evalDate + 1*Years);
         } catch (const std::exception&) {
@@ -2246,7 +2247,7 @@ BOOST_AUTO_TEST_CASE(testUkRpiFlatBootstrapAtMonthStart) {
         try {
             auto curve = ext::make_shared<
                 PiecewiseZeroInflationCurve<Linear, GlobalBootstrap>>(
-                evalDate, baseDate, observationLag, Monthly, dc, helpers);
+                evalDate, baseDate, Monthly, dc, helpers);
             hz.linkTo(curve);
             curve->zeroRate(evalDate + 1*Years);
         } catch (const std::exception&) {
@@ -2325,7 +2326,7 @@ BOOST_AUTO_TEST_CASE(testUsCpiLinearGlobalBootstrapAtMonthStart) {
         try {
             auto curve = ext::make_shared<
                 PiecewiseZeroInflationCurve<Linear, GlobalBootstrap>>(
-                evalDate, baseDate, observationLag, Monthly, dc, helpers);
+                evalDate, baseDate, Monthly, dc, helpers);
             hz.linkTo(curve);
             curve->zeroRate(evalDate + 1*Years);
         } catch (const std::exception&) {
@@ -2415,7 +2416,7 @@ BOOST_AUTO_TEST_CASE(testPillarCollisionWithDifferentMonthLengths) {
 
         try {
             auto curve = ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-                evalDate, baseDate, observationLag, Monthly, dc, helpers);
+                evalDate, baseDate, Monthly, dc, helpers);
             hz.linkTo(curve);
             curve->zeroRate(evalDate + 1*Years);
         } catch (const std::exception&) {
