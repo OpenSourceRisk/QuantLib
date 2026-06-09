@@ -111,7 +111,7 @@ namespace QuantLib {
         CmsSpreadLeg& withPaymentDayCounter(const DayCounter&);
         CmsSpreadLeg& withPaymentCalendar(const Calendar& cal);
         CmsSpreadLeg& withPaymentAdjustment(BusinessDayConvention);
-        CmsSpreadLeg& withPaymentLag(Natural lag);
+        CmsSpreadLeg& withPaymentLag(QuantLib::Integer lag);
         CmsSpreadLeg& withFixingDays(Natural fixingDays);
         CmsSpreadLeg& withFixingDays(const std::vector<Natural>& fixingDays);
         CmsSpreadLeg& withGearings(Real gearing);
@@ -132,7 +132,7 @@ namespace QuantLib {
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
         BusinessDayConvention paymentAdjustment_ = Following;
-        Natural paymentLag_ = 0;
+        QuantLib::Integer paymentLag_ = 0;
         std::vector<Natural> fixingDays_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;

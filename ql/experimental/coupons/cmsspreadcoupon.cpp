@@ -74,7 +74,7 @@ namespace QuantLib {
     }
 
     CmsSpreadLeg &
-    CmsSpreadLeg::withPaymentLag(Natural lag) {
+    CmsSpreadLeg::withPaymentLag(Integer lag) {
         paymentLag_ = lag;
         return *this;
     }
