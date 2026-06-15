@@ -252,6 +252,9 @@ namespace QuantLib {
         RangeAccrualLeg& withUpperTriggers(const std::vector<Rate>& triggers);
         RangeAccrualLeg& withObservationTenor(const Period&);
         RangeAccrualLeg& withObservationConvention(BusinessDayConvention);
+        RangeAccrualLeg& withPaymentCalendar(const Calendar&);
+        RangeAccrualLeg& withPaymentDates(const std::vector<Date>& paymentDates);
+        RangeAccrualLeg& withPaymentLag(Integer lag);
         operator Leg() const;
       private:
         Schedule schedule_;
@@ -265,6 +268,9 @@ namespace QuantLib {
         std::vector<Rate> lowerTriggers_, upperTriggers_;
         Period observationTenor_;
         BusinessDayConvention observationConvention_ = ModifiedFollowing;
+        Calendar paymentCalendar_;
+        std::vector<Date> paymentDates_;
+        Integer paymentLag_ = 0;
     };
 
 }

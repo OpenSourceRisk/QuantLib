@@ -653,6 +653,21 @@ namespace QuantLib {
         return *this;
     }
 
+    RangeAccrualLeg& RangeAccrualLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+    }
+
+    RangeAccrualLeg& RangeAccrualLeg::withPaymentDates(const std::vector<Date>& paymentDates) {
+        paymentDates_ = paymentDates;
+        return *this;
+    }
+
+    RangeAccrualLeg& RangeAccrualLeg::withPaymentLag(Integer lag) {
+        paymentLag_ = lag;
+        return *this;
+    }
+
     RangeAccrualLeg::operator Leg() const {
 
         QL_REQUIRE(!notionals_.empty(), "no notional given");
@@ -679,16 +694,28 @@ namespace QuantLib {
 
         Leg leg;
 
-        // the following is not always correct
-        Calendar calendar = schedule_.calendar();
+        Calendar paymentCalendar = paymentCalendar_;
+        if (paymentCalendar.empty()) {
+            paymentCalendar = schedule_.calendar();
+        }
 
-        Date refStart, start, refEnd, end;
-        Date paymentDate;
+        if (!paymentDates_.empty()) {
+            QL_REQUIRE(paymentDates_.size() == n, "Expected the number of explicit payment dates ("
+                << paymentDates_.size() << ") to equal the number of calculation periods (" << n << ")");
+        }
+
+        const Calendar& calendar = schedule_.calendar();
+
+        Date refStart, start, refEnd, end, paymentDate;
 
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule_.date(i);
             refEnd   =   end = schedule_.date(i+1);
-            paymentDate = calendar.adjust(end, paymentAdjustment_);
+            if (!paymentDates_.empty()) {
+                paymentDate = paymentDates_[i];
+            } else {
+                paymentDate = paymentCalendar.advance(end, paymentLag_, Days, paymentAdjustment_);
+            }
             if (i==0 && schedule_.hasIsRegular() && !schedule_.isRegular(i+1)) {
                 BusinessDayConvention bdc = schedule_.businessDayConvention();
                 refStart = calendar.adjust(end - schedule_.tenor(), bdc);
