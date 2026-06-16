@@ -77,6 +77,14 @@ namespace QuantLib {
         observationDates_.erase(observationDates_.begin()); //remove start date
         observationsNo_ = observationDates_.size();
 
+        // Populate the fixing dates.
+        fixingDates_.reserve(observationsNo_);
+        Integer fixingLag = -static_cast<Integer>(fixingDays_);
+        Calendar fixingCal = index->fixingCalendar();
+        for (const Date& obsDate : observationDates_) {
+            fixingDates_.push_back(fixingCal.advance(obsDate, fixingLag, Days));
+        }
+
         const Handle<YieldTermStructure>& rateCurve =
             index->forwardingTermStructure();
         Date referenceDate = rateCurve->referenceDate();
@@ -131,20 +139,15 @@ namespace QuantLib {
         upperTrigger_ = coupon_->upperTrigger();
         observationsNo_ = coupon_->observationsNo();
 
-        const std::vector<Date> &observationDates =
-            coupon_->observationSchedule().dates();
-        QL_REQUIRE(observationDates.size()==observationsNo_+2,
-                   "incompatible size of initialValues vector");
-        initialValues_= std::vector<Real>(observationDates.size(),0.);
+        const std::vector<Date>& fixingDates = coupon_->fixingDates();
+        QL_REQUIRE(fixingDates.size()==observationsNo_, "RangeAccrualPricer: number of fixing dates (" <<
+            fixingDates.size() << ") does not align with number of observations (" << observationsNo_ << ")");
+        initialValues_= std::vector<Real>(observationsNo_, 0.);
 
         Calendar calendar = index->fixingCalendar();
-        for(Size i=0; i<observationDates.size(); i++) {
-            initialValues_[i]=index->fixing(
-                calendar.advance(observationDates[i],
-                                 -static_cast<Integer>(coupon_->fixingDays()),
-                                 Days));
+        for(Size i = 0; i < observationsNo_; i++) {
+            initialValues_[i]=index->fixing(fixingDates[i]);
         }
-
     }
 
     Real RangeAccrualPricer::swapletRate() const {

@@ -97,6 +97,9 @@ namespace QuantLib {
         ext::shared_ptr<Schedule> observationsSchedule() const {
             return ext::make_shared<Schedule>(observationSchedule_);
         }
+        const std::vector<Date>& fixingDates() const {
+            return fixingDates_;
+        }
 
         Real priceWithoutOptionality(
                        const Handle<YieldTermStructure>& discountCurve) const;
@@ -116,6 +119,8 @@ namespace QuantLib {
 
         Real lowerTrigger_;
         Real upperTrigger_;
+        // Store the fixing dates associated with the observation dates.
+        std::vector<Date> fixingDates_;
      };
 
     class RangeAccrualPricer: public FloatingRateCouponPricer {
