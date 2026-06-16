@@ -78,11 +78,12 @@ namespace QuantLib {
         observationsNo_ = observationDates_.size();
 
         // Populate the fixing dates.
-        fixingDates_.reserve(observationsNo_);
+        const auto& obsScheduleDates = observationSchedule_.dates();
+        fixingDates_.reserve(obsScheduleDates.size());
         Integer fixingLag = -static_cast<Integer>(fixingDays_);
         Calendar fixingCal = index->fixingCalendar();
-        for (const Date& obsDate : observationDates_) {
-            fixingDates_.push_back(fixingCal.advance(obsDate, fixingLag, Days));
+        for (const Date& obsScheduleDate : obsScheduleDates) {
+            fixingDates_.push_back(fixingCal.advance(obsScheduleDate, fixingLag, Days));
         }
 
         const Handle<YieldTermStructure>& rateCurve =
@@ -140,13 +141,13 @@ namespace QuantLib {
         observationsNo_ = coupon_->observationsNo();
 
         const std::vector<Date>& fixingDates = coupon_->fixingDates();
-        QL_REQUIRE(fixingDates.size()==observationsNo_, "RangeAccrualPricer: number of fixing dates (" <<
-            fixingDates.size() << ") does not align with number of observations (" << observationsNo_ << ")");
-        initialValues_= std::vector<Real>(observationsNo_, 0.);
+        QL_REQUIRE(fixingDates.size()==observationsNo_+2, "RangeAccrualPricer: number of fixing dates (" <<
+            fixingDates.size() << ") does not align with number of observations + 2 (" << observationsNo_+2 << ")");
+        initialValues_= std::vector<Real>(fixingDates.size(), 0.);
 
         Calendar calendar = index->fixingCalendar();
-        for(Size i = 0; i < observationsNo_; i++) {
-            initialValues_[i]=index->fixing(fixingDates[i]);
+        for (Size i = 0; i < fixingDates.size(); i++) {
+            initialValues_[i] = index->fixing(fixingDates[i]);
         }
     }
 
