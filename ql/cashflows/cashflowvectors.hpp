@@ -256,7 +256,8 @@ namespace QuantLib {
                         const std::vector<Rate>& putDigitalPayoffs,
                         const ext::shared_ptr<DigitalReplication>& replication,
                         bool nakedOption = false,
-                        Calendar paymentCalendar = Calendar()) {
+                        Calendar paymentCalendar = Calendar(),
+                        Integer paymentLag = 0) {
         Size n = schedule.size()-1;
         QL_REQUIRE(!nominals.empty(), "no notional given");
         QL_REQUIRE(nominals.size() <= n,
@@ -289,7 +290,7 @@ namespace QuantLib {
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule.date(i);
             refEnd   =   end = schedule.date(i+1);
-            paymentDate = paymentCalendar.adjust(end, paymentAdj);
+            paymentDate = paymentCalendar.advance(end, paymentLag, QuantLib::Days, paymentAdj);
             if (i==0 && (schedule.hasIsRegular() && schedule.hasTenor() && !schedule.isRegular(i+1))) {
                 BusinessDayConvention bdc = schedule.businessDayConvention();
                 refStart = calendar.adjust(end - schedule.tenor(), bdc);

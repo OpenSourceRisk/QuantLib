@@ -62,7 +62,9 @@ namespace QuantLib {
         DigitalCmsLeg& withNotionals(Real notional);
         DigitalCmsLeg& withNotionals(const std::vector<Real>& notionals);
         DigitalCmsLeg& withPaymentDayCounter(const DayCounter&);
+        DigitalCmsLeg& withPaymentCalendar(const QuantLib::Calendar& cal);
         DigitalCmsLeg& withPaymentAdjustment(BusinessDayConvention);
+        DigitalCmsLeg& withPaymentLag(QuantLib::Integer lag);
         DigitalCmsLeg& withFixingDays(Natural fixingDays);
         DigitalCmsLeg& withFixingDays(const std::vector<Natural>& fixingDays);
         DigitalCmsLeg& withGearings(Real gearing);
@@ -92,7 +94,9 @@ namespace QuantLib {
         ext::shared_ptr<SwapIndex> index_;
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
+        QuantLib::Calendar paymentCalendar_;
         BusinessDayConvention paymentAdjustment_ = Following;
+        QuantLib::Integer paymentLag_ = 0;
         std::vector<Natural> fixingDays_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
@@ -104,7 +108,7 @@ namespace QuantLib {
         Position::Type longPutOption_ = Position::Long;
         bool putATM_ = false;
         ext::shared_ptr<DigitalReplication> replication_;
-        bool nakedOption_;
+        bool nakedOption_ = true;
         std::vector<QuantLib::Date> paymentDates_;
     };
 
