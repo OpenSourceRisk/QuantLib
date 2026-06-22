@@ -101,6 +101,7 @@ namespace QuantLib {
 }
 
 #if defined(__GNUC__) or defined(__clang__)
+// this is exclusively written from Log::setMask(), no synchronization necessary here
 bool qlStoreStacktrace = false;
 thread_local boost::stacktrace::stacktrace qlLastStacktrace;
 extern "C" {
