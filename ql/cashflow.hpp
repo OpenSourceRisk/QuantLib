@@ -53,7 +53,7 @@ namespace QuantLib {
         //@}
         //! \name LazyObject interface
         //@{
-        void performCalculations() const override {}
+        void performCalculations() const override;
         //@}
         //! \name CashFlow interface
         //@{
@@ -72,6 +72,11 @@ namespace QuantLib {
         //@{
         void accept(AcyclicVisitor&) override;
         //@}
+
+        std::map<std::string, ext::any>& additionalResults() const;
+
+      protected:
+        mutable std::map<std::string, ext::any> additionalResults_;
     };
 
     //! Sequence of cash-flows

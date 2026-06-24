@@ -213,6 +213,8 @@ namespace QuantLib {
 
     void CPICashFlow::performCalculations() const {
 
+        CashFlow::performCalculations();
+
         Rate I0 = baseFixing();
 
         // If BaseFixing is null, use the observed index fixing

@@ -68,4 +68,13 @@ namespace QuantLib {
             Event::accept(v);
     }
 
+
+    void CashFlow::performCalculations() const {
+        additionalResults_.clear();
+    }
+
+    std::map<std::string, ext::any>& CashFlow::additionalResults() const {
+        calculate();
+        return additionalResults_;
+    }
 }
