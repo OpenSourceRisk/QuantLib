@@ -34,7 +34,6 @@
 #include <ql/patterns/lazyobject.hpp>
 #include <ql/time/businessdayconvention.hpp>
 #include <ql/time/daycounter.hpp>
-#include <ql/any.hpp>
 #include <ql/handle.hpp>
 #include <map>
 

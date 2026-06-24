@@ -25,6 +25,7 @@
 #ifndef quantlib_cash_flow_hpp
 #define quantlib_cash_flow_hpp
 
+#include <ql/any.hpp>
 #include <ql/event.hpp>
 #include <ql/math/comparison.hpp>
 #include <ql/optional.hpp>
