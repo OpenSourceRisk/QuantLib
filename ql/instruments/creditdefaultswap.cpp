@@ -198,7 +198,7 @@ namespace QuantLib {
         postBigBang_ = false;
         if (schedule_.hasRule()) {
             DateGeneration::Rule rule = schedule_.rule();
-            postBigBang_ = rule == DateGeneration::CDS || rule == DateGeneration::CDS2015;
+            postBigBang_ = rule == DateGeneration::CDS || rule == DateGeneration::CDS2015 || rule == DateGeneration::EighthBusinessDay;
         }
         
         if (!postBigBang_) {

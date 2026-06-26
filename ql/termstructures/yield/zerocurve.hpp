@@ -50,6 +50,7 @@ namespace QuantLib {
                               const std::vector<Date>& jumpDates = {},
                               const Interpolator& interpolator = {},
                               const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+                              const bool excludeTimeZeroFromInterpolation = false,
                               Compounding compounding = Continuous,
                               Frequency frequency = Annual);
         InterpolatedZeroCurve(const std::vector<Date>& dates,
@@ -58,6 +59,7 @@ namespace QuantLib {
                               const Calendar& calendar,
                               const Interpolator& interpolator,
                               const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+                              const bool excludeTimeZeroFromInterpolation = false,
                               Compounding compounding = Continuous,
                               Frequency frequency = Annual);
         InterpolatedZeroCurve(const std::vector<Date>& dates,
@@ -65,6 +67,7 @@ namespace QuantLib {
                               const DayCounter& dayCounter,
                               const Interpolator& interpolator,
                               const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+                              const bool excludeTimeZeroFromInterpolation = false,
                               Compounding compounding = Continuous,
                               Frequency frequency = Annual);
         //! \name TermStructure interface
@@ -84,26 +87,30 @@ namespace QuantLib {
         explicit InterpolatedZeroCurve(
             const DayCounter&,
             const Interpolator& interpolator = {},
-            const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+            const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+            const bool excludeTimeZeroFromInterpolation = false);
         InterpolatedZeroCurve(const Date& referenceDate,
                               const DayCounter&,
                               const std::vector<Handle<Quote>>& jumps = {},
                               const std::vector<Date>& jumpDates = {},
                               const Interpolator& interpolator = {},
-                              const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+                              const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+                              const bool excludeTimeZeroFromInterpolation = false);
         InterpolatedZeroCurve(Natural settlementDays,
                               const Calendar&,
                               const DayCounter&,
                               const std::vector<Handle<Quote>>& jumps = {},
                               const std::vector<Date>& jumpDates = {},
                               const Interpolator& interpolator = {},
-                              const Extrapolation extrapolation = Extrapolation::ContinuousForward);
+                              const Extrapolation extrapolation = Extrapolation::ContinuousForward,
+                              const bool excludeTimeZeroFromInterpolation = false);
 
         //! \name ZeroYieldStructure implementation
         //@{
         Rate zeroYieldImpl(Time t) const override;
         //@}
         Extrapolation extrapolation_;
+        bool excludeTimeZeroFromInterpolation_;
         mutable std::vector<Date> dates_;
       private:
         void initialize(const Compounding& compounding, const Frequency& frequency);
@@ -160,8 +167,13 @@ namespace QuantLib {
 
     template <class T>
     Rate InterpolatedZeroCurve<T>::zeroYieldImpl(Time t) const {
-        if (t <= this->times_.back())
+        if (t <= this->times_.back()) {
+            if (excludeTimeZeroFromInterpolation_ && t < this->times_[1]) {
+                // flat zero between 0 and first positive time
+                return this->data_[1];
+            }
             return this->interpolation_(t, true);
+        }
 
         // flat fwd extrapolation
         Time tMax = this->times_.back();
@@ -181,9 +193,12 @@ namespace QuantLib {
     template <class T>
     InterpolatedZeroCurve<T>::InterpolatedZeroCurve(const DayCounter& dayCounter,
                                                     const T& interpolator,
-                                                    const Extrapolation extrapolation)
-    : ZeroYieldStructure(dayCounter), InterpolatedCurve<T>(interpolator),
-      extrapolation_(extrapolation) {}
+                                                    const Extrapolation extrapolation,
+                                                    const bool excludeTimeZeroFromInterpolation)
+    : ZeroYieldStructure(dayCounter),
+      InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
 
     template <class T>
     InterpolatedZeroCurve<T>::InterpolatedZeroCurve(const Date& referenceDate,
@@ -191,9 +206,12 @@ namespace QuantLib {
                                                     const std::vector<Handle<Quote>>& jumps,
                                                     const std::vector<Date>& jumpDates,
                                                     const T& interpolator,
-                                                    const Extrapolation extrapolation)
+                                                    const Extrapolation extrapolation,
+                                                    const bool excludeTimeZeroFromInterpolation)
     : ZeroYieldStructure(referenceDate, Calendar(), dayCounter, jumps, jumpDates),
-      InterpolatedCurve<T>(interpolator), extrapolation_(extrapolation) {}
+      InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
 
     template <class T>
     InterpolatedZeroCurve<T>::InterpolatedZeroCurve(Natural settlementDays,
@@ -202,9 +220,12 @@ namespace QuantLib {
                                                     const std::vector<Handle<Quote>>& jumps,
                                                     const std::vector<Date>& jumpDates,
                                                     const T& interpolator,
-                                                    const Extrapolation extrapolation)
+                                                    const Extrapolation extrapolation,
+                                                    const bool excludeTimeZeroFromInterpolation)
     : ZeroYieldStructure(settlementDays, calendar, dayCounter, jumps, jumpDates),
-      InterpolatedCurve<T>(interpolator), extrapolation_(extrapolation) {}
+      InterpolatedCurve<T>(interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation) {}
 
     template <class T>
     InterpolatedZeroCurve<T>::InterpolatedZeroCurve(const std::vector<Date>& dates,
@@ -215,11 +236,14 @@ namespace QuantLib {
                                                     const std::vector<Date>& jumpDates,
                                                     const T& interpolator,
                                                     const Extrapolation extrapolation,
+                                                    const bool excludeTimeZeroFromInterpolation,
                                                     Compounding compounding,
                                                     Frequency frequency)
     : ZeroYieldStructure(dates.at(0), calendar, dayCounter, jumps, jumpDates),
-      InterpolatedCurve<T>(std::vector<Time>(), yields, interpolator),
-      extrapolation_(extrapolation), dates_(dates) {
+      InterpolatedCurve<T>(
+          std::vector<Time>(), yields, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
         initialize(compounding,frequency);
     }
 
@@ -230,10 +254,12 @@ namespace QuantLib {
                                                     const Calendar& calendar,
                                                     const T& interpolator,
                                                     const Extrapolation extrapolation,
+                                                    const bool excludeTimeZeroFromInterpolation,
                                                     Compounding compounding,
                                                     Frequency frequency)
     : ZeroYieldStructure(dates.at(0), calendar, dayCounter),
-      InterpolatedCurve<T>(std::vector<Time>(), yields, interpolator),
+      InterpolatedCurve<T>(
+          std::vector<Time>(), yields, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
       extrapolation_(extrapolation), dates_(dates) {
         initialize(compounding,frequency);
     }
@@ -244,11 +270,14 @@ namespace QuantLib {
                                                     const DayCounter& dayCounter,
                                                     const T& interpolator,
                                                     const Extrapolation extrapolation,
+                                                    const bool excludeTimeZeroFromInterpolation,
                                                     Compounding compounding,
                                                     Frequency frequency)
     : ZeroYieldStructure(dates.at(0), Calendar(), dayCounter),
-      InterpolatedCurve<T>(std::vector<Time>(), yields, interpolator),
-      extrapolation_(extrapolation), dates_(dates) {
+      InterpolatedCurve<T>(
+          std::vector<Time>(), yields, interpolator, excludeTimeZeroFromInterpolation ? 1 : 0),
+      extrapolation_(extrapolation),
+      excludeTimeZeroFromInterpolation_(excludeTimeZeroFromInterpolation), dates_(dates) {
         initialize(compounding,frequency);
     }
 

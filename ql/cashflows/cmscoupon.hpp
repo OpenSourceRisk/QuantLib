@@ -50,7 +50,8 @@ namespace QuantLib {
                   const Date& refPeriodEnd = Date(),
                   const DayCounter& dayCounter = DayCounter(),
                   bool isInArrears = false,
-                  const Date& exCouponDate = Date());
+                  const Date& exCouponDate = Date(),
+                  BusinessDayConvention fixingConvention = Preceding);
         //! \name Inspectors
         //@{
         const ext::shared_ptr<SwapIndex>& swapIndex() const {
@@ -75,7 +76,7 @@ namespace QuantLib {
         CmsLeg& withPaymentDayCounter(const DayCounter&);
         CmsLeg& withPaymentCalendar(const Calendar& cal);
         CmsLeg& withPaymentAdjustment(BusinessDayConvention);
-        CmsLeg& withPaymentLag(Natural lag);
+        CmsLeg& withPaymentLag(QuantLib::Integer lag);
         CmsLeg& withFixingDays(Natural fixingDays);
         CmsLeg& withFixingDays(const std::vector<Natural>& fixingDays);
         CmsLeg& withGearings(Real gearing);
@@ -88,6 +89,7 @@ namespace QuantLib {
         CmsLeg& withFloors(const std::vector<Rate>& floors);
         CmsLeg& inArrears(bool flag = true);
         CmsLeg& withZeroPayments(bool flag = true);
+        CmsLeg& withFixingConvention(BusinessDayConvention);
         CmsLeg& withExCouponPeriod(const Period&,
                                    const Calendar&,
                                    BusinessDayConvention,
@@ -101,12 +103,13 @@ namespace QuantLib {
         DayCounter paymentDayCounter_;
         Calendar paymentCalendar_;
         BusinessDayConvention paymentAdjustment_ = Following;
-        Natural paymentLag_ = 0;
+        QuantLib::Integer paymentLag_ = 0;
         std::vector<Natural> fixingDays_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
         std::vector<Rate> caps_, floors_;
         bool inArrears_ = false, zeroPayments_ = false;
+        BusinessDayConvention fixingConvention_ = Preceding;
         Period exCouponPeriod_;
         Calendar exCouponCalendar_;
         BusinessDayConvention exCouponAdjustment_ = Following;

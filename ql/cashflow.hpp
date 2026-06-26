@@ -25,6 +25,7 @@
 #ifndef quantlib_cash_flow_hpp
 #define quantlib_cash_flow_hpp
 
+#include <ql/any.hpp>
 #include <ql/event.hpp>
 #include <ql/math/comparison.hpp>
 #include <ql/optional.hpp>
@@ -53,7 +54,7 @@ namespace QuantLib {
         //@}
         //! \name LazyObject interface
         //@{
-        void performCalculations() const override {}
+        void performCalculations() const override;
         //@}
         //! \name CashFlow interface
         //@{
@@ -72,6 +73,11 @@ namespace QuantLib {
         //@{
         void accept(AcyclicVisitor&) override;
         //@}
+
+        std::map<std::string, ext::any>& additionalResults() const;
+
+      protected:
+        mutable std::map<std::string, ext::any> additionalResults_;
     };
 
     //! Sequence of cash-flows

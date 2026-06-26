@@ -4,6 +4,7 @@
  Copyright (C) 2002, 2003, 2004 Ferdinando Ametrano
  Copyright (C) 2003 StatPro Italia srl
  Copyright (C) 2025 AcadiaSoft, Inc.
+ Copyright (C) 2026 Paolo D'Elia
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -27,6 +28,7 @@
 #define quantlib_black_variance_curve_hpp
 
 #include <ql/termstructures/volatility/equityfx/blackvoltermstructure.hpp>
+#include <ql/termstructures/volatility/equityfx/blackvoltimeextrapolation.hpp>
 #include <ql/math/interpolation.hpp>
 
 namespace QuantLib {
@@ -50,7 +52,7 @@ namespace QuantLib {
           BlackVarianceCurve(const Date& referenceDate, const std::vector<Date>& dates,
                              const std::vector<Volatility>& blackVolCurve, DayCounter dayCounter,
                              bool forceMonotoneVariance = true, 
-                             BlackVolTimeExtrapolation timeExtrapolation = BlackVolTimeExtrapolation::FlatVolatility,
+                             BlackVolTimeExtrapolation::Type timeExtrapolationType = BlackVolTimeExtrapolation::FlatVolatility,
                              const VolatilityType type = VolatilityType::ShiftedLognormal,
                              const Real shift = 0.0);
           //! \name TermStructure interface
@@ -84,8 +86,9 @@ namespace QuantLib {
         std::vector<Time> times_;
         std::vector<Real> variances_;
         Interpolation varianceCurve_;
-        BlackVolTimeExtrapolation timeExtrapolation_;
+        BlackVolTimeExtrapolation::Type timeExtrapolationType_;
     };
+
 
     // inline definitions
 

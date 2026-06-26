@@ -52,7 +52,8 @@ namespace QuantLib {
                   const Date& refPeriodEnd = Date(),
                   const DayCounter& dayCounter = DayCounter(),
                   bool isInArrears = false,
-                  const Date& exCouponDate = Date());
+                  const Date& exCouponDate = Date(),
+                  BusinessDayConvention fixingConvention = Preceding);
         //! \name Inspectors
         //@{
         const ext::shared_ptr<SwapSpreadIndex>& swapSpreadIndex() const {
@@ -84,11 +85,13 @@ namespace QuantLib {
                   const Date& refPeriodEnd = Date(),
                   const DayCounter& dayCounter = DayCounter(),
                   bool isInArrears = false,
-                  const Date& exCouponDate = Date())
+                  const Date& exCouponDate = Date(),
+                  BusinessDayConvention fixingConvention = Preceding)
         : CappedFlooredCoupon(ext::shared_ptr<FloatingRateCoupon>(new
             CmsSpreadCoupon(paymentDate, nominal, startDate, endDate, fixingDays,
                       index, gearing, spread, refPeriodStart, refPeriodEnd,
-                      dayCounter, isInArrears, exCouponDate)), cap, floor) {}
+                      dayCounter, isInArrears, exCouponDate,
+                      fixingConvention)), cap, floor) {}
 
         void accept(AcyclicVisitor& v) override {
             auto* v1 = dynamic_cast<Visitor<CappedFlooredCmsSpreadCoupon>*>(&v);
@@ -108,7 +111,7 @@ namespace QuantLib {
         CmsSpreadLeg& withPaymentDayCounter(const DayCounter&);
         CmsSpreadLeg& withPaymentCalendar(const Calendar& cal);
         CmsSpreadLeg& withPaymentAdjustment(BusinessDayConvention);
-        CmsSpreadLeg& withPaymentLag(Natural lag);
+        CmsSpreadLeg& withPaymentLag(QuantLib::Integer lag);
         CmsSpreadLeg& withFixingDays(Natural fixingDays);
         CmsSpreadLeg& withFixingDays(const std::vector<Natural>& fixingDays);
         CmsSpreadLeg& withGearings(Real gearing);
@@ -121,6 +124,7 @@ namespace QuantLib {
         CmsSpreadLeg& withFloors(const std::vector<Rate>& floors);
         CmsSpreadLeg& inArrears(bool flag = true);
         CmsSpreadLeg& withZeroPayments(bool flag = true);
+        CmsSpreadLeg& withPaymentDates(const std::vector<Date> paymentDates);
         operator Leg() const;
       private:
         Schedule schedule_;
@@ -128,13 +132,14 @@ namespace QuantLib {
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
         BusinessDayConvention paymentAdjustment_ = Following;
-        Natural paymentLag_ = 0;
+        QuantLib::Integer paymentLag_ = 0;
         std::vector<Natural> fixingDays_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
         std::vector<Rate> caps_, floors_;
         Calendar paymentCalendar_;
         bool inArrears_ = false, zeroPayments_ = false;
+        std::vector<Date> paymentDates_;
     };
 
 

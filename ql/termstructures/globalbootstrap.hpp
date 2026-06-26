@@ -362,8 +362,7 @@ template <class Curve> Array GlobalBootstrap<Curve>::setupCostFunction() const {
 
     // setup interpolation
     if (!validCurve_) {
-        ts_->interpolation_ = ts_->interpolator_.interpolate(ts_->times_.begin(), ts_->times_.end(),
-                                                             ts_->data_.begin());
+        ts_->setupInterpolation();
     }
 
     // Initial guess. We have guesses for the curve values first (numberPillars),

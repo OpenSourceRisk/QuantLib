@@ -160,7 +160,8 @@ namespace QuantLib {
             Frequency frequency,
             const Period& availabilityLag,
             const Currency& currency,
-            Handle<ZeroInflationTermStructure> ts = {});
+            Handle<ZeroInflationTermStructure> ts = {},
+            const std::map<Date, Real>& rebasingEvents = {});
 
         //! \name Index interface
         //@{
@@ -176,10 +177,12 @@ namespace QuantLib {
         Handle<ZeroInflationTermStructure> zeroInflationTermStructure() const;
         ext::shared_ptr<ZeroInflationIndex> clone(const Handle<ZeroInflationTermStructure>& h) const;
         bool needsForecast(const Date& fixingDate) const;
+        Real rebasingMultiplier(const Date& fixingDate, const Date& evaluationDate) const;
         //@}
       private:
         Real forecastFixing(const Date& fixingDate) const;
         Handle<ZeroInflationTermStructure> zeroInflation_;
+        std::map<Date, Real> rebasingEvents_;
     };
 
 

@@ -32,8 +32,8 @@
 #include <ql/cashflows/coupon.hpp>
 #include <ql/patterns/visitor.hpp>
 #include <ql/patterns/lazyobject.hpp>
+#include <ql/time/businessdayconvention.hpp>
 #include <ql/time/daycounter.hpp>
-#include <ql/any.hpp>
 #include <ql/handle.hpp>
 #include <map>
 
@@ -58,7 +58,8 @@ namespace QuantLib {
                            const Date& refPeriodEnd = Date(),
                            DayCounter dayCounter = DayCounter(),
                            bool isInArrears = false,
-                           const Date& exCouponDate = Date());
+                           const Date& exCouponDate = Date(),
+                           BusinessDayConvention fixingConvention = Preceding);
         FloatingRateCoupon(const Date& paymentDate,
                            Real nominal,
                            const Date& startDate,
@@ -71,7 +72,8 @@ namespace QuantLib {
                            const Date& refPeriodEnd = Date(),
                            DayCounter dayCounter = DayCounter(),
                            bool isInArrears = false,
-                           const Date& exCouponDate = Date());
+                           const Date& exCouponDate = Date(),
+                           BusinessDayConvention fixingConvention = Preceding);
 
         //! \name LazyObject interface
         //@{
@@ -110,6 +112,8 @@ namespace QuantLib {
         virtual Rate adjustedFixing() const;
         //! whether or not the coupon fixes in arrears
         bool isInArrears() const { return isInArrears_; }
+        //! business day convention used for fixing date calculation
+        BusinessDayConvention fixingConvention() const { return fixingConvention_; }
         //@}
 
         //! \name Visitability
@@ -119,8 +123,6 @@ namespace QuantLib {
 
         virtual void setPricer(const ext::shared_ptr<FloatingRateCouponPricer>&);
         ext::shared_ptr<FloatingRateCouponPricer> pricer() const;
-
-        std::map<std::string, ext::any>& additionalResults() const { return additionalResults_; }
 
       protected:
         //! convexity adjustment for the given index fixing
@@ -132,9 +134,9 @@ namespace QuantLib {
         Spread spread_;
         bool isInArrears_;
         Date fixingDate_;
+        BusinessDayConvention fixingConvention_;
         ext::shared_ptr<FloatingRateCouponPricer> pricer_;
         mutable Real rate_;
-        mutable std::map<std::string, ext::any> additionalResults_;
     };
 
     // inline definitions

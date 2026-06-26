@@ -244,7 +244,6 @@ namespace detail {
             helper->setTermStructure(const_cast<Curve*>(ts_));
         }
 
-        const std::vector<Time>& times = ts_->times_;
         const std::vector<Real>& data = ts_->data_;
         Real accuracy = accuracy_ != Null<Real>() ? accuracy_ : ts_->accuracy_;
 
@@ -296,16 +295,14 @@ namespace detail {
                 if (!validData) {
                     try { // extend interpolation a point at a time
                           // including the pillar to be boostrapped
-                        ts_->interpolation_ = ts_->interpolator_.interpolate(
-                            times.begin(), times.begin()+i+1, data.begin());
+                        ts_->setupInterpolation(i);
                     } catch (...) {
                         if (!Interpolator::global)
                             throw; // no chance to fix it in a later iteration
 
                         // otherwise use Linear while the target
                         // interpolation is not usable yet
-                        ts_->interpolation_ = Linear().interpolate(
-                            times.begin(), times.begin()+i+1, data.begin());
+                        ts_->setupInterpolation(i, true);
                     }
                     ts_->interpolation_.update();
                 }

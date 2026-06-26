@@ -22,7 +22,6 @@
 #include <ql/math/interpolations/bilinearinterpolation.hpp>
 #include <ql/math/interpolations/linearinterpolation.hpp>
 #include <ql/termstructures/volatility/equityfx/blackvariancesurface.hpp>
-#include <ql/termstructures/volatility/equityfx/blackvariancetimeextrapolation.hpp>
 #include <utility>
 
 namespace QuantLib {
@@ -35,7 +34,7 @@ namespace QuantLib {
                                                DayCounter dayCounter,
                                                BlackVarianceSurface::Extrapolation lowerEx,
                                                BlackVarianceSurface::Extrapolation upperEx,
-                                               BlackVolTimeExtrapolation timeExtrapolation,
+                                               BlackVolTimeExtrapolation::Type timeExtrapolation,
                                                QuantLib::VolatilityType volType,
                                                Real shift)
     : BlackVarianceTermStructure(referenceDate, cal, QuantLib::Following, DayCounter(), volType, shift), dayCounter_(std::move(dayCounter)),
@@ -81,14 +80,12 @@ namespace QuantLib {
         if (strike > strikes_.back() && upperExtrapolation_ == ConstantExtrapolation)
             strike = strikes_.back();
 
-        if (t <= times_.back() || timeExtrapolation_ == BlackVolTimeExtrapolation::UseInterpolatorVariance) {
+        if (t <= times_.back()) {
             return varianceSurface_(t, strike, true);
-        } else if (t > times_.back() && timeExtrapolation_ == BlackVolTimeExtrapolation::FlatVolatility) {
-            return timeExtrapolatationBlackVarianceFlat(t, strike, times_, varianceSurface_);
-        } else if (t > times_.back() && timeExtrapolation_ == BlackVolTimeExtrapolation::UseInterpolatorVolatility) {
-            return timeExtrapolatationBlackVarianceInVolatility(t, strike, times_, varianceSurface_);
         } else {
-            QL_FAIL("unkown time extrapolation method");
+            return BlackVolTimeExtrapolation::extrapolatedVariance(
+                timeExtrapolation_, t, strike, times_,
+                [&](Real t, Real k) { return varianceSurface_(t, k, true); });
         }
     }
 }

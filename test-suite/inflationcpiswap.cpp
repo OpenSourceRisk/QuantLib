@@ -75,7 +75,7 @@ std::vector<ext::shared_ptr<BootstrapHelper<T> > > makeHelpers(
 }
 
 
-struct CommonVars {
+struct CommonVars { // NOLINT(cppcoreguidelines-special-member-functions)
     // common data
     
     Size length;
@@ -230,7 +230,7 @@ struct CommonVars {
         Date baseDate = ii->lastFixingDate();
         auto pCPIts =
             ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-                                    evaluationDate, baseDate, observationLag, ii->frequency(), dcZCIIS, helpers);
+                                    evaluationDate, baseDate, ii->frequency(), dcZCIIS, helpers);
         pCPIts->recalculate();
         cpiTS = ext::dynamic_pointer_cast<ZeroInflationTermStructure>(pCPIts);
 
@@ -346,8 +346,8 @@ BOOST_AUTO_TEST_CASE(consistency) {
                "failed manual inf leg NPV calc vs pricing engine: " <<
                testInfLegNPV << " vs " << zisV.legNPV(0));
 
-    Real diff = fabs(1-zisV.NPV()/4191660.0);
-    
+    Real diff = fabs(1-zisV.NPV()/4191797.54);
+
     Real max_diff = usingAtParCoupons ? 1e-5 : 3e-5;
 
     QL_REQUIRE(diff<max_diff,

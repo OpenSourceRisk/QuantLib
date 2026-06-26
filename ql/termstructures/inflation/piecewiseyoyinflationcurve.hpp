@@ -55,7 +55,6 @@ namespace QuantLib {
             const Date& referenceDate,
             Date baseDate,
             Rate baseYoYRate,
-            const Period& lag,
             Frequency frequency,
             const DayCounter& dayCounter,
             std::vector<ext::shared_ptr<typename Traits::helper> > instruments,
@@ -65,7 +64,6 @@ namespace QuantLib {
         : base_curve(referenceDate,
                      baseDate,
                      baseYoYRate,
-                     lag,
                      frequency,
                      dayCounter,
                      seasonality,
@@ -74,28 +72,6 @@ namespace QuantLib {
             bootstrap_.setup(this);
         }
 
-        /*! \deprecated Use the overload without indexIsInterpolated.
-                        Deprecated in version 1.37.
-        */
-        [[deprecated("Use the overload without indexIsInterpolated")]]
-        PiecewiseYoYInflationCurve(
-            const Date& referenceDate,
-            Date baseDate,
-            Rate baseYoYRate,
-            const Period& lag,
-            Frequency frequency,
-            bool indexIsInterpolated,
-            const DayCounter& dayCounter,
-            std::vector<ext::shared_ptr<typename Traits::helper> > instruments,
-            const ext::shared_ptr<Seasonality>& seasonality = {},
-            Real accuracy = 1.0e-12,
-            const Interpolator& i = Interpolator())
-        : PiecewiseYoYInflationCurve(referenceDate, baseDate, baseYoYRate, lag, frequency,
-                                     dayCounter, instruments, seasonality, accuracy, i) {
-            QL_DEPRECATED_DISABLE_WARNING
-            this->indexIsInterpolated_ = indexIsInterpolated;
-            QL_DEPRECATED_ENABLE_WARNING
-        }
         //@}
 
         //! \name Inflation interface

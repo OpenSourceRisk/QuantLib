@@ -97,6 +97,9 @@ namespace QuantLib {
         ext::shared_ptr<Schedule> observationsSchedule() const {
             return ext::make_shared<Schedule>(observationSchedule_);
         }
+        const std::vector<Date>& fixingDates() const {
+            return fixingDates_;
+        }
 
         Real priceWithoutOptionality(
                        const Handle<YieldTermStructure>& discountCurve) const;
@@ -116,6 +119,8 @@ namespace QuantLib {
 
         Real lowerTrigger_;
         Real upperTrigger_;
+        // Store the fixing dates associated with the observation dates.
+        std::vector<Date> fixingDates_;
      };
 
     class RangeAccrualPricer: public FloatingRateCouponPricer {
@@ -129,6 +134,14 @@ namespace QuantLib {
         Rate floorletRate(Rate effectiveFloor) const override;
         void initialize(const FloatingRateCoupon& coupon) override;
         //@}
+
+        //! Set a fixed coupon rate for fixed-rate range accrual mode.
+        /*! When set to a valid value (not Null<Real>()), the pricer computes
+            Amount = fixedRate * (n/N) * accrualFactor * discount
+            instead of the floating-rate formula
+            gearing * Libor * (n/N) + spread. */
+        void setFixedRate(Real fixedRate) { fixedRate_ = fixedRate; }
+        Real fixedRate() const { return fixedRate_; }
 
     protected:
         const RangeAccrualFloatersCoupon* coupon_;
@@ -145,6 +158,7 @@ namespace QuantLib {
         Real gearing_;
         Spread spread_;
         Real spreadLegValue_;
+        Real fixedRate_ = Null<Real>();
 
     };
 
@@ -243,6 +257,9 @@ namespace QuantLib {
         RangeAccrualLeg& withUpperTriggers(const std::vector<Rate>& triggers);
         RangeAccrualLeg& withObservationTenor(const Period&);
         RangeAccrualLeg& withObservationConvention(BusinessDayConvention);
+        RangeAccrualLeg& withPaymentCalendar(const Calendar&);
+        RangeAccrualLeg& withPaymentDates(const std::vector<Date>& paymentDates);
+        RangeAccrualLeg& withPaymentLag(Integer lag);
         operator Leg() const;
       private:
         Schedule schedule_;
@@ -256,6 +273,9 @@ namespace QuantLib {
         std::vector<Rate> lowerTriggers_, upperTriggers_;
         Period observationTenor_;
         BusinessDayConvention observationConvention_ = ModifiedFollowing;
+        Calendar paymentCalendar_;
+        std::vector<Date> paymentDates_;
+        Integer paymentLag_ = 0;
     };
 
 }

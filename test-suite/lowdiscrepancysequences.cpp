@@ -1069,6 +1069,50 @@ BOOST_AUTO_TEST_CASE(testSobolSkipping) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testSobolBurleySkipping) {
+
+    BOOST_TEST_MESSAGE("Testing Sobol Burley sequence skipping...");
+
+    unsigned long seed = 42;
+    unsigned long scramblingSeed = 43;
+    Size dimensionality[] = { 1, 10, 100, 1000 };
+    unsigned long skip[] = { 0, 1, 42, 512, 10000 };
+    SobolRsg::DirectionIntegers integers[] = {
+        SobolRsg::Jaeckel,
+        SobolRsg::SobolLevitan,
+        SobolRsg::SobolLevitanLemieux };
+
+        for (auto& integer : integers) {
+            for (Size& j : dimensionality) {
+                for (unsigned long& k : skip) {
+
+                    // extract n samples
+                    Burley2020SobolRsg rsg1(j, seed, integer, scramblingSeed);
+                    for (Size l = 0; l < k; l++)
+                        rsg1.nextInt32Sequence();
+
+                    // skip n samples at once
+                    Burley2020SobolRsg rsg2(j, seed, integer, scramblingSeed);
+                    rsg2.skipTo(k);
+
+                    // compare next 100 samples
+                    for (Size m = 0; m < 100; m++) {
+                        const std::vector<std::uint_least32_t>& s1 = rsg1.nextInt32Sequence();
+                        const std::vector<std::uint_least32_t>& s2 = rsg2.nextInt32Sequence();
+                        for (Size n = 0; n < s1.size(); n++) {
+                            if (s1[n] != s2[n]) {
+                                BOOST_ERROR("Mismatch after skipping:"
+                                << "\n  size:     " << j << "\n  integers: " << integer
+                                << "\n  skipped:  " << k << "\n  at index: " << n
+                                << "\n  expected: " << s1[n] << "\n  found:    " << s2[n]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+}
+
 BOOST_AUTO_TEST_CASE(testHighDimensionalIntegrals, *precondition(if_speed(Slow))) {
     BOOST_TEST_MESSAGE("Testing high-dimensional integrals...");
 
@@ -1130,6 +1174,23 @@ BOOST_AUTO_TEST_CASE(testHighDimensionalIntegrals, *precondition(if_speed(Slow))
     }
 }
 
+BOOST_AUTO_TEST_CASE(testBurley2020SobolRsgOutputBounds) {
+    BOOST_TEST_MESSAGE(
+        "Testing Burley2020SobolRsg output is strictly in (0,1)...");
+
+    // With enough dimensions the scrambling occasionally maps to
+    // zero.  Without the +0.5 offset this would give 0.0 in the
+    // double sequence, which breaks InverseCumulativeNormal.
+    Burley2020SobolRsg rsg(1551, 42, SobolRsg::JoeKuoD7, 43);
+    for (Size i = 0; i < 100000; ++i) {
+        const auto& seq = rsg.nextSequence();
+        for (Size j = 0; j < seq.value.size(); ++j) {
+            if (seq.value[j] <= 0.0 || seq.value[j] >= 1.0)
+                BOOST_ERROR("output " << seq.value[j]
+                            << " at sample " << i << ", dim " << j);
+        }
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

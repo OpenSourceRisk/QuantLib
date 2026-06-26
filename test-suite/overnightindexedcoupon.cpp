@@ -31,6 +31,9 @@
 #include <ql/time/calendars/target.hpp>
 #include <ql/termstructures/yield/zerocurve.hpp>
 #include <ql/termstructures/volatility/optionlet/constantoptionletvol.hpp>
+#include <ql/termstructures/yield/flatforward.hpp>
+#include <ql/indexes/ibor/estr.hpp>
+#include <ql/time/calendars/weekendsonly.hpp>
 #include <iomanip>
 
 using namespace QuantLib;
@@ -1006,8 +1009,8 @@ BOOST_AUTO_TEST_CASE(testOvernightLegWithGearingsAndSpreads) {
         auto oisCoupon = ext::dynamic_pointer_cast<OvernightIndexedCoupon>(leg[i]);
         BOOST_CHECK(oisCoupon != nullptr);
         if (oisCoupon) {
-            BOOST_CHECK_CLOSE(oisCoupon->gearing(), gearings[i], 1e-12);
-            BOOST_CHECK_CLOSE(oisCoupon->spread(), spreads[i], 1e-12);
+            QL_CHECK_CLOSE(oisCoupon->gearing(), gearings[i], 1e-12);
+            QL_CHECK_CLOSE(oisCoupon->spread(), spreads[i], 1e-12);
         }
     }
 }
@@ -1056,8 +1059,8 @@ BOOST_AUTO_TEST_CASE(testOvernightLegWithCapsAndFloors) {
         auto cappedFlooredCoupon = ext::dynamic_pointer_cast<CappedFlooredOvernightIndexedCoupon>(leg[i]);
         BOOST_CHECK(cappedFlooredCoupon != nullptr);
         if (cappedFlooredCoupon) {
-            BOOST_CHECK_CLOSE(cappedFlooredCoupon->cap(), caps[i], 1e-12);
-            BOOST_CHECK_CLOSE(cappedFlooredCoupon->floor(), floors[i], 1e-12);
+            QL_CHECK_CLOSE(cappedFlooredCoupon->cap(), caps[i], 1e-12);
+            QL_CHECK_CLOSE(cappedFlooredCoupon->floor(), floors[i], 1e-12);
             BOOST_CHECK(cappedFlooredCoupon->isCapped());
             BOOST_CHECK(cappedFlooredCoupon->isFloored());
         }
@@ -1098,6 +1101,28 @@ BOOST_AUTO_TEST_CASE(testOvernightLegErrorConditions) {
     
     // Test that observation shift with simple averaging throws an error
     BOOST_CHECK_THROW(vars.makeLeg(Null<Natural>(), 0, true, false, RateAveraging::Simple), Error);
+}
+
+BOOST_AUTO_TEST_CASE(testOvernightIndexedCouponPaymentBeforeAccrualEnd) {
+    BOOST_TEST_MESSAGE("Testing that an overnight coupon with inconsistent dates throws...");
+
+    Date accrualStart(18, September, 2025);
+    Settings::instance().evaluationDate() = accrualStart;
+
+    Handle<YieldTermStructure> h(
+        ext::make_shared<FlatForward>(accrualStart, 0.05, Actual365Fixed()));
+    ext::shared_ptr<OvernightIndex> estr =
+        ext::make_shared<Estr>(h);
+
+    Calendar cal = WeekendsOnly();
+    Date accrualEnd = cal.advance(accrualStart, Period(6, Months));
+    Date paymentDate = cal.advance(accrualEnd, Period(-1, Days));
+
+    BOOST_CHECK_THROW(
+        OvernightIndexedCoupon(paymentDate, 1.0,
+                               accrualStart, accrualEnd, estr),
+        Error
+    );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
