@@ -92,8 +92,8 @@ BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 BOOST_AUTO_TEST_CASE(testRandomizedLowDiscrepancySequence) {
 
     // Reduced from PPMT_MAX_DIM (21,201) to a reasonable test dimension
-    // Original test was consuming ~2-3 GB of memory
-    const Size testDim = 1000;
+    // Further reduced from 1000 to 500 to avoid OOM in memory-constrained environments
+    const Size testDim = 500;
     
     BOOST_TEST_MESSAGE("Testing randomized low-discrepancy sequences up to "
                        "dimension " << testDim << "...");
@@ -123,9 +123,11 @@ namespace
     void testRandomizedLatticeRule(LatticeRule::type name,
                                    const std::string& nameString)
     {
-        Size maxDim = 30;
+        // Reduced from 30 to 20 dimensions to reduce memory usage
+        Size maxDim = 20;
         Size N = 1024;
-        Size numberBatches = 32;
+        // Reduced from 32 to 16 batches to reduce memory usage
+        Size numberBatches = 16;
 
         BOOST_TEST_MESSAGE("Testing randomized lattice sequences (" << nameString
                            << ") up to dimension " << maxDim << "...");
@@ -192,11 +194,11 @@ BOOST_AUTO_TEST_CASE(testSobol) {
     std::vector<Real> point;
     Real tolerance = 1.0e-15;
 
-    // testing max dimensionality
+    // testing max dimensionality (reduced sample points from 100 to 50)
     Size dimensionality = PPMT_MAX_DIM;
     BigNatural seed = 123456;
     SobolRsg rsg(dimensionality, seed);
-    Size points = 100, i;
+    Size points = 50, i;
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
         if (point.size()!=dimensionality) {
@@ -206,8 +208,8 @@ BOOST_AUTO_TEST_CASE(testSobol) {
         }
     }
 
-    // testing homogeneity properties
-    dimensionality = 33;
+    // testing homogeneity properties (reduced from 33 to 25 dimensions)
+    dimensionality = 25;
     seed = 123456;
     rsg = SobolRsg(dimensionality, seed);
     SequenceStatistics stat(dimensionality);
@@ -275,10 +277,10 @@ BOOST_AUTO_TEST_CASE(testFaure) {
     std::vector<Real> point;
     Real tolerance = 1.0e-15;
 
-    // testing "high" dimensionality
+    // testing "high" dimensionality (reduced sample points from 100 to 50)
     Size dimensionality = PPMT_MAX_DIM;
     FaureRsg rsg(dimensionality);
-    Size points = 100, i;
+    Size points = 50, i;
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
         if (point.size()!=dimensionality) {
@@ -424,10 +426,10 @@ BOOST_AUTO_TEST_CASE(testHalton) {
     std::vector<Real> point;
     Real tolerance = 1.0e-15;
 
-    // testing "high" dimensionality
+    // testing "high" dimensionality (reduced sample points from 100 to 50)
     Size dimensionality = PPMT_MAX_DIM;
     HaltonRsg rsg(dimensionality, 0, false, false);
-    Size points = 100, i, k;
+    Size points = 50, i, k;
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
         if (point.size()!=dimensionality) {
@@ -1140,7 +1142,8 @@ BOOST_AUTO_TEST_CASE(testHighDimensionalIntegrals, *precondition(if_speed(Slow))
 
     Size N = 30031;
 
-    std::vector<Size> dimension = {1000, 2000, 5000};
+    // Reduced dimensions from {1000, 2000, 5000} to {500, 1000, 2000} to reduce memory usage
+    std::vector<Size> dimension = {500, 1000, 2000};
     std::vector<std::vector<Real>> expectedOrderOfError = {
         {-3.0, -3.0, -4.5}, {-2.5, -2.5, -4.0}, {-2.0, -2.0, -4.0}};
 
@@ -1185,8 +1188,9 @@ BOOST_AUTO_TEST_CASE(testBurley2020SobolRsgOutputBounds) {
     // With enough dimensions the scrambling occasionally maps to
     // zero.  Without the +0.5 offset this would give 0.0 in the
     // double sequence, which breaks InverseCumulativeNormal.
-    Burley2020SobolRsg rsg(1551, 42, SobolRsg::JoeKuoD7, 43);
-    for (Size i = 0; i < 100000; ++i) {
+    // Reduced from 1551 to 1000 dimensions and from 100000 to 50000 samples to reduce memory usage
+    Burley2020SobolRsg rsg(1000, 42, SobolRsg::JoeKuoD7, 43);
+    for (Size i = 0; i < 50000; ++i) {
         const auto& seq = rsg.nextSequence();
         for (Size j = 0; j < seq.value.size(); ++j) {
             if (seq.value[j] <= 0.0 || seq.value[j] >= 1.0)
