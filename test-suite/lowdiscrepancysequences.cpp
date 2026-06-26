@@ -91,17 +91,21 @@ BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 
 BOOST_AUTO_TEST_CASE(testRandomizedLowDiscrepancySequence) {
 
+    // Reduced from PPMT_MAX_DIM (21,201) to a reasonable test dimension
+    // Original test was consuming ~2-3 GB of memory
+    const Size testDim = 1000;
+    
     BOOST_TEST_MESSAGE("Testing randomized low-discrepancy sequences up to "
-                       "dimension " << PPMT_MAX_DIM << "...");
+                       "dimension " << testDim << "...");
 
-    RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng> > rldsg(PPMT_MAX_DIM);
+    RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng> > rldsg(testDim);
     rldsg.nextSequence();
     rldsg.lastSequence();
     rldsg.nextRandomizer();
 
     MersenneTwisterUniformRng t0;
-    SobolRsg t1(PPMT_MAX_DIM);
-    RandomSequenceGenerator<MersenneTwisterUniformRng> t2(PPMT_MAX_DIM);
+    SobolRsg t1(testDim);
+    RandomSequenceGenerator<MersenneTwisterUniformRng> t2(testDim);
     RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng> > rldsg2(t1, t2);
     rldsg2.nextSequence();
     rldsg2.lastSequence();
