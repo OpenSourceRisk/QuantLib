@@ -47,6 +47,12 @@ using namespace boost::unit_test_framework;
 
 using std::fabs;
 
+// For memory-constrained test environments, limit testing to degree 18
+// This corresponds to N_PRIMITIVES_UP_TO_DEGREE_18 (21200)
+#ifndef PPMT_MAX_TEST_DIM
+#define PPMT_MAX_TEST_DIM ((PPMT_MAX_DIM) < (21200) ? (PPMT_MAX_DIM) : (21200))
+#endif
+
 BOOST_FIXTURE_TEST_SUITE(QuantLibTests, TopLevelFixture)
 
 BOOST_AUTO_TEST_SUITE(LowDiscrepancyTests)
@@ -58,7 +64,8 @@ BOOST_AUTO_TEST_CASE(testSeedGenerator) {
 
 BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 
-    BOOST_TEST_MESSAGE("Testing " << PPMT_MAX_DIM <<
+    BOOST_TEST_MESSAGE("Testing " << PPMT_MAX_TEST_DIM
+                                  <<
                        " primitive polynomials modulo two...");
 
     const Size jj[] = {
@@ -70,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 
     Size i=0,j=0,n=0;
     BigInteger polynomial=0;
-    while (n<PPMT_MAX_DIM || polynomial!=-1) {
+    while (n < PPMT_MAX_TEST_DIM || polynomial != -1) {
         if (polynomial==-1) {
             ++i; // Increase degree index
             j=0; // Reset index of polynomial in degree.
@@ -91,21 +98,19 @@ BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 
 BOOST_AUTO_TEST_CASE(testRandomizedLowDiscrepancySequence) {
 
-    // Reduced from PPMT_MAX_DIM (21,201) to a reasonable test dimension
-    // Further reduced from 1000 to 500 to avoid OOM in memory-constrained environments
-    const Size testDim = 500;
-    
     BOOST_TEST_MESSAGE("Testing randomized low-discrepancy sequences up to "
-                       "dimension " << testDim << "...");
+                       "dimension "
+                       << PPMT_MAX_TEST_DIM << "...");
 
-    RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng> > rldsg(testDim);
+    RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng>> rldsg(
+        PPMT_MAX_TEST_DIM);
     rldsg.nextSequence();
     rldsg.lastSequence();
     rldsg.nextRandomizer();
 
     MersenneTwisterUniformRng t0;
-    SobolRsg t1(testDim);
-    RandomSequenceGenerator<MersenneTwisterUniformRng> t2(testDim);
+    SobolRsg t1(PPMT_MAX_TEST_DIM);
+    RandomSequenceGenerator<MersenneTwisterUniformRng> t2(PPMT_MAX_TEST_DIM);
     RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng> > rldsg2(t1, t2);
     rldsg2.nextSequence();
     rldsg2.lastSequence();
@@ -123,11 +128,9 @@ namespace
     void testRandomizedLatticeRule(LatticeRule::type name,
                                    const std::string& nameString)
     {
-        // Reduced from 30 to 20 dimensions to reduce memory usage
-        Size maxDim = 20;
+        Size maxDim = 30;
         Size N = 1024;
-        // Reduced from 32 to 16 batches to reduce memory usage
-        Size numberBatches = 16;
+        Size numberBatches = 32;
 
         BOOST_TEST_MESSAGE("Testing randomized lattice sequences (" << nameString
                            << ") up to dimension " << maxDim << "...");
@@ -188,17 +191,16 @@ BOOST_AUTO_TEST_CASE(testRandomizedLattices){
 
 BOOST_AUTO_TEST_CASE(testSobol) {
 
-    BOOST_TEST_MESSAGE("Testing Sobol sequences up to dimension "
-                       << PPMT_MAX_DIM << "...");
+    BOOST_TEST_MESSAGE("Testing Sobol sequences up to dimension " << PPMT_MAX_TEST_DIM << "...");
 
     std::vector<Real> point;
     Real tolerance = 1.0e-15;
 
-    // testing max dimensionality (reduced sample points from 100 to 50)
-    Size dimensionality = PPMT_MAX_DIM;
+    // testing max dimensionality
+    Size dimensionality = PPMT_MAX_TEST_DIM;
     BigNatural seed = 123456;
     SobolRsg rsg(dimensionality, seed);
-    Size points = 50, i;
+    Size points = 100, i;
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
         if (point.size()!=dimensionality) {
@@ -208,8 +210,8 @@ BOOST_AUTO_TEST_CASE(testSobol) {
         }
     }
 
-    // testing homogeneity properties (reduced from 33 to 25 dimensions)
-    dimensionality = 25;
+    // testing homogeneity properties
+    dimensionality = 33;
     seed = 123456;
     rsg = SobolRsg(dimensionality, seed);
     SequenceStatistics stat(dimensionality);
@@ -277,10 +279,10 @@ BOOST_AUTO_TEST_CASE(testFaure) {
     std::vector<Real> point;
     Real tolerance = 1.0e-15;
 
-    // testing "high" dimensionality (reduced sample points from 100 to 50)
-    Size dimensionality = PPMT_MAX_DIM;
+    // testing "high" dimensionality
+    Size dimensionality = PPMT_MAX_TEST_DIM;
     FaureRsg rsg(dimensionality);
-    Size points = 50, i;
+    Size points = 100, i;
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
         if (point.size()!=dimensionality) {
@@ -426,10 +428,10 @@ BOOST_AUTO_TEST_CASE(testHalton) {
     std::vector<Real> point;
     Real tolerance = 1.0e-15;
 
-    // testing "high" dimensionality (reduced sample points from 100 to 50)
-    Size dimensionality = PPMT_MAX_DIM;
+    // testing "high" dimensionality
+    Size dimensionality = PPMT_MAX_TEST_DIM;
     HaltonRsg rsg(dimensionality, 0, false, false);
-    Size points = 50, i, k;
+    Size points = 100, i, k;
     for (i=0; i<points; i++) {
         point = rsg.nextSequence().value;
         if (point.size()!=dimensionality) {
@@ -1142,8 +1144,7 @@ BOOST_AUTO_TEST_CASE(testHighDimensionalIntegrals, *precondition(if_speed(Slow))
 
     Size N = 30031;
 
-    // Reduced dimensions from {1000, 2000, 5000} to {500, 1000, 2000} to reduce memory usage
-    std::vector<Size> dimension = {500, 1000, 2000};
+    std::vector<Size> dimension = {1000, 2000, 5000};
     std::vector<std::vector<Real>> expectedOrderOfError = {
         {-3.0, -3.0, -4.5}, {-2.5, -2.5, -4.0}, {-2.0, -2.0, -4.0}};
 
@@ -1188,9 +1189,8 @@ BOOST_AUTO_TEST_CASE(testBurley2020SobolRsgOutputBounds) {
     // With enough dimensions the scrambling occasionally maps to
     // zero.  Without the +0.5 offset this would give 0.0 in the
     // double sequence, which breaks InverseCumulativeNormal.
-    // Reduced from 1551 to 1000 dimensions and from 100000 to 50000 samples to reduce memory usage
-    Burley2020SobolRsg rsg(1000, 42, SobolRsg::JoeKuoD7, 43);
-    for (Size i = 0; i < 50000; ++i) {
+    Burley2020SobolRsg rsg(1551, 42, SobolRsg::JoeKuoD7, 43);
+    for (Size i = 0; i < 100000; ++i) {
         const auto& seq = rsg.nextSequence();
         for (Size j = 0; j < seq.value.size(); ++j) {
             if (seq.value[j] <= 0.0 || seq.value[j] >= 1.0)
