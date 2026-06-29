@@ -54,15 +54,10 @@ namespace bp = boost::process;
 #define BOOST_TEST_NO_MAIN 1
 #include <boost/algorithm/string.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <algorithm>
-#include <atomic>
 #include <chrono>
-#include <cstddef>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <functional>
-#include <iomanip>
 #include <limits>
 #include <list>
 #include <map>
@@ -70,22 +65,6 @@ namespace bp = boost::process;
 #include <string>
 #include <thread>
 #include <utility>
-
-#if defined(_WIN32)
-#    ifndef WIN32_LEAN_AND_MEAN
-#        define WIN32_LEAN_AND_MEAN
-#    endif
-#    ifndef NOMINMAX
-#        define NOMINMAX
-#    endif
-#    include <windows.h>
-#    include <psapi.h>
-#    pragma comment(lib, "psapi.lib")
-#elif defined(__APPLE__)
-#    include <mach/mach.h>
-#else
-#    include <unistd.h>
-#endif
 
 #ifndef BOOST_TEST_MODULE
 #    define BOOST_TEST_MODULE "TestSuite"
@@ -109,75 +88,6 @@ namespace {
     int worker(std::string cmd) {
         return std::system(cmd.c_str());
     }
-
-    // Returns the current resident set size (physical memory currently used by
-    // this process) in bytes, or 0 if it cannot be determined on this platform.
-    inline std::size_t currentResidentSetSize() {
-#if defined(_WIN32)
-        PROCESS_MEMORY_COUNTERS info;
-        if (GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info)))
-            return static_cast<std::size_t>(info.WorkingSetSize);
-        return 0;
-#elif defined(__APPLE__)
-        mach_task_basic_info info;
-        mach_msg_type_number_t count = MACH_TASK_BASIC_INFO_COUNT;
-        if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, reinterpret_cast<task_info_t>(&info),
-                      &count) == KERN_SUCCESS)
-            return static_cast<std::size_t>(info.resident_size);
-        return 0;
-#else
-        // Linux: read resident pages from /proc/self/statm (field 2) and scale
-        // by the system page size.
-        std::ifstream statm("/proc/self/statm");
-        std::size_t totalPages = 0, residentPages = 0;
-        if (statm.good() && (statm >> totalPages >> residentPages))
-            return residentPages * static_cast<std::size_t>(sysconf(_SC_PAGESIZE));
-        return 0;
-#endif
-    }
-
-    // Samples the resident set size from a background thread while a test case is
-    // running so that short-lived allocation peaks are captured, not just the
-    // memory still held when the test returns.
-    class PeakRssSampler {
-      public:
-        PeakRssSampler() : peakBytes_(currentResidentSetSize()), stop_(false) {
-            sampler_ = std::thread([this]() {
-                while (!stop_.load(std::memory_order_relaxed)) {
-                    const std::size_t rss = currentResidentSetSize();
-                    std::size_t prev = peakBytes_.load(std::memory_order_relaxed);
-                    while (rss > prev &&
-                           !peakBytes_.compare_exchange_weak(prev, rss,
-                                                             std::memory_order_relaxed)) {
-                    }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-                }
-            });
-        }
-
-        ~PeakRssSampler() {
-            stop_.store(true, std::memory_order_relaxed);
-            if (sampler_.joinable())
-                sampler_.join();
-        }
-
-        PeakRssSampler(const PeakRssSampler&) = delete;
-        PeakRssSampler& operator=(const PeakRssSampler&) = delete;
-
-        std::size_t peakBytes() {
-            const std::size_t rss = currentResidentSetSize();
-            std::size_t prev = peakBytes_.load(std::memory_order_relaxed);
-            while (rss > prev &&
-                   !peakBytes_.compare_exchange_weak(prev, rss, std::memory_order_relaxed)) {
-            }
-            return peakBytes_.load(std::memory_order_relaxed);
-        }
-
-      private:
-        std::atomic<std::size_t> peakBytes_;
-        std::atomic<bool> stop_;
-        std::thread sampler_;
-    };
 
     class TestCaseCollector : public test_tree_visitor {
       public:
@@ -226,7 +136,6 @@ namespace {
 
     struct RuntimeLog {
         QuantLib::Time time;
-        std::size_t peakMemoryBytes;
         char testCaseName[256];
     };
 
@@ -245,8 +154,6 @@ int main(int argc, char* argv[]) {
     std::string moduleName = BOOST_TEST_MODULE;
     std::string profileFileNameStr = moduleName + "_unit_test_profile.txt";
     const char* const profileFileName = profileFileNameStr.c_str();
-    std::string memoryProfileFileNameStr = moduleName + "_unit_test_memory_profile.txt";
-    const char* const memoryProfileFileName = memoryProfileFileNameStr.c_str();
     std::string testUnitIdQueueNameStr = moduleName + "_test_unit_queue";
     const char* const testUnitIdQueueName = testUnitIdQueueNameStr.c_str();
     std::string testResultQueueNameStr = moduleName + "_test_result_queue";
@@ -399,12 +306,10 @@ int main(int argc, char* argv[]) {
 
             utf::results_reporter::make_report();
 
-            std::map<std::string, std::size_t> peakMemoryLog;
             RuntimeLog log;
             for (unsigned i = 0; i < ids.size(); ++i) {
                 lq.receive(&log, sizeof(RuntimeLog), recvd_size, priority);
                 runTimeLog[std::string(log.testCaseName)] = log.time;
-                peakMemoryLog[std::string(log.testCaseName)] = log.peakMemoryBytes;
             }
 
             std::ofstream out(profileFileName, std::ios::out | std::ios::trunc);
@@ -414,30 +319,6 @@ int main(int argc, char* argv[]) {
                 out << iter->first << ":" << iter->second << std::endl;
             }
             out.close();
-
-            // Write a peak-memory profile, sorted from highest to lowest, and echo the
-            // heaviest test cases to the console. Because each worker process runs one
-            // test case at a time, the per-test peak resident size is the dominant
-            // contribution to that worker's high-water mark, so the tests listed here are
-            // the best candidates to split into their own suites/targets when running on
-            // memory-constrained runners. The approximate total footprint is roughly
-            // nProc * (largest per-test peak) plus the shared static footprint.
-            std::multimap<std::size_t, std::string, std::greater<std::size_t> >
-                testsSortedByPeakMemory;
-            for (std::map<std::string, std::size_t>::const_iterator iter = peakMemoryLog.begin();
-                 iter != peakMemoryLog.end(); ++iter) {
-                testsSortedByPeakMemory.insert(std::make_pair(iter->second, iter->first));
-            }
-
-            const double bytesPerMiB = 1024.0 * 1024.0;
-            std::ofstream memOut(memoryProfileFileName, std::ios::out | std::ios::trunc);
-            memOut << std::fixed << std::setprecision(1);
-            for (std::multimap<std::size_t, std::string, std::greater<std::size_t> >::const_iterator
-                     iter = testsSortedByPeakMemory.begin();
-                 iter != testsSortedByPeakMemory.end(); ++iter) {
-                memOut << iter->second << ":" << (iter->first / bytesPerMiB) << std::endl;
-            }
-            memOut.close();
 
             for (auto& thread : threadGroup) {
                 thread.join();
@@ -501,8 +382,7 @@ int main(int argc, char* argv[]) {
             TestCaseId id;
             mq.receive(&id, sizeof(TestCaseId), recvd_size, priority);
 
-            typedef std::list<std::pair<std::string, std::pair<QuantLib::Time, std::size_t> > >
-                run_time_list_type;
+            typedef std::list<std::pair<std::string, QuantLib::Time> > run_time_list_type;
             run_time_list_type runTimeLogs;
 
             message_queue rq(open_only, testResultQueueName);
@@ -510,37 +390,27 @@ int main(int argc, char* argv[]) {
             while (!id.terminate) {
                 auto startTime = std::chrono::steady_clock::now();
 
-                // Sample peak resident memory while this test case runs so that the
-                // heaviest test cases can be identified and split into separate suites.
-                std::size_t peakMemoryBytes = 0;
-                {
-                    PeakRssSampler memorySampler;
-
 #if BOOST_VERSION < 106200
-                    BOOST_TEST_FOREACH(test_observer*, to, utf::framework::impl::s_frk_state().m_observers)
-                    utf::framework::impl::s_frk_state().m_aux_em.vexecute([&]() { to->test_start(1); });
+                BOOST_TEST_FOREACH(test_observer*, to, utf::framework::impl::s_frk_state().m_observers)
+                utf::framework::impl::s_frk_state().m_aux_em.vexecute([&]() { to->test_start(1); });
 
-                    utf::framework::impl::s_frk_state().execute_test_tree(id.id);
+                utf::framework::impl::s_frk_state().execute_test_tree(id.id);
 
-                    BOOST_TEST_REVERSE_FOREACH(test_observer*, to,
-                                               utf::framework::impl::s_frk_state().m_observers)
-                    to->test_finish();
+                BOOST_TEST_REVERSE_FOREACH(test_observer*, to,
+                                           utf::framework::impl::s_frk_state().m_observers)
+                to->test_finish();
 #else
-                    // works for BOOST_VERSION > 106100, needed for >106500    
-                    utf::framework::run(id.id, false);
+                // works for BOOST_VERSION > 106100, needed for >106500    
+                utf::framework::run(id.id, false);
 #endif
-
-                    peakMemoryBytes = memorySampler.peakBytes();
-                }
 
                 auto stopTime = std::chrono::steady_clock::now();
                 double T =
                     std::chrono::duration_cast<std::chrono::microseconds>(stopTime - startTime)
                         .count() *
                     1e-6;
-                runTimeLogs.push_back(std::make_pair(
-                    utf::framework::get(id.id, test_unit_type::TUT_ANY).p_name,
-                    std::make_pair(T, peakMemoryBytes)));
+                runTimeLogs.push_back(
+                    std::make_pair(utf::framework::get(id.id, test_unit_type::TUT_ANY).p_name, T));
 
                 QualifiedTestResults results = {id.id,
                                                 boost::unit_test::results_collector.results(id.id)};
@@ -556,8 +426,7 @@ int main(int argc, char* argv[]) {
             message_queue lq(open_only, testRuntimeLogName);
             for (run_time_list_type::const_iterator iter = runTimeLogs.begin();
                  iter != runTimeLogs.end(); ++iter) {
-                log.time = iter->second.first;
-                log.peakMemoryBytes = iter->second.second;
+                log.time = iter->second;
 
                 std::strncpy(log.testCaseName, iter->first.c_str(), sizeof(log.testCaseName) - 1);
 
