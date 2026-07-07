@@ -77,6 +77,15 @@ namespace QuantLib {
         observationDates_.erase(observationDates_.begin()); //remove start date
         observationsNo_ = observationDates_.size();
 
+        // Populate the fixing dates.
+        const auto& obsScheduleDates = observationSchedule_.dates();
+        fixingDates_.reserve(obsScheduleDates.size());
+        Integer fixingLag = -static_cast<Integer>(fixingDays_);
+        Calendar fixingCal = index->fixingCalendar();
+        for (const Date& obsScheduleDate : obsScheduleDates) {
+            fixingDates_.push_back(fixingCal.advance(obsScheduleDate, fixingLag, Days));
+        }
+
         const Handle<YieldTermStructure>& rateCurve =
             index->forwardingTermStructure();
         Date referenceDate = rateCurve->referenceDate();
@@ -131,20 +140,15 @@ namespace QuantLib {
         upperTrigger_ = coupon_->upperTrigger();
         observationsNo_ = coupon_->observationsNo();
 
-        const std::vector<Date> &observationDates =
-            coupon_->observationSchedule().dates();
-        QL_REQUIRE(observationDates.size()==observationsNo_+2,
-                   "incompatible size of initialValues vector");
-        initialValues_= std::vector<Real>(observationDates.size(),0.);
+        const std::vector<Date>& fixingDates = coupon_->fixingDates();
+        QL_REQUIRE(fixingDates.size()==observationsNo_+2, "RangeAccrualPricer: number of fixing dates (" <<
+            fixingDates.size() << ") does not align with number of observations + 2 (" << observationsNo_+2 << ")");
+        initialValues_= std::vector<Real>(fixingDates.size(), 0.);
 
         Calendar calendar = index->fixingCalendar();
-        for(Size i=0; i<observationDates.size(); i++) {
-            initialValues_[i]=index->fixing(
-                calendar.advance(observationDates[i],
-                                 -static_cast<Integer>(coupon_->fixingDays()),
-                                 Days));
+        for (Size i = 0; i < fixingDates.size(); i++) {
+            initialValues_[i] = index->fixing(fixingDates[i]);
         }
-
     }
 
     Real RangeAccrualPricer::swapletRate() const {
@@ -653,6 +657,21 @@ namespace QuantLib {
         return *this;
     }
 
+    RangeAccrualLeg& RangeAccrualLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+    }
+
+    RangeAccrualLeg& RangeAccrualLeg::withPaymentDates(const std::vector<Date>& paymentDates) {
+        paymentDates_ = paymentDates;
+        return *this;
+    }
+
+    RangeAccrualLeg& RangeAccrualLeg::withPaymentLag(Integer lag) {
+        paymentLag_ = lag;
+        return *this;
+    }
+
     RangeAccrualLeg::operator Leg() const {
 
         QL_REQUIRE(!notionals_.empty(), "no notional given");
@@ -679,16 +698,28 @@ namespace QuantLib {
 
         Leg leg;
 
-        // the following is not always correct
-        Calendar calendar = schedule_.calendar();
+        Calendar paymentCalendar = paymentCalendar_;
+        if (paymentCalendar.empty()) {
+            paymentCalendar = schedule_.calendar();
+        }
 
-        Date refStart, start, refEnd, end;
-        Date paymentDate;
+        if (!paymentDates_.empty()) {
+            QL_REQUIRE(paymentDates_.size() == n, "Expected the number of explicit payment dates ("
+                << paymentDates_.size() << ") to equal the number of calculation periods (" << n << ")");
+        }
+
+        const Calendar& calendar = schedule_.calendar();
+
+        Date refStart, start, refEnd, end, paymentDate;
 
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule_.date(i);
             refEnd   =   end = schedule_.date(i+1);
-            paymentDate = calendar.adjust(end, paymentAdjustment_);
+            if (!paymentDates_.empty()) {
+                paymentDate = paymentDates_[i];
+            } else {
+                paymentDate = paymentCalendar.advance(end, paymentLag_, Days, paymentAdjustment_);
+            }
             if (i==0 && schedule_.hasIsRegular() && !schedule_.isRegular(i+1)) {
                 BusinessDayConvention bdc = schedule_.businessDayConvention();
                 refStart = calendar.adjust(end - schedule_.tenor(), bdc);
