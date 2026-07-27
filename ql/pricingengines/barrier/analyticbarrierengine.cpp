@@ -60,6 +60,16 @@ namespace QuantLib {
         results_.additionalResults["rebate"] = rebate();
         results_.additionalResults["timeToExpiry"] = process_->time(arguments_.exercise->lastDate());
 
+        const Date exerciseDate = arguments_.exercise->lastDate();
+        const Handle<YieldTermStructure>& riskFreeCurve = process_->riskFreeRate();
+        const Handle<YieldTermStructure>& dividendCurve = process_->dividendYield();
+        Time tteRiskFree = riskFreeCurve->dayCounter().yearFraction(riskFreeCurve->referenceDate(), exerciseDate);
+        Time tteDividend = dividendCurve->dayCounter().yearFraction(dividendCurve->referenceDate(), exerciseDate);
+        if(tteRiskFree != tteDividend){
+            results_.additionalResults["timeToExpiryRiskFree"] = tteRiskFree;
+            results_.additionalResults["timeToExpiryDividend"] = tteDividend;
+        }
+
         switch (payoff->optionType()) {
           case Option::Call:
             switch (barrierType) {
@@ -203,6 +213,7 @@ namespace QuantLib {
         Real N1 = f_(phi*x1);
         Real N2 = f_(phi*(x1-stdDeviation()));
         Real A_ = phi * (underlying() * dividendDiscount() * N1 - strike() * riskFreeDiscount() * N2);
+        results_.additionalResults["x1_A"] = x1;
         results_.additionalResults["Haug_A"] = A_;
         results_.additionalResults["phi"] = phi;
         return A_;
@@ -215,6 +226,7 @@ namespace QuantLib {
         Real N2 = f_(phi*(x2-stdDeviation()));
         Real B_ = phi*(underlying() * dividendDiscount() * N1
                       - strike() * riskFreeDiscount() * N2);
+        results_.additionalResults["x2_B"] = x2;
         results_.additionalResults["Haug_B"] = B_;
         results_.additionalResults["phi"] = phi;
         return B_;
@@ -231,6 +243,7 @@ namespace QuantLib {
         // be infinity, resulting in a NaN for their products.  The limit should be 0.
         Real C_ = phi*(underlying() * dividendDiscount() * (N1 == 0.0 ? Real(0.0) : Real(powHS1 * N1))
                       - strike() * riskFreeDiscount() * (N2 == 0.0 ? Real(0.0) : Real(powHS0 * N2)));
+        results_.additionalResults["y1_C"] = y1;
         results_.additionalResults["Haug_C"] = C_;
         results_.additionalResults["eta"] = eta;
         results_.additionalResults["phi"] = phi;
@@ -248,6 +261,7 @@ namespace QuantLib {
         // be infinity, resulting in a NaN for their products.  The limit should be 0.
         Real D_ = phi*(underlying() * dividendDiscount() * (N1 == 0.0 ? Real(0.0) : Real(powHS1 * N1))
                       - strike() * riskFreeDiscount() * (N2 == 0.0 ? Real(0.0) : Real(powHS0 * N2)));
+        results_.additionalResults["y2_D"] = y2;
         results_.additionalResults["Haug_D"] = D_;
         results_.additionalResults["eta"] = eta;
         results_.additionalResults["phi"] = phi;
@@ -262,6 +276,8 @@ namespace QuantLib {
                 std::log(underlying()/barrier())/stdDeviation() + muSigma();
             Real y2 =
                 std::log(barrier()/underlying())/stdDeviation() + muSigma();
+            results_.additionalResults["x2_E"] = x2;
+            results_.additionalResults["y2_E"] = y2;
             Real N1 = f_(eta*(x2 - stdDeviation()));
             Real N2 = f_(eta*(y2 - stdDeviation()));
             // when N2 is zero, powHS0 might be infinity, resulting in
@@ -289,6 +305,7 @@ namespace QuantLib {
             Real sigmaSqrtT = stdDeviation();
             Real z = std::log(barrier()/underlying())/sigmaSqrtT
                 + lambda * sigmaSqrtT;
+            results_.additionalResults["z"] = z;
 
             Real N1 = f_(eta * z);
             Real N2 = f_(eta * (z - 2.0 * lambda * sigmaSqrtT));
