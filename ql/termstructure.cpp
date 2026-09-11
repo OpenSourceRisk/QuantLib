@@ -49,7 +49,10 @@ namespace QuantLib {
     }
         
     void TermStructure::setAdjustReferenceDate(const bool b) {
-        adjustReferenceDate_ = b;
+        if(moving_ && b != adjustReferenceDate_) {
+            adjustReferenceDate_ = b;
+            update();
+        }
     }
 
     void TermStructure::update() {

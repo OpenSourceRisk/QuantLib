@@ -65,6 +65,7 @@ namespace QuantLib {
     }
 
     void FixedRateCoupon::performCalculations() const {
+        CashFlow::performCalculations();
         amount_ = nominal() * (rate_.compoundFactor(accrualStartDate_, accrualEndDate_,
                                                     refPeriodStart_, refPeriodEnd_) -
                                1.0);

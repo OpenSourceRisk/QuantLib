@@ -2477,6 +2477,10 @@ target_link_libraries(ql_library PUBLIC
     $<$<BOOL:${QL_ENABLE_OPENMP}>:OpenMP::OpenMP_CXX>
 )
 
+if(NOT MSVC)
+	target_link_libraries(ql_library PUBLIC ${CMAKE_DL_LIBS})
+endif()
+
 install(TARGETS ql_library EXPORT QuantLibTargets
     ARCHIVE DESTINATION ${QL_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${QL_INSTALL_LIBDIR})

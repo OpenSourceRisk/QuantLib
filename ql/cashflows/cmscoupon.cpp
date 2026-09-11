@@ -83,7 +83,7 @@ namespace QuantLib {
         return *this;
     }
 
-    CmsLeg& CmsLeg::withPaymentLag(Natural lag) {
+    CmsLeg& CmsLeg::withPaymentLag(Integer lag) {
         paymentLag_ = lag;
         return *this;
     }

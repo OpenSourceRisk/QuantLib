@@ -41,6 +41,8 @@ namespace QuantLib {
     }
 
     void IndexedCashFlow::performCalculations() const {
+        CashFlow::performCalculations();
+
         Real I0 = baseFixing();
         Real I1 = indexFixing();
 

@@ -248,7 +248,7 @@ struct CommonVars {
         baseZeroRate = zciisData[0].rate/100.0;
         Date baseDate = ii->lastFixingDate();
         auto pCPIts = ext::make_shared<PiecewiseZeroInflationCurve<Linear>>(
-                                    evaluationDate, baseDate, observationLag, ii->frequency(), dcZCIIS, helpers);
+                                    evaluationDate, baseDate, ii->frequency(), dcZCIIS, helpers);
         pCPIts->recalculate();
         cpiUK.linkTo(pCPIts);
 

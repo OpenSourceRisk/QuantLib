@@ -215,7 +215,7 @@ if (QL_BUILD_TEST_SUITE)
 
     add_executable(ql_benchmark quantlibbenchmark.cpp)
     set_target_properties(ql_benchmark PROPERTIES OUTPUT_NAME "quantlib-benchmark")
-    target_link_libraries(ql_benchmark PRIVATE ql_test)
+    target_link_libraries(ql_benchmark PRIVATE ql_test Boost::filesystem)
     if (QL_INSTALL_BENCHMARK)
         install(TARGETS ql_benchmark RUNTIME DESTINATION ${QL_INSTALL_BINDIR})
     endif()

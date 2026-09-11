@@ -71,9 +71,19 @@ namespace QuantLib {
         return *this;
     }
 
+    DigitalCmsLeg& DigitalCmsLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+    }
+
     DigitalCmsLeg& DigitalCmsLeg::withPaymentAdjustment(
                                            BusinessDayConvention convention) {
         paymentAdjustment_ = convention;
+        return *this;
+    }
+
+    DigitalCmsLeg& DigitalCmsLeg::withPaymentLag(Integer lag) {
+        paymentLag_ = lag;
         return *this;
     }
 
@@ -204,7 +214,7 @@ namespace QuantLib {
                             callATM_, callPayoffs_,
                             putStrikes_, longPutOption_,
                             putATM_, putPayoffs_,
-                            replication_, nakedOption_);
+                            replication_, nakedOption_, paymentCalendar_);
     }
 
 }

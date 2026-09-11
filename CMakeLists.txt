@@ -175,7 +175,7 @@ endif()
 if (NOT DEFINED QL_BOOST_COMPONENTS)
     # Boost thread and unit_test_framework needed for tests and benchmark
     if (QL_BUILD_TEST_SUITE OR QL_BUILD_BENCHMARK)
-        set(QL_BOOST_COMPONENTS thread unit_test_framework)
+        set(QL_BOOST_COMPONENTS thread unit_test_framework filesystem)
     else()
         set(QL_BOOST_COMPONENTS thread)
     endif()
@@ -184,7 +184,7 @@ if (CMAKE_CXX_COMPILER STREQUAL "icpx")
     find_package(IntelDPCPP REQUIRED)
 endif()
 
-find_package(Boost ${QL_BOOST_VERSION} REQUIRED)
+find_package(Boost ${QL_BOOST_VERSION} REQUIRED COMPONENTS ${QL_BOOST_COMPONENTS})
 
 # Do not warn about Boost versions higher than 1.58.0
 set(Boost_NO_WARN_NEW_VERSIONS ON)

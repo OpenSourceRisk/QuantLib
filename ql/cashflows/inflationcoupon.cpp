@@ -67,6 +67,7 @@ namespace QuantLib {
     }
 
     void InflationCoupon::performCalculations() const {
+        CashFlow::performCalculations();
         QL_REQUIRE(pricer_, "pricer not set");
         // we know it is the correct type because checkPricerImpl checks on setting
         // in general pricer_ will be a derived class, as will *this on calling

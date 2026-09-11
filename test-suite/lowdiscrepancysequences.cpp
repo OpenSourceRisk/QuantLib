@@ -47,6 +47,12 @@ using namespace boost::unit_test_framework;
 
 using std::fabs;
 
+// For memory-constrained test environments, limit testing to degree 18
+// This corresponds to N_PRIMITIVES_UP_TO_DEGREE_18 (21200)
+#ifndef PPMT_MAX_TEST_DIM
+#define PPMT_MAX_TEST_DIM ((PPMT_MAX_DIM) < (21200) ? (PPMT_MAX_DIM) : (21200))
+#endif
+
 BOOST_FIXTURE_TEST_SUITE(QuantLibTests, TopLevelFixture)
 
 BOOST_AUTO_TEST_SUITE(LowDiscrepancyTests)
@@ -58,7 +64,8 @@ BOOST_AUTO_TEST_CASE(testSeedGenerator) {
 
 BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 
-    BOOST_TEST_MESSAGE("Testing " << PPMT_MAX_DIM <<
+    BOOST_TEST_MESSAGE("Testing " << PPMT_MAX_TEST_DIM
+                                  <<
                        " primitive polynomials modulo two...");
 
     const Size jj[] = {
@@ -70,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 
     Size i=0,j=0,n=0;
     BigInteger polynomial=0;
-    while (n<PPMT_MAX_DIM || polynomial!=-1) {
+    while (n < PPMT_MAX_TEST_DIM || polynomial != -1) {
         if (polynomial==-1) {
             ++i; // Increase degree index
             j=0; // Reset index of polynomial in degree.
@@ -92,16 +99,18 @@ BOOST_AUTO_TEST_CASE(testPolynomialsModuloTwo) {
 BOOST_AUTO_TEST_CASE(testRandomizedLowDiscrepancySequence) {
 
     BOOST_TEST_MESSAGE("Testing randomized low-discrepancy sequences up to "
-                       "dimension " << PPMT_MAX_DIM << "...");
+                       "dimension "
+                       << PPMT_MAX_TEST_DIM << "...");
 
-    RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng> > rldsg(PPMT_MAX_DIM);
+    RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng>> rldsg(
+        PPMT_MAX_TEST_DIM);
     rldsg.nextSequence();
     rldsg.lastSequence();
     rldsg.nextRandomizer();
 
     MersenneTwisterUniformRng t0;
-    SobolRsg t1(PPMT_MAX_DIM);
-    RandomSequenceGenerator<MersenneTwisterUniformRng> t2(PPMT_MAX_DIM);
+    SobolRsg t1(PPMT_MAX_TEST_DIM);
+    RandomSequenceGenerator<MersenneTwisterUniformRng> t2(PPMT_MAX_TEST_DIM);
     RandomizedLDS<SobolRsg, RandomSequenceGenerator<MersenneTwisterUniformRng> > rldsg2(t1, t2);
     rldsg2.nextSequence();
     rldsg2.lastSequence();
@@ -182,14 +191,13 @@ BOOST_AUTO_TEST_CASE(testRandomizedLattices){
 
 BOOST_AUTO_TEST_CASE(testSobol) {
 
-    BOOST_TEST_MESSAGE("Testing Sobol sequences up to dimension "
-                       << PPMT_MAX_DIM << "...");
+    BOOST_TEST_MESSAGE("Testing Sobol sequences up to dimension " << PPMT_MAX_TEST_DIM << "...");
 
     std::vector<Real> point;
     Real tolerance = 1.0e-15;
 
     // testing max dimensionality
-    Size dimensionality = PPMT_MAX_DIM;
+    Size dimensionality = PPMT_MAX_TEST_DIM;
     BigNatural seed = 123456;
     SobolRsg rsg(dimensionality, seed);
     Size points = 100, i;
@@ -272,7 +280,7 @@ BOOST_AUTO_TEST_CASE(testFaure) {
     Real tolerance = 1.0e-15;
 
     // testing "high" dimensionality
-    Size dimensionality = PPMT_MAX_DIM;
+    Size dimensionality = PPMT_MAX_TEST_DIM;
     FaureRsg rsg(dimensionality);
     Size points = 100, i;
     for (i=0; i<points; i++) {
@@ -421,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testHalton) {
     Real tolerance = 1.0e-15;
 
     // testing "high" dimensionality
-    Size dimensionality = PPMT_MAX_DIM;
+    Size dimensionality = PPMT_MAX_TEST_DIM;
     HaltonRsg rsg(dimensionality, 0, false, false);
     Size points = 100, i, k;
     for (i=0; i<points; i++) {
